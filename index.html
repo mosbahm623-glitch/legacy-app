@@ -639,39 +639,103 @@ function showScreen(s){
 // DASHBOARD
 async function loadDashboard(){
   try{
-    const allEntries=await sb('entries?order=created_at');
-    const allAdvances=await sb('advances?order=created_at');
-    let totalInc=0,totalExp=0;
-    allEntries.forEach(e=>{if(e.type==='i')totalInc+=e.amount;else totalExp+=e.amount;});
-    // Open advances remaining
-    const allInstallments=await sb('advance_installments?order=created_at');
-    let openAdvTotal=0;
-    allAdvances.filter(a=>a.status==='open').forEach(a=>{
-      const given=allInstallments.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
-      const spent=allEntries.filter(e=>e.advance_id===a.id).reduce((s,e)=>s+e.amount,0);
-      openAdvTotal+=(given-spent);
-    });
-    const bal=totalInc-totalExp;
-    const real=bal-openAdvTotal;
-    document.getElementById('dInc').textContent=fn(totalInc)+' ج';
-    document.getElementById('dExp').textContent=fn(totalExp)+' ج';
-    document.getElementById('dAdv').textContent=fn(openAdvTotal)+' ج';
-    document.getElementById('dBal').textContent=fn(bal)+' ج';
-    document.getElementById('dBal').className='dkv '+(bal<0?'neg':'grn');
-    document.getElementById('dReal').textContent=fn(real)+' ج';
-    document.getElementById('dReal').style.color=real<0?'#FAE5E5':'#D4C49A';
-    // Projects summary
-    const pl=document.getElementById('dProjList');
-    if(!allProjects.length){pl.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
-    pl.innerHTML=allProjects.map(p=>{
-      const pInc=allEntries.filter(e=>e.project_id===p.id&&e.type==='i').reduce((s,e)=>s+e.amount,0);
-      const pExp=allEntries.filter(e=>e.project_id===p.id&&e.type==='e').reduce((s,e)=>s+e.amount,0);
-      const pBal=pInc-pExp;
-      return '<div class="proj-row"><div><div class="proj-nm">'+p.name+'</div><div style="font-size:10px;color:#888">وارد: '+fn(pInc)+' · مصروف: '+fn(pExp)+'</div></div><div class="proj-bal" style="color:'+(pBal<0?'#922B21':'#1E6B3A')+'">'+fn(pBal)+' ج</div></div>';
-    }).join('');
-  }catch(e){console.error(e);}
-}
 
+    const allProjects = await sb('projects?order=created_at');
+    const allEntries = await sb('entries?order=created_at');
+    const allAdvances = await sb('advances?order=created_at');
+    const allInstallments = await sb('advance_installments?order=created_at');
+
+    let totalInc = 0;
+    let totalExp = 0;
+
+    allEntries.forEach(e=>{
+      if(e.type==='i') totalInc += Number(e.amount||0);
+      else totalExp += Number(e.amount||0);
+    });
+
+    let openAdvTotal = 0;
+
+    allAdvances
+      .filter(a=>a.status==='open')
+      .forEach(a=>{
+
+        const given = allInstallments
+          .filter(i=>i.advance_id===a.id)
+          .reduce((s,i)=>s+Number(i.amount||0),0);
+
+        const spent = allEntries
+          .filter(e=>e.advance_id===a.id)
+          .reduce((s,e)=>s+Number(e.amount||0),0);
+
+        openAdvTotal += (given - spent);
+      });
+
+    const bal = totalInc - totalExp;
+    const real = bal - openAdvTotal;
+
+    document.getElementById('dInc').textContent = fn(totalInc)+' ج';
+    document.getElementById('dExp').textContent = fn(totalExp)+' ج';
+    document.getElementById('dAdv').textContent = fn(openAdvTotal)+' ج';
+    document.getElementById('dBal').textContent = fn(bal)+' ج';
+    document.getElementById('dReal').textContent = fn(real)+' ج';
+
+    document.getElementById('dBal').className =
+      'dkv ' + (bal<0 ? 'neg':'grn');
+
+    document.getElementById('dReal').style.color =
+      real<0 ? '#922B21' : '#D4C49A';
+
+    const pl = document.getElementById('dProjList');
+
+    if(!allProjects.length){
+      pl.innerHTML = '<div class="emp">لا توجد مشاريع</div>';
+      return;
+    }
+
+    pl.innerHTML = allProjects.map(p=>{
+
+      const pEntries = allEntries.filter(
+        e => e.project_id === p.id
+      );
+
+      const pInc = pEntries
+        .filter(e=>e.type==='i')
+        .reduce((s,e)=>s+Number(e.amount||0),0);
+
+      const pExp = pEntries
+        .filter(e=>e.type==='e')
+        .reduce((s,e)=>s+Number(e.amount||0),0);
+
+      const pBal = pInc - pExp;
+
+      return `
+        <div class="proj-row">
+          <div>
+            <div class="proj-nm">${p.name}</div>
+            <div style="font-size:10px;color:#888">
+              وارد: ${fn(pInc)}
+              ·
+              مصروف: ${fn(pExp)}
+            </div>
+          </div>
+
+          <div class="proj-bal"
+            style="color:${pBal<0?'#922B21':'#1E6B3A'}">
+
+            ${fn(pBal)} ج
+
+          </div>
+        </div>
+      `;
+
+    }).join('');
+
+  }catch(e){
+    console.error(e);
+    document.getElementById('dProjList').innerHTML =
+      '<div class="emp">❌ خطأ في تحميل البيانات</div>';
+  }
+}
 // PROJECTS
 async function loadAllProjects(){allProjects=await sb('projects?order=created_at');populateAdvProjSel();}
 function populateAdvProjSel(){
