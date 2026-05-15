@@ -507,7 +507,7 @@ let cT='e',cTab='s',edId=null,edType=null,imType='e',xOK=false,curScreen='dash';
 
 async function sb(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
-  if(method==='POST'||method==='PATCH')h['Prefer']='return=representation';else h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';
+  if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}
   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});
   if(!r.ok)throw new Error(await r.text());
   if(r.status===204)return null;
