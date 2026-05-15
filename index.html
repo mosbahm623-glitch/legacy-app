@@ -639,7 +639,7 @@ function showScreen(s){
 // DASHBOARD
 async function loadDashboard(){
   try{
-    const allEntries=await sb('const allEntries=await sb('entries?select=*&order=created_at&limit=10000');
+    const allEntries=await sb('entries?select=*&order=created_at&limit=10000');
     const allAdvances=await sb('advances?order=created_at');
     let totalInc=0,totalExp=0;
     allEntries.forEach(e=>{if(e.type==='i')totalInc+=e.amount;else totalExp+=e.amount;});
