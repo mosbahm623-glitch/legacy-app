@@ -513,7 +513,7 @@ async function sb(path,method,body){   const h={'apikey':AK,'Authorization':'Bea
   if(r.status===204)return null;
   return r.json();
 }
-async function sbAuth(path,method,body){
+async function sb(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
   const r=await fetch(SB+'/auth/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});
   if(!r.ok){const e=await r.json();throw new Error(e.error_description||e.message||'خطأ');}
