@@ -505,15 +505,15 @@ let token=null,uid=null,uRole=null,uName='';
 let projects=[],entries=[],allProjects=[],advances=[],curPid=null,curAdv=null;
 let cT='e',cTab='s',edId=null,edType=null,imType='e',xOK=false,curScreen='dash';
 
-async function sb(path,method,body){   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};   if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});   if(!r.ok)throw new Error(await r.text());   if(r.status===204)return null;   return r.json(); }   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};   if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});   if(!r.ok)throw new Error(await r.text());   if(r.status===204)return null;   return r.json(); }   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};   if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});   if(!r.ok)throw new Error(await r.text());   if(r.status===204)return null;   return r.json(); }   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};   if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});   if(!r.ok)throw new Error(await r.text());   if(r.status===204)return null;   return r.json(); }
+async function sb(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
-  if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';if(method==='POST'||method==='PATCH'){h['Prefer']='return=representation';}else{h['Prefer']='count=none';h['Range-Unit']='items';h['Range']='0-9999';}}
+  if(method==='POST'||method==='PATCH')h['Prefer']='return=representation';
   const r=await fetch(SB+'/rest/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});
   if(!r.ok)throw new Error(await r.text());
   if(r.status===204)return null;
   return r.json();
 }
-async function sb(path,method,body){
+async function sbAuth(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
   const r=await fetch(SB+'/auth/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});
   if(!r.ok){const e=await r.json();throw new Error(e.error_description||e.message||'خطأ');}
@@ -639,7 +639,7 @@ function showScreen(s){
 // DASHBOARD
 async function loadDashboard(){
   try{
-    const allEntries=await sb('entries?select=*&order=created_at&limit=10000');
+    const allEntries=await sb('entries?order=created_at');
     const allAdvances=await sb('advances?order=created_at');
     let totalInc=0,totalExp=0;
     allEntries.forEach(e=>{if(e.type==='i')totalInc+=e.amount;else totalExp+=e.amount;});
