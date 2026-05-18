@@ -4265,9 +4265,12 @@ async function repAdvExportExcel(){
 // ── PDF EXPORT ──
 async function repExportPDF(){
   const d=_repFilterData;
-  if(!d||!d.filtered.length){alert('لا يوجد بيانات');return;}
-  let profileMap={};
-  try{const profiles=await sb('profiles');profiles.forEach(p=>{profileMap[p.id]=p.name||'—';});}catch(e){}
+  if(!d||!d.filtered.length){alert('شغّل الفلتر أولاً ثم اضغط عرض');return;}
+  // استخدم الـ cache الموجود من البحث أو اجيب الـ profiles
+  let profileMap=_profMapCache||{};
+  if(!_profMapCache){
+    try{const profiles=await sb('profiles');profiles.forEach(p=>{profileMap[p.id]=p.name||'—';});_profMapCache=profileMap;}catch(e){}
+  }
   const rows=d.filtered.map((e,i)=>{
     const proj=allProjects.find(p=>p.id===e.project_id);
     const c=e.type==='i'?'#1E6B3A':'#922B21';
