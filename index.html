@@ -2340,11 +2340,11 @@ async function loadAdvDetail(){
         var canEditAdv=uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid);
         var db2=canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:#1D3C2A'>&#9998;</button><button class='db' onclick='delAdvEntry("${e2.id}")'>&#128465;</button>`:'';
         var seqBadge=e2.seq?`<span class='nb'>#${e2.seq}</span>`:'';
-        return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${e2.entry_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} &#x62c;</div>${db2}</div></div>`;
+        return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} &#x62c;</div>${db2}</div></div>`;
       }).join('');
       const pendingHtml=pendingAdvEntries.map(e2=>{
         var pName=projMap[e2.project_id]||'&mdash;';
-        return `<div class='rw' style='opacity:.75;border:1px dashed #F2C94C;background:#FFFDE7'><div class='ri'><div class='rd'>&#x23f3; ${e2.description||'&mdash;'} <span style='font-size:10px;color:#856404;background:#FFF3CD;padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${e2.entry_date||'&mdash;'}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:#856404'>${fn(e2.amount)} &#x62c;</div></div></div>`;
+        return `<div class='rw' style='opacity:.75;border:1px dashed #F2C94C;background:#FFFDE7'><div class='ri'><div class='rd'>&#x23f3; ${e2.description||'&mdash;'} <span style='font-size:10px;color:#856404;background:#FFF3CD;padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:#856404'>${fn(e2.amount)} &#x62c;</div></div></div>`;
       }).join('');
       ae.innerHTML=approvedHtml+pendingHtml;
     }
@@ -4425,9 +4425,17 @@ async function downloadAdvPDF(){
       </div>
     </div>
     </body></html>`;
-    const w=window.open('','_blank');
-    if(w){w.document.write(html);w.document.close();}
-    setSav('✅ تم فتح PDF','ok');
+    // تحميل كـ HTML file قابل للطباعة والمشاركة
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='تقرير-عهدة-'+(curAdv?.person_name||'report')+'-'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setSav('✅ تم التحميل — افتح الملف واضغط Ctrl+P لتصديره PDF','ok');
   }catch(e){setSav('❌ خطأ: '+e.message,'er');}
 }
 
