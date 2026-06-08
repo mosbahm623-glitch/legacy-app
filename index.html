@@ -163,6 +163,9 @@
           <span class="sb-icon">💾</span><span class="sb-label">نسخة احتياطية</span>
         </button>
 
+        <button class="sb-item" id="sbi-archive" style="display:none" onclick="showScreen('archive')">
+          <span class="sb-icon">📦</span><span class="sb-label">الأرشيف</span>
+        </button>
         <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
           <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
         </button>
@@ -351,6 +354,7 @@
           <select id="ps" onchange="sw(this.value)"></select>
           <button class="gsm" id="editPBtn" onclick="editProject()" title="تعديل المشروع" class="btn-gsm-blue">✏️</button>
           <button class="gsm" id="addPBtn" onclick="np()">+ مشروع</button>
+          <button class="gsm gsm-archive" id="archPBtn" onclick="archiveProject()" title="أرشفة المشروع" style="display:none">📦</button>
           <button class="gsm" id="delPBtn" onclick="dp()" class="btn-gsm-red">🗑</button>
         </div>
         <div class="dates">
@@ -837,6 +841,23 @@
       </div><!-- end repScreen -->
 
 
+
+      <!-- ARCHIVE SCREEN -->
+      <div id="archiveScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div class="arch-header">
+          <div class="arch-header-title">
+            <span class="arch-header-icon">📦</span>
+            <div>
+              <div class="arch-header-h1">أرشيف المشاريع</div>
+              <div class="arch-header-sub" id="archCount">جاري التحميل...</div>
+            </div>
+          </div>
+          <div class="arch-search-wrap">
+            <input class="arch-search-input" id="archSearchInput" placeholder="🔍 ابحث باسم المشروع..." oninput="filterArchive(this.value)">
+          </div>
+        </div>
+        <div id="archivedProjList" class="arch-list"></div>
+      </div><!-- end archiveScreen -->
 
     </div><!-- end main-content -->
   </div><!-- end app-body -->
