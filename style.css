@@ -2172,3 +2172,6 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
 body.dark-mode .arch-card{border-color:var(--border-mid)}
 body.dark-mode .arch-stat{background:var(--bg-gray)}
 @media(max-width:540px){.arch-stats{grid-template-columns:1fr 1fr}.arch-header{flex-direction:column;align-items:flex-start}.arch-search-wrap{max-width:100%;width:100%}}
+
+.sb-label-col{display:flex;flex-direction:column;gap:1px}
+.sb-backup-date{font-size:9px;color:rgba(212,196,154,.45);font-family:'Manrope',sans-serif;letter-spacing:.3px}
