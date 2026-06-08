@@ -317,6 +317,25 @@ function toggleLpass(){
   if(inp.type==='password'){inp.type='text';if(ico){ico.className='ti ti-eye-off';}}
   else{inp.type='password';if(ico){ico.className='ti ti-eye';}}
 }
+function friendlyError(e){
+  const msg=e?.message||e?.error||String(e)||'';
+  if(!navigator.onLine)return'لا يوجد اتصال بالإنترنت';
+  if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('fetch'))return'تعذّر الاتصال بالخادم — تحقق من الإنترنت';
+  if(msg.includes('JWT')||msg.includes('token')||msg.includes('session'))return'انتهت جلستك — سجّل الدخول مجدداً';
+  if(msg.includes('duplicate')||msg.includes('unique'))return'البيانات موجودة مسبقاً';
+  if(msg.includes('foreign key')||msg.includes('violates'))return'لا يمكن حذف هذا العنصر — مرتبط ببيانات أخرى';
+  if(msg.includes('permission')||msg.includes('policy')||msg.includes('not allowed'))return'ليس لديك صلاحية لهذا الإجراء';
+  if(msg.includes('timeout')||msg.includes('timed out'))return'انتهت مهلة الاتصال — حاول مرة أخرى';
+  if(msg.includes('404')||msg.includes('Not Found'))return'البيانات غير موجودة';
+  if(msg.includes('500')||msg.includes('Internal'))return'خطأ في الخادم — حاول مرة أخرى';
+  if(msg.includes('Invalid login')||msg.includes('Invalid email')||msg.includes('credentials'))return'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+  if(msg.includes('Email not confirmed'))return'البريد الإلكتروني غير مفعّل — تحقق من بريدك';
+  if(msg.includes('Too many requests'))return'محاولات كثيرة — انتظر دقيقة وحاول مجدداً';
+  if(msg.includes('row-level security')||msg.includes('RLS'))return'ليس لديك صلاحية الوصول';
+  if(msg.length>0&&msg.length<60)return msg;
+  return'حدث خطأ غير متوقع — حاول مرة أخرى';
+}
+
 async function login(){
   const email=document.getElementById('lemail').value.trim();
   const pass=document.getElementById('lpass').value;
@@ -327,7 +346,7 @@ async function login(){
     token=d.access_token;uid=d.user.id;uEmail=email;
     localStorage.setItem('lg_tk',token);localStorage.setItem('lg_uid',uid);localStorage.setItem('lg_em',email);
     await initApp();
-  }catch(e){setLS('❌ '+e.message,'er');}
+  }catch(e){setLS('❌ '+friendlyError(e),'er');}
 }
 async function logout(){
   try{await sbAuth('logout','POST');}catch(e){console.error(e);}
@@ -754,7 +773,7 @@ async function backupAll(){
     setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة','ok');
     msg.style.color='var(--primary-btn)';
   }catch(e){
-    setSav('❌ خطأ: '+e.message,'er');
+    setSav('❌ '+friendlyError(e),'er');
     msg.style.color='var(--danger)';
   }
   btn.disabled=false;
@@ -788,7 +807,7 @@ async function exportAllProjects(){
     entries=allEntries.filter(e=>e.project_id===curPid);
     setSav('✅ تم تصدير '+total+' مشروع بنجاح','ok');
   }catch(e){
-    setSav('❌ خطأ: '+e.message,'er');
+    setSav('❌ '+friendlyError(e),'er');
   }
   if(btn){btn.disabled=false;}
 }
@@ -1200,7 +1219,7 @@ async function loadProjects(){
     if(!projects.length&&uRole==='admin'){const p=await sb('projects','POST',{name:'مشروع جديد',start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects=allProjects;}
     if(projects.length){curPid=projects[0].id;await loadEntries();}
     setSav('☁️ متصل — بياناتك محفوظة','ok');if(curScreen==='proj'||!curScreen)rp();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 async function loadEntries(){if(!curPid)return;entries=await sb('entries?project_id=eq.'+curPid+'&order=created_at');}
 
@@ -1236,7 +1255,7 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     if(cT==='e'&&!['s','i','j','m'].includes(cTab))cTab=c;
     rp();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 // ══════ PASSWORD CONFIRMATION MODAL ══════
 function confirmWithPassword(actionLabel, actionIcon, onConfirmed){
@@ -1310,7 +1329,7 @@ async function de(id){
       allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);
       setSav('✅ تم الحذف','ok');
       rp();
-    }catch(e){setSav('❌ خطأ','er');}
+    }catch(e){setSav('❌ '+friendlyError(e),'er');}
   });
 }
 
@@ -1341,7 +1360,7 @@ async function sed(){
         setSav('✅ تم التعديل','ok');
       }
       cep();rp();
-    }catch(e){setSav('❌ خطأ','er');}
+    }catch(e){setSav('❌ '+friendlyError(e),'er');}
   });
 }
 async function sw(pid){
@@ -1352,8 +1371,8 @@ async function sw(pid){
   if(idt&&!idt.value)idt.value=ts();
   rp();
 }
-async function np(){const n=prompt('اسم المشروع الجديد:');if(!n||!n.trim())return;try{const p=await sb('projects','POST',{name:n.trim(),start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ خطأ','er');}}
-async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}if(!confirm('حذف "'+curP().name+'" بالكامل؟'))return;try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ خطأ','er');}}
+async function np(){const n=prompt('اسم المشروع الجديد:');if(!n||!n.trim())return;try{const p=await sb('projects','POST',{name:n.trim(),start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}if(!confirm('حذف "'+curP().name+'" بالكامل؟'))return;try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 
 // ══ أرشفة المشاريع ══
 async function archiveProject(){
@@ -1369,7 +1388,7 @@ async function archiveProject(){
     else{showScreen('dash');}
     populateAdvProjSel();
     buildSidebarProjects();
-  }catch(e){notify('❌ خطأ: '+e.message,'err');}
+  }catch(e){notify('❌ '+friendlyError(e),'err');}
 }
 
 let _archiveData=[];
@@ -1447,7 +1466,7 @@ async function restoreProject(pid,name){
     await loadAllProjects();
     await loadProjects();
     loadArchivedProjects();
-  }catch(e){notify('❌ خطأ: '+e.message,'err');}
+  }catch(e){notify('❌ '+friendlyError(e),'err');}
 }
 
 function editProject(){
@@ -1608,7 +1627,7 @@ async function confirmImport(){
     document.getElementById('imT').value='';
     document.getElementById('im').style.display='none';
     rp();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function importFromXlsx(input){
@@ -1650,7 +1669,7 @@ async function importFromXlsx(input){
     input.value='';
     setSav('','ok');
     showImportPreview(ents,sk);
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');input.value='';}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');input.value='';}
 }
 async function doim(){try{
   const txt=document.getElementById('imT').value.trim();
@@ -1858,7 +1877,7 @@ async function createAdv(){
     document.getElementById('advName').value='';
     document.getElementById('advNotes').value='';
     await loadAdvList();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function openAdv(id){try{
@@ -2011,7 +2030,7 @@ async function addAdvEntry(){
     document.getElementById('advMq').value='';
     await loadAdvDetail();
     if(curPid===pid)await loadEntries();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 var editingAdvEntryId=null;
@@ -2059,7 +2078,7 @@ async function delAdvEntry(id){
   if(!confirm('حذف هذا المصروف؟'))return;
   setSav('💾 جاري الحذف...','ng');
   try{await sb('entries?id=eq.'+id,'DELETE');setSav('✅ تم الحذف','ok');await loadAdvDetail();}
-  catch(e){setSav('❌ خطأ','er');}
+  catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 function toggleAdvIm(){const im=document.getElementById('advIm');im.style.display=im.style.display==='block'?'none':'block';}
@@ -2105,7 +2124,7 @@ async function doAdvIm(){
     document.getElementById('advIm').style.display='none';
     await loadAdvDetail();
     await loadEntries();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 
@@ -2126,14 +2145,14 @@ async function addInstallment(){
     document.getElementById('advInstAmt').value='';
     document.getElementById('advInstNote').value='';
     await loadAdvDetail();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function delInstall(id){
   if(!confirm('حذف هذه الدفعة؟'))return;
   setSav('💾 جاري الحذف...','ng');
   try{await sb('advance_installments?id=eq.'+id,'DELETE');setSav('✅ تم الحذف','ok');await loadAdvDetail();}
-  catch(e){setSav('❌ خطأ','er');}
+  catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function editAdv(){
@@ -2149,7 +2168,7 @@ async function editAdv(){
     setSav('✅ تم التعديل','ok');
     const idx=advances.findIndex(a=>a.id===curAdv.id);
     if(idx>-1){advances[idx].person_name=curAdv.person_name;advances[idx].notes=curAdv.notes;}
-  }catch(e){setSav('❌ خطأ','er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function deleteAdv(){
@@ -2162,7 +2181,7 @@ async function deleteAdv(){
     advances=advances.filter(a=>a.id!==curAdv.id);
     setSav('✅ تم حذف العهدة','ok');
     backToAdvList();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function toggleAdvStatus(){
@@ -2176,7 +2195,7 @@ async function toggleAdvStatus(){
     btn.style.background=isOpen?'var(--primary-btn)':'var(--warning-text)';
     document.getElementById('advEntryFormDiv').style.display=isOpen&&uRole!=='viewer'?'block':'none';
     setSav('✅ تم تغيير حالة العهدة','ok');
-  }catch(e){setSav('❌ خطأ','er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 function backToAdvList(){
@@ -2208,11 +2227,11 @@ async function addUser(){
   if(!id2||!name){notify('ادخل الـ UID والاسم','err');return;}
   setSav('💾 جاري الإضافة...','ng');
   try{await sb('profiles','POST',{id:id2,name,role});setSav('✅ تم إضافة '+name,'ok');document.getElementById('nuUID').value='';document.getElementById('nuName').value='';await loadAdminPanel();}
-  catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
-async function togAcc(uid2,pid,btn){const isOn=btn.classList.contains('on');try{if(isOn){await sb('project_access?user_id=eq.'+uid2+'&project_id=eq.'+pid,'DELETE');btn.classList.remove('on');}else{await sb('project_access','POST',{user_id:uid2,project_id:pid});btn.classList.add('on');}setSav('✅ تم','ok');}catch(e){setSav('❌ خطأ','er');}}
-async function chRole(uid2,role){try{await sb('profiles?id=eq.'+uid2,'PATCH',{role});setSav('✅ تم','ok');}catch(e){setSav('❌ خطأ','er');}}
-async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ خطأ','er');}}
+async function togAcc(uid2,pid,btn){const isOn=btn.classList.contains('on');try{if(isOn){await sb('project_access?user_id=eq.'+uid2+'&project_id=eq.'+pid,'DELETE');btn.classList.remove('on');}else{await sb('project_access','POST',{user_id:uid2,project_id:pid});btn.classList.add('on');}setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function chRole(uid2,role){try{await sb('profiles?id=eq.'+uid2,'PATCH',{role});setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 
 async function xl(){const msg=document.getElementById('emsg');msg.textContent='جاري تحميل المكتبة...';document.getElementById('eb').disabled=true;try{if(!xOK){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>{xOK=true;res();};s.onerror=rej;document.head.appendChild(s);});}msg.textContent='جاري بناء الملف...';await bld();msg.textContent='✓ تم التحميل';}catch(e){msg.textContent='خطأ: '+e.message;}document.getElementById('eb').disabled=false;}
 async function bld(){
@@ -2858,7 +2877,7 @@ async function downloadDashReport(){
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
     a.download='تقرير_'+d.projName+'_'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.xlsx';a.click();
     setSav('✅ تم التحميل','ok');
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 // ══ PDF HELPER ══
@@ -3191,7 +3210,7 @@ async function downloadAdvReport(){
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
     a.download='عهدة_'+(curAdv?.person_name||'report')+'_'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.xlsx';a.click();
     setSav('✅ تم التحميل','ok');
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function downloadAdvPDF(){
@@ -3244,7 +3263,7 @@ async function downloadAdvPDF(){
       _pdfFooter()+_pdfClose();
     openPrintWindow(html);
     setSav('✅ تم فتح التقرير','ok');
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 // ══════════════════════════════════════════
@@ -3696,7 +3715,7 @@ async function runRepAdvFilter(){
       if(ctx._chartInst)ctx._chartInst.destroy();
       ctx._chartInst=new Chart(ctx,{type:'bar',data:{labels:bRows.map(r=>_monthLabel(r.y,r.m)),datasets:[{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fn(c.parsed.y)} ج`}}},scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}}});
     });
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 function clearRepAdvFilter(){
@@ -4345,7 +4364,7 @@ async function saveMqPay(){
       msg.textContent='⏳ في انتظار موافقة الأدمن';msg.style.color='var(--warning-text)';
       setTimeout(()=>closeMqPay(),1200);
     }
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');msg.style.color='var(--danger-alt)';}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');msg.style.color='var(--danger-alt)';}
 }
 
 window.onload=checkSaved;
@@ -4528,7 +4547,7 @@ async function readAdvXls(input){
     advImRows=rows;
     showAdvImModal();
     setSav('☁️ متصل — بياناتك محفوظة','ok');
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 function showAdvImModal(){
@@ -4572,7 +4591,7 @@ async function confirmAdvImport(){
     closeAdvImModal();
     await loadAdvDetail();
     await loadEntries();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 // ══════════ SEARCH ══════════
@@ -4818,7 +4837,7 @@ async function downloadAdvTemplate(){
     a.download='advance_template_'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.xlsx';
     a.click();
     setSav('✅ تم تحميل الـ Template','ok');
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 // ══════════ APPROVAL SYSTEM ══════════
@@ -4957,7 +4976,7 @@ async function editAndApproveEntry(id){
     document.body.appendChild(ov);
     ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
     setTimeout(()=>initDateInput(document.getElementById('eaDate')),0);
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function confirmEditApprove(id){
@@ -4997,7 +5016,7 @@ async function confirmEditApprove(id){
     setSav(`✅ تم الحفظ في مشروع "${projName}"${ newProjId!==r.project_id?' (تم النقل)':''}`,  'ok');
     updatePendingBadge();
     loadApprovals();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function approveEntry(id){
@@ -5022,7 +5041,7 @@ async function approveEntry(id){
     setSav('✅ تمت الموافقة وتم حفظ القيد','ok');
     updatePendingBadge();
     loadApprovals();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function rejectEntry(id){
@@ -5032,7 +5051,7 @@ async function rejectEntry(id){
     setSav('🗑️ تم رفض القيد','ng');
     updatePendingBadge();
     loadApprovals();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 // ══════════════════════════════════════
 
@@ -5053,7 +5072,7 @@ async function approveAdv(id){
     await sb('pending_advances?id=eq.'+id,'DELETE');
     updatePendingBadge();
     loadApprovals();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 async function rejectAdv(id){
@@ -5063,7 +5082,7 @@ async function rejectAdv(id){
     setSav('🗑️ تم الرفض','ng');
     updatePendingBadge();
     loadApprovals();
-  }catch(e){setSav('❌ خطأ: '+e.message,'er');}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
 if('serviceWorker' in navigator){
