@@ -67,7 +67,6 @@ const SB='https://ctcoqgluaytwelnutrox.supabase.co';
 const AK='sb_publishable_9BElzafnGGf7yLjL4QimPA_eYqg0eeN';
 let token=null,uid=null,uRole=null,uName='',uEmail='';
 let projects=[],entries=[],allProjects=[],allEntries=[],advances=[],allInstallments=[],curPid=null,curAdv=null;
-let allProjectsMap={}; // كل المشاريع (نشطة + مؤرشفة) للبحث عن الاسم في التقارير
 let cT='e',cTab='s',edId=null,edType=null,imType='e',xOK=false,curScreen='proj';
 let allChatUsers=[];
 let _rtEntCh=null,_rtAdvCh=null;
@@ -313,9 +312,9 @@ function notify(msg, type){
 
 function toggleLpass(){
   const inp=document.getElementById('lpass');
-  const btn=document.getElementById('lEyeBtn');
-  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
-  else{inp.type='password';btn.textContent='👁';}
+  const ico=document.getElementById('lEyeIcon');
+  if(inp.type==='password'){inp.type='text';if(ico){ico.className='ti ti-eye-off';}}
+  else{inp.type='password';if(ico){ico.className='ti ti-eye';}}
 }
 async function login(){
   const email=document.getElementById('lemail').value.trim();
@@ -365,7 +364,7 @@ async function initApp(){
   const saveProj=document.getElementById('sbi-save-proj');
   if(saveProj)saveProj.style.display=uRole==='admin'?'flex':'none';
   const mobNav=document.getElementById('mobBottomNav');
-  if(mobNav){if(window.innerWidth<768){mobNav.classList.add('nav-visible');}else{mobNav.classList.remove('nav-visible');}}
+  if(mobNav)mobNav.style.display=window.innerWidth<768?'flex':'none';
   if(uRole==='admin')updatePendingBadge();
   const canEdit=uRole==='admin'||uRole==='editor';
   document.getElementById('entryForm').style.display=canEdit?'block':'none';
@@ -443,14 +442,14 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
-  ['dash','adv','daily','admin','rep','search','approvals','archive'].forEach(x=>{
+  ['dash','adv','daily','admin','rep','search','approvals'].forEach(x=>{
     const el=document.getElementById('sbi-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -473,7 +472,6 @@ function showScreen(s){
   if(s==='approvals')loadApprovals();
   if(s==='projStatus')loadProjStatus();
   if(s==='timeline')loadTimeline();
-  if(s==='archive')loadArchivedProjects();
   closeSidebar();
 }
 
@@ -922,7 +920,7 @@ async function loadDashboard(){
     if(txnList){
       const recent=[...allEntries].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,8);
       txnList.innerHTML=recent.map(e=>{
-        const proj=allProjectsMap[e.project_id];
+        const proj=allProjects.find(p=>p.id===e.project_id);
         const ii=e.type==='i';
         return `<div class="d-txn-item" onclick="showScreen('proj');setTimeout(()=>{document.getElementById('ps').value='${e.project_id}';sw('${e.project_id}');},100)" style="cursor:pointer">
           <span class="d-txn-dot ${ii?'inc':'exp'}"></span>
@@ -955,7 +953,7 @@ async function loadDashboard(){
     if(incCount){incCount.textContent=recentInc.length||'';incCount.style.display=recentInc.length?'':'none';}
     if(incList){
       incList.innerHTML=recentInc.length?recentInc.map(e=>{
-        const proj=allProjectsMap[e.project_id];
+        const proj=allProjects.find(p=>p.id===e.project_id);
         return `<div class="d-inc-item" onclick="showScreen('proj');setTimeout(()=>{document.getElementById('ps').value='${e.project_id}';sw('${e.project_id}');},100)" style="cursor:pointer">
           <span class="d-inc-dot"></span>
           <div class="d-inc-info">
@@ -1114,11 +1112,6 @@ async function loadAllProjects(){
     sb('projects?order=created_at'),
     sb('entries?select=id,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
   ]);
-  // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
-  allProjectsMap={};
-  allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
-  // المشاريع النشطة بس (غير المؤرشفة)
-  allProjects=allProjects.filter(p=>!p.archived);
   // نحسب ملخص كل مشروع مرة واحدة ونخزنه
   projSummaries={};
   allProjects.forEach(p=>{
@@ -1129,11 +1122,6 @@ async function loadAllProjects(){
     const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
     projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
   });
-  // إظهار أزرار الأدمن
-  if(uRole==='admin'){
-    const archBtn=document.getElementById('sbi-archive');if(archBtn)archBtn.style.display='flex';
-    const archPBtn=document.getElementById('archPBtn');if(archPBtn)archPBtn.style.display='';
-  }
   populateAdvProjSel();
   buildSidebarProjects();
 }
@@ -1164,7 +1152,7 @@ async function ae(){
   if(cT==='e'&&!c){notify('ادخل البند','err');return;}
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
-  const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
+  const savedProjName=allProjects.find(p=>p.id===savedPid)?.name||'المشروع';
   const maxSeq2=allEntries.reduce((mx,e)=>Math.max(mx,e.entry_no||20260000),20260000);
   const nextSeq=maxSeq2<20260000?20260001:maxSeq2+1;
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,seq:uRole==='admin'?nextSeq:0,created_by:uid};
@@ -1305,127 +1293,6 @@ async function sw(pid){
 async function np(){const n=prompt('اسم المشروع الجديد:');if(!n||!n.trim())return;try{const p=await sb('projects','POST',{name:n.trim(),start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ خطأ','er');}}
 async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}if(!confirm('حذف "'+curP().name+'" بالكامل؟'))return;try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ خطأ','er');}}
 
-// ══ أرشفة المشاريع ══
-
-async function archiveProject(){
-  if(!curPid)return;
-  const p=curP();
-  if(!confirm('📦 أرشفة "'+p.name+'"؟\n\nسيختفي من القائمة الرئيسية ويمكن استعادته من الأرشيف.'))return;
-  try{
-    await sb('projects?id=eq.'+curPid,'PATCH',{archived:true});
-    allProjects=allProjects.filter(x=>x.id!==curPid);
-    projects=projects.filter(x=>x.id!==curPid);
-    notify('📦 تم أرشفة "'+p.name+'"','ok');
-    if(projects.length>0){curPid=projects[0].id;cTab='s';await loadEntries();rp();}
-    else{showScreen('dash');}
-    populateAdvProjSel();
-    buildSidebarProjects();
-  }catch(e){notify('❌ خطأ: '+e.message,'err');}
-}
-
-// بيانات الأرشيف كاملة (للفلترة)
-let _archiveData=[];
-
-async function loadArchivedProjects(){
-  const div=document.getElementById('archivedProjList');
-  const countEl=document.getElementById('archCount');
-  if(!div)return;
-  div.innerHTML='<div class="arch-empty"><div class="arch-empty-icon">⏳</div><div class="arch-empty-txt">جاري التحميل...</div></div>';
-  try{
-    // جيب المشاريع المؤرشفة مع قيودها
-    const archived=await sb('projects?archived=eq.true&order=created_at.desc&limit=1000');
-    if(!archived||!archived.length){
-      div.innerHTML='<div class="arch-empty"><div class="arch-empty-icon">📦</div><div class="arch-empty-txt">لا توجد مشاريع مؤرشفة</div><div class="arch-empty-sub">بعد أرشفة أي مشروع سيظهر هنا</div></div>';
-      if(countEl)countEl.textContent='لا توجد مشاريع';
-      return;
-    }
-    // جيب كل قيود المشاريع المؤرشفة
-    const pids=archived.map(p=>p.id);
-    let archEntries=[];
-    try{
-      archEntries=await sb('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id&limit=100000');
-    }catch(_){}
-    // احسب ملخص كل مشروع
-    _archiveData=archived.map(p=>{
-      const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
-      const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-      const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-      const bal=inc-expDirect;
-      const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-      return{...p,_inc:inc,_exp:expDirect,_bal:bal,_cats:cats,_count:pe.length};
-    });
-    if(countEl)countEl.textContent=_archiveData.length+' مشروع مؤرشف';
-    renderArchiveCards(_archiveData,div);
-  }catch(e){div.innerHTML='<div class="arch-empty"><div class="arch-empty-icon">❌</div><div class="arch-empty-txt">خطأ في التحميل</div><div class="arch-empty-sub">'+e.message+'</div></div>';}
-}
-
-function renderArchiveCards(data,div){
-  if(!data.length){
-    div.innerHTML='<div class="arch-empty"><div class="arch-empty-icon">🔍</div><div class="arch-empty-txt">لا نتائج للبحث</div></div>';
-    return;
-  }
-  div.innerHTML=data.map(p=>{
-    const bal=p._bal||0;
-    const balClass=bal>0?'pos':bal<0?'neg':'neu';
-    const balLabel=bal<0?'⚠ عجز':bal>0?'✅ رصيد':'—';
-    const catsHtml=p._cats&&p._cats.length
-      ?p._cats.slice(0,6).map(c=>`<span class="arch-cat-tag">${c}</span>`).join('')+(p._cats.length>6?`<span class="arch-cat-tag">+${p._cats.length-6}</span>`:'')
-      :'<span class="arch-cat-tag" style="color:var(--text-pale)">لا توجد بنود</span>';
-    const safeName=p.name.replace(/'/g,"\\'").replace(/"/g,"&quot;");
-    return `<div class="arch-card">
-      <div class="arch-card-top">
-        <div class="arch-card-name">${p.name}</div>
-        <div class="arch-card-badge">${p._count} قيد</div>
-      </div>
-      <div class="arch-card-body">
-        <div class="arch-card-dates">
-          <span>📅 البداية: ${p.start_date||'—'}</span>
-          <span>🏁 الإغلاق: ${p.close_date||'جارٍ'}</span>
-        </div>
-        <div class="arch-stats">
-          <div class="arch-stat">
-            <div class="arch-stat-lbl">الوارد</div>
-            <div class="arch-stat-val pos">${fn(p._inc)}</div>
-          </div>
-          <div class="arch-stat">
-            <div class="arch-stat-lbl">المصروف</div>
-            <div class="arch-stat-val neg">${fn(p._exp)}</div>
-          </div>
-          <div class="arch-stat">
-            <div class="arch-stat-lbl">${balLabel}</div>
-            <div class="arch-stat-val ${balClass}">${fn(Math.abs(bal))}</div>
-          </div>
-        </div>
-        <div class="arch-cats">${catsHtml}</div>
-        <div class="arch-card-footer">
-          <div class="arch-entries-count">📋 ${p._count} قيد محاسبي</div>
-          <button class="arch-restore-btn" onclick="restoreProject('${p.id}','${safeName}')">↩ استعادة</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function filterArchive(q){
-  if(!_archiveData.length)return;
-  const div=document.getElementById('archivedProjList');
-  const filtered=q.trim()?_archiveData.filter(p=>p.name.includes(q.trim())):_archiveData;
-  renderArchiveCards(filtered,div);
-}
-
-async function restoreProject(pid,name){
-  if(!confirm('↩ استعادة "'+name+'"؟\nسيظهر مجدداً في قائمة المشاريع.'))return;
-  try{
-    await sb('projects?id=eq.'+pid,'PATCH',{archived:false});
-    notify('✅ تم استعادة "'+name+'"','ok');
-    // حدّث الـ cache
-    await loadAllProjects();
-    await loadProjects();
-    // أعد تحميل شاشة الأرشيف
-    loadArchivedProjects();
-  }catch(e){notify('❌ خطأ: '+e.message,'err');}
-}
-
 function editProject(){
   const p=curP();
   if(!p)return;
@@ -1548,7 +1415,7 @@ function showImportPreview(ents,sk){
     :['#','النوع','المبلغ','البيان','التاريخ','المشروع'];
   table.innerHTML=`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${
     ents.slice(0,100).map((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       const typeCell=`<td><span style="padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;background:${e.type==='i'?'var(--success-glow)':'var(--danger-pale)'};color:${e.type==='i'?'var(--primary-btn)':'var(--danger)'}">${e.type==='i'?'▲ وارد':'▼ مصروف'}</span></td>`;
       const amtCell=`<td class="${e.type==='i'?'td-inc':'td-exp'}">${fn(e.amount)} ج</td>`;
       if(isExp)return `<tr><td style="color:var(--text-hint)">${i+1}</td>${typeCell}${amtCell}<td>${e.category||'—'}</td><td>${e.description||'—'}</td><td>${e.entry_date||'—'}</td><td>${e.contractor||'—'}</td><td>${proj?.name||'—'}</td></tr>`;
@@ -2766,7 +2633,7 @@ function runDashFilter(){
   const exp=filtered.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
   const bal=inc-exp;
 
-  const projName=projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
+  const projName=projId==='all'?'كل المشاريع':allProjects.find(p=>p.id===projId)?.name||'—';
   const period=(fromStr?fromStr:'بداية')+' → '+(toStr?toStr:'اليوم');
 
   const entriesSorted=[...filtered].sort((a,b)=>parseDt(b.entry_date)-parseDt(a.entry_date));
@@ -2788,7 +2655,7 @@ function runDashFilter(){
       </div>
       <div class="filter-entries">
         ${entriesSorted.map(e=>{
-          const proj=allProjectsMap[e.project_id];
+          const proj=allProjects.find(p=>p.id===e.project_id);
           return `<div class="fentry">
             <div class="fentry-type ${e.type}"></div>
             <div class="fentry-date">${cleanDate(e.entry_date)}</div>
@@ -2824,7 +2691,7 @@ async function downloadDashReport(){
     _xlHeader(ws,'📊 تقرير: '+d.projName,'الفترة: '+d.period+'  |  وارد: '+fn(d.inc)+' ج  |  مصاريف: '+fn(d.exp)+' ج  |  رصيد: '+fn(d.bal)+' ج',COLS);
     _xlHdrRow(ws,['التاريخ','النوع','البند','البيان','المبلغ (ج)','المشروع'],COLS);
     d.filtered.sort((a,b)=>parseDt(a.entry_date)-parseDt(b.entry_date)).forEach((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       const isI=e.type==='i';
       _xlDataRow(ws,[e.entry_date||'',isI?'▲ وارد':'▼ مصروف',e.category||'',e.description||'',e.amount,proj?.name||''],i,[null,isI?_XC.PS:_XC.RD,null,null,isI?_XC.PS:_XC.RD,null]);
     });
@@ -3060,7 +2927,7 @@ async function downloadDashPDF(){try{
   if(!d){notify('شغّل الفلتر أولاً','warn');return;}
   // Simple HTML print to PDF
   const rows=d.filtered.sort((a,b)=>parseDt(a.entry_date)-parseDt(b.entry_date)).map(e=>{
-    const proj=allProjectsMap[e.project_id];
+    const proj=allProjects.find(p=>p.id===e.project_id);
     const color=e.type==='i'?'var(--primary-btn)':'var(--danger)';
     return `<tr>
       <td>${cleanDate(e.entry_date)}</td>
@@ -3158,7 +3025,7 @@ async function downloadAdvReport(){
     _xlHdrRow(ws,['التاريخ','البند','البيان','المشروع','المبلغ (ج)'],COLS);
     const sorted=[...entries].sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date));
     sorted.forEach((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       _xlDataRow(ws,[e.entry_date||'—',e.category||'—',e.description||'—',proj?.name||'—',e.amount],i,[null,null,null,null,_XC.RD]);
     });
     _xlTotRow(ws,['إجمالي المصروفات','','','',totalSpent],COLS);
@@ -3183,7 +3050,7 @@ async function downloadAdvPDF(){
     const sorted=[...entries].sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date));
     const now=new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
     const rows=sorted.map((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       return `<tr>
         <td style="text-align:center;color:#888">${i+1}</td>
         <td style="font-size:10px">${cleanDate(e.entry_date)}</td>
@@ -3551,7 +3418,7 @@ function runRepFilter(){
   const inc=filtered.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
   const exp=filtered.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
   const bal=inc-exp;
-  const projName=projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
+  const projName=projId==='all'?'كل المشاريع':allProjects.find(p=>p.id===projId)?.name||'—';
   const period=(fromStr||'البداية')+' → '+(toStr||'اليوم');
   const sorted=[...filtered].sort((a,b)=>(parseDt(b.entry_date)||0)-(parseDt(a.entry_date)||0));
 
@@ -3706,7 +3573,7 @@ async function repExportExcel(){
     _xlHeader(ws,'📁 تقرير مشروع: '+d.projName,d.period+'  |  وارد: '+fn(d.inc)+' ج  |  مصاريف: '+fn(d.exp)+' ج  |  رصيد: '+fn(d.bal)+' ج',COLS);
     _xlHdrRow(ws,['التاريخ','النوع','المشروع','البند','البيان','المقاول','المبلغ (ج)'],COLS);
     d.filtered.sort((a,b)=>parseDt(a.entry_date)-parseDt(b.entry_date)).forEach((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       const isI=e.type==='i';
       _xlDataRow(ws,[cleanDate(e.entry_date)||'',isI?'▲ وارد':'▼ مصروف',proj?.name||'',e.category||'',e.description||'',e.contractor||'',e.amount],i,[null,isI?_XC.PS:_XC.RD,null,null,null,_XC.MQ,isI?_XC.PS:_XC.RD]);
     });
@@ -3733,7 +3600,7 @@ async function repAdvExportExcel(){
     _xlHeader(ws,'💼 تقرير عهدة: '+d.advName,d.period+'  |  إجمالي: '+fn(d.total)+' ج',COLS);
     _xlHdrRow(ws,['التاريخ','البند','البيان','المشروع','المقاول','المبلغ (ج)'],COLS);
     d.entries.forEach((e,i)=>{
-      const proj=allProjectsMap[e.project_id];
+      const proj=allProjects.find(p=>p.id===e.project_id);
       _xlDataRow(ws,[e.entry_date||'',e.category||'',e.description||'',proj?.name||'',e.contractor||'',e.amount],i,[null,null,null,null,_XC.MQ,_XC.RD]);
     });
     _xlTotRow(ws,['إجمالي الصرف','','','','',d.total],COLS);
@@ -3757,7 +3624,7 @@ async function repExportPDF(){
     _profMapCache=profileMap;
   }catch(e){console.warn('profiles error:',e);}
   const rows=d.filtered.map((e,i)=>{
-    const proj=allProjectsMap[e.project_id];
+    const proj=allProjects.find(p=>p.id===e.project_id);
     const isI=e.type==='i';
     const c=isI?'var(--primary-btn)':'var(--danger)';
     const etLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
@@ -3804,7 +3671,7 @@ function repAdvExportPDF(){
   const canvas=document.getElementById('advRepChart');
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
   const rows=d.entries.map((e,i)=>{
-    const proj=allProjectsMap[e.project_id];
+    const proj=allProjects.find(p=>p.id===e.project_id);
     return `<tr>
       <td class="rep-table-num">${i+1}</td>
       <td>${cleanDate(e.entry_date)||'—'}</td>
@@ -3901,7 +3768,7 @@ function contractorExportPDF(){
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
-    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
+    <td>${allProjects.find(p=>p.id===e.project_id)?.name||'—'}</td>
     <td>${e.category||'—'}</td>
     <td>${e.description||'—'}</td>
     <td class="amt neg">▼ ${fn(e.amount)} ج</td>
@@ -3930,7 +3797,7 @@ function contractorExportExcel(){
     const wb=new ExcelJS.Workbook();
     const ws=wb.addWorksheet('تقرير المقاول');
     ws.addRow(['م','التاريخ','المشروع','البند','البيان','المبلغ']);
-    d.filtered.forEach((e,i)=>ws.addRow([i+1,e.entry_date||'',allProjectsMap[e.project_id]?.name||'',e.category||'',e.description||'',e.amount]));
+    d.filtered.forEach((e,i)=>ws.addRow([i+1,e.entry_date||'',allProjects.find(p=>p.id===e.project_id)?.name||'',e.category||'',e.description||'',e.amount]));
     ws.addRow(['','','','','الإجمالي',d.total]);
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
@@ -3953,7 +3820,7 @@ function runClientReport(){
   if(to)filtered=filtered.filter(e=>{const d=parseDt(e.entry_date);return d&&d<=to;});
   filtered.sort((a,b)=>(parseDt(a.entry_date)||0)-(parseDt(b.entry_date)||0));
   const total=filtered.reduce((s,e)=>s+e.amount,0);
-  const projName=projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
+  const projName=projId==='all'?'كل المشاريع':allProjects.find(p=>p.id===projId)?.name||'—';
   const period=(fromStr||'البداية')+' → '+(toStr||'اليوم');
   if(!filtered.length){el.innerHTML='<div class="rep-empty">لا توجد مدفوعات في الفترة المحددة</div>';return;}
   const buckets={};
@@ -4007,7 +3874,7 @@ function clientExportPDF(){
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
-    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
+    <td>${allProjects.find(p=>p.id===e.project_id)?.name||'—'}</td>
     <td>${e.description||'—'}</td>
     <td class="amt pos">▲ ${fn(e.amount)} ج</td>
   </tr>`).join('');
@@ -4032,7 +3899,7 @@ function loadDuesReport(){
   const map={};
   allEntries.filter(e=>e.type==='e'&&e.contractor&&e.entry_type).forEach(e=>{
     const key=e.project_id+'__'+e.contractor;
-    if(!map[key])map[key]={proj:allProjectsMap[e.project_id]?.name||'—',mq:e.contractor,pay:0,work:0,mat:0};
+    if(!map[key])map[key]={proj:allProjects.find(p=>p.id===e.project_id)?.name||'—',mq:e.contractor,pay:0,work:0,mat:0};
     if(e.entry_type==='payment')map[key].pay+=e.amount;
     else if(e.entry_type==='work')map[key].work+=e.amount;
     else if(e.entry_type==='material')map[key].mat+=e.amount;
@@ -4969,7 +4836,7 @@ async function confirmEditApprove(id){
     allEntries.push(entry);
     if(newProjId===curPid){entries=[...allEntries.filter(e=>e.project_id===curPid)];rp();}
     document.getElementById('eaModal')?.remove();
-    const projName=allProjectsMap[newProjId]?.name||'';
+    const projName=allProjects.find(p=>p.id===newProjId)?.name||'';
     setSav(`✅ تم الحفظ في مشروع "${projName}"${ newProjId!==r.project_id?' (تم النقل)':''}`,  'ok');
     updatePendingBadge();
     loadApprovals();
@@ -5334,7 +5201,7 @@ function setupNotifRealtime(){
           const r=payload.new;
           if(r.submitted_by===uid)return;
           const who=getUserName(r.submitted_by);
-          const projName=allProjectsMap[r.project_id]?.name||'مشروع';
+          const projName=allProjects.find(p=>p.id===r.project_id)?.name||'مشروع';
           pushNotif({type:'pending_entry',title:`${who} طلب موافقة على قيد`,sub:`${fn(r.amount)} ج · ${projName}${r.category?' · '+r.category:''}`});
           updatePendingBadge();
         }
