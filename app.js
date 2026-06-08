@@ -573,7 +573,7 @@ function toggleSbSub(key){
   if(!sub)return;
   sub.classList.toggle('open');
   if(arr)arr.classList.toggle('open',sub.classList.contains('open'));
-  if(key==='proj'&&sub.classList.contains('open'))showScreen('projList');
+  // projList يتحكم فيها الزرار الرئيسي مباشرة
 }
 function buildSidebarProjects(){
   const container=document.getElementById('sb-proj-list');
