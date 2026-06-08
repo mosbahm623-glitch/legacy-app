@@ -419,7 +419,29 @@ async function initApp(){
     await autoOpenViewerAdv();
   } else {
     showScreen('dash');
+    // تنبيه الـ backup اليومي
+    if(uRole==='admin') checkBackupReminder();
   }
+}
+
+function checkBackupReminder(){
+  const last=localStorage.getItem('lft_last_backup');
+  if(!last){
+    setTimeout(()=>showBackupReminder('لم تأخذ نسخة احتياطية حتى الآن!'),2000);
+    return;
+  }
+  const diff=Math.floor((new Date()-new Date(last))/(1000*60*60*24));
+  if(diff>=1){
+    setTimeout(()=>showBackupReminder('آخر نسخة احتياطية كانت منذ '+diff+' '+(diff===1?'يوم':'أيام')),2000);
+  }
+}
+
+function showBackupReminder(msg){
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);white-space:nowrap;direction:rtl;font-family:inherit';
+  toast.innerHTML='<span>💾</span><span>'+msg+'</span><button onclick="backupAll();this.closest('div').remove()" style="background:#D4C49A;color:#1D3C2A;border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">نسخة الآن</button><button onclick="this.closest('div').remove()" style="background:none;border:none;color:rgba(212,196,154,.5);cursor:pointer;font-size:16px;padding:0 4px">×</button>';
+  document.body.appendChild(toast);
+  setTimeout(()=>{if(toast.parentNode)toast.remove();},10000);
 }
 
 // ══ Online / Offline Status ══
@@ -700,6 +722,7 @@ async function backupAll(){
     a.href=url;a.download='LFT_Backup_'+dateStr+'.xlsx';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    localStorage.setItem('lft_last_backup', new Date().toISOString());
     setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة','ok');
     msg.style.color='var(--primary-btn)';
   }catch(e){
