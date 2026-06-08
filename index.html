@@ -18,43 +18,47 @@
 </head>
 <body>
 <div id="loginScreen">
-  <!-- Animated background -->
-  <div class="l-grid"></div>
-  <div class="l-particles" id="lParticles"></div>
-
-  <div class="lbox">
-    <div class="llogo">
-      <div class="l-icon"><span class="l-icon-letters">LC</span></div>
-      <h1>Legacy Core</h1>
-    </div>
-
-    <div class="l-divider"><span>تسجيل الدخول</span></div>
-
-    <div class="linput-wrap">
-      <span class="linput-icon">✉️</span>
-      <input type="email" id="lemail" placeholder="البريد الإلكتروني" onkeydown="if(event.key==='Enter')login()">
-    </div>
-    <div class="linput-wrap">
-      <span class="linput-icon">🔒</span>
-      <input type="password" id="lpass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')login()">
-      <button class="l-eye-btn" onclick="toggleLpass()" type="button" id="lEyeBtn" title="إظهار كلمة المرور">👁</button>
-    </div>
-
-    <button class="lbtn" onclick="login()">دخول</button>
-    <div class="lst" id="lst"></div>
-
-    <div class="l-forgot-wrap">
-      <button onclick="showForgotPwd()" class="l-forgot-btn">نسيت كلمة المرور؟</button>
-    </div>
-
-    <div class="l-credit-badge">
-      <div class="l-credit-row">
-        <span class="l-credit-name">Mahmoud Mesbah</span>
-        <span class="l-credit-dot">●</span>
-        <span class="l-credit-phone">01114892670</span>
+  <div class="ls-wrap">
+    <!-- Left Panel -->
+    <div class="ls-left">
+      <div class="ls-left-top">
+        <div class="ls-logo">LC</div>
+        <div class="ls-app-name">Legacy Core</div>
+        <div class="ls-app-sub">إدارة مشاريع التشطيبات</div>
       </div>
-      <div class="l-credit-w-wrap">
-        <div class="l-credit-w">W</div>
+      <div class="ls-left-bottom">
+        <div class="ls-stat"><div class="ls-stat-dot"></div><span>النظام يعمل بشكل طبيعي</span></div>
+        <div class="ls-credit">
+          <span class="ls-credit-name">MAHMOUD MESBAH</span>
+          <span class="ls-credit-phone">01114892670</span>
+        </div>
+      </div>
+    </div>
+    <!-- Right Panel -->
+    <div class="ls-right">
+      <div class="ls-form-wrap">
+        <div class="ls-welcome">أهلاً بك</div>
+        <div class="ls-hint">سجّل دخولك للمتابعة</div>
+        <div class="ls-field">
+          <div class="ls-field-lbl">البريد الإلكتروني</div>
+          <div class="ls-input-wrap">
+            <i class="ti ti-mail ls-finput-icon" aria-hidden="true"></i>
+            <input type="email" id="lemail" class="ls-input" placeholder="example@company.com" onkeydown="if(event.key==='Enter')login()">
+          </div>
+        </div>
+        <div class="ls-field">
+          <div class="ls-field-lbl">كلمة المرور</div>
+          <div class="ls-input-wrap">
+            <i class="ti ti-lock ls-finput-icon" aria-hidden="true"></i>
+            <input type="password" id="lpass" class="ls-input ls-input-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+            <button class="ls-eye-btn" onclick="toggleLpass()" type="button" id="lEyeBtn" title="إظهار كلمة المرور"><i class="ti ti-eye" id="lEyeIcon"></i></button>
+          </div>
+        </div>
+        <button class="ls-btn" onclick="login()">دخول إلى النظام</button>
+        <div class="lst" id="lst"></div>
+        <div class="ls-forgot">
+          <button onclick="showForgotPwd()" class="ls-forgot-btn">نسيت كلمة المرور؟</button>
+        </div>
       </div>
     </div>
   </div>
@@ -159,9 +163,6 @@
           <span class="sb-icon">💾</span><span class="sb-label">نسخة احتياطية</span>
         </button>
 
-        <button class="sb-item" id="sbi-archive" style="display:none" onclick="showScreen('archive')">
-          <span class="sb-icon">📦</span><span class="sb-label">الأرشيف</span>
-        </button>
         <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
           <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
         </button>
@@ -350,7 +351,6 @@
           <select id="ps" onchange="sw(this.value)"></select>
           <button class="gsm" id="editPBtn" onclick="editProject()" title="تعديل المشروع" class="btn-gsm-blue">✏️</button>
           <button class="gsm" id="addPBtn" onclick="np()">+ مشروع</button>
-          <button class="gsm gsm-archive" id="archPBtn" onclick="archiveProject()" title="أرشفة المشروع" style="display:none">📦</button>
           <button class="gsm" id="delPBtn" onclick="dp()" class="btn-gsm-red">🗑</button>
         </div>
         <div class="dates">
@@ -836,22 +836,6 @@
         </div><!-- end repView -->
       </div><!-- end repScreen -->
 
-      <!-- ARCHIVE SCREEN -->
-      <div id="archiveScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
-        <div class="arch-header">
-          <div class="arch-header-title">
-            <span class="arch-header-icon">📦</span>
-            <div>
-              <div class="arch-header-h1">أرشيف المشاريع</div>
-              <div class="arch-header-sub" id="archCount">جاري التحميل...</div>
-            </div>
-          </div>
-          <div class="arch-search-wrap">
-            <input class="arch-search-input" id="archSearchInput" placeholder="🔍 ابحث باسم المشروع..." oninput="filterArchive(this.value)">
-          </div>
-        </div>
-        <div id="archivedProjList" class="arch-list"></div>
-      </div><!-- end archiveScreen -->
 
 
     </div><!-- end main-content -->
