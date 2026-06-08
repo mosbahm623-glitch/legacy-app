@@ -455,6 +455,21 @@ function showBackupReminder(msg){
   setTimeout(()=>{if(toast.parentNode)toast.remove();},10000);
 }
 
+function updateBackupDateDisplay(){
+  const el=document.getElementById('sbBackupDate');
+  if(!el)return;
+  const last=localStorage.getItem('lft_last_backup');
+  if(!last){el.textContent='لم تؤخذ نسخة بعد';el.style.color='rgba(235,87,87,.8)';return;}
+  const d=new Date(last);
+  const day=String(d.getDate()).padStart(2,'0');
+  const mon=String(d.getMonth()+1).padStart(2,'0');
+  const yr=d.getFullYear();
+  const hr=String(d.getHours()).padStart(2,'0');
+  const mn=String(d.getMinutes()).padStart(2,'0');
+  el.textContent=day+'/'+mon+'/'+yr+' — '+hr+':'+mn;
+  el.style.color='rgba(212,196,154,.45)';
+}
+
 // ══ Online / Offline Status ══
 function initNetworkStatus(){
   function onOffline(){setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');}
@@ -735,6 +750,7 @@ async function backupAll(){
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     URL.revokeObjectURL(url);
     localStorage.setItem('lft_last_backup', new Date().toISOString());
+    updateBackupDateDisplay();
     setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة','ok');
     msg.style.color='var(--primary-btn)';
   }catch(e){
@@ -1166,6 +1182,7 @@ async function loadAllProjects(){
   if(uRole==='admin'){
     const archBtn=document.getElementById('sbi-archive');if(archBtn)archBtn.style.display='flex';
     const archPBtn=document.getElementById('archPBtn');if(archPBtn)archPBtn.style.display='';
+    updateBackupDateDisplay();
   }
   populateAdvProjSel();
   buildSidebarProjects();
