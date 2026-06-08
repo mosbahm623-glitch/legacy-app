@@ -110,10 +110,12 @@
           <span class="sb-icon">🏠</span><span class="sb-label">لوحة التحكم</span>
         </button>
 
-        <button class="sb-item" id="sbi-proj-hdr" onclick="showScreen('projList')">
-          <span class="sb-icon">📁</span><span class="sb-label">المشاريع</span>
-          <span class="sb-arrow" id="sba-proj">▶</span>
-        </button>
+        <div class="sb-item-row">
+          <button class="sb-item sb-item-main" id="sbi-proj-hdr" onclick="showScreen('projList')">
+            <span class="sb-icon">📁</span><span class="sb-label">المشاريع</span>
+          </button>
+          <button class="sb-arrow-btn" id="sba-proj" onclick="toggleSbSub('proj')" title="عرض المشاريع">▶</button>
+        </div>
         <div class="sb-sub" id="sbs-proj">
           <button class="sb-item sb-sub-item" id="sbi-proj-status" onclick="showScreen('projStatus')">
             <span class="sb-icon">📊</span><span class="sb-label">حالة المشاريع</span>
