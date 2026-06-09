@@ -2227,47 +2227,35 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
     background:rgba(255,255,255,.04) !important;
     border-color:rgba(212,196,154,.12) !important;
   }
-  /* البيان كامل */
-  #ent .rw .ri{display:block;margin-bottom:0}
+  #ent .rw .ri{display:block !important;margin-bottom:0}
   #ent .rw .rd{
     font-size:13px !important;
     white-space:normal !important;
     overflow:visible !important;
     text-overflow:unset !important;
-    font-weight:600;
-    line-height:1.5;
-    margin-bottom:3px;
+    font-weight:600 !important;
+    line-height:1.5 !important;
   }
-  #ent .rw .rm{font-size:11px;color:var(--text-soft);margin-top:2px;margin-bottom:8px}
-  /* السطر السفلي */
-  #ent .rw .flex-center-gap,
-  #ent .rw > div:last-child{
+  #ent .rw .rm{font-size:11px !important;margin-top:3px !important;margin-bottom:8px !important}
+  /* السطر السفلي — بالـ class الجديد */
+  .mob-card-foot{
     display:flex !important;
     align-items:center !important;
     justify-content:space-between !important;
     border-top:1px solid var(--border-faint);
-    padding-top:8px;
-    flex-direction:row !important;
+    padding-top:8px !important;
+    margin-top:4px !important;
   }
-  body.dark-mode #ent .rw .flex-center-gap,
-  body.dark-mode #ent .rw > div:last-child{border-color:rgba(212,196,154,.07)}
-  /* المبلغ والرصيد */
-  #ent .rw .flex-center-gap > div,
-  #ent .rw > div:last-child > div{
-    display:flex !important;
-    align-items:center !important;
-    gap:10px !important;
-    text-align:right !important;
-  }
-  #ent .rw .ra{font-size:15px !important;font-weight:800 !important}
-  #ent .rw .jb{
+  body.dark-mode .mob-card-foot{border-color:rgba(212,196,154,.08) !important}
+  .mob-card-nums{display:flex !important;align-items:center !important;gap:10px !important}
+  .mob-card-nums .ra{font-size:15px !important;font-weight:800 !important}
+  .mob-card-nums .jb{
     font-size:11px !important;
-    background:var(--bg-gray);
-    padding:2px 8px;
-    border-radius:6px;
+    background:var(--bg-gray) !important;
+    padding:2px 8px !important;
+    border-radius:6px !important;
     margin-top:0 !important;
   }
-  body.dark-mode #ent .rw .jb{background:rgba(255,255,255,.06)}
-  #ent .rw .db{font-size:18px !important;padding:6px 10px !important;min-width:38px;min-height:38px;border-radius:8px}
-  #ent .rw .db:active{background:var(--danger-ghost)}
+  body.dark-mode .mob-card-nums .jb{background:rgba(255,255,255,.07) !important}
+  #ent .rw .db{font-size:18px !important;padding:6px 10px !important;min-width:38px !important;min-height:38px !important;border-radius:8px !important}
 }
