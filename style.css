@@ -294,7 +294,7 @@ td{font-weight:400}
 .ntoast-title{font-family:'Cairo',sans-serif;font-weight:700}
 .ntoast-sub{font-family:'Cairo',sans-serif;font-weight:400}
 /* إخفاء الـ bottom nav على شاشة اللوجين */
-#loginScreen:not([style*="none"]) ~ * .mob-bottom-nav{display:none !important}
+/* إخفاء الـ bottom nav — بيتحكم فيه JS */
 /* ══ LOGIN SCREEN — Split Design ══ */
 #loginScreen{display:flex;align-items:stretch;min-height:100vh;padding:0}
 .ls-wrap{display:flex;width:100%;min-height:100vh}
@@ -2164,7 +2164,7 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
   .ls-app-name{font-size:18px;margin-bottom:2px}
   .ls-app-sub{font-size:10px}
   .ls-left-bottom{display:none}
-  .ls-right{flex:1;padding:32px 20px;align-items:flex-start;justify-content:flex-start}
+  .ls-right{flex:1;padding:32px 20px;align-items:flex-start !important;justify-content:flex-start !important}
   .ls-form-wrap{width:100%;max-width:100%}
 }
 

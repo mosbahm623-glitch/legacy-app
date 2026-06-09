@@ -4423,7 +4423,11 @@ async function saveMqPay(){
   }catch(e){setSav('❌ '+friendlyError(e),'er');msg.style.color='var(--danger-alt)';}
 }
 
-window.onload=checkSaved;
+window.onload=()=>{
+  const _nav=document.getElementById('mobBottomNav');
+  if(_nav)_nav.style.display='none';
+  checkSaved();
+};
 
 let curEditEtype=null;
 function onEditMqInput(v){
