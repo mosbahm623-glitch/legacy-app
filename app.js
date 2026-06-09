@@ -624,17 +624,6 @@ function buildSidebarProjects(){
   const container=document.getElementById('sb-proj-list');
   if(!container)return;
   container.innerHTML='';
-  const projMap={};
-  allProjects.forEach(p=>{
-    const s=projSummaries[p.id]||{balDirect:0};
-    const pB=s.balDirect;
-    const dotClass=pB>0?'pos':pB<0?'neg':'zero';
-    const alert_=pB<0?'🚨 ':'';
-    container.innerHTML+=`<button class="sb-sub-item${p.id===curPid?' on':''}" onclick="goToProject('${p.id}')">
-      <span class="sb-dot ${dotClass}"></span>
-      <span class="flex-ellipsis">${alert_}${p.name}</span>
-    </button>`;
-  });
 }
 function buildProjListScreen(){
   const grid=document.getElementById('projCardsGrid');
