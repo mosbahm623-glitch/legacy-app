@@ -454,22 +454,10 @@ function checkBackupReminder(){
   const last=localStorage.getItem('lft_last_backup');
   const today=new Date().toDateString();
   const lastDay=last?new Date(last).toDateString():null;
-  // لو مفيش backup أو مش النهارده — شغّل الرسالة وكررها كل ساعة
   if(!last||lastDay!==today){
     const msg=!last?'لم تأخذ نسخة احتياطية حتى الآن!':
       'آخر نسخة: '+new Date(last).toLocaleDateString('ar-EG');
     setTimeout(()=>showBackupReminder(msg),2000);
-    // كرر كل ساعة طول ما مفيش backup النهارده
-    const _interval=setInterval(()=>{
-      const _last=localStorage.getItem('lft_last_backup');
-      const _lastDay=_last?new Date(_last).toDateString():null;
-      if(_last&&_lastDay===new Date().toDateString()){
-        clearInterval(_interval);return;
-      }
-      const _msg=!_last?'لم تأخذ نسخة احتياطية حتى الآن!':
-        'آخر نسخة: '+new Date(_last).toLocaleDateString('ar-EG');
-      showBackupReminder(_msg);
-    },60*60*1000);
   }
 }
 
