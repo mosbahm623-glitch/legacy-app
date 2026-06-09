@@ -3407,9 +3407,11 @@ function _renderBarChart(canvasId,labels,datasets,opts){
     if(!ctx||!window.Chart)return;
     if(ctx._chartInst)ctx._chartInst.destroy();
     const isMob=window.innerWidth<768;
+    // اختصار أسماء الشهور على الموبايل
+    const shortLabels=isMob?labels.map(l=>l.replace(/يناير/,'يناير').replace(' 20','\'').replace(/([أابتثجحخدذرزسشصضطظعغفقكلمنهوي]+)\s(\d{4})/,(m,month,year)=>month+' '+year.slice(2))):labels;
     ctx._chartInst=new Chart(ctx,{
       type:'bar',
-      data:{labels,datasets:datasets.map(d=>({...d,borderRadius:6,borderSkipped:false}))},
+      data:{labels:shortLabels,datasets:datasets.map(d=>({...d,borderRadius:6,borderSkipped:false}))},
       options:{
         responsive:true,maintainAspectRatio:false,
         plugins:{
@@ -3417,8 +3419,8 @@ function _renderBarChart(canvasId,labels,datasets,opts){
           tooltip:{callbacks:{label:c=>`${c.dataset.label||''}: ${fn(c.parsed.y)} ج`}}
         },
         scales:{
-          x:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:11},maxRotation:isMob?0:30,autoSkip:true,maxTicksLimit:isMob?6:12},grid:{display:false}},
-          y:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}
+          x:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:11},maxRotation:isMob?45:30,autoSkip:true,maxTicksLimit:isMob?8:12},grid:{display:false}},
+          y:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:10},callback:v=>v>=1000000?(v/1000000).toFixed(1)+'م':v>=1000?(v/1000).toFixed(0)+'ك':fn(v)},grid:{color:'rgba(255,255,255,.06)'}}
         },
         ...opts
       }
