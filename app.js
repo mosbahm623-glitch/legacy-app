@@ -496,8 +496,29 @@ function updateBackupDateDisplay(){
 
 // ══ Online / Offline Status ══
 function initNetworkStatus(){
-  function onOffline(){setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');}
-  function onOnline(){setSav('✅ عادت الشبكة — متصل','ok');setTimeout(()=>setSav('☁️ متصل — بياناتك محفوظة','ok'),3000);}
+  function onOffline(){
+    setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');
+    // toast زي رسالة الـ backup
+    const prev=document.getElementById('_offlineToast');
+    if(prev)prev.remove();
+    const toast=document.createElement('div');
+    toast.id='_offlineToast';
+    toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#7a1f1f;color:#ffcdd2;border:1px solid rgba(231,76,60,.4);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;direction:rtl;font-family:inherit';
+    toast.innerHTML='<span>📵</span><span>انقطع الاتصال — التعديلات لن تُحفظ</span>';
+    document.body.appendChild(toast);
+  }
+  function onOnline(){
+    setSav('✅ عادت الشبكة — متصل','ok');
+    // أزل الـ offline toast وأظهر رسالة عودة
+    const prev=document.getElementById('_offlineToast');
+    if(prev)prev.remove();
+    const toast=document.createElement('div');
+    toast.id='_onlineToast';
+    toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(39,174,96,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);white-space:nowrap;direction:rtl;font-family:inherit';
+    toast.innerHTML='<span>✅</span><span>عادت الشبكة — بياناتك محفوظة</span>';
+    document.body.appendChild(toast);
+    setTimeout(()=>{toast.remove();setSav('☁️ متصل — بياناتك محفوظة','ok');},4000);
+  }
   window.addEventListener('offline', onOffline);
   window.addEventListener('online', onOnline);
   if(!navigator.onLine) onOffline();
