@@ -1040,7 +1040,7 @@ async function loadDashboard(){
       }).join(''):'<div class="d-empty">لا يوجد وارد في آخر 30 يوم</div>';
     }
 
-  }catch(e){console.error('Dashboard error:',e);}
+  }catch(e){setSav('❌ '+friendlyError(e),'er');console.error('Dashboard error:',e);}
 }
 
 function _renderCashFlowChart(entries){
@@ -1260,7 +1260,11 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     if(cT==='e'&&!['s','i','j','m'].includes(cTab))cTab=c;
     rp();
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+  }catch(e){
+    const _em=friendlyError(e);
+    setSav('❌ '+_em,'er');
+    notify('❌ فشل الحفظ — '+_em,'err');
+  }
 }
 // ══════ PASSWORD CONFIRMATION MODAL ══════
 function confirmWithPassword(actionLabel, actionIcon, onConfirmed){
@@ -1546,7 +1550,7 @@ async function saveProjectEdit(){
     setTimeout(()=>document.getElementById('editProjModal')?.remove(),700);
   }catch(e){msg.style.color='var(--danger)';msg.textContent='❌ خطأ: '+e.message;}
 }
-async function upm(k,v){const u=k==='s'?{start_date:v}:{close_date:v};try{await sb('projects?id=eq.'+curPid,'PATCH',u);}catch(e){console.error(e);}}
+async function upm(k,v){const u=k==='s'?{start_date:v}:{close_date:v};try{await sb('projects?id=eq.'+curPid,'PATCH',u);}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 function oe(id){
   if(uRole==='viewer')return;
   const e=entries.find(x=>x.id===id);if(!e)return;
