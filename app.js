@@ -3400,7 +3400,31 @@ function backToRepHub(){
   _curReport=null;
 }
 
-// Chart.js loader — بيتحمل مرة واحدة بس
+// ── SHARED BAR CHART HELPER ──
+function _renderBarChart(canvasId,labels,datasets,opts){
+  _loadChartJs(()=>{
+    const ctx=document.getElementById(canvasId);
+    if(!ctx||!window.Chart)return;
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    const isMob=window.innerWidth<768;
+    ctx._chartInst=new Chart(ctx,{
+      type:'bar',
+      data:{labels,datasets:datasets.map(d=>({...d,borderRadius:6,borderSkipped:false}))},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:datasets.length>1,position:'top',labels:{color:'rgba(212,196,154,.7)',font:{size:11},boxWidth:12}},
+          tooltip:{callbacks:{label:c=>`${c.dataset.label||''}: ${fn(c.parsed.y)} ج`}}
+        },
+        scales:{
+          x:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:11},maxRotation:isMob?0:30,autoSkip:true,maxTicksLimit:isMob?6:12},grid:{display:false}},
+          y:{ticks:{color:'var(--text-soft)',font:{size:isMob?9:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}
+        },
+        ...opts
+      }
+    });
+  });
+}
 function _loadChartJs(cb){
   if(window.Chart){cb();return;}
   const s=document.createElement('script');
@@ -3511,26 +3535,13 @@ function runCashFlow(){
     </div>`;
 
   // Load Chart.js and render
-  _loadChartJs(()=>{
-    const ctx=document.getElementById('cashChart');
-    if(!ctx||!window.Chart)return;
-    if(ctx._chartInst)ctx._chartInst.destroy();
-    ctx._chartInst=new Chart(ctx,{
-      type:'bar',
-      data:{
-        labels:rows.map(r=>_monthLabel(r.y,r.m)),
-        datasets:[
-          {label:'وارد',data:rows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)',borderRadius:6,borderSkipped:false},
-          {label:'مصروف',data:rows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}
-        ]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fn(ctx.parsed.y)} ج`}}},
-        scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}
-      }
-    });
-  });
+  _renderBarChart('cashChart',
+    rows.map(r=>_monthLabel(r.y,r.m)),
+    [
+      {label:'وارد',data:rows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)'},
+      {label:'مصروف',data:rows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}
+    ]
+  );
 }
 
 // ── PERIODIC SUMMARY ───────────────────────────
@@ -3720,12 +3731,13 @@ function runRepFilter(){
       <button class="filter-btn is46" onclick="repExportPDF()">📕 PDF</button>
       <span class="filter-count-badge">${sorted.length} قيد</span>
     </div>`;
-  if(bRows.length>1)_loadChartJs(()=>{
-    const ctx=document.getElementById('projRepChart');
-    if(!ctx||!window.Chart)return;
-    if(ctx._chartInst)ctx._chartInst.destroy();
-    ctx._chartInst=new Chart(ctx,{type:'bar',data:{labels:bRows.map(r=>_monthLabel(r.y,r.m)),datasets:[{label:'وارد',data:bRows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)',borderRadius:6,borderSkipped:false},{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fn(c.parsed.y)} ج`}}},scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}}});
-  });
+  if(bRows.length>1)_renderBarChart('projRepChart',
+    bRows.map(r=>_monthLabel(r.y,r.m)),
+    [
+      {label:'وارد',data:bRows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)'},
+      {label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}
+    ]
+  );
 }
 
 function clearRepFilter(){
@@ -3793,12 +3805,10 @@ async function runRepAdvFilter(){
         <button class="filter-btn" onclick="repAdvExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
         <button class="filter-btn is46" onclick="repAdvExportPDF()">📕 PDF</button>
       </div>`;
-    if(bRows.length>1)_loadChartJs(()=>{
-      const ctx=document.getElementById('advRepChart');
-      if(!ctx||!window.Chart)return;
-      if(ctx._chartInst)ctx._chartInst.destroy();
-      ctx._chartInst=new Chart(ctx,{type:'bar',data:{labels:bRows.map(r=>_monthLabel(r.y,r.m)),datasets:[{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fn(c.parsed.y)} ج`}}},scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}}});
-    });
+    if(bRows.length>1)_renderBarChart('advRepChart',
+      bRows.map(r=>_monthLabel(r.y,r.m)),
+      [{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}]
+    );
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -4006,12 +4016,10 @@ function runContractorReport(){
       <button class="filter-btn is46" onclick="contractorExportPDF()">📕 PDF</button>
     </div>`;
   _repContrData={mq,period,filtered,total};
-  if(bRows.length>1)_loadChartJs(()=>{
-    const ctx=document.getElementById('contrRepChart');
-    if(!ctx||!window.Chart)return;
-    if(ctx._chartInst)ctx._chartInst.destroy();
-    ctx._chartInst=new Chart(ctx,{type:'bar',data:{labels:bRows.map(r=>_monthLabel(r.y,r.m)),datasets:[{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fn(c.parsed.y)} ج`}}},scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}}});
-  });
+  if(bRows.length>1)_renderBarChart('contrRepChart',
+    bRows.map(r=>_monthLabel(r.y,r.m)),
+    [{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}]
+  );
 }
 function clearContractorReport(){
   document.getElementById('rContrSel').value='';
@@ -4112,12 +4120,10 @@ function runClientReport(){
       <button class="filter-btn is46" onclick="clientExportPDF()">📕 PDF</button>
     </div>`;
   _repClientData={projName,period,filtered,total};
-  if(bRows.length>1)_loadChartJs(()=>{
-    const ctx=document.getElementById('clientRepChart');
-    if(!ctx||!window.Chart)return;
-    if(ctx._chartInst)ctx._chartInst.destroy();
-    ctx._chartInst=new Chart(ctx,{type:'bar',data:{labels:bRows.map(r=>_monthLabel(r.y,r.m)),datasets:[{label:'وارد',data:bRows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fn(c.parsed.y)} ج`}}},scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:45},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}}});
-  });
+  if(bRows.length>1)_renderBarChart('clientRepChart',
+    bRows.map(r=>_monthLabel(r.y,r.m)),
+    [{label:'وارد',data:bRows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)'}]
+  );
 }
 function clearClientReport(){
   document.getElementById('rClientProj').value='all';
