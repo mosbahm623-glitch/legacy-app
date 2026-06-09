@@ -391,8 +391,37 @@ td{font-weight:400}
 .mob-nav-lbl{font-size:9px;color:rgba(212,196,154,.45);font-family:inherit}
 .mob-nav-it.active .mob-nav-lbl{color:var(--accent)}
 .mob-nav-it.active .mob-nav-ic{filter:drop-shadow(0 0 4px rgba(212,196,154,.4))}
-.ahdr-icon-btn{background:rgba(212,196,154,.15);border:1px solid rgba(212,196,154,.25);color:#D4C49A;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:14px;transition:all .2s}
-.ahdr-icon-btn:hover{background:rgba(212,196,154,.25)}
+.ahdr-brand{display:flex;flex-direction:column;gap:1px}
+.ahdr-brand-sub{font-size:9px;color:rgba(212,196,154,.45);font-family:'Manrope',sans-serif;letter-spacing:.3px;display:none}
+.ahdr-right-mobile{display:none;align-items:center;gap:6px;position:relative}
+.ahdr-right-desktop{display:flex;align-items:center;gap:6px}
+.ahdr-more-btn{background:rgba(212,196,154,.15);border:1px solid rgba(212,196,154,.2);color:var(--accent);border-radius:10px;padding:6px 12px;cursor:pointer;font-size:20px;line-height:1;font-weight:700;transition:all .2s}
+.ahdr-more-btn:hover{background:rgba(212,196,154,.25)}
+.mob-notif-btn{font-size:15px;padding:5px 8px}
+/* Dropdown menu */
+.ahdr-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:200px;background:var(--primary);border:1px solid rgba(212,196,154,.2);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:9999;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-8px) scale(.97);transition:opacity .2s,transform .2s;transform-origin:top left}
+.ahdr-menu.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.ahdr-menu-user{padding:14px 16px 10px}
+.ahdr-menu-name{font-size:14px;font-weight:700;color:var(--accent)}
+.ahdr-menu-role{font-size:11px;color:rgba(212,196,154,.45);margin-top:2px}
+.ahdr-menu-divider{height:1px;background:rgba(212,196,154,.1);margin:4px 0}
+.ahdr-menu-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;padding:12px 16px;font-size:13px;font-weight:500;color:rgba(212,196,154,.8);cursor:pointer;font-family:inherit;text-align:right;transition:background .15s}
+.ahdr-menu-item:hover{background:rgba(212,196,154,.1);color:var(--accent)}
+.ahdr-menu-logout{color:var(--danger-soft) !important}
+.ahdr-menu-logout:hover{background:rgba(231,76,60,.12) !important}
+/* Mobile overrides */
+@media(max-width:767px){
+  .ahdr-right-desktop{display:none !important}
+  .ahdr-right-mobile{display:flex !important}
+  .ahdr-brand-sub{display:block}
+  .mob-bottom-nav{padding-bottom:env(safe-area-inset-bottom,8px)}
+}
+/* Better touch targets for bottom nav */
+.mob-nav-it{min-width:56px;min-height:50px;border-radius:10px;transition:background .15s}
+.mob-nav-it:active{background:rgba(212,196,154,.1)}
+.mob-nav-it.active .mob-nav-ic{font-size:20px}
+.mob-nav-lbl{font-size:10px;color:rgba(212,196,154,.45);font-family:inherit;font-weight:600}
+.mob-nav-it.active .mob-nav-lbl{color:var(--accent-gold)}
 /* ══ REPORTS HUB ══ */
 .rep-hub-title{font-size:20px;font-weight:800;color:var(--accent-pale);margin-bottom:4px}
 .rep-hub-sub{font-size:12px;color:rgba(212,196,154,.5);margin-top:2px}

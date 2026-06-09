@@ -377,6 +377,10 @@ async function initApp(){
   applyUserTheme();
   document.getElementById('uname').textContent=uName;
   document.getElementById('urole').textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'}[uRole]||uRole;
+  // Mobile header
+  const _mhName=document.getElementById('uname-hdr');if(_mhName)_mhName.textContent=uName;
+  const _mhAName=document.getElementById('ahdr-uname');if(_mhAName)_mhAName.textContent=uName;
+  const _mhARole=document.getElementById('ahdr-urole');if(_mhARole)_mhARole.textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'}[uRole]||uRole;
   document.getElementById('sbi-admin').style.display=uRole==='admin'?'flex':'none';
   document.getElementById('sbi-approvals').style.display=uRole==='admin'?'flex':'none';
   document.getElementById('sbi-backup').style.display=uRole==='admin'?'flex':'none';
@@ -2501,7 +2505,6 @@ function confirmRestart(){if(confirm("إعادة تشغيل؟"))window.location.
 function toggleDark(){
   const body=document.body;
   const isDay=body.classList.contains('day-mode');
-  // Toggle: day ↔ dark
   if(isDay){
     body.classList.remove('day-mode');
     body.classList.add('dark-mode');
@@ -2513,6 +2516,31 @@ function toggleDark(){
     saveDarkPref('day');
     updateDarkBtn('day');
   }
+}
+// ══ MOBILE HEADER DROPDOWN ══
+function toggleAhdrMenu(){
+  const menu=document.getElementById('ahdrMenu');
+  if(!menu)return;
+  const isOpen=menu.classList.contains('open');
+  if(isOpen){closeAhdrMenu();}else{
+    // sync dark mode label
+    const isDark=document.body.classList.contains('dark-mode');
+    const ico=document.getElementById('ahdrMenuDarkIco');
+    const lbl=document.getElementById('ahdrMenuDarkLbl');
+    if(ico)ico.textContent=isDark?'☀️':'🌙';
+    if(lbl)lbl.textContent=isDark?'الوضع النهاري':'الوضع الليلي';
+    menu.classList.add('open');
+    setTimeout(()=>document.addEventListener('click',_ahdrMenuClose,{once:true}),10);
+  }
+}
+function closeAhdrMenu(){
+  const menu=document.getElementById('ahdrMenu');
+  if(menu)menu.classList.remove('open');
+}
+function _ahdrMenuClose(e){
+  const menu=document.getElementById('ahdrMenu');
+  const btn=document.getElementById('ahdrMoreBtn');
+  if(menu&&!menu.contains(e.target)&&e.target!==btn)closeAhdrMenu();
 }
 function saveDarkPref(val){
   const key='lft_theme_'+(uid||'guest');

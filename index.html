@@ -68,9 +68,12 @@
   <div class="ahdr">
     <div class="ahdr-left">
       <button class="sb-hamburger" id="sbHam" onclick="toggleSidebar()">☰</button>
-      <div><h2>Legacy Core</h2></div>
+      <div class="ahdr-brand">
+        <h2>Legacy Core</h2>
+        <span class="ahdr-brand-sub" id="uname-hdr"></span>
+      </div>
     </div>
-    <div class="ahdr-right">
+    <div class="ahdr-right ahdr-right-desktop">
       <div class="ubadge"><span id="urole"></span> · <span id="uname"></span></div>
       <div id="onlinePill" class="online-pill" onclick="openNotifPanel('online')" title="المتصلين الآن" style="display:none">
         <span class="online-dot-live"></span><span id="onlineCount">0</span> أونلاين
@@ -82,6 +85,30 @@
       <button class="lout" onclick="confirmRestart()" title="إعادة تشغيل">🔄</button>
       <button class="dark-toggle" id="darkBtn" onclick="toggleDark()" title="تغيير المظهر">🌙 ليل</button>
       <button class="lout" onclick="logout()">خروج</button>
+    </div>
+    <!-- Mobile-only: notif + more menu -->
+    <div class="ahdr-right ahdr-right-mobile">
+      <button class="notif-btn mob-notif-btn" id="notifBellBtnMob" onclick="openNotifPanel('notifs')" title="الإشعارات" style="display:none">
+        🔔<span class="notif-badge" id="notifBadgeMob" style="display:none">0</span>
+      </button>
+      <button class="ahdr-more-btn" id="ahdrMoreBtn" onclick="toggleAhdrMenu()" title="المزيد">⋮</button>
+      <div class="ahdr-menu" id="ahdrMenu">
+        <div class="ahdr-menu-user">
+          <div class="ahdr-menu-name" id="ahdr-uname"></div>
+          <div class="ahdr-menu-role" id="ahdr-urole"></div>
+        </div>
+        <div class="ahdr-menu-divider"></div>
+        <button class="ahdr-menu-item" onclick="toggleDark();closeAhdrMenu()">
+          <span id="ahdrMenuDarkIco">🌙</span> <span id="ahdrMenuDarkLbl">الوضع الليلي</span>
+        </button>
+        <button class="ahdr-menu-item" onclick="openNotifPanel('online');closeAhdrMenu()" id="ahdrMenuOnlineBtn" style="display:none">
+          <span class="online-dot-live" style="display:inline-block;width:8px;height:8px"></span> أونلاين
+        </button>
+        <button class="ahdr-menu-item" onclick="showPwdModal();closeAhdrMenu()">🔑 تغيير كلمة المرور</button>
+        <button class="ahdr-menu-item" onclick="confirmRestart();closeAhdrMenu()">🔄 إعادة تشغيل</button>
+        <div class="ahdr-menu-divider"></div>
+        <button class="ahdr-menu-item ahdr-menu-logout" onclick="logout()">🚪 خروج</button>
+      </div>
     </div>
   </div>
   <div class="sav ok" id="sav">
@@ -1059,8 +1086,8 @@
   <button class="mob-nav-it" id="mbn-adv" onclick="showScreen('adv');mobNavActive('mbn-adv')">
     <span class="mob-nav-ic">💼</span><span class="mob-nav-lbl">العهد</span>
   </button>
-  <button class="mob-nav-it" id="mbn-theme" onclick="toggleDark()">
-    <span class="mob-nav-ic" id="mbnThemeIco">🌙</span><span class="mob-nav-lbl" id="mbnThemeLbl">ليل</span>
+  <button class="mob-nav-it" id="mbn-rep" onclick="showScreen('rep');mobNavActive('mbn-rep')">
+    <span class="mob-nav-ic">📊</span><span class="mob-nav-lbl">تقارير</span>
   </button>
   <button class="mob-nav-it" id="mbn-more" onclick="toggleSidebar()">
     <span class="mob-nav-ic">☰</span><span class="mob-nav-lbl">المزيد</span>
