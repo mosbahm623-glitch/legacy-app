@@ -501,9 +501,10 @@ function updateBackupDateDisplay(){
 
 // ══ Online / Offline Status ══
 function initNetworkStatus(){
+  function _isLoggedIn(){return document.getElementById('mainApp')?.style.display==='flex';}
   function onOffline(){
     setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');
-    if(!token)return;
+    if(!_isLoggedIn())return;
     const prev=document.getElementById('_offlineToast');
     if(prev)prev.remove();
     const toast=document.createElement('div');
@@ -516,7 +517,7 @@ function initNetworkStatus(){
     setSav('✅ عادت الشبكة — متصل','ok');
     const prev=document.getElementById('_offlineToast');
     if(prev)prev.remove();
-    if(!token)return;
+    if(!_isLoggedIn())return;
     const prev2=document.getElementById('_onlineToast');
     if(prev2)prev2.remove();
     const toast=document.createElement('div');
