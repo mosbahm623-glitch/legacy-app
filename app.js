@@ -533,12 +533,13 @@ function initNetworkStatus(){
   // polling كل ١٠ ثواني عشان Android
   let _wasOnline=navigator.onLine;
   setInterval(async()=>{
+    let isOnline=false;
     try{
-      await fetch(SB+'/rest/v1/',{method:'HEAD',headers:{'apikey':AK},cache:'no-store',signal:AbortSignal.timeout(5000)});
-      if(!_wasOnline){_wasOnline=true;onOnline();}
-    }catch(_){
-      if(_wasOnline){_wasOnline=false;onOffline();}
-    }
+      await fetch('https://1.1.1.1',{method:'HEAD',mode:'no-cors',cache:'no-store',signal:AbortSignal.timeout(4000)});
+      isOnline=true;
+    }catch(_){isOnline=false;}
+    if(isOnline&&!_wasOnline){_wasOnline=true;onOnline();}
+    else if(!isOnline&&_wasOnline){_wasOnline=false;onOffline();}
   },10000);
 }
 
