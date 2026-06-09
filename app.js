@@ -3592,19 +3592,30 @@ function runSummary(){
     if(!ctx||!window.Chart)return;
     if(ctx._chartInst)ctx._chartInst.destroy();
     const sorted=[...rows].sort((a,b)=>b.net-a.net);
+    const shortName=n=>n.length>20?n.substring(0,20)+'…':n;
+    // ارتفاع ديناميكي حسب عدد المشاريع
+    const h=Math.max(260,sorted.length*38);
+    ctx.parentElement.style.height=h+'px';
     ctx._chartInst=new Chart(ctx,{
       type:'bar',
       data:{
-        labels:sorted.map(r=>r.name),
+        labels:sorted.map(r=>shortName(r.name)),
         datasets:[
-          {label:'وارد',data:sorted.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)',borderRadius:6,borderSkipped:false},
-          {label:'مصروف',data:sorted.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)',borderRadius:6,borderSkipped:false}
+          {label:'وارد',data:sorted.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.75)',borderRadius:4,borderSkipped:false},
+          {label:'مصروف',data:sorted.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.75)',borderRadius:4,borderSkipped:false}
         ]
       },
       options:{
+        indexAxis:'y',
         responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fn(ctx.parsed.y)} ج`}}},
-        scales:{x:{ticks:{color:'var(--text-soft)',font:{size:11},maxRotation:30},grid:{display:false}},y:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.06)'}}}
+        plugins:{
+          legend:{display:true,position:'top',labels:{color:'rgba(212,196,154,.7)',font:{size:11},boxWidth:12}},
+          tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fn(c.parsed.x)} ج`}}
+        },
+        scales:{
+          x:{ticks:{color:'var(--text-soft)',font:{size:10},callback:v=>fn(v)},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'var(--text-soft)',font:{size:11,family:'Cairo,sans-serif'}},grid:{display:false}}
+        }
       }
     });
   });
