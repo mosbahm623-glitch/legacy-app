@@ -352,6 +352,8 @@ async function logout(){
   try{await sbAuth('logout','POST');}catch(e){console.error(e);}
   token=null;uid=null;uRole=null;
   localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');
+  const mobNav=document.getElementById('mobBottomNav');
+  if(mobNav)mobNav.style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('mainApp').style.display='none';
 }
