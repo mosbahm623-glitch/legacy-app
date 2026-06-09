@@ -529,6 +529,16 @@ function initNetworkStatus(){
   window.addEventListener('offline', onOffline);
   window.addEventListener('online', onOnline);
   if(!navigator.onLine) onOffline();
+  // polling كل ١٠ ثواني عشان Android
+  let _wasOnline=navigator.onLine;
+  setInterval(async()=>{
+    try{
+      await fetch(SB+'/rest/v1/',{method:'HEAD',headers:{'apikey':AK},cache:'no-store',signal:AbortSignal.timeout(5000)});
+      if(!_wasOnline){_wasOnline=true;onOnline();}
+    }catch(_){
+      if(_wasOnline){_wasOnline=false;onOffline();}
+    }
+  },10000);
 }
 
 async function autoOpenViewerAdv(){
