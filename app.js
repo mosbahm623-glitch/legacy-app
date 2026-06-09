@@ -318,8 +318,12 @@ function toggleLpass(){
   else{inp.type='password';if(ico){ico.className='ti ti-eye';}}
 }
 function friendlyError(e){
-  const msg=e?.message||e?.error||String(e)||'';
   if(!navigator.onLine)return'لا يوجد اتصال بالإنترنت';
+  let msg=e?.message||e?.error||String(e)||'';
+  // لو الـ message فيها JSON — حللها
+  if(msg.startsWith('{')){
+    try{const j=JSON.parse(msg);msg=j.message||j.error||j.msg||msg;}catch(_){}
+  }
   if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('fetch'))return'تعذّر الاتصال بالخادم — تحقق من الإنترنت';
   if(msg.includes('JWT')||msg.includes('token')||msg.includes('session'))return'انتهت جلستك — سجّل الدخول مجدداً';
   if(msg.includes('duplicate')||msg.includes('unique'))return'البيانات موجودة مسبقاً';
@@ -332,7 +336,8 @@ function friendlyError(e){
   if(msg.includes('Email not confirmed'))return'البريد الإلكتروني غير مفعّل — تحقق من بريدك';
   if(msg.includes('Too many requests'))return'محاولات كثيرة — انتظر دقيقة وحاول مجدداً';
   if(msg.includes('row-level security')||msg.includes('RLS'))return'ليس لديك صلاحية الوصول';
-  if(msg.length>0&&msg.length<60)return msg;
+  if(msg.includes('offline'))return'لا يوجد اتصال بالإنترنت';
+  if(msg.length>0&&msg.length<80)return msg;
   return'حدث خطأ غير متوقع — حاول مرة أخرى';
 }
 
