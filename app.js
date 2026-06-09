@@ -496,8 +496,31 @@ function updateBackupDateDisplay(){
 
 // ══ Online / Offline Status ══
 function initNetworkStatus(){
-  function onOffline(){setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');}
-  function onOnline(){setSav('✅ عادت الشبكة — متصل','ok');setTimeout(()=>setSav('☁️ متصل — بياناتك محفوظة','ok'),3000);}
+  function onOffline(){
+    setSav('⚠️ أنت offline — التعديلات لن تُحفظ حتى تعود الشبكة','er');
+    if(!token)return;
+    const prev=document.getElementById('_offlineToast');
+    if(prev)prev.remove();
+    const toast=document.createElement('div');
+    toast.id='_offlineToast';
+    toast.style.cssText='position:fixed;top:140px;left:50%;transform:translateX(-50%);background:#7a1f1f;color:#ffcdd2;border:1px solid rgba(231,76,60,.5);border-radius:14px;padding:13px 22px;font-size:13px;font-weight:700;z-index:999999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);white-space:nowrap;direction:rtl;font-family:inherit';
+    toast.innerHTML='<span style="font-size:18px">📵</span><span>انقطع الاتصال — التعديلات لن تُحفظ</span>';
+    document.body.appendChild(toast);
+  }
+  function onOnline(){
+    setSav('✅ عادت الشبكة — متصل','ok');
+    const prev=document.getElementById('_offlineToast');
+    if(prev)prev.remove();
+    if(!token)return;
+    const prev2=document.getElementById('_onlineToast');
+    if(prev2)prev2.remove();
+    const toast=document.createElement('div');
+    toast.id='_onlineToast';
+    toast.style.cssText='position:fixed;top:140px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(39,174,96,.4);border-radius:14px;padding:13px 22px;font-size:13px;font-weight:700;z-index:999999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);white-space:nowrap;direction:rtl;font-family:inherit';
+    toast.innerHTML='<span style="font-size:18px">✅</span><span>عادت الشبكة — بياناتك محفوظة</span>';
+    document.body.appendChild(toast);
+    setTimeout(()=>{if(toast.parentNode)toast.remove();setSav('☁️ متصل — بياناتك محفوظة','ok');},4000);
+  }
   window.addEventListener('offline', onOffline);
   window.addEventListener('online', onOnline);
   if(!navigator.onLine) onOffline();
