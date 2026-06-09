@@ -725,7 +725,7 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .tab{padding:6px 16px;font-size:12px}
   .ent{max-height:calc(100vh - 400px)}
   .rw{padding:12px 24px}
-  .rd{font-size:13px}
+  .rd{font-size:13px;white-space:normal !important;overflow:visible !important;text-overflow:unset !important}
   .rm{font-size:11px}
   .ra{font-size:14px}
   .hi{padding:5px 24px}
@@ -1901,6 +1901,9 @@ body.dark-mode .rd{
   font-size:13px !important;
   font-weight:600 !important;
   color:rgba(220,240,230,.85) !important;
+}
+@media(max-width:767px){
+  body.dark-mode .rd{white-space:normal !important;overflow:visible !important;text-overflow:unset !important}
 }
 body.dark-mode .rm{
   font-size:10px !important;
