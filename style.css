@@ -2211,3 +2211,34 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 .sb-item-row .sb-item-main{flex:1;border-radius:8px 0 0 8px}
 .sb-arrow-btn{background:none;border:none;color:var(--accent);cursor:pointer;padding:8px 10px;font-size:11px;transition:transform .2s;border-radius:0 8px 8px 0}
 .sb-arrow-btn.open{transform:rotate(90deg)}
+
+/* ══ MOBILE ENTRY CARDS ══ */
+@media(max-width:767px){
+  #ent .rw{
+    display:block !important;
+    padding:12px 14px !important;
+    border:1px solid var(--border-light) !important;
+    border-radius:12px !important;
+    margin-bottom:8px !important;
+    background:var(--bg-pure);
+    box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  body.dark-mode #ent .rw{
+    background:rgba(255,255,255,.04) !important;
+    border-color:rgba(212,196,154,.12) !important;
+  }
+  #ent .rw .ri{display:block;margin-bottom:8px}
+  #ent .rw .rd{font-size:13px !important;white-space:normal !important;overflow:visible !important;text-overflow:unset !important;font-weight:600;line-height:1.5}
+  #ent .rw .rm{font-size:11px;color:var(--text-soft);margin-top:3px}
+  #ent .rw > div:last-child{
+    display:flex !important;
+    align-items:center;
+    justify-content:space-between;
+    border-top:1px solid var(--border-faint);
+    padding-top:8px;
+    margin-top:6px;
+  }
+  body.dark-mode #ent .rw > div:last-child{border-color:rgba(212,196,154,.07)}
+  #ent .rw .ra{font-size:15px !important;font-weight:800 !important}
+  #ent .rw .db{font-size:16px;padding:4px 8px;min-width:36px;min-height:36px}
+}
