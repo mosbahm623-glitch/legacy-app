@@ -3168,6 +3168,7 @@ async function downloadDashPDF(){try{
     const proj=allProjectsMap[e.project_id];
     const color=e.type==='i'?'var(--primary-btn)':'var(--danger)';
     return `<tr>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
       <td>${cleanDate(e.entry_date)}</td>
       <td style="color:${color};font-weight:700">${e.type==='i'?'وارد':'مصروف'}</td>
       <td>${e.category||'—'}</td>
@@ -3185,7 +3186,7 @@ async function downloadDashPDF(){try{
     </div>
     <div class="sec-ttl">📒 تفاصيل القيود</div>
     <table>
-      <thead><tr><th>التاريخ</th><th>النوع</th><th>البند</th><th>البيان</th><th>المبلغ</th><th>المشروع</th></tr></thead>
+      <thead><tr><th>#</th><th>التاريخ</th><th>النوع</th><th>البند</th><th>البيان</th><th>المبلغ</th><th>المشروع</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`+
     _pdfFooter()+_pdfClose();
@@ -3291,6 +3292,7 @@ async function downloadAdvPDF(){
       const proj=allProjectsMap[e.project_id];
       return `<tr>
         <td style="text-align:center;color:#888">${i+1}</td>
+        <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
         <td style="font-size:10px">${cleanDate(e.entry_date)}</td>
         <td style="font-weight:700;color:#922B21">${e.category||'—'}</td>
         <td style="color:#555">${e.description||'—'}</td>
@@ -3312,7 +3314,7 @@ async function downloadAdvPDF(){
       </div>
       <div class="sec-ttl">💸 مصروفات العهدة (${sorted.length} قيد)</div>
       <table>
-        <thead><tr><th>#</th><th>التاريخ</th><th>البند</th><th>البيان</th><th>المشروع</th><th>المبلغ</th></tr></thead>
+        <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البند</th><th>البيان</th><th>المشروع</th><th>المبلغ</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr><td colspan="5">الإجمالي</td><td class="amt neg">${Number(totalSpent).toLocaleString('en-US')} ج</td></tr></tfoot>
       </table>
@@ -4376,6 +4378,7 @@ function mqPrintReport(idx){
   const trs=rows.map((e,i)=>`
     <tr>
       <td style="text-align:center;color:#888">${i+1}</td>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
       <td style="text-align:center">${e.entry_date||'—'}</td>
       <td>${e.entry_type?etLbl[e.entry_type]||'—':'—'}</td>
       <td>${e.category||'—'}</td>
@@ -4392,7 +4395,7 @@ function mqPrintReport(idx){
     </div>
     <div class="sec-ttl">📒 تفاصيل القيود</div>
     <table>
-      <thead><tr><th>#</th><th>التاريخ</th><th>النوع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>النوع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
       <tbody>
         ${trs}
       </tbody>
