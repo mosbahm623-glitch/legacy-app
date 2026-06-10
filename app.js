@@ -3891,7 +3891,7 @@ async function repExportPDF(){
     const etLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
     const et=e.entry_type?`<span style="font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;background:${e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':'var(--warning-pale)'};color:${e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':'var(--warning-dark)'}">${etLbl[e.entry_type]}</span> `:'';
     const creator=e.created_by?(profileMap[e.created_by]||'—'):'غير مسجل';
-    return `<tr><td class="rep-table-num">${i+1}</td><td style="font-size:10px">${cleanDate(e.entry_date)}</td><td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${isI?'var(--success-pale)':'var(--danger-pale)'};color:${c}">${isI?'▲ وارد':'▼ مصروف'}</span></td><td style="font-size:10px;color:#555">${proj?.name||''}</td><td style="font-weight:600">${e.category||'—'}</td><td style="color:#555">${et}${e.description||''}</td><td style="font-size:10px;color:#555">${e.contractor||'—'}</td><td class="rep-creator-cell">${creator}</td><td style="color:${c};font-weight:700;white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td></tr>`;
+    return `<tr><td class="rep-table-num">${i+1}</td><td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td><td style="font-size:10px">${cleanDate(e.entry_date)}</td><td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${isI?'var(--success-pale)':'var(--danger-pale)'};color:${c}">${isI?'▲ وارد':'▼ مصروف'}</span></td><td style="font-size:10px;color:#555">${proj?.name||''}</td><td style="font-weight:600">${e.category||'—'}</td><td style="color:#555">${et}${e.description||''}</td><td style="font-size:10px;color:#555">${e.contractor||'—'}</td><td class="rep-creator-cell">${creator}</td><td style="color:${c};font-weight:700;white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td></tr>`;
   }).join('');
   // ملخص المقاولين
   const mqMap={};
@@ -3935,6 +3935,7 @@ function repAdvExportPDF(){
     const proj=allProjectsMap[e.project_id];
     return `<tr>
       <td class="rep-table-num">${i+1}</td>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
       <td>${cleanDate(e.entry_date)||'—'}</td>
       <td>${e.category||'—'}</td>
       <td>${e.description||'—'}</td>
@@ -4026,6 +4027,7 @@ function contractorExportPDF(){
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
+    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
     <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
     <td>${e.category||'—'}</td>
@@ -4130,6 +4132,7 @@ function clientExportPDF(){
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
+    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
     <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
     <td>${e.description||'—'}</td>
