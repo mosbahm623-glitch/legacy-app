@@ -3379,7 +3379,7 @@ function _populateContrSel(){
   const sel=document.getElementById('rContrSel');
   if(!sel)return;
   const contractors=[...new Set(allEntries.filter(e=>e.contractor).map(e=>e.contractor))].sort();
-  sel.innerHTML='<option value="">-- اختار مقاول --</option>';
+  sel.innerHTML='<option value="">-- اختار مقاول --</option><option value="__ALL__">📊 كل المقاولين</option>';
   contractors.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
 }
 
@@ -3969,7 +3969,7 @@ function runContractorReport(){
   if(!mq){el.innerHTML='<div class="rep-empty">اختار مقاول الأول</div>';return;}
   const from=fromStr?parseDt(fromStr):null;
   const to=toStr?(()=>{const d=parseDt(toStr);if(d)d.setHours(23,59,59,999);return d;})():null;
-  let filtered=allEntries.filter(e=>e.type==='e'&&e.contractor===mq);
+  let filtered=allEntries.filter(e=>e.type==='e'&&(mq==='__ALL__'?e.contractor:e.contractor===mq));
   if(from)filtered=filtered.filter(e=>{const d=parseDt(e.entry_date);return d&&d>=from;});
   if(to)filtered=filtered.filter(e=>{const d=parseDt(e.entry_date);return d&&d<=to;});
   filtered.sort((a,b)=>(parseDt(a.entry_date)||0)-(parseDt(b.entry_date)||0));
