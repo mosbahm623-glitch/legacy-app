@@ -4915,52 +4915,6 @@ async function summaryExportExcel(){try{
   a.download='ملخص_دوري_'+new Date().toLocaleDateString('en-CA')+'.xlsx';a.click();
 }catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
 
-function duesExportPDF(){
-  if(!window._duesRows||!window._duesRows.length){notify('لا توجد بيانات','warn');return;}
-  const rows=window._duesRows.map(r=>`<tr>
-    <td style="font-weight:600">${r.proj}</td>
-    <td>👷 ${r.mq}</td>
-    <td class="amt" style="text-align:center">${fn(r.work+r.mat)} ج</td>
-    <td class="amt pos" style="text-align:center">${fn(r.pay)} ج</td>
-    <td class="amt neg" style="text-align:center;font-weight:800">${fn(r.due)} ج</td>
-  </tr>`).join('');
-  const total=window._duesTotal||0;
-  const html=_pdfOpen('مستحقات المقاولين')+
-    _pdfHeader('⚠️ تقرير مستحقات المقاولين','Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
-    `<div class="kpis kpis-2">
-      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المستحقات</div><div class="kpi-val">${fn(total)} ج</div></div>
-      <div class="kpi kpi-neutral"><div class="kpi-lbl">عدد المقاولين</div><div class="kpi-val">${window._duesRows.length}</div></div>
-    </div>
-    <div class="sec-ttl">👷 تفاصيل المستحقات</div>
-    <table>
-      <thead><tr><th>المشروع</th><th>المقاول</th><th>أعمال + مصنعيات</th><th>مدفوع</th><th>المستحق</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="4">إجمالي المستحقات</td><td class="amt neg" style="text-align:center">${fn(total)} ج</td></tr></tfoot>
-    </table>`+
-    _pdfFooter()+_pdfClose();
-  openPrintWindow(html);
-}
-
-async function duesExportExcel(){try{
-  if(!window._duesRows||!window._duesRows.length){notify('لا توجد بيانات','warn');return;}
-  await loadExcelJSLib();
-  const total=window._duesTotal||0;
-  const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
-  const ws=wb.addWorksheet('مستحقات المقاولين',{views:[{rightToLeft:true}]});
-  const COLS=5;ws.columns=[{width:22},{width:20},{width:22},{width:16},{width:18}];
-  _xlHeader(ws,'⚠️ تقرير مستحقات المقاولين','إجمالي المستحقات: '+fn(total)+' ج  |  عدد المقاولين: '+window._duesRows.length,COLS);
-  _xlHdrRow(ws,['المشروع','المقاول','أعمال + مصنعيات (ج)','مدفوع (ج)','المستحق (ج)'],COLS);
-  window._duesRows.forEach((r,i)=>{
-    _xlDataRow(ws,[r.proj,'👷 '+r.mq,r.work+r.mat,r.pay,r.due],i,[null,_XC.MQ,null,_XC.PS,_XC.RD]);
-  });
-  _xlTotRow(ws,['إجمالي المستحقات','','','',total],COLS);
-  _xlFooter(ws,COLS);
-  const buf=await wb.xlsx.writeBuffer();
-  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='مستحقات_المقاولين_'+new Date().toLocaleDateString('en-CA')+'.xlsx';a.click();
-}catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
-
 function mqAddByIdx(idx){
   const m=window._mqList&&window._mqList[idx];
   if(!m)return;
