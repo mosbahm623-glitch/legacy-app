@@ -3712,16 +3712,17 @@ function _xlAddTitle(ws,title,cols,summary){_xlHeader(ws,title,summary,cols);}
 function _xlAddFooter(ws,cols){_xlFooter(ws,cols);}
 
 function openPrintWindow(html){
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
+    // على الموبايل — افتح في نفس التاب
+    const w=window.open('','_self');
+    if(w){w.document.open();w.document.write(html);w.document.close();return;}
+  }
+  // على الكمبيوتر — Blob URL
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  // على الموبايل نحمل الملف مباشرة بدل فتح نافذة جديدة
   const a=document.createElement('a');
-  a.href=url;
-  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    a.download='report.html';
-  } else {
-    a.target='_blank';a.rel='noopener noreferrer';
-  }
+  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
