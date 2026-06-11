@@ -1686,7 +1686,7 @@ async function addDue(){
       description:description||null,
       due_date:due_date||null,
       status:'unpaid',
-      created_by:uId
+      created_by:uid
     });
     _duesList.unshift(res[0]);
     notify('✅ تم الإضافة','ok');
