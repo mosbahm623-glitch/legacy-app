@@ -1773,6 +1773,7 @@ function renderNotesScreen(){
       <div onclick="toggleNoteScreen('${n.id}',${!n.done})" style="width:20px;height:20px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid ${n.done?'#1D3C2A':'var(--border-color)'};background:${n.done?'#1D3C2A':'transparent'};color:#D4C49A;font-size:12px">${n.done?'✓':''}</div>
       <div style="flex:1;font-size:13px;color:${n.done?'var(--text-hint)':'var(--text-main)'};text-decoration:${n.done?'line-through':'none'}">${n.content}</div>
       <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;background:${c.bg};color:${c.txt}">${c.lbl}</span>
+      ${!n.done?`<span onclick="toggleNoteScreen('${n.id}',true)" style="font-size:11px;color:#1D6A3E;cursor:pointer;padding:3px 8px;border-radius:6px;border:0.5px solid #1D6A3E">✅ إنجاز</span>`:'<span style="font-size:11px;color:var(--text-hint);padding:3px 8px">منتهي</span>'}
       <span onclick="deleteNoteScreen('${n.id}')" style="font-size:11px;color:var(--text-hint);cursor:pointer;padding:3px 8px;border-radius:6px;border:0.5px solid var(--border-color)">حذف</span>
     </div>`;
   }).join('');
@@ -1873,6 +1874,57 @@ async function deleteNote(id){
     renderNotes();
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
+
+function duesExportPDF(){
+  if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
+  const unpaid=_allDues.filter(d=>d.status==='unpaid');
+  const paid=_allDues.filter(d=>d.status==='paid');
+  const totalUnpaid=unpaid.reduce((s,d)=>s+d.amount,0);
+  const totalPaid=paid.reduce((s,d)=>s+d.amount,0);
+  const total=totalUnpaid+totalPaid;
+  const html=_pdfOpen('مستحقات المقاولين')+
+    _pdfHeader('💰 مستحقات المقاولين','Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
+    `<div class="kpis kpis-3">
+      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المستحقات</div><div class="kpi-val">▼ ${fn(total)} ج</div></div>
+      <div class="kpi kpi-net-neg"><div class="kpi-lbl">غير مدفوع</div><div class="kpi-val">▼ ${fn(totalUnpaid)} ج</div></div>
+      <div class="kpi kpi-net-pos"><div class="kpi-lbl">مدفوع</div><div class="kpi-val">✅ ${fn(totalPaid)} ج</div></div>
+    </div>
+    <div class="sec-ttl">📋 تفاصيل المستحقات</div>
+    <table>
+      <thead><tr><th>#</th><th>المقاول</th><th>المشروع</th><th>البيان</th><th>التاريخ</th><th>الحالة</th><th>المبلغ</th></tr></thead>
+      <tbody>${_allDues.map((d,i)=>{
+        const proj=allProjectsMap[d.project_id];
+        const isPaid=d.status==='paid';
+        return`<tr><td class="rep-table-num">${i+1}</td><td>${d.contractor}</td><td>${proj?.name||'—'}</td><td>${d.description||'—'}</td><td>${d.due_date||'—'}</td><td style="color:${isPaid?'#1D6A3E':'#C86060'};font-weight:700">${isPaid?'✅ مدفوع':'⏳ غير مدفوع'}</td><td class="amt ${isPaid?'pos':'neg'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</td></tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr><td colspan="6">إجمالي المستحقات</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
+    </table>`+
+    _pdfFooter()+_pdfClose();
+  openPrintWindow(html);
+}
+
+async function duesExportExcel(){try{
+  if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
+  if(!window.ExcelJS){const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';document.head.appendChild(s);await new Promise(r=>s.onload=r);}
+  const unpaid=_allDues.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
+  const paid=_allDues.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
+  const total=unpaid+paid;
+  const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
+  const ws=wb.addWorksheet('مستحقات المقاولين',{views:[{rightToLeft:true}]});
+  const COLS=7;ws.columns=[{width:8},{width:22},{width:20},{width:25},{width:16},{width:16},{width:18}];
+  _xlHeader(ws,'💰 مستحقات المقاولين','إجمالي: '+fn(total)+' ج  |  غير مدفوع: '+fn(unpaid)+' ج  |  مدفوع: '+fn(paid)+' ج',COLS);
+  _xlHdrRow(ws,['#','المقاول','المشروع','البيان','التاريخ','الحالة','المبلغ (ج)'],COLS);
+  _allDues.forEach((d,i)=>{
+    const proj=allProjectsMap[d.project_id];
+    const isPaid=d.status==='paid';
+    _xlDataRow(ws,[i+1,d.contractor,proj?.name||'—',d.description||'—',d.due_date||'—',isPaid?'✅ مدفوع':'⏳ غير مدفوع',d.amount],i,[null,null,null,null,null,null,isPaid?_XC.PS:_XC.RD]);
+  });
+  _xlTotRow(ws,['','','','','','إجمالي',total],COLS);
+  _xlFooter(ws,COLS);
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+  a.download='مستحقات_المقاولين_'+new Date().toLocaleDateString('en-CA')+'.xlsx';a.click();
+}catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
 
 async function loadDuesScreen(){
   document.getElementById('duesScreenSub').textContent='جاري التحميل...';
