@@ -333,23 +333,6 @@
 
           </div>
 
-          <!-- Row 4: الملاحظات والمهام -->
-          <div class="d-bot-row" style="margin-top:16px">
-            <div class="d-panel" style="flex:1;border-radius:16px;padding:20px">
-              <div class="d-panel-hdr" style="margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#1D3C2A"></div>
-                  <span class="d-panel-title">ملاحظاتي</span>
-                </div>
-                <span style="font-size:11px;color:var(--text-hint);background:var(--bg-faint);padding:3px 10px;border-radius:20px" id="notesCount"></span>
-              </div>
-              <div style="display:flex;gap:8px;margin-bottom:16px">
-                <input id="noteInput" placeholder="مهمة جديدة..." class="input-full" style="flex:1;height:40px;border-radius:10px;border:0.5px solid var(--border-color);padding:0 14px;background:var(--bg-faint);font-size:13px" onkeydown="if(event.key==='Enter')addNote()">
-                <button onclick="addNote()" style="width:40px;height:40px;border-radius:10px;border:none;background:#1D3C2A;color:#D4C49A;font-size:20px;cursor:pointer;flex-shrink:0">+</button>
-              </div>
-              <div id="notesList"><div class="d-empty">جاري التحميل...</div></div>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -951,6 +934,8 @@
           <button class="filter-btn" onclick="filterDuesScreen('all')" id="duesFilterAll" style="background:var(--primary);color:#fff">الكل</button>
           <button class="filter-btn" onclick="filterDuesScreen('unpaid')" id="duesFilterUnpaid">غير مدفوع</button>
           <button class="filter-btn" onclick="filterDuesScreen('paid')" id="duesFilterPaid">مدفوع</button>
+          <button class="filter-btn dl btn-pdf-red" onclick="duesExportPDF()">📕 PDF</button>
+          <button class="filter-btn dl btn-pdf-green" onclick="duesExportExcel()">📗 Excel</button>
         </div>
         <div id="duesScreenList"></div>
       </div>
