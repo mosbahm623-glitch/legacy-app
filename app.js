@@ -1724,6 +1724,14 @@ async function toggleDue(id,newStatus){
 let _allDues=[];
 let _duesFilter='all';
 
+function goToNotes(){
+  showScreen('dash');
+  setTimeout(()=>{
+    const el=document.getElementById('notesList');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  },400);
+}
+
 // ══════════════════════════════════════════
 //  NOTES / TODO
 // ══════════════════════════════════════════
