@@ -973,8 +973,8 @@ async function loadDashboard(){
     // حساب الإجماليات
     let totalInc=0,totalExp=0;
     allProjects.forEach(p=>{
-      const s=projSummaries[p.id]||{inc:0,exp:0};
-      totalInc+=s.inc; totalExp+=s.exp;
+      const s=projSummaries[p.id]||{inc:0,expDirect:0};
+      totalInc+=s.inc; totalExp+=s.expDirect;
     });
     let totalAdv=0;
     allAdvances.forEach(a=>{
@@ -995,8 +995,8 @@ async function loadDashboard(){
     // تصنيف المشاريع
     let excellent=0,needFollow=0,critical=0;
     allProjects.forEach(p=>{
-      const s=projSummaries[p.id]||{inc:0,exp:0};
-      const pct=s.inc>0?Math.round((s.exp/s.inc)*100):0;
+      const s=projSummaries[p.id]||{inc:0,expDirect:0};
+      const pct=s.inc>0?Math.round((s.expDirect/s.inc)*100):0;
       if(s.inc===0||pct>90)critical++;
       else if(pct>70)needFollow++;
       else excellent++;
