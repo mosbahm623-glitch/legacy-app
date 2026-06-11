@@ -463,7 +463,7 @@ async function checkNotesReminder(){
     if(count>0){
       setTimeout(()=>{
         const toast=document.createElement('div');
-        toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);direction:rtl;font-family:inherit';
+        toast.style.cssText='position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);direction:rtl;font-family:inherit';
         const icon=document.createElement('span');icon.textContent='📝';
         const msg=document.createElement('span');msg.textContent='عندك '+count+' مهمة متبقية';
         const btnGo=document.createElement('button');
