@@ -458,7 +458,7 @@ async function initApp(){
 
 async function checkNotesReminder(){
   try{
-    const notes=await sb('notes?user_id=eq.'+uid+'&done=eq.false&select=id&limit=100');
+    const notes=await sb('notes?user_id=eq.'+uid+'&done=is.false&select=id&limit=100');
     const count=notes?.length||0;
     if(count>0){
       setTimeout(()=>{
@@ -480,9 +480,9 @@ async function checkNotesReminder(){
         document.getElementById('notesReminderClose').onclick=()=>overlay.remove();
         overlay.onclick=(e)=>{if(e.target===overlay)overlay.remove();};
         setTimeout(()=>{if(overlay.parentNode)overlay.remove();},10000);
-      },3000);
+      },5000);
     }
-  }catch(e){}
+  }catch(e){console.error('notes err',e);}
 }
 
 function checkBackupReminder(){
