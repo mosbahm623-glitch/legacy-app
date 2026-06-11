@@ -2703,7 +2703,71 @@ async function togAcc(uid2,pid,btn){const isOn=btn.classList.contains('on');try{
 async function chRole(uid2,role){try{await sb('profiles?id=eq.'+uid2,'PATCH',{role});setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 
-async function xl(){const msg=document.getElementById('emsg');msg.textContent='جاري تحميل المكتبة...';document.getElementById('eb').disabled=true;try{if(!xOK){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>{xOK=true;res();};s.onerror=rej;document.head.appendChild(s);});}msg.textContent='جاري بناء الملف...';await bld();msg.textContent='✓ تم التحميل';}catch(e){msg.textContent='خطأ: '+e.message;}document.getElementById('eb').disabled=false;}
+async function xlClient(){
+  const msg=document.getElementById('emsg');
+  msg.textContent='جاري تحميل المكتبة...';
+  try{
+    if(!xOK){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>{xOK=true;res();};s.onerror=rej;document.head.appendChild(s);});}
+    msg.textContent='جاري بناء الملف...';
+    await bldClient();
+    msg.textContent='✓ تم التحميل';
+  }catch(e){msg.textContent='خطأ: '+e.message;}
+}
+
+async function bldClient(){
+  const p=curP();if(!p)return;
+  const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
+  const safeSheet=n=>{let s=(n||'شيت').replace(/[:\\\\/\?\*\[\]]/g,'').trim().substring(0,28);return s||'شيت';};
+  const ct=Object.entries(cm).map(([n,rs])=>({n:safeSheet(n),r:rs,tr:6+rs.length}));
+  const ic=pInc().map(e=>[e.entry_no||'',e.description||'دفعة',e.entry_date||'—',e.amount]);
+  const IT=6+ic.length;
+  const G1='1D3C2A',G2='2A5C38',G5='EDF5EE',G6='F4F8F5',B1='D4C49A',B2='E8D8B0',B3='F5EDDB',B4='FAF5EC';
+  const BL='1A3A5C',LB='D6E8F7',RD='922B21',PS='1E6B3A',LP='E2F5EA',DEF='6E1C1C',LD='FAE5E5';
+  const inc=ic.reduce((s,r)=>s+r[3],0),exp=ct.reduce((s,c)=>s+c.r.reduce((ss,r)=>ss+r.amount,0),0),df=(inc-exp)<0;
+  const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
+  const F=(c,b)=>c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+b}};
+  const T=(c,f,s,b,i)=>c.font={color:{argb:'FF'+f},size:s||10,bold:!!b,italic:!!i,name:'Calibri'};
+  const A=(c,h)=>c.alignment={horizontal:h||'right',vertical:'middle',readingOrder:'rightToLeft'};
+  const BD=c=>{const b={style:'thin',color:{argb:'FFD8CEB8'}};c.border={top:b,left:b,bottom:b,right:b};};
+  const N=c=>c.numFmt='#,##0';
+  const MC=(w,a,b)=>{try{w.mergeCells(a+':'+b);}catch(e){}};
+  const bs=(w,sub,nc)=>{const lc=String.fromCharCode(64+nc);w.views=[{rightToLeft:true}];w.getRow(1).height=30;MC(w,'A1',lc+'1');const h=w.getCell('A1');h.value='Legacy Fine Touch';F(h,G1);T(h,B1,15,true);A(h,'center');w.getRow(2).height=18;MC(w,'A2',lc+'2');const t=w.getCell('A2');t.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(t,G2);T(t,B2,9,false,true);A(t,'center');w.getRow(3).height=22;MC(w,'A3',lc+'3');const s=w.getCell('A3');s.value=sub;F(s,'C8D8C0');T(s,G1,11,true);A(s,'center');w.getRow(4).height=8;MC(w,'A4',lc+'4');F(w.getCell('A4'),B4);};
+  const af=(w,r,t,nc)=>{const lc=String.fromCharCode(64+nc);MC(w,'A'+r,lc+r);const f=w.getCell('A'+r);f.value=t;F(f,B3);T(f,G1,8,false,true);A(f,'center');};
+
+  // ملخص
+  const wS=wb.addWorksheet('ملخص',{tabColor:{argb:'FF'+G1}});
+  wS.views=[{rightToLeft:true}];[26,20,13,18].forEach((w,i)=>wS.getColumn(i+1).width=w);
+  wS.getRow(1).height=30;MC(wS,'A1','D1');const sh=wS.getCell('A1');sh.value='Legacy Fine Touch';F(sh,G1);T(sh,B1,16,true);A(sh,'center');
+  wS.getRow(2).height=18;MC(wS,'A2','D2');const s2=wS.getCell('A2');s2.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(s2,G2);T(s2,B2,9,false,true);A(s2,'center');
+  wS.getRow(3).height=10;MC(wS,'A3','D3');F(wS.getCell('A3'),B4);
+  wS.getRow(4).height=20;['المشروع','المهندس','تاريخ البدء','تاريخ التقفيل'].forEach((v,i)=>{const c=wS.getCell(4,i+1);c.value=v;F(c,G1);T(c,B1,9,true);A(c,'center');});
+  wS.getRow(5).height=26;[p.name,'م. محمد شكري',p.start_date,p.close_date].forEach((v,i)=>{const c=wS.getCell(5,i+1);c.value=v;F(c,G5);T(c,G1,11,true);A(c,'center');const b={style:'thin',color:{argb:'FFA8C8A8'}};c.border={top:b,left:b,bottom:b,right:b};});
+  wS.getRow(6).height=10;MC(wS,'A6','D6');F(wS.getCell('A6'),B4);
+  wS.getRow(7).height=22;MC(wS,'A7','B7');[['A7','إجمالي الوارد',BL],['C7','إجمالي المصروفات',RD],['D7',df?'⚠ عجز':'✅ الرصيد',df?DEF:PS]].forEach(x=>{const c=wS.getCell(x[0]);c.value=x[1];F(c,x[2]);T(c,'FFFFFF',9,true);A(c,'center');});
+  wS.getRow(8).height=46;MC(wS,'A8','B8');
+  const k8a=wS.getCell('A8');k8a.value={formula:"'الوارد'!D"+IT};F(k8a,LB);T(k8a,BL,18,true);A(k8a,'center');k8a.numFmt='#,##0 "ج"';
+  const k8c=wS.getCell('C8');k8c.value={formula:ct.length?ct.map(c=>"'"+c.n+"'!D"+c.tr).join('+'):'0'};F(k8c,'FAE5E5');T(k8c,RD,18,true);A(k8c,'center');k8c.numFmt='#,##0 "ج"';
+  const k8d=wS.getCell('D8');k8d.value={formula:'A8-C8'};F(k8d,df?LD:LP);T(k8d,df?DEF:PS,18,true);A(k8d,'center');k8d.numFmt='#,##0 "ج"';
+  wS.getRow(9).height=10;MC(wS,'A9','D9');F(wS.getCell('A9'),B4);
+  wS.getRow(10).height=28;MC(wS,'A10','D10');wS.getCell('A10').value='تفصيل المصروفات بالبنود';F(wS.getCell('A10'),G1);T(wS.getCell('A10'),B1,12,true);A(wS.getCell('A10'),'center');
+  wS.getRow(11).height=22;['البند','إجمالي المصروف (ج)','النسبة %','ملاحظة'].forEach((v,i)=>{const c=wS.getCell(11,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});
+  let SR=12;const CR=[];
+  ct.forEach((ct2,ix)=>{wS.getRow(SR).height=21;const ca=wS.getCell('A'+SR);ca.value=ct2.n;BD(ca);T(ca,G1,10,true);A(ca,'right');if(ix%2===0)F(ca,G6);const cb=wS.getCell('B'+SR);cb.value={formula:"'"+ct2.n+"'!D"+ct2.tr};BD(cb);A(cb,'left');T(cb,G1,10,true);N(cb);if(ix%2===0)F(cb,G6);const cc=wS.getCell('C'+SR);BD(cc);A(cc,'center');T(cc,'888888',9);if(ix%2===0)F(cc,G6);BD(wS.getCell('D'+SR));if(ix%2===0)F(wS.getCell('D'+SR),G6);CR.push(SR);SR++;});
+  const GR=SR;wS.getRow(SR).height=28;wS.getCell('A'+SR).value='إجمالي المصروفات';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const gb=wS.getCell('B'+SR);gb.value={formula:ct.length?'SUM(B12:B'+(SR-1)+')':'0'};F(gb,G1);T(gb,B1,11,true);A(gb,'left');N(gb);wS.getCell('C'+SR).value='100%';F(wS.getCell('C'+SR),G1);T(wS.getCell('C'+SR),B2,10,true);A(wS.getCell('C'+SR),'center');F(wS.getCell('D'+SR),G1);SR++;
+  CR.forEach(rr=>{const c=wS.getCell('C'+rr);c.value={formula:'B'+rr+'/$B$'+GR};c.numFmt='0.0%';});
+  wS.getRow(SR).height=26;wS.getCell('A'+SR).value='إجمالي الوارد';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const ib2=wS.getCell('B'+SR);ib2.value={formula:"'الوارد'!D"+IT};F(ib2,G1);T(ib2,B1,11,true);A(ib2,'left');N(ib2);F(wS.getCell('C'+SR),G1);F(wS.getCell('D'+SR),G1);const IR=SR;SR++;
+  wS.getRow(SR).height=32;const BC=df?DEF:PS;wS.getCell('A'+SR).value=df?'⚠ عجز':'✅ الرصيد المتبقي';F(wS.getCell('A'+SR),BC);T(wS.getCell('A'+SR),'FFFFFF',12,true);A(wS.getCell('A'+SR),'right');const bb=wS.getCell('B'+SR);bb.value={formula:'B'+IR+'-B'+GR};F(bb,BC);T(bb,'FFFFFF',12,true);A(bb,'left');N(bb);F(wS.getCell('C'+SR),BC);F(wS.getCell('D'+SR),BC);SR+=2;
+  MC(wS,'A'+SR,'D'+SR);wS.getCell('A'+SR).value='Legacy Fine Touch  |  '+p.name+'  |  م. محمد شكري  |  '+p.close_date;F(wS.getCell('A'+SR),B3);T(wS.getCell('A'+SR),G1,8,false,true);A(wS.getCell('A'+SR),'center');
+
+  // الوارد
+  const wI=wb.addWorksheet('الوارد',{tabColor:{argb:'FF2A5C38'}});[8,32,16,20].forEach((w,i)=>wI.getColumn(i+1).width=w);bs(wI,'حركة الوارد  —  '+p.name,4);wI.getRow(5).height=22;['#','البيان','التاريخ','المبلغ (ج)'].forEach((v,i)=>{const c=wI.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let ir=6;ic.forEach((row,ix)=>{wI.getRow(ir).height=21;const cs=[wI.getCell('A'+ir),wI.getCell('B'+ir),wI.getCell('C'+ir),wI.getCell('D'+ir)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=row[0];A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=row[1];A(cs[1],'right');T(cs[1],'1A1A1A',10);cs[2].value=row[2];A(cs[2],'center');T(cs[2],'666666',9);cs[3].value=row[3];A(cs[3],'left');N(cs[3]);T(cs[3],BL,10,true);ir++;});wI.getRow(ir).height=28;MC(wI,'A'+ir,'C'+ir);wI.getCell('A'+ir).value='الإجمالي';F(wI.getCell('A'+ir),G1);T(wI.getCell('A'+ir),B1,11,true);A(wI.getCell('A'+ir),'right');const iD=wI.getCell('D'+ir);iD.value={formula:ic.length?'SUM(D6:D'+(ir-1)+')':'0'};F(iD,G1);T(iD,B1,11,true);A(iD,'left');N(iD);af(wI,ir+2,'Legacy Fine Touch  |  الوارد  |  '+p.name,4);
+
+  // البنود بدون عمود المقاول
+  const TC=['1D5C3A','1E6B4A','235E3F','1A7050','2A6B45','0D5C3A','326050','254840'];
+  ct.forEach((cat,idx)=>{const wc=wb.addWorksheet(cat.n,{tabColor:{argb:'FF'+TC[idx%TC.length]}});[8,36,16,20].forEach((w,i)=>wc.getColumn(i+1).width=w);bs(wc,cat.n+'  —  '+p.name,4);wc.getRow(5).height=22;['#','البيان','التاريخ','المبلغ (ج)'].forEach((v,i)=>{const c=wc.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let cr=6;cat.r.forEach((e,ix)=>{wc.getRow(cr).height=21;const cs=[wc.getCell('A'+cr),wc.getCell('B'+cr),wc.getCell('C'+cr),wc.getCell('D'+cr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=e.entry_no||'';A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=e.description||'—';A(cs[1],'right');T(cs[1],'1A1A1A',10);cs[2].value=e.entry_date||'—';A(cs[2],'center');T(cs[2],'666666',9);cs[3].value=e.amount;A(cs[3],'left');N(cs[3]);T(cs[3],e.amount<0?RD:G1,10,true);cr++;});wc.getRow(cr).height=28;MC(wc,'A'+cr,'C'+cr);wc.getCell('A'+cr).value='إجمالي '+cat.n;F(wc.getCell('A'+cr),G1);T(wc.getCell('A'+cr),B1,11,true);A(wc.getCell('A'+cr),'right');const tD=wc.getCell('D'+cr);tD.value={formula:'SUM(D6:D'+(cr-1)+')'};F(tD,G1);T(tD,B1,11,true);A(tD,'left');N(tD);af(wc,cr+2,'Legacy Fine Touch  |  '+cat.n+'  |  '+p.name,4);});
+
+  const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='نسخة_العميل_'+p.name.replace(/\s+/g,'_')+'.xlsx';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}msg.textContent='جاري تحميل المكتبة...';document.getElementById('eb').disabled=true;try{if(!xOK){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>{xOK=true;res();};s.onerror=rej;document.head.appendChild(s);});}msg.textContent='جاري بناء الملف...';await bld();msg.textContent='✓ تم التحميل';}catch(e){msg.textContent='خطأ: '+e.message;}document.getElementById('eb').disabled=false;}
 async function bld(){
   const p=curP();if(!p)return;
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
