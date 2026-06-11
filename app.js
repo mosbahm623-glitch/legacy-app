@@ -932,7 +932,15 @@ async function loadDashboard(){
       const spent=allEntries.filter(e=>e.advance_id===a.id).reduce((s,e)=>s+e.amount,0);
       totalAdv+=(inst-spent);
     });
-    const bal=totalInc-totalExp-totalAdv;
+
+    // إجمالي المستحقات غير المدفوعة
+    let totalDues=0;
+    try{
+      const dues=await sb('contractor_dues?status=eq.unpaid&select=amount');
+      totalDues=dues.reduce((s,d)=>s+d.amount,0);
+    }catch(_){}
+
+    const bal=totalInc-totalExp-totalAdv+totalDues;
 
     // تصنيف المشاريع
     let excellent=0,needFollow=0,critical=0;
@@ -956,13 +964,7 @@ async function loadDashboard(){
     const balEl=document.getElementById('dBal');
     if(balEl){balEl.textContent=(bal>=0?'+':'')+fn(bal)+' ج';balEl.className='d-kpi-val net'+(bal<0?' exp':'');}
     setKpi('dAdv',fn(totalAdv)+' ج');
-
-    // إجمالي المستحقات غير المدفوعة
-    try{
-      const dues=await sb('contractor_dues?status=eq.unpaid&select=amount');
-      const totalDues=dues.reduce((s,d)=>s+d.amount,0);
-      setKpi('dDues',fn(totalDues)+' ج');
-    }catch(_){}
+    setKpi('dDues',fn(totalDues)+' ج');
 
     setKpi('dProjActive',allProjects.length+' مشروع');
     setKpi('dProjWarn',needFollow+critical);
