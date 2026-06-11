@@ -383,11 +383,11 @@ async function initApp(){
   document.getElementById('loginScreen').style.display='none';
   applyUserTheme();
   document.getElementById('uname').textContent=uName;
-  document.getElementById('urole').textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'}[uRole]||uRole;
+  document.getElementById('urole').textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 مالك'}[uRole]||uRole;
   // Mobile header
   const _mhName=document.getElementById('uname-hdr');if(_mhName)_mhName.textContent=uName;
   const _mhAName=document.getElementById('ahdr-uname');if(_mhAName)_mhAName.textContent=uName;
-  const _mhARole=document.getElementById('ahdr-urole');if(_mhARole)_mhARole.textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'}[uRole]||uRole;
+  const _mhARole=document.getElementById('ahdr-urole');if(_mhARole)_mhARole.textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 مالك'}[uRole]||uRole;
   document.getElementById('sbi-admin').style.display=uRole==='admin'?'flex':'none';
   document.getElementById('sbi-approvals').style.display=uRole==='admin'?'flex':'none';
   document.getElementById('sbi-backup').style.display=uRole==='admin'?'flex':'none';
@@ -1638,7 +1638,7 @@ async function loadDuesTab(el){
 }
 
 function renderDuesTab(el){
-  const canEdit=uRole!=='viewer';
+  const canEdit=uRole!=='viewer'&&uRole!=='owner';
   const total=_duesList.reduce((s,d)=>s+d.amount,0);
   const unpaid=_duesList.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
   const paid=_duesList.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
@@ -2193,7 +2193,7 @@ function rp(){
 }
 function re(){
   const el=document.getElementById('ent');
-  const canEdit=uRole!=='viewer';
+  const canEdit=uRole!=='viewer'&&uRole!=='owner';
   if(cTab==='s'){const cs={};pExp().forEach(e=>{cs[e.category]=(cs[e.category]||0)+e.amount;});const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);const tt=ls.reduce((s,c)=>s+c[1],0);el.innerHTML=ls.length?ls.map(([c,a])=>'<div class="rw"><div class="ri"><div class="rd">'+c+'</div><div class="rm">'+(tt?((a/tt)*100).toFixed(1):0)+'%</div></div><div class="ra">'+fn(a)+' ج</div></div>').join(''):'<div class="emp">لا توجد بيانات</div>';return;}
   if(cTab==='j'){const j=gJ();if(!j.length){el.innerHTML='<div class="emp">لا توجد قيود بعد</div>';return;}
     const PAGE=60;const totalPages=Math.ceil(j.length/PAGE);
