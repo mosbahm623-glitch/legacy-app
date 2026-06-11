@@ -246,7 +246,7 @@
               <div class="d-kpi-val adv" id="dAdv">—</div>
               <div class="d-kpi-trend" id="dAdvTrend"></div>
             </div>
-            <div class="d-kpi-card">
+            <div class="d-kpi-card" onclick="showScreen('dues')" style="cursor:pointer">
               <div class="d-kpi-top"><span class="d-kpi-lbl">مستحقات المقاولين</span><span class="d-kpi-ico" style="color:#C86060">💰</span></div>
               <div class="d-kpi-val" style="color:#C86060" id="dDues">—</div>
               <div class="d-kpi-trend" id="dDuesTrend"></div>
@@ -895,6 +895,23 @@
         </div>
         <div id="archivedProjList" class="arch-list"></div>
       </div><!-- end archiveScreen -->
+
+      <div id="duesScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <span style="font-size:24px">💰</span>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:var(--text-main)">مستحقات المقاولين</div>
+            <div style="font-size:12px;color:var(--text-hint)" id="duesScreenSub">جاري التحميل...</div>
+          </div>
+        </div>
+        <div class="kp" id="duesScreenKpi" style="margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="filter-btn" onclick="filterDuesScreen('all')" id="duesFilterAll" style="background:var(--primary);color:#fff">الكل</button>
+          <button class="filter-btn" onclick="filterDuesScreen('unpaid')" id="duesFilterUnpaid">غير مدفوع</button>
+          <button class="filter-btn" onclick="filterDuesScreen('paid')" id="duesFilterPaid">مدفوع</button>
+        </div>
+        <div id="duesScreenList"></div>
+      </div>
 
     </div><!-- end main-content -->
   </div><!-- end app-body -->
