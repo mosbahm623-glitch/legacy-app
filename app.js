@@ -2825,31 +2825,7 @@ async function pdfClient(){
     ${bndRows}`+
     _pdfFooter()+_pdfClose();
 
-  // تحميل html2pdf
-  if(!window.html2pdf){
-    await new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      s.onload=res;s.onerror=rej;
-      document.head.appendChild(s);
-    });
-  }
-
-  // إنشاء div مؤقت للتحويل
-  const div=document.createElement('div');
-  div.innerHTML=html;
-  div.style.cssText='position:absolute;left:-9999px;top:0;width:210mm;direction:rtl';
-  document.body.appendChild(div);
-
-  await html2pdf().set({
-    margin:[10,10,10,10],
-    filename:'عميل_'+p.name+'.pdf',
-    html2canvas:{scale:2,useCORS:true,logging:false},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-  }).from(div).save();
-
-  document.body.removeChild(div);
-  notify('✅ تم تحميل الـ PDF','ok');
+  openPrintWindow(html);
 }
 
 async function xlClient(){
