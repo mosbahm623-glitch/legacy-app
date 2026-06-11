@@ -1,5 +1,5 @@
-// Legacy Fine Touch — Service Worker v2
-// يحفظ الشل بتاع التطبيق ويعرض صفحة offline لو الإنترنت قطع
+// Legacy Core — Service Worker
+// Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
 const CACHE = 'lft-v6';
 const SHELL = [
@@ -11,7 +11,8 @@ const SHELL = [
   'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap'
 ];
 
-// ── Install: كاش الشل ──
+const APP_FILES = ['index.html', 'app.js', 'style.css'];
+
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -20,7 +21,6 @@ self.addEventListener('install', e => {
   );
 });
 
-// ── Activate: امسح الكاش القديم ──
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -29,16 +29,15 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── Fetch: استراتيجية ذكية حسب نوع الطلب ──
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Supabase API calls — مش بنكاشها، بس لو offline نرجع error واضح
+  // Supabase — لا كاش
   if (url.hostname.includes('supabase.co')) {
     e.respondWith(
       fetch(e.request).catch(() =>
         new Response(
-          JSON.stringify({ error: 'offline', message: 'لا يوجد اتصال بالإنترنت' }),
+          JSON.stringify({ error: 'offline' }),
           { status: 503, headers: { 'Content-Type': 'application/json' } }
         )
       )
@@ -46,7 +45,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Google Fonts — Network first, fallback to cache
+  // Google Fonts — Network first
   if (url.hostname.includes('fonts.')) {
     e.respondWith(
       fetch(e.request)
@@ -56,19 +55,34 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // App Shell (HTML/JS/CSS) — Cache first, then network
+  // ملفات التطبيق الرئيسية — Network First عشان التحديثات تظهر فوراً
+  const isAppFile = APP_FILES.some(f => url.pathname.endsWith(f)) || url.pathname === '/' || url.pathname.endsWith('/');
+  if (isAppFile) {
+    e.respondWith(
+      fetch(e.request)
+        .then(r => {
+          if (r.ok) {
+            const clone = r.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return r;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // باقي الطلبات — Cache First
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(r => {
-        // كاش أي حاجة جديدة من نفس الأصل
         if (r.ok && url.origin === self.location.origin) {
           const clone = r.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return r;
       }).catch(() => {
-        // لو الطلب على صفحة HTML وOffline — ارجع الـ index
         if (e.request.headers.get('accept')?.includes('text/html')) {
           return caches.match('./index.html');
         }
