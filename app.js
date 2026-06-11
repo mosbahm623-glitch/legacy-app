@@ -4037,11 +4037,8 @@ function switchRepTab(tab){
   repTab=tab;
   document.getElementById('repProjPanel').style.display=tab==='proj'?'block':'none';
   document.getElementById('repAdvPanel').style.display=tab==='adv'?'block':'none';
-  document.getElementById('repDuesPanel').style.display=tab==='dues'?'block':'none';
   document.getElementById('repTabProj').className='filter-btn'+(tab==='proj'?'':' sec');
   document.getElementById('repTabAdv').className='filter-btn'+(tab==='adv'?'':' sec');
-  document.getElementById('repTabDues').className='filter-btn'+(tab==='dues'?'':' sec');
-  if(tab==='dues')loadDuesReport();
 }
 
 // ── PROJECT FILTER ──
