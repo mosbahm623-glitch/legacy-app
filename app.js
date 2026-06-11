@@ -679,10 +679,10 @@ function buildProjListScreen(){
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.innerHTML=projects.map(p=>{
-    const s=projSummaries[p.id]||{bal:0,inc:0,exp:0};
-    const bal=s.bal||0;
-    const inc=s.inc||0;
-    const exp=s.exp||0;
+    const pe=allEntries.filter(e=>e.project_id===p.id);
+    const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+    const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+    const bal=inc-exp;
     const balClass=bal<0?'neg':bal>0?'pos':'';
     const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
     return `<div class="proj-card" onclick="goToProject('${p.id}')">
@@ -1295,7 +1295,7 @@ async function loadAllProjects(){
   // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
   [allProjects,allEntries,allBudgets]=await Promise.all([
     sb('projects?order=created_at'),
-    sbAll('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc'),
+    sbAll('entries?order=created_at.desc'),
     sb('budgets?order=created_at').catch(()=>[])
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
