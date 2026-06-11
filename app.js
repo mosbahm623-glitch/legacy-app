@@ -3960,7 +3960,7 @@ function openReport(type){
     document.getElementById('repAdvPanel').style.display='block';
     _populateAdvSel();
   } else if(type==='dues'){
-    document.getElementById('repContractorPanel').style.display='block';
+    showScreen('dues');
   } else if(type==='contractor'){
     document.getElementById('repContractorPanel').style.display='block';
     _populateContrSel();
