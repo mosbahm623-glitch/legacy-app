@@ -954,6 +954,14 @@ async function loadDashboard(){
     const balEl=document.getElementById('dBal');
     if(balEl){balEl.textContent=(bal>=0?'+':'')+fn(bal)+' ج';balEl.className='d-kpi-val net'+(bal<0?' exp':'');}
     setKpi('dAdv',fn(totalAdv)+' ج');
+
+    // إجمالي المستحقات غير المدفوعة
+    try{
+      const dues=await sb('contractor_dues?status=eq.unpaid&select=amount');
+      const totalDues=dues.reduce((s,d)=>s+d.amount,0);
+      setKpi('dDues',fn(totalDues)+' ج');
+    }catch(_){}
+
     setKpi('dProjActive',allProjects.length+' مشروع');
     setKpi('dProjWarn',needFollow+critical);
 
