@@ -917,6 +917,27 @@
         <div id="archivedProjList" class="arch-list"></div>
       </div><!-- end archiveScreen -->
 
+      <div id="notesScreen" style="display:none;padding:20px;max-width:700px;margin:0 auto;direction:rtl">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:10px;height:10px;border-radius:50%;background:#1D3C2A"></div>
+            <span style="font-size:18px;font-weight:500;color:var(--text-main)">ملاحظاتي</span>
+          </div>
+          <span style="font-size:11px;color:var(--text-hint)" id="notesScreenDate"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px" id="notesScreenStats"></div>
+        <div style="display:flex;gap:8px;margin-bottom:20px">
+          <input id="notesScreenInput" placeholder="اكتب ملاحظة أو مهمة جديدة..." style="flex:1;height:42px;border:0.5px solid var(--border-color);border-radius:12px;padding:0 16px;font-size:14px;background:var(--bg-faint);color:var(--text-main);outline:none" onkeydown="if(event.key==='Enter')addNoteFromScreen()">
+          <button onclick="addNoteFromScreen()" style="width:42px;height:42px;border-radius:12px;border:none;background:#1D3C2A;color:#D4C49A;font-size:22px;cursor:pointer;flex-shrink:0">+</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="filter-btn" onclick="setNotesFilter('all',this)" id="nfAll" style="background:var(--primary);color:#fff;border-radius:20px">الكل</button>
+          <button class="filter-btn" onclick="setNotesFilter('undone',this)" id="nfUndone" style="border-radius:20px">متبقي</button>
+          <button class="filter-btn" onclick="setNotesFilter('done',this)" id="nfDone" style="border-radius:20px">منتهي</button>
+        </div>
+        <div id="notesScreenList"></div>
+      </div>
+
       <div id="duesScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
           <span style="font-size:24px">💰</span>
@@ -992,6 +1013,7 @@
       <button class="fab-opt" onclick="fabAddExp()">📥 <span>إضافة مصروف</span></button>
       <button class="fab-opt" onclick="fabAddAdv()">💼 <span>إضافة عهدة</span></button>
       <button class="fab-opt" onclick="fabAddProj()">📁 <span>إضافة مشروع</span></button>
+      <button class="fab-opt" onclick="fabAddNote()">📝 <span>إضافة ملاحظة</span></button>
     </div>
     <button class="fab-main" id="fabMain" onclick="toggleFab()">＋</button>
   </div>
