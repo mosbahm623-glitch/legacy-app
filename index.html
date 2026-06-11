@@ -949,18 +949,27 @@
           <span style="font-size:24px">💰</span>
           <div>
             <div style="font-size:18px;font-weight:700;color:var(--text-main)">مستحقات المقاولين</div>
-            <div style="font-size:12px;color:var(--text-hint)" id="duesScreenSub">جاري التحميل...</div>
+            <div style="font-size:12px;color:var(--text-hint)" id="duesScreenSub">اختار مشروع وابحث</div>
           </div>
         </div>
+
+        <!-- فلتر البحث -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+          <select id="duesProjectFilter" style="flex:1;min-width:160px;height:38px;border:0.5px solid var(--border-color);border-radius:10px;padding:0 12px;background:var(--bg-faint);color:var(--text-main);font-size:13px">
+            <option value="all">كل المشاريع</option>
+          </select>
+          <button onclick="searchDues()" style="height:38px;padding:0 20px;border-radius:10px;border:none;background:#1D3C2A;color:#D4C49A;font-size:13px;cursor:pointer">🔍 بحث</button>
+        </div>
+
         <div class="kp" id="duesScreenKpi" style="margin-bottom:16px"></div>
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="duesScreenFilters" style="display:none">
           <button class="filter-btn" onclick="filterDuesScreen('all')" id="duesFilterAll" style="background:var(--primary);color:#fff">الكل</button>
           <button class="filter-btn" onclick="filterDuesScreen('unpaid')" id="duesFilterUnpaid">غير مدفوع</button>
           <button class="filter-btn" onclick="filterDuesScreen('paid')" id="duesFilterPaid">مدفوع</button>
           <button class="filter-btn dl btn-pdf-red" onclick="duesExportPDF()">📕 PDF</button>
           <button class="filter-btn dl btn-pdf-green" onclick="duesExportExcel()">📗 Excel</button>
         </div>
-        <div id="duesScreenList"></div>
+        <div id="duesScreenList"><div class="emp">اختار مشروع واضغط بحث</div></div>
       </div>
 
     </div><!-- end main-content -->
