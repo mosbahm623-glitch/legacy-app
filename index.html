@@ -502,19 +502,28 @@
           <button class="svb" onclick="doim()">✅ استيراد</button>
         </div>
         <div class="eb">
-          <div style="font-size:11px;color:var(--text-hint);margin-bottom:8px">تصدير التقرير</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="xl()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:right">
-              <div style="width:32px;height:32px;border-radius:7px;background:#E8F5E9;color:#1D6A3E;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📊</div>
-              <div><div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة المكتب</div><div style="font-size:10px;color:var(--text-hint)">Excel كامل</div></div>
+          <div style="font-size:11px;color:var(--text-hint);margin-bottom:10px;letter-spacing:.3px">تصدير التقرير</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <button onclick="xl()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border-radius:12px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:center">
+              <div style="width:36px;height:36px;border-radius:8px;background:#E8F5E9;color:#1D6A3E;display:flex;align-items:center;justify-content:center;font-size:18px">📊</div>
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة المكتب</div>
+                <div style="font-size:9px;padding:1px 6px;border-radius:6px;background:#E8F5E9;color:#1D6A3E;display:inline-block;margin-top:2px">Excel</div>
+              </div>
             </button>
-            <button onclick="xlClient()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:right">
-              <div style="width:32px;height:32px;border-radius:7px;background:#FFF8E1;color:#854F0B;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📋</div>
-              <div><div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة العميل</div><div style="font-size:10px;color:var(--text-hint)">Excel</div></div>
+            <button onclick="xlClient()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border-radius:12px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:center">
+              <div style="width:36px;height:36px;border-radius:8px;background:#FFF8E1;color:#854F0B;display:flex;align-items:center;justify-content:center;font-size:18px">📋</div>
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة العميل</div>
+                <div style="font-size:9px;padding:1px 6px;border-radius:6px;background:#E8F5E9;color:#1D6A3E;display:inline-block;margin-top:2px">Excel</div>
+              </div>
             </button>
-            <button onclick="pdfClient()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:right;grid-column:span 2">
-              <div style="width:32px;height:32px;border-radius:7px;background:#FBEAEA;color:#A32D2D;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📄</div>
-              <div><div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة العميل</div><div style="font-size:10px;color:var(--text-hint)">PDF — تحميل مباشر</div></div>
+            <button onclick="pdfClient()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border-radius:12px;border:0.5px solid var(--border-color);background:var(--bg-pure);cursor:pointer;text-align:center">
+              <div style="width:36px;height:36px;border-radius:8px;background:#FBEAEA;color:#A32D2D;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--text-main)">نسخة العميل</div>
+                <div style="font-size:9px;padding:1px 6px;border-radius:6px;background:#FBEAEA;color:#A32D2D;display:inline-block;margin-top:2px">PDF</div>
+              </div>
             </button>
           </div>
           <div class="emsg" id="emsg"></div>
