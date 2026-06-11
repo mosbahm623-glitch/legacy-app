@@ -330,10 +330,23 @@
 
           </div>
 
+          <!-- Row 4: الملاحظات والمهام -->
+          <div class="d-bot-row" style="margin-top:16px">
+            <div class="d-panel" style="flex:1">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">📝 ملاحظاتي</span>
+                <span class="d-panel-count" id="notesCount"></span>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:10px">
+                <input id="noteInput" placeholder="اكتب ملاحظة أو مهمة..." class="input-full" style="flex:1" onkeydown="if(event.key==='Enter')addNote()">
+                <button class="save-btn" onclick="addNote()" style="padding:8px 16px">+</button>
+              </div>
+              <div id="notesList"><div class="d-empty">جاري التحميل...</div></div>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <!-- PROJECTS STATUS SCREEN -->
       <div id="projStatusScreen" style="display:none">
         <div class="dash-inner">
           <div class="d-welcome">
