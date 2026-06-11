@@ -902,6 +902,7 @@ async function renameMq(oldName){
 
 async function loadDashboard(){
   try{
+    loadNotes();
     // Welcome
     const nameEl=document.getElementById('dWelcomeName');
     const dateEl=document.getElementById('dWelcomeDate');
@@ -1720,6 +1721,63 @@ async function toggleDue(id,newStatus){
 // ══════════════════════════════════════════
 let _allDues=[];
 let _duesFilter='all';
+
+// ══════════════════════════════════════════
+//  NOTES / TODO
+// ══════════════════════════════════════════
+let _notesList=[];
+
+async function loadNotes(){
+  try{
+    _notesList=await sb('notes?user_id=eq.'+uid+'&order=created_at.desc');
+    renderNotes();
+  }catch(e){const el=document.getElementById('notesList');if(el)el.innerHTML='<div class="d-empty">—</div>';}
+}
+
+function renderNotes(){
+  const el=document.getElementById('notesList');
+  if(!el)return;
+  const cnt=document.getElementById('notesCount');
+  const undone=_notesList.filter(n=>!n.done).length;
+  if(cnt)cnt.textContent=undone?`${undone} متبقي`:'';
+  if(!_notesList.length){el.innerHTML='<div class="d-empty">لا توجد ملاحظات</div>';return;}
+  el.innerHTML=_notesList.map(n=>`
+    <div class="rw" style="opacity:${n.done?0.5:1}">
+      <div class="ri" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" ${n.done?'checked':''} onchange="toggleNote('${n.id}',this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
+        <div class="rd" style="text-decoration:${n.done?'line-through':'none'};color:${n.done?'var(--text-hint)':'var(--text-main)'}">${n.content}</div>
+      </div>
+      <button onclick="deleteNote('${n.id}')" style="font-size:12px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>
+    </div>`).join('');
+}
+
+async function addNote(){
+  const input=document.getElementById('noteInput');
+  const content=input?.value?.trim();
+  if(!content){notify('اكتب ملاحظة الأول','warn');return;}
+  try{
+    const res=await sb('notes','POST',{user_id:uid,content,done:false});
+    _notesList.unshift(res[0]);
+    input.value='';
+    renderNotes();
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function toggleNote(id,done){
+  try{
+    await sb('notes?id=eq.'+id,'PATCH',{done});
+    _notesList=_notesList.map(n=>n.id===id?{...n,done}:n);
+    renderNotes();
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function deleteNote(id){
+  try{
+    await sb('notes?id=eq.'+id,'DELETE');
+    _notesList=_notesList.filter(n=>n.id!==id);
+    renderNotes();
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
 
 async function loadDuesScreen(){
   document.getElementById('duesScreenSub').textContent='جاري التحميل...';
