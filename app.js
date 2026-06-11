@@ -1876,11 +1876,11 @@ async function deleteNote(id){
 }
 
 async function duesExportPDF(){
-  if(!_allDues||!_allDues.length){
-    notify('⏳ جاري تحميل البيانات...','ok');
-    try{_allDues=await sb('contractor_dues?order=created_at.desc&limit=1000');}catch(_){}
-    if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
-  }
+  notify('⏳ جاري التحضير...','ok');
+  let dues=[];
+  try{dues=await sb('contractor_dues?order=created_at.desc&limit=1000');}catch(e){notify('❌ خطأ في التحميل','er');return;}
+  if(!dues||!dues.length){notify('لا توجد مستحقات','warn');return;}
+  _allDues=dues;
   const unpaid=_allDues.filter(d=>d.status==='unpaid');
   const paid=_allDues.filter(d=>d.status==='paid');
   const totalUnpaid=unpaid.reduce((s,d)=>s+d.amount,0);
