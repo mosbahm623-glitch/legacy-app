@@ -3547,6 +3547,7 @@ const _PDF_CSS=`
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:Arial,sans-serif;direction:rtl;background:var(--bg-gray);color:#1a1a1a}
   .page{background:var(--bg-pure);max-width:960px;margin:0 auto;padding:36px 40px;min-height:100vh}
+  @media print{.no-print{display:none!important}}
   /* ── HEADER ── */
   .hdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:4px solid #1D3C2A;margin-bottom:24px}
   .hdr-left h1{font-size:24px;font-weight:900;color:var(--primary);margin-bottom:3px}
@@ -3636,7 +3637,7 @@ function _pdfOpen(title){
   return `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>${title}</title><style>${_PDF_CSS}</style></head><body><div class="wm">LEGACY</div><div class="page">`;
 }
 function _pdfClose(){
-  return `</div><script>window.onload=()=>window.print();<\/script></body></html>`;
+  return `</div><div style="position:fixed;top:10px;left:10px;z-index:9999;print-color-adjust:exact" class="no-print"><button onclick="window.close()" style="background:#1D3C2A;color:#D4C49A;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:Cairo,sans-serif">✕ إغلاق</button><button onclick="window.print()" style="background:#D4C49A;color:#1D3C2A;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;margin-right:6px;font-family:Cairo,sans-serif">🖨 طباعة</button></div><script>window.onload=()=>{};<\/script></body></html>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
