@@ -554,7 +554,7 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
@@ -585,6 +585,7 @@ function showScreen(s){
   if(s==='projStatus')loadProjStatus();
   if(s==='timeline')loadTimeline();
   if(s==='archive')loadArchivedProjects();
+  if(s==='dues')loadDuesScreen();
   closeSidebar();
 }
 
@@ -1714,8 +1715,74 @@ async function toggleDue(id,newStatus){
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
 
-async function deleteDue(id){
-  if(!confirm('حذف المستحق؟'))return;
+// ══════════════════════════════════════════
+//  DUES SCREEN (شاشة المستحقات الشاملة)
+// ══════════════════════════════════════════
+let _allDues=[];
+let _duesFilter='all';
+
+async function loadDuesScreen(){
+  document.getElementById('duesScreenSub').textContent='جاري التحميل...';
+  document.getElementById('duesScreenList').innerHTML='<div class="emp">⏳ جاري التحميل...</div>';
+  try{
+    _allDues=await sb('contractor_dues?order=created_at.desc');
+    _duesFilter='all';
+    renderDuesScreen();
+  }catch(e){document.getElementById('duesScreenList').innerHTML='<div class="emp">❌ خطأ في التحميل</div>';}
+}
+
+function filterDuesScreen(f){
+  _duesFilter=f;
+  ['all','unpaid','paid'].forEach(x=>{
+    const btn=document.getElementById('duesFilter'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(btn){btn.style.background=x===f?'var(--primary)':'';btn.style.color=x===f?'#fff':'';}
+  });
+  renderDuesScreen();
+}
+
+function renderDuesScreen(){
+  const filtered=_duesFilter==='all'?_allDues:_allDues.filter(d=>d.status===_duesFilter);
+  const total=_allDues.reduce((s,d)=>s+d.amount,0);
+  const unpaid=_allDues.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
+  const paid=_allDues.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
+
+  document.getElementById('duesScreenSub').textContent=`${_allDues.length} مستحق`;
+  document.getElementById('duesScreenKpi').innerHTML=`
+    <div class="kc"><div class="kl">إجمالي المستحقات</div><div class="kv">${fn(total)} ج</div></div>
+    <div class="kc"><div class="kl" style="color:var(--danger)">غير مدفوع</div><div class="kv" style="color:var(--danger)">▼ ${fn(unpaid)} ج</div></div>
+    <div class="kc"><div class="kl" style="color:var(--success)">مدفوع</div><div class="kv" style="color:var(--success)">✅ ${fn(paid)} ج</div></div>`;
+
+  if(!filtered.length){
+    document.getElementById('duesScreenList').innerHTML='<div class="emp">لا توجد مستحقات</div>';
+    return;
+  }
+
+  const html=filtered.map(d=>{
+    const isPaid=d.status==='paid';
+    const proj=allProjectsMap[d.project_id];
+    return `<div class="rw">
+      <div class="ri">
+        <div class="rd" style="font-weight:700">${d.contractor}</div>
+        <div class="rm" style="color:#888;font-size:11px">${proj?.name||'—'} · ${d.description||'—'} ${d.due_date?'· '+d.due_date:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="ra" style="color:${isPaid?'var(--success)':'var(--danger)'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</div>
+        <button onclick="toggleDueFromScreen('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('duesScreenList').innerHTML=html;
+}
+
+async function toggleDueFromScreen(id,newStatus){
+  try{
+    await sb('contractor_dues?id=eq.'+id,'PATCH',{status:newStatus});
+    _allDues=_allDues.map(d=>d.id===id?{...d,status:newStatus}:d);
+    renderDuesScreen();
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function deleteDue(id){  if(!confirm('حذف المستحق؟'))return;
   try{
     await sb('contractor_dues?id=eq.'+id,'DELETE');
     _duesList=_duesList.filter(d=>d.id!==id);
