@@ -1674,6 +1674,8 @@ function renderDuesTab(el){
   const dtEl=document.getElementById('dueDate');
   if(dtEl)initDateInput(dtEl);
 }
+
+async function addDue(){
   const contractor=document.getElementById('dueContr')?.value?.trim();
   const amount=parseFloat(document.getElementById('dueAmt')?.value);
   const description=document.getElementById('dueDesc')?.value?.trim();
