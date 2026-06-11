@@ -3714,8 +3714,14 @@ function _xlAddFooter(ws,cols){_xlFooter(ws,cols);}
 function openPrintWindow(html){
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
+  // على الموبايل نحمل الملف مباشرة بدل فتح نافذة جديدة
   const a=document.createElement('a');
-  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+  a.href=url;
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    a.download='report.html';
+  } else {
+    a.target='_blank';a.rel='noopener noreferrer';
+  }
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
