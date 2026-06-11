@@ -2703,8 +2703,9 @@ async function togAcc(uid2,pid,btn){const isOn=btn.classList.contains('on');try{
 async function chRole(uid2,role){try{await sb('profiles?id=eq.'+uid2,'PATCH',{role});setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 
-function pdfClient(){
+async function pdfClient(){
   const p=curP();if(!p)return;
+  notify('⏳ جاري تحضير الـ PDF...','ok');
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
   const ic=pInc();
@@ -2763,7 +2764,32 @@ function pdfClient(){
     </table>
     ${bndRows}`+
     _pdfFooter()+_pdfClose();
-  openPrintWindow(html);
+
+  // تحميل html2pdf
+  if(!window.html2pdf){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.onload=res;s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // إنشاء div مؤقت للتحويل
+  const div=document.createElement('div');
+  div.innerHTML=html;
+  div.style.cssText='position:absolute;left:-9999px;top:0;width:210mm;direction:rtl';
+  document.body.appendChild(div);
+
+  await html2pdf().set({
+    margin:[10,10,10,10],
+    filename:'عميل_'+p.name+'.pdf',
+    html2canvas:{scale:2,useCORS:true,logging:false},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }).from(div).save();
+
+  document.body.removeChild(div);
+  notify('✅ تم تحميل الـ PDF','ok');
 }
 
 async function xlClient(){
