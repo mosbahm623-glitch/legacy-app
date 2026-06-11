@@ -1878,8 +1878,12 @@ async function deleteNote(id){
 async function duesExportPDF(){
   notify('⏳ جاري التحضير...','ok');
   let dues=[];
-  try{dues=await sb('contractor_dues?order=created_at.desc&limit=1000');}catch(e){notify('❌ خطأ في التحميل','er');return;}
-  if(!dues||!dues.length){notify('لا توجد مستحقات','warn');return;}
+  try{
+    const res=await sb('contractor_dues?order=created_at.desc&limit=1000');
+    dues=res||[];
+    notify('✅ جاب '+dues.length+' مستحق','ok');
+  }catch(e){notify('❌ خطأ: '+e.message,'er');return;}
+  if(!dues.length){notify('لا توجد مستحقات في الجدول','warn');return;}
   _allDues=dues;
   const unpaid=_allDues.filter(d=>d.status==='unpaid');
   const paid=_allDues.filter(d=>d.status==='paid');
