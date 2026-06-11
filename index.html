@@ -468,6 +468,19 @@
               <button onclick="tim()" class="btn-paste">📋 لصق</button>
             </div>
           </div>
+          <div class="ep" id="dueEp" style="display:none">
+            <div class="ep-h">
+              <span>تعديل المستحق</span>
+              <button onclick="document.getElementById('dueEp').style.display='none'" class="btn-close-x">✕</button>
+            </div>
+            <div class="ep-g">
+              <input id="dueEpContr" class="fl" placeholder="اسم المقاول">
+              <input id="dueEpAmt" type="number" placeholder="المبلغ" step="any">
+              <input id="dueEpDesc" class="fl" placeholder="البيان">
+              <input id="dueEpDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+            </div>
+            <button class="svb" onclick="saveDueEdit()">💾 حفظ التعديلات</button>
+          </div>
           <div class="ep" id="ep">
             <div class="ep-h">
               <span id="ep-t">تعديل القيد</span>
