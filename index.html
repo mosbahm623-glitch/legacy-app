@@ -201,6 +201,9 @@
         <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
           <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
         </button>
+        <button class="sb-item" id="sbi-notes" onclick="goToNotes()">
+          <span class="sb-icon">📝</span><span class="sb-label">ملاحظاتي</span>
+        </button>
       </nav>
 
       <div class="sb-mini-btn">
@@ -732,6 +735,13 @@
               <div class="rhc-icon rhc-icon-gold">👷</div>
               <div class="rhc-title">تقرير مقاول</div>
               <div class="rhc-sub">كل مدفوعات مقاول معين عبر جميع المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+
+            <div class="rep-hub-card" onclick="showScreen('dues')">
+              <div class="rhc-icon rhc-icon-red">💰</div>
+              <div class="rhc-title">مستحقات المقاولين</div>
+              <div class="rhc-sub">المبالغ المستحقة لكل مقاول لم تُدفع بعد</div>
               <div class="rhc-arrow">←</div>
             </div>
 
