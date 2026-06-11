@@ -1846,25 +1846,34 @@ async function deleteDue(id){  if(!confirm('حذف المستحق؟'))return;
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
 
-async function editDue(id){
+let _editDueId=null;
+
+function editDue(id){
   const d=_duesList.find(x=>x.id===id);
   if(!d)return;
-  const contractor=prompt('اسم المقاول:',d.contractor||'');
-  if(contractor===null)return;
-  const amount=prompt('المبلغ:',d.amount||'');
-  if(amount===null)return;
-  const description=prompt('البيان:',d.description||'');
-  if(description===null)return;
-  const due_date=prompt('التاريخ (dd/mm/yyyy):',d.due_date||'');
-  if(due_date===null)return;
+  _editDueId=id;
+  document.getElementById('dueEpContr').value=d.contractor||'';
+  document.getElementById('dueEpAmt').value=d.amount||'';
+  document.getElementById('dueEpDesc').value=d.description||'';
+  document.getElementById('dueEpDate').value=d.due_date||'';
+  const dtEl=document.getElementById('dueEpDate');
+  if(dtEl)initDateInput(dtEl);
+  document.getElementById('dueEp').style.display='block';
+}
+
+async function saveDueEdit(){
+  if(!_editDueId)return;
+  const contractor=document.getElementById('dueEpContr').value.trim();
+  const amount=parseFloat(document.getElementById('dueEpAmt').value);
+  const description=document.getElementById('dueEpDesc').value.trim();
+  const due_date=document.getElementById('dueEpDate').value.trim();
+  if(!contractor){notify('اكتب اسم المقاول','warn');return;}
+  if(!amount||isNaN(amount)){notify('اكتب المبلغ','warn');return;}
   try{
-    await sb('contractor_dues?id=eq.'+id,'PATCH',{
-      contractor:contractor.trim(),
-      amount:parseFloat(amount),
-      description:description.trim()||null,
-      due_date:due_date.trim()||null
-    });
-    _duesList=_duesList.map(x=>x.id===id?{...x,contractor:contractor.trim(),amount:parseFloat(amount),description:description.trim()||null,due_date:due_date.trim()||null}:x);
+    await sb('contractor_dues?id=eq.'+_editDueId,'PATCH',{contractor,amount,description:description||null,due_date:due_date||null});
+    _duesList=_duesList.map(x=>x.id===_editDueId?{...x,contractor,amount,description:description||null,due_date:due_date||null}:x);
+    document.getElementById('dueEp').style.display='none';
+    _editDueId=null;
     renderDuesTab(document.getElementById('ent'));
     notify('✅ تم التعديل','ok');
   }catch(e){notify('❌ '+friendlyError(e),'er');}
