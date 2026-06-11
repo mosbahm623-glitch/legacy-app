@@ -1608,6 +1608,109 @@ function oe(id){
 function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
 function st(t){cT=t;document.getElementById('tx').classList.toggle('on',t==='e');document.getElementById('ti').classList.toggle('on',t==='i');document.getElementById('ic').style.display=t==='e'?'block':'none';document.getElementById('iq').style.display=t==='e'?'block':'none';}
 function stab(t){cTab=t;window._rpPage=0;rp();}
+
+// ══════════════════════════════════════════
+//  CONTRACTOR DUES TAB
+// ══════════════════════════════════════════
+let _duesList=[];
+
+async function loadDuesTab(el){
+  el.innerHTML='<div class="emp">⏳ جاري التحميل...</div>';
+  try{
+    const data=await sb('contractor_dues?project_id=eq.'+curPid+'&order=created_at.desc');
+    _duesList=data||[];
+    renderDuesTab(el);
+  }catch(e){el.innerHTML='<div class="emp">❌ خطأ في تحميل البيانات</div>';}
+}
+
+function renderDuesTab(el){
+  const canEdit=uRole!=='viewer';
+  const total=_duesList.reduce((s,d)=>s+d.amount,0);
+  const unpaid=_duesList.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
+  const paid=_duesList.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
+
+  let html=`
+    <div class="kp" style="margin-bottom:12px">
+      <div class="kc"><div class="kl">إجمالي المستحقات</div><div class="kv">${fn(total)} ج</div></div>
+      <div class="kc"><div class="kl" style="color:var(--danger)">غير مدفوع</div><div class="kv" style="color:var(--danger)">▼ ${fn(unpaid)} ج</div></div>
+      <div class="kc"><div class="kl" style="color:var(--success)">مدفوع</div><div class="kv" style="color:var(--success)">✅ ${fn(paid)} ج</div></div>
+    </div>`;
+
+  if(canEdit){
+    html+=`<div class="ef" style="margin-bottom:12px">
+      <div class="ig">
+        <input id="dueContr" placeholder="اسم المقاول" class="input-full">
+        <input id="dueAmt" type="number" placeholder="المبلغ (ج)" step="any">
+        <input id="dueDesc" placeholder="البيان" class="input-full">
+        <input id="dueDate" placeholder="التاريخ dd/mm/yyyy" class="input-full">
+      </div>
+      <button class="save-btn" onclick="addDue()" style="margin-top:8px;width:100%">+ إضافة مستحق</button>
+    </div>`;
+  }
+
+  if(!_duesList.length){
+    html+='<div class="emp">لا توجد مستحقات</div>';
+  } else {
+    html+='<div class="entries-list">';
+    _duesList.forEach(d=>{
+      const isPaid=d.status==='paid';
+      html+=`<div class="rw" style="opacity:${isPaid?0.6:1}">
+        <div class="ri">
+          <div class="rd" style="font-weight:700">${d.contractor}</div>
+          <div class="rm" style="color:#888;font-size:11px">${d.description||'—'} ${d.due_date?'· '+d.due_date:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="ra" style="color:${isPaid?'var(--success)':'var(--danger)'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</div>
+          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
+          <button onclick="deleteDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>`:''}
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+async function addDue(){
+  const contractor=document.getElementById('dueContr')?.value?.trim();
+  const amount=parseFloat(document.getElementById('dueAmt')?.value);
+  const description=document.getElementById('dueDesc')?.value?.trim();
+  const due_date=document.getElementById('dueDate')?.value?.trim();
+  if(!contractor){notify('اكتب اسم المقاول','warn');return;}
+  if(!amount||isNaN(amount)){notify('اكتب المبلغ','warn');return;}
+  try{
+    const res=await sb('contractor_dues','POST',{
+      project_id:curPid,
+      contractor,
+      amount,
+      description:description||null,
+      due_date:due_date||null,
+      status:'unpaid',
+      created_by:uId
+    });
+    _duesList.unshift(res[0]);
+    notify('✅ تم الإضافة','ok');
+    renderDuesTab(document.getElementById('ent'));
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function toggleDue(id,newStatus){
+  try{
+    await sb('contractor_dues?id=eq.'+id,'PATCH',{status:newStatus});
+    _duesList=_duesList.map(d=>d.id===id?{...d,status:newStatus}:d);
+    renderDuesTab(document.getElementById('ent'));
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function deleteDue(id){
+  if(!confirm('حذف المستحق؟'))return;
+  try{
+    await sb('contractor_dues?id=eq.'+id,'DELETE');
+    _duesList=_duesList.filter(d=>d.id!==id);
+    renderDuesTab(document.getElementById('ent'));
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
 function tim(){const im=document.getElementById('im');im.style.display=im.style.display==='block'?'none':'block';sit(cT);}
 function sit(t){imType=t;document.getElementById('imE').classList.toggle('on',t==='e');document.getElementById('imI').classList.toggle('on',t==='i');document.getElementById('imH').textContent=t==='e'?'الترتيب: المبلغ ⇥ البند ⇥ البيان ⇥ التاريخ ⇥ المقاول':'الترتيب: المبلغ ⇥ البيان ⇥ التاريخ';}
 
@@ -1755,7 +1858,7 @@ function rp(){
   const cs=[...new Set(pExp().map(e=>e.category))].filter(x=>x);
   const mqs=[...new Set(pExp().map(e=>e.contractor))].filter(x=>x);
   const tot=entries.length;
-  const tabs=[['s','ملخص',0,''],['j','📒 يومية',tot,'jr'],['m','👷 مقاولين',mqs.length,'mq'],['i','الوارد',pInc().length,'']];
+  const tabs=[['s','ملخص',0,''],['j','📒 يومية',tot,'jr'],['m','👷 مقاولين',mqs.length,'mq'],['dues','💰 مستحقات',0,''],['i','الوارد',pInc().length,'']];
   cs.forEach(c=>tabs.push([c,c,pExp().filter(e=>e.category===c).length,'']));
   (document.getElementById('tbs')||{}).innerHTML=tabs.map(t=>'<button class="tab'+(t[0]===cTab?' on':'')+(t[3]?' '+t[3]:'')+'" onclick="stab(\''+t[0].replace(/'/g,"\\'")+'\')">'+t[1]+(t[2]>0?'<span class="c">'+t[2]+'</span>':'')+'</button>').join('');
   re();
@@ -1803,6 +1906,7 @@ function re(){
     }).join('');
     return;
   }
+  if(cTab==='dues'){loadDuesTab(el);return;}
   let es=cTab==='i'?pInc():pExp().filter(e=>e.category===cTab);
   es=[...es].sort((a,b)=>(b.entry_no||0)-(a.entry_no||0));
   if(!es.length){el.innerHTML='<div class="emp">لا توجد قيود</div>';return;}
