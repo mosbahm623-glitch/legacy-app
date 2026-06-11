@@ -1938,13 +1938,34 @@ async function duesExportExcel(){try{
 }catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
 
 async function loadDuesScreen(){
-  document.getElementById('duesScreenSub').textContent='جاري التحميل...';
-  document.getElementById('duesScreenList').innerHTML='<div class="emp">⏳ جاري التحميل...</div>';
+  // ملء dropdown المشاريع
+  const sel=document.getElementById('duesProjectFilter');
+  if(sel&&allProjects.length){
+    sel.innerHTML='<option value="all">كل المشاريع</option>';
+    allProjects.forEach(p=>{
+      sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`;
+    });
+  }
+  document.getElementById('duesScreenList').innerHTML='<div class="emp">اختار مشروع واضغط بحث</div>';
+  document.getElementById('duesScreenKpi').innerHTML='';
+}
+
+async function searchDues(){
+  const projId=document.getElementById('duesProjectFilter')?.value;
+  document.getElementById('duesScreenList').innerHTML='<div class="emp">⏳ جاري البحث...</div>';
+  notify('⏳ جاري البحث...','ok');
   try{
-    _allDues=await sb('contractor_dues?order=created_at.desc');
+    let query='contractor_dues?order=created_at.desc&limit=1000';
+    if(projId&&projId!=='all') query+=`&project_id=eq.${projId}`;
+    _allDues=await sb(query);
     _duesFilter='all';
+    // إظهار أزرار الفلتر
+    const filtersEl=document.getElementById('duesScreenFilters');
+    if(filtersEl)filtersEl.style.display='flex';
     renderDuesScreen();
-  }catch(e){document.getElementById('duesScreenList').innerHTML='<div class="emp">❌ خطأ في التحميل</div>';}
+  }catch(e){
+    document.getElementById('duesScreenList').innerHTML='<div class="emp">❌ خطأ في البحث</div>';
+  }
 }
 
 function filterDuesScreen(f){
