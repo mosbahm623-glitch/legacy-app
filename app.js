@@ -452,7 +452,34 @@ async function initApp(){
     showScreen('dash');
     // تنبيه الـ backup اليومي
     if(uRole==='admin') checkBackupReminder();
+    checkNotesReminder();
   }
+}
+
+async function checkNotesReminder(){
+  try{
+    const notes=await sb('notes?user_id=eq.'+uid+'&done=eq.false&select=id');
+    const count=notes?.length||0;
+    if(count>0){
+      setTimeout(()=>{
+        const toast=document.createElement('div');
+        toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);white-space:nowrap;direction:rtl;font-family:inherit';
+        const icon=document.createElement('span');icon.textContent='📝';
+        const msg=document.createElement('span');msg.textContent=`عندك ${count} مهمة متبقية`;
+        const btnGo=document.createElement('button');
+        btnGo.textContent='شوف';
+        btnGo.style.cssText='background:#D4C49A;color:#1D3C2A;border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit';
+        btnGo.onclick=()=>{showScreen('notes');toast.remove();};
+        const btnClose=document.createElement('button');
+        btnClose.textContent='×';
+        btnClose.style.cssText='background:none;border:none;color:rgba(212,196,154,.5);cursor:pointer;font-size:16px;padding:0 4px';
+        btnClose.onclick=()=>toast.remove();
+        toast.append(btnClose,msg,icon,btnGo);
+        document.body.appendChild(toast);
+        setTimeout(()=>toast.remove(),8000);
+      },3500);
+    }
+  }catch(_){}
 }
 
 function checkBackupReminder(){
