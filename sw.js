@@ -1,7 +1,7 @@
 // Legacy Fine Touch — Service Worker v2
 // يحفظ الشل بتاع التطبيق ويعرض صفحة offline لو الإنترنت قطع
 
-const CACHE = 'lft-v5';
+const CACHE = 'lft-v6';
 const SHELL = [
   './',
   './index.html',
