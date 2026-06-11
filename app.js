@@ -397,14 +397,14 @@ async function initApp(){
   const mobNav=document.getElementById('mobBottomNav');
   if(mobNav)mobNav.style.display=window.innerWidth<768?'flex':'none';
   if(uRole==='admin')updatePendingBadge();
-  const canEdit=uRole==='admin'||uRole==='editor';
+  const canEdit=uRole==='admin'||uRole==='editor'||uRole==='owner';
   document.getElementById('entryForm').style.display=canEdit?'block':'none';
   document.getElementById('vnotice').style.display=uRole==='viewer'?'block':'none';
   document.getElementById('ehint').style.display=canEdit?'block':'none';
-  document.getElementById('addPBtn').style.display=canEdit?'inline-block':'none';
-  document.getElementById('delPBtn').style.display=canEdit?'inline-block':'none';
+  document.getElementById('addPBtn').style.display=(uRole==='admin'||uRole==='editor')?'inline-block':'none';
+  document.getElementById('delPBtn').style.display=(uRole==='admin'||uRole==='editor')?'inline-block':'none';
   const editPBtn=document.getElementById('editPBtn');
-  if(editPBtn)editPBtn.style.display=canEdit?'inline-block':'none';
+  if(editPBtn)editPBtn.style.display=(uRole==='admin'||uRole==='editor')?'inline-block':'none';
   document.getElementById('newAdvForm').style.display=canEdit?'block':'none';
   document.getElementById('fab').style.display=canEdit?'block':'none';
   document.getElementById('idt').value=ts();
