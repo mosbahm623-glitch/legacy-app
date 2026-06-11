@@ -483,7 +483,7 @@ async function checkNotesReminder(){
         toast.append(topRow,botRow);
         document.body.appendChild(toast);
         setTimeout(()=>{if(toast.parentNode)toast.remove();},8000);
-      },10000);
+      },13000);
     }
   }catch(e){}
 }
