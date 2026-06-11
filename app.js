@@ -1282,10 +1282,10 @@ let projSummaries={};
 // تحديث ملخص مشروع واحد بعد أي تغيير
 function refreshProjSummary(pid){
   if(!pid)return;
-  const pe=allEntries.filter(e=>e.project_id===pid);
+  // استخدم entries المحملة لو هي نفس المشروع، وإلا allEntries
+  const pe=(pid===curPid&&entries.length)?entries:allEntries.filter(e=>e.project_id===pid);
   const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
   const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-  // expDirect = مصروف مباشر فقط (بدون مصروفات العهد)
   const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
   const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
   projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
@@ -1486,7 +1486,16 @@ async function sed(){
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
   cep();
-  await loadEntries();setSav('☁️ متصل','ok');
+  await loadEntries();
+  // حدّث ملخص المشروع من القيود المحملة حديثاً
+  if(entries.length||projSummaries[pid]){
+    const inc=entries.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+    const exp=entries.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+    const expDirect=entries.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+    const cats=[...new Set(entries.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
+    projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:entries.length};
+  }
+  setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
