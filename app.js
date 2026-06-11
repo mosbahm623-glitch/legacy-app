@@ -1739,15 +1739,13 @@ function renderNotes(){
   if(!el)return;
   const cnt=document.getElementById('notesCount');
   const undone=_notesList.filter(n=>!n.done).length;
-  if(cnt)cnt.textContent=undone?`${undone} متبقي`:'';
-  if(!_notesList.length){el.innerHTML='<div class="d-empty">لا توجد ملاحظات</div>';return;}
+  if(cnt)cnt.textContent=undone?`${undone} متبقي`:'✅ كل شيء تمام';
+  if(!_notesList.length){el.innerHTML='<div class="d-empty">لا توجد ملاحظات بعد</div>';return;}
   el.innerHTML=_notesList.map(n=>`
-    <div class="rw" style="opacity:${n.done?0.5:1}">
-      <div class="ri" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" ${n.done?'checked':''} onchange="toggleNote('${n.id}',this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
-        <div class="rd" style="text-decoration:${n.done?'line-through':'none'};color:${n.done?'var(--text-hint)':'var(--text-main)'}">${n.content}</div>
-      </div>
-      <button onclick="deleteNote('${n.id}')" style="font-size:12px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:4px;transition:background .1s" onmouseover="this.style.background='var(--bg-faint)'" onmouseout="this.style.background='transparent'">
+      <div onclick="toggleNote('${n.id}',${!n.done})" style="width:18px;height:18px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid ${n.done?'#1D3C2A':'var(--border-color)'};background:${n.done?'#1D3C2A':'transparent'};color:#D4C49A;font-size:11px;transition:all .15s">${n.done?'✓':''}</div>
+      <div style="flex:1;font-size:13px;color:${n.done?'var(--text-hint)':'var(--text-main)'};text-decoration:${n.done?'line-through':'none'}">${n.content}</div>
+      <span onclick="deleteNote('${n.id}')" style="font-size:11px;color:var(--text-hint);cursor:pointer;padding:3px 8px;border-radius:6px;border:0.5px solid var(--border-color)">حذف</span>
     </div>`).join('');
 }
 
