@@ -1214,7 +1214,7 @@ async function loadAllProjects(){
   // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sb('entries?select=id,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
+    sb('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
