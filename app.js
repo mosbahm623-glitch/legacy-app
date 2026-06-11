@@ -1671,8 +1671,8 @@ function renderDuesTab(el){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="ra" style="color:${isPaid?'var(--success)':'var(--danger)'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</div>
-          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
-          <button onclick="editDueDate('${d.id}','${d.due_date||''}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #aaa;background:transparent;color:#555;cursor:pointer">📅</button>
+          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
+          <button onclick="editDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #aaa;background:transparent;color:#555;cursor:pointer">✏️ تعديل</button>
           <button onclick="deleteDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>`:''}
         </div>
       </div>`;
@@ -1843,6 +1843,30 @@ async function deleteDue(id){  if(!confirm('حذف المستحق؟'))return;
     await sb('contractor_dues?id=eq.'+id,'DELETE');
     _duesList=_duesList.filter(d=>d.id!==id);
     renderDuesTab(document.getElementById('ent'));
+  }catch(e){notify('❌ '+friendlyError(e),'er');}
+}
+
+async function editDue(id){
+  const d=_duesList.find(x=>x.id===id);
+  if(!d)return;
+  const contractor=prompt('اسم المقاول:',d.contractor||'');
+  if(contractor===null)return;
+  const amount=prompt('المبلغ:',d.amount||'');
+  if(amount===null)return;
+  const description=prompt('البيان:',d.description||'');
+  if(description===null)return;
+  const due_date=prompt('التاريخ (dd/mm/yyyy):',d.due_date||'');
+  if(due_date===null)return;
+  try{
+    await sb('contractor_dues?id=eq.'+id,'PATCH',{
+      contractor:contractor.trim(),
+      amount:parseFloat(amount),
+      description:description.trim()||null,
+      due_date:due_date.trim()||null
+    });
+    _duesList=_duesList.map(x=>x.id===id?{...x,contractor:contractor.trim(),amount:parseFloat(amount),description:description.trim()||null,due_date:due_date.trim()||null}:x);
+    renderDuesTab(document.getElementById('ent'));
+    notify('✅ تم التعديل','ok');
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
 
