@@ -1875,13 +1875,10 @@ async function deleteNote(id){
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
 
-function duesExportPDF(){
+async function duesExportPDF(){
   if(!_allDues||!_allDues.length){
-    sb('contractor_dues?order=created_at.desc').then(data=>{
-      _allDues=data||[];
-      duesExportPDF();
-    }).catch(()=>notify('لا توجد بيانات','warn'));
-    return;
+    try{_allDues=await sb('contractor_dues?order=created_at.desc');}catch(_){}
+    if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
   }
   const unpaid=_allDues.filter(d=>d.status==='unpaid');
   const paid=_allDues.filter(d=>d.status==='paid');
