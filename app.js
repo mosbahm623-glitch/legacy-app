@@ -1877,7 +1877,8 @@ async function deleteNote(id){
 
 async function duesExportPDF(){
   if(!_allDues||!_allDues.length){
-    try{_allDues=await sb('contractor_dues?order=created_at.desc');}catch(_){}
+    notify('⏳ جاري تحميل البيانات...','ok');
+    try{_allDues=await sb('contractor_dues?order=created_at.desc&limit=1000');}catch(_){}
     if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
   }
   const unpaid=_allDues.filter(d=>d.status==='unpaid');
