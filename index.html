@@ -698,12 +698,7 @@
               <div class="rhc-sub">تفاصيل صرف العهد لكل شخص</div>
               <div class="rhc-arrow">←</div>
             </div>
-            <div class="rep-hub-card" onclick="openReport('dues')">
-              <div class="rhc-icon rhc-icon-red">⚠️</div>
-              <div class="rhc-title">مستحقات المقاولين</div>
-              <div class="rhc-sub">المبالغ المستحقة لكل مقاول لم تُدفع بعد</div>
-              <div class="rhc-arrow">←</div>
-            </div>
+
             <div class="rep-hub-card" onclick="openReport('contractor')">
               <div class="rhc-icon rhc-icon-gold">👷</div>
               <div class="rhc-title">تقرير مقاول</div>
@@ -825,19 +820,6 @@
             </div>
             <div id="repAdvResult"></div>
           </div>
-
-          <!-- DUES REPORT -->
-          <div id="repDuesPanel" style="display:none">
-            <div class="rep-dues-header">
-              <div class="rep-hint-txt">مصاريف لم تُدفع بعد — مجمّعة لكل مقاول في كل مشروع</div>
-              <div class="rep-dues-btns">
-                <button class="filter-btn" onclick="duesExportPDF()" class="btn-pdf-red">📕 PDF</button>
-                <button class="filter-btn" onclick="duesExportExcel()" class="btn-pdf-green">📗 Excel</button>
-              </div>
-            </div>
-            <div id="duesBody"></div>
-          </div>
-
 
           <!-- CONTRACTOR REPORT -->
           <div id="repContractorPanel" style="display:none">
