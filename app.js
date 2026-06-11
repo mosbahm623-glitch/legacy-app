@@ -1876,7 +1876,13 @@ async function deleteNote(id){
 }
 
 function duesExportPDF(){
-  if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
+  if(!_allDues||!_allDues.length){
+    sb('contractor_dues?order=created_at.desc').then(data=>{
+      _allDues=data||[];
+      duesExportPDF();
+    }).catch(()=>notify('لا توجد بيانات','warn'));
+    return;
+  }
   const unpaid=_allDues.filter(d=>d.status==='unpaid');
   const paid=_allDues.filter(d=>d.status==='paid');
   const totalUnpaid=unpaid.reduce((s,d)=>s+d.amount,0);
@@ -1904,7 +1910,10 @@ function duesExportPDF(){
 }
 
 async function duesExportExcel(){try{
-  if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
+  if(!_allDues||!_allDues.length){
+    _allDues=await sb('contractor_dues?order=created_at.desc');
+    if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
+  }
   if(!window.ExcelJS){const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';document.head.appendChild(s);await new Promise(r=>s.onload=r);}
   const unpaid=_allDues.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
   const paid=_allDues.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
