@@ -2705,7 +2705,67 @@ async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{
 
 async function pdfClient(){
   const p=curP();if(!p)return;
-  notify('⏳ جاري تحضير الـ PDF...','ok');
+  const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
+  const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
+  const ic=pInc();
+  const inc=ic.reduce((s,e)=>s+e.amount,0);
+  const exp=ct.reduce((s,c)=>s+c.r.reduce((ss,e)=>ss+e.amount,0),0);
+  const bal=inc-exp;
+  const df=bal<0;
+
+  let catRows='';
+  ct.forEach(cat=>{
+    const total=cat.r.reduce((s,e)=>s+e.amount,0);
+    catRows+=`<tr><td>${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td><td>${cat.r.length} قيد</td></tr>`;
+  });
+
+  let incRows=ic.map((e,i)=>`<tr>
+    <td class="rep-table-num">${i+1}</td>
+    <td>${cleanDate(e.entry_date)||'—'}</td>
+    <td>${e.description||'دفعة'}</td>
+    <td class="amt pos">▲ ${fn(e.amount)} ج</td>
+  </tr>`).join('');
+
+  let bndRows='';
+  ct.forEach(cat=>{
+    const total=cat.r.reduce((s,e)=>s+e.amount,0);
+    bndRows+=`<div class="sec-ttl">📋 ${cat.n}</div>
+    <table>
+      <thead><tr><th>#</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <tbody>${cat.r.map((e,i)=>`<tr>
+        <td class="rep-table-num">${i+1}</td>
+        <td>${cleanDate(e.entry_date)||'—'}</td>
+        <td>${e.description||'—'}</td>
+        <td class="amt neg">▼ ${fn(e.amount)} ج</td>
+      </tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="3">إجمالي ${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
+    </table>`;
+  });
+
+  const html=_pdfOpen('نسخة العميل — '+p.name)+
+    _pdfHeader('👤 نسخة العميل — '+p.name,'Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
+    `<div class="kpis kpis-3">
+      <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(inc)} ج</div></div>
+      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصروف</div><div class="kpi-val">▼ ${fn(exp)} ج</div></div>
+      <div class="kpi ${df?'kpi-net-neg':'kpi-net-pos'}"><div class="kpi-lbl">${df?'⚠ عجز':'✅ الرصيد'}</div><div class="kpi-val">${df?'▼':'▲'} ${fn(Math.abs(bal))} ج</div></div>
+    </div>
+    <div class="sec-ttl">📊 ملخص البنود</div>
+    <table>
+      <thead><tr><th>البند</th><th>الإجمالي</th><th>عدد القيود</th></tr></thead>
+      <tbody>${catRows}</tbody>
+      <tfoot><tr><td colspan="2">إجمالي المصروفات</td><td class="amt neg">▼ ${fn(exp)} ج</td></tr></tfoot>
+    </table>
+    <div class="sec-ttl">📥 حركة الوارد</div>
+    <table>
+      <thead><tr><th>#</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <tbody>${incRows}</tbody>
+      <tfoot><tr><td colspan="3">إجمالي الوارد</td><td class="amt pos">▲ ${fn(inc)} ج</td></tr></tfoot>
+    </table>
+    ${bndRows}`+
+    _pdfFooter()+_pdfClose();
+
+  openPrintWindow(html);
+}
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
   const ic=pInc();
@@ -3738,19 +3798,21 @@ function _xlAddTitle(ws,title,cols,summary){_xlHeader(ws,title,summary,cols);}
 function _xlAddFooter(ws,cols){_xlFooter(ws,cols);}
 
 function openPrintWindow(html){
-  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if(isMobile){
-    // على الموبايل — افتح في نفس التاب
-    const w=window.open('','_self');
-    if(w){w.document.open();w.document.write(html);w.document.close();return;}
+  const w=window.open('','_blank');
+  if(w){
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  } else {
+    // لو اتبلوك popup — حمّل كـ HTML file
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='report.html';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
   }
-  // على الكمبيوتر — Blob URL
-  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
 
 async function downloadDashPDF(){try{
