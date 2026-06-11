@@ -486,14 +486,16 @@ function showBackupReminder(msg){
 }
 
 async function checkNotesReminder(){
-  if(!_notesList.length){
-    try{ await loadNotes(); }catch(e){}
-  }
-  const undone=_notesList.filter(n=>!n.done).length;
-  if(undone>0){
-    const msg='عندك '+undone+' '+(undone===1?'مهمة متبقية':'مهام متبقية');
-    setTimeout(()=>showNotesReminder(msg),3500);
-  }
+  setTimeout(async()=>{
+    if(!_notesList.length){
+      try{ await loadNotes(); }catch(e){}
+    }
+    const undone=_notesList.filter(n=>!n.done).length;
+    if(undone>0){
+      const msg='عندك '+undone+' '+(undone===1?'مهمة متبقية':'مهام متبقية');
+      showNotesReminder(msg);
+    }
+  },4000);
 }
 
 function showNotesReminder(msg){
