@@ -80,6 +80,20 @@ async function sb(path,method,body){
   if(r.status===204)return null;
   return r.json();
 }
+// يجيب كل الصفوف على دفعات 1000 — يتخطى حد Supabase الافتراضي
+async function sbAll(path){
+  const all=[];let from=0;const step=1000;
+  while(true){
+    const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json','Range':from+'-'+(from+step-1)};
+    const r=await fetch(SB+'/rest/v1/'+path,{headers:h,cache:'no-store'});
+    if(!r.ok)throw new Error(await r.text());
+    const chunk=await r.json();
+    all.push(...chunk);
+    if(chunk.length<step)break;
+    from+=step;
+  }
+  return all;
+}
 async function sbAuth(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
   const r=await fetch(SB+'/auth/v1/'+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});
@@ -762,7 +776,7 @@ async function backupAll(){
     // جيب كل البيانات
     const [prjs,ents,advs,insts,profs]=await Promise.all([
       sb('projects?order=created_at'),
-      sb('entries?order=created_at&limit=100000'),
+      sbAll('entries?order=created_at'),
       sb('advances?order=created_at'),
       sb('advance_installments?order=created_at'),
       sb('profiles?order=created_at')
@@ -1260,7 +1274,7 @@ async function loadAllProjects(){
   // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sb('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
+    sbAll('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
@@ -1301,7 +1315,7 @@ async function loadProjects(){
     setSav('☁️ متصل — بياناتك محفوظة','ok');if(curScreen==='proj'||!curScreen)rp();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
-async function loadEntries(){if(!curPid)return;entries=await sb('entries?project_id=eq.'+curPid+'&order=created_at');}
+async function loadEntries(){if(!curPid)return;entries=await sbAll('entries?project_id=eq.'+curPid+'&order=created_at');}
 
 async function ae(){
   const a=parseFloat(document.getElementById('ia').value);
@@ -1491,7 +1505,7 @@ async function loadArchivedProjects(){
     }
     const pids=archived.map(p=>p.id);
     let archEntries=[];
-    try{archEntries=await sb('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id&limit=100000');}catch(_){}
+    try{archEntries=await sbAll('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id');}catch(_){}
     _archiveData=archived.map(p=>{
       const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
       const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
@@ -2382,7 +2396,7 @@ async function loadAdvList(){
     // جيب الدفعات والمصروفات دفعة واحدة
     const [allInst,allE]=await Promise.all([
       sb('advance_installments?order=created_at'),
-      sb('entries?advance_id=not.is.null')
+      sbAll('entries?advance_id=not.is.null')
     ]);
     al.innerHTML=advances.map(a=>{
       const totalGiven=allInst.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
@@ -2479,7 +2493,7 @@ async function loadAdvDetail(){
   var ae=document.getElementById('advEntries');
   var kp=document.getElementById('advDetKp');
   try{
-    var advEntries=await sb('entries?advance_id=eq.'+curAdv.id+'&order=created_at');
+    var advEntries=await sbAll('entries?advance_id=eq.'+curAdv.id+'&order=created_at');
     window._curAdvEntries=advEntries; // للفلتر
     // جيب القيود المنتظرة للعهدة دي
     var pendingAdvEntries=[];
