@@ -3536,7 +3536,7 @@ function openReport(type){
   document.getElementById('repView').style.display='block';
   const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
-  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repDuesPanel','repContractorPanel','repClientPanel'].forEach(id=>{
+  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
   });
   if(type==='cash'){
@@ -3552,8 +3552,7 @@ function openReport(type){
     document.getElementById('repAdvPanel').style.display='block';
     _populateAdvSel();
   } else if(type==='dues'){
-    document.getElementById('repDuesPanel').style.display='block';
-    loadDuesReport();
+    document.getElementById('repContractorPanel').style.display='block';
   } else if(type==='contractor'){
     document.getElementById('repContractorPanel').style.display='block';
     _populateContrSel();
