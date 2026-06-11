@@ -463,7 +463,7 @@ async function checkNotesReminder(){
     if(count>0){
       setTimeout(()=>{
         const toast=document.createElement('div');
-        toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);direction:rtl;font-family:inherit';
+        toast.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1D3C2A;color:#D4C49A;border:1px solid rgba(212,196,154,.3);border-radius:16px;padding:20px 24px;font-size:14px;font-weight:600;z-index:99999;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 16px 40px rgba(0,0,0,.4);direction:rtl;font-family:inherit;text-align:center;min-width:220px';
         const icon=document.createElement('span');icon.textContent='📝';
         const msg=document.createElement('span');msg.textContent='عندك '+count+' مهمة متبقية';
         const btnGo=document.createElement('button');
@@ -474,7 +474,13 @@ async function checkNotesReminder(){
         btnClose.textContent='×';
         btnClose.style.cssText='background:none;border:none;color:rgba(212,196,154,.5);cursor:pointer;font-size:18px;padding:0 4px';
         btnClose.onclick=()=>toast.remove();
-        toast.append(btnClose,icon,msg,btnGo);
+        const topRow=document.createElement('div');
+        topRow.style.cssText='display:flex;align-items:center;gap:8px;justify-content:center';
+        topRow.append(icon,msg);
+        const botRow=document.createElement('div');
+        botRow.style.cssText='display:flex;gap:8px;justify-content:center;width:100%';
+        botRow.append(btnGo,btnClose);
+        toast.append(topRow,botRow);
         document.body.appendChild(toast);
         setTimeout(()=>{if(toast.parentNode)toast.remove();},8000);
       },10000);
