@@ -452,37 +452,7 @@ async function initApp(){
     showScreen('dash');
     // تنبيه الـ backup اليومي
     if(uRole==='admin') checkBackupReminder();
-    checkNotesReminder();
   }
-}
-
-async function checkNotesReminder(){
-  try{
-    const notes=await sb('notes?user_id=eq.'+uid+'&done=is.false&select=id&limit=100');
-    const count=notes?.length||0;
-    if(count>0){
-      setTimeout(()=>{
-        const overlay=document.createElement('div');
-        overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998;display:flex;align-items:center;justify-content:center';
-        const card=document.createElement('div');
-        card.style.cssText='background:#1D3C2A;color:#D4C49A;border-radius:20px;padding:28px 32px;text-align:center;direction:rtl;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.5);min-width:240px';
-        card.innerHTML=`
-          <div style="font-size:36px;margin-bottom:12px">📝</div>
-          <div style="font-size:16px;font-weight:700;margin-bottom:6px">تذكير بالمهام</div>
-          <div style="font-size:13px;opacity:.8;margin-bottom:20px">عندك <strong style="color:#fff;font-size:18px">${count}</strong> مهمة متبقية</div>
-          <div style="display:flex;gap:8px;justify-content:center">
-            <button id="notesReminderGo" style="background:#D4C49A;color:#1D3C2A;border:none;border-radius:10px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">شوف الآن</button>
-            <button id="notesReminderClose" style="background:rgba(255,255,255,.1);color:#D4C49A;border:none;border-radius:10px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit">لاحقاً</button>
-          </div>`;
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-        document.getElementById('notesReminderGo').onclick=()=>{showScreen('notes');overlay.remove();};
-        document.getElementById('notesReminderClose').onclick=()=>overlay.remove();
-        overlay.onclick=(e)=>{if(e.target===overlay)overlay.remove();};
-        setTimeout(()=>{if(overlay.parentNode)overlay.remove();},10000);
-      },5000);
-    }
-  }catch(e){console.error('notes err',e);}
 }
 
 function checkBackupReminder(){
