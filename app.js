@@ -1671,7 +1671,7 @@ function renderDuesTab(el){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="ra" style="color:${isPaid?'var(--success)':'var(--danger)'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</div>
-          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
+          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
           <button onclick="editDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #aaa;background:transparent;color:#555;cursor:pointer">✏️ تعديل</button>
           <button onclick="deleteDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>`:''}
         </div>
