@@ -452,29 +452,6 @@ async function initApp(){
     showScreen('dash');
     // تنبيه الـ backup اليومي
     if(uRole==='admin') checkBackupReminder();
-    // تنبيه الملاحظات
-    setTimeout(async()=>{
-      try{
-        const notes=await sb('notes?user_id=eq.'+uid+'&done=is.false&select=id&limit=100');
-        const count=notes?.length||0;
-        if(count>0){
-          const overlay=document.createElement('div');
-          overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99998;display:flex;align-items:center;justify-content:center';
-          overlay.innerHTML=`<div style="background:#1D3C2A;color:#D4C49A;border-radius:20px;padding:28px 32px;text-align:center;direction:rtl;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.5);min-width:240px">
-            <div style="font-size:40px;margin-bottom:12px">📝</div>
-            <div style="font-size:16px;font-weight:700;margin-bottom:6px">تذكير بالمهام</div>
-            <div style="font-size:13px;opacity:.8;margin-bottom:20px">عندك <strong style="color:#fff;font-size:20px">${count}</strong> مهمة متبقية</div>
-            <div style="display:flex;gap:10px;justify-content:center">
-              <button onclick="showScreen('notes');this.closest('[style*=inset]').remove()" style="background:#D4C49A;color:#1D3C2A;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">شوف الآن</button>
-              <button onclick="this.closest('[style*=inset]').remove()" style="background:rgba(255,255,255,.1);color:#D4C49A;border:none;border-radius:10px;padding:10px 18px;font-size:13px;cursor:pointer;font-family:inherit">لاحقاً</button>
-            </div>
-          </div>`;
-          overlay.onclick=(e)=>{if(e.target===overlay)overlay.remove();};
-          document.body.appendChild(overlay);
-          setTimeout(()=>{if(overlay.parentNode)overlay.remove();},15000);
-        }
-      }catch(_){}
-    },3000);
   }
 }
 
