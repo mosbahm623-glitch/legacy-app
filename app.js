@@ -270,7 +270,7 @@ function initAllDateInputs(){
   ['idt','eDt','advInstDate','advEntDate','advEDt','advFDateFrom','advFDateTo',
    'rCashFrom','rCashTo','rSumFrom','rSumTo','rDateFrom','rDateTo',
    'rAdvDateFrom','rAdvDateTo','rContrFrom','rContrTo','rClientFrom','rClientTo','mqPayDt',
-   'dst','dcl'
+   'dst','dcl','dueDate'
   ].forEach(id=>{const el=document.getElementById(id);if(el)initDateInput(el);});
 }
 function pdt(s){return parseDt(s)||new Date(0);}
@@ -1642,7 +1642,7 @@ function renderDuesTab(el){
         <input id="dueContr" placeholder="اسم المقاول" class="input-full">
         <input id="dueAmt" type="number" placeholder="المبلغ (ج)" step="any">
         <input id="dueDesc" placeholder="البيان" class="input-full">
-        <input id="dueDate" placeholder="التاريخ dd/mm/yyyy" class="input-full">
+        <input id="dueDate" placeholder="📅 التاريخ dd/mm/yyyy" class="input-full" maxlength="10" autocomplete="off">
       </div>
       <button class="save-btn" onclick="addDue()" style="margin-top:8px;width:100%">+ إضافة مستحق</button>
     </div>`;
@@ -1669,9 +1669,10 @@ function renderDuesTab(el){
     html+='</div>';
   }
   el.innerHTML=html;
+  // تفعيل date picker على حقل التاريخ
+  const dtEl=document.getElementById('dueDate');
+  if(dtEl)initDateInput(dtEl);
 }
-
-async function addDue(){
   const contractor=document.getElementById('dueContr')?.value?.trim();
   const amount=parseFloat(document.getElementById('dueAmt')?.value);
   const description=document.getElementById('dueDesc')?.value?.trim();
