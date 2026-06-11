@@ -2766,44 +2766,8 @@ async function pdfClient(){
 
   openPrintWindow(html);
 }
-  const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
-  const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
-  const ic=pInc();
-  const inc=ic.reduce((s,e)=>s+e.amount,0);
-  const exp=ct.reduce((s,c)=>s+c.r.reduce((ss,e)=>ss+e.amount,0),0);
-  const bal=inc-exp;
-  const df=bal<0;
 
-  let catRows='';
-  ct.forEach(cat=>{
-    const total=cat.r.reduce((s,e)=>s+e.amount,0);
-    catRows+=`<tr><td>${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td><td>${cat.r.length} قيد</td></tr>`;
-  });
-
-  let incRows=ic.map((e,i)=>`<tr>
-    <td class="rep-table-num">${i+1}</td>
-    <td>${cleanDate(e.entry_date)||'—'}</td>
-    <td>${e.description||'دفعة'}</td>
-    <td class="amt pos">▲ ${fn(e.amount)} ج</td>
-  </tr>`).join('');
-
-  let bndRows='';
-  ct.forEach(cat=>{
-    const total=cat.r.reduce((s,e)=>s+e.amount,0);
-    bndRows+=`<div class="sec-ttl">📋 ${cat.n}</div>
-    <table>
-      <thead><tr><th>#</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
-      <tbody>${cat.r.map((e,i)=>`<tr>
-        <td class="rep-table-num">${i+1}</td>
-        <td>${cleanDate(e.entry_date)||'—'}</td>
-        <td>${e.description||'—'}</td>
-        <td class="amt neg">▼ ${fn(e.amount)} ج</td>
-      </tr>`).join('')}</tbody>
-      <tfoot><tr><td colspan="3">إجمالي ${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
-    </table>`;
-  });
-
-  const html=_pdfOpen('نسخة العميل')+
+async function xlClient(){  const html=_pdfOpen('نسخة العميل')+
     _pdfHeader('👤 نسخة العميل — '+p.name,'Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
     `<div class="kpis kpis-3">
       <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(inc)} ج</div></div>
