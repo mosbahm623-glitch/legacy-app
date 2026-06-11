@@ -1938,7 +1938,6 @@ async function duesExportExcel(){try{
 }catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
 
 async function loadDuesScreen(){
-  // ملء dropdown المشاريع
   const sel=document.getElementById('duesProjectFilter');
   if(sel&&allProjects.length){
     sel.innerHTML='<option value="all">كل المشاريع</option>';
@@ -1946,8 +1945,13 @@ async function loadDuesScreen(){
       sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`;
     });
   }
-  document.getElementById('duesScreenList').innerHTML='<div class="emp">اختار مشروع واضغط بحث</div>';
+  // إخفاء النتائج والأزرار في البداية
+  _allDues=[];
+  document.getElementById('duesScreenList').innerHTML='';
   document.getElementById('duesScreenKpi').innerHTML='';
+  const filtersEl=document.getElementById('duesScreenFilters');
+  if(filtersEl)filtersEl.style.display='none';
+  document.getElementById('duesScreenSub').textContent='اختار مشروع واضغط بحث';
 }
 
 async function searchDues(){
