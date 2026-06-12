@@ -1271,7 +1271,7 @@ function refreshProjSummary(pid){
 }
 
 async function loadAllProjects(){
-  // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
+  // نجيب المشاريع وكل القيود
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
     sbAll('entries?order=created_at.desc')
@@ -1281,16 +1281,17 @@ async function loadAllProjects(){
   allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
   // المشاريع النشطة بس (غير المؤرشفة)
   allProjects=allProjects.filter(p=>!p.archived);
-  // نحسب ملخص كل مشروع مرة واحدة ونخزنه
-  projSummaries={};
-  allProjects.forEach(p=>{
-    const pe=allEntries.filter(e=>e.project_id===p.id);
-    const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-    const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-    const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-    const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-    projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
-  });
+  // نجيب قيود كل مشروع لوحده عشان advance_id يجي صح
+  await Promise.all(allProjects.map(async p=>{
+    try{
+      const pe=await sbAll('entries?project_id=eq.'+p.id+'&order=created_at');
+      const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+      const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+      const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+      const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
+      projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
+    }catch(_){}
+  }));
   // إظهار أزرار الأدمن
   if(uRole==='admin'){
     const archBtn=document.getElementById('sbi-archive');if(archBtn)archBtn.style.display='flex';
