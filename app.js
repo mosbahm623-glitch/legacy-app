@@ -678,10 +678,10 @@ function buildProjListScreen(){
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.innerHTML=projects.map(p=>{
-    const s=projSummaries[p.id]||{balDirect:0,inc:0,expDirect:0};
-    const bal=s.balDirect||0;
+    const s=projSummaries[p.id]||{bal:0,inc:0,exp:0};
+    const bal=s.bal||0;
     const inc=s.inc||0;
-    const exp=s.expDirect||0;
+    const exp=s.exp||0;
     const balClass=bal<0?'neg':bal>0?'pos':'';
     const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
     return `<div class="proj-card" onclick="goToProject('${p.id}')">
