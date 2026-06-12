@@ -1464,7 +1464,14 @@ async function sed(){
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
   cep();
-  await loadEntries();setSav('☁️ متصل','ok');
+  await loadEntries();
+  // حدّث الملخص من القيود الفعلية للمشروع
+  const inc=entries.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+  const exp=entries.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+  const expDirect=entries.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+  const cats=[...new Set(entries.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
+  projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:entries.length};
+  setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
