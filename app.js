@@ -962,6 +962,13 @@ async function renameMq(oldName){
   renderMqManager(document.getElementById('mqMgrSearch')?.value||'');
 }
 
+async function dashRefresh(){
+  const btn=document.getElementById('dashRefreshBtn');
+  if(btn){btn.style.transform='rotate(360deg)';btn.style.transition='transform .5s';setTimeout(()=>{btn.style.transform='';},500);}
+  await loadAllProjects();
+  await loadDashboard();
+  notify('✅ تم التحديث','ok');
+}
 async function loadDashboard(){
   try{
     loadNotes();

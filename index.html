@@ -225,7 +225,10 @@
               <div class="d-welcome-name">👋 مرحباً، <span id="dWelcomeName">—</span></div>
               <div class="d-welcome-sub">إليك ملخص أعمال شركتك اليوم</div>
             </div>
-            <div class="d-welcome-date" id="dWelcomeDate">—</div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button id="dashRefreshBtn" onclick="dashRefresh()" title="تحديث البيانات" style="background:var(--bg-card);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s">🔄</button>
+              <div class="d-welcome-date" id="dWelcomeDate">—</div>
+            </div>
           </div>
 
           <!-- KPI Row — 6 cards -->
