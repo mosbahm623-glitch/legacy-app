@@ -1000,35 +1000,15 @@ async function loadDashboard(){
       else excellent++;
     });
 
-    // ── مقارنة الشهر ده بالشهر اللي فات ──
-    const _now=new Date();
-    const _tm=_now.getMonth(),_ty=_now.getFullYear();
-    const _lm=_tm===0?11:_tm-1,_ly=_tm===0?_ty-1:_ty;
-    function _inMonth(e,m,y){if(!e.entry_date)return false;const d=parseDt(e.entry_date);return d&&d.getMonth()===m&&d.getFullYear()===y;}
-    const _thisInc=allEntries.filter(e=>e.type==='i'&&_inMonth(e,_tm,_ty)).reduce((s,e)=>s+e.amount,0);
-    const _lastInc=allEntries.filter(e=>e.type==='i'&&_inMonth(e,_lm,_ly)).reduce((s,e)=>s+e.amount,0);
-    const _thisExp=allEntries.filter(e=>e.type==='e'&&_inMonth(e,_tm,_ty)).reduce((s,e)=>s+e.amount,0);
-    const _lastExp=allEntries.filter(e=>e.type==='e'&&_inMonth(e,_lm,_ly)).reduce((s,e)=>s+e.amount,0);
-    function _trendHtml(cur,prev,goodUp){
-      if(!prev&&!cur)return '';
-      if(!prev)return `<span style="font-size:10px;color:var(--text-hint)">جديد هذا الشهر</span>`;
-      const pct=Math.round(((cur-prev)/prev)*100);
-      const up=pct>=0;
-      const good=goodUp?up:!up;
-      const color=good?'var(--success-soft)':'var(--danger-soft)';
-      const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-      return `<span style="color:${color};font-size:10px;font-weight:700">${up?'▲':'▼'} ${Math.abs(pct)}% عن ${months[_lm]}</span>`;
-    }
-
     // KPI cards
     const setKpi=(id,val,trend)=>{
       const el=document.getElementById(id);
       if(el)el.textContent=val;
       const tr=document.getElementById(id+'Trend');
-      if(tr)tr.innerHTML=trend||'';
+      if(tr&&trend)tr.innerHTML=trend;
     };
-    setKpi('dInc',fn(totalInc)+' ج',_trendHtml(_thisInc,_lastInc,true));
-    setKpi('dExp',fn(totalExp)+' ج',_trendHtml(_thisExp,_lastExp,false));
+    setKpi('dInc',fn(totalInc)+' ج');
+    setKpi('dExp',fn(totalExp)+' ج');
     const balEl=document.getElementById('dBal');
     if(balEl){balEl.textContent=(bal>=0?'+':'')+fn(bal)+' ج';balEl.className='d-kpi-val net'+(bal<0?' exp':'');}
     setKpi('dAdv',fn(totalAdv)+' ج');
@@ -1081,7 +1061,6 @@ async function loadDashboard(){
       const spent=allEntries.filter(e=>e.advance_id===a.id).reduce((s,e)=>s+e.amount,0);
       const rem=inst-spent;
       if(rem<0)alerts.push({type:'red',ico:'💼',title:'عهدة بها عجز',sub:a.person_name+' — عجز '+fn(Math.abs(rem))+' ج'});
-      else if(rem>0&&rem<5000&&a.status==='open')alerts.push({type:'yellow',ico:'⚠️',title:'عهدة على وشك النفاد',sub:a.person_name+' — الباقي '+fn(rem)+' ج فقط'});
     });
     if(bal<0)alerts.push({type:'red',ico:'📉',title:'رصيد النقدية سالب',sub:'صافي: '+fn(bal)+' ج'});
     const alertsList=document.getElementById('dAlertsList');
@@ -2430,9 +2409,8 @@ async function loadAdvList(){
       const pct=totalGiven>0?Math.min(100,Math.round((spent/totalGiven)*100)):0;
       const ownerUser=(allChatUsers||[]).find(u=>u.id===a.user_id);
       const ownerBadge=ownerUser&&uRole==='admin'?'<span class="adv-owner-badge">🔗 '+ownerUser.name+'</span>':'';
-      const remColor=rem<0?'var(--danger)':rem>0&&rem<5000?'var(--warning-dark)':rem===0?'var(--primary-btn)':'var(--warning-text)';
-      const lowBadge=rem>0&&rem<5000&&a.status==='open'?'<span style="font-size:9px;background:var(--warning-bg);color:var(--warning-dark);padding:2px 7px;border-radius:10px;font-weight:700;margin-right:4px">⚠ أقل من 5000</span>':'';
-      return '<div class="adv-card" onclick="openAdv(\''+a.id+'\')"><div class="adv-card-h"><div class="adv-name">👤 '+a.person_name+ownerBadge+'</div><span class="adv-status '+(a.status==='open'?'open':'closed')+'">'+(a.status==='open'?'⏳ مفتوحة':'✅ مغلقة')+'</span></div>'+(a.notes?'<div class="adv-notes-text">'+a.notes+'</div>':'')+lowBadge+'<div class="adv-nums"><div class="adv-num"><div class="adv-num-l">العهدة</div><div class="adv-num-v" style="color:#185FA5">'+fn(totalGiven)+'</div></div><div class="adv-num"><div class="adv-num-l">صرف</div><div class="adv-num-v" style="color:#922B21">'+fn(spent)+'</div></div><div class="adv-num"><div class="adv-num-l">الباقي</div><div class="adv-num-v" style="color:'+remColor+'">'+fn(rem)+'</div></div></div><div class="adv-progress-wrap"><div class="adv-progress-bar-inner"></div></div></div>';
+      const remColor=rem<0?'var(--danger)':rem===0?'var(--primary-btn)':'var(--warning-text)';
+      return '<div class="adv-card" onclick="openAdv(\''+a.id+'\')"><div class="adv-card-h"><div class="adv-name">👤 '+a.person_name+ownerBadge+'</div><span class="adv-status '+(a.status==='open'?'open':'closed')+'">'+(a.status==='open'?'⏳ مفتوحة':'✅ مغلقة')+'</span></div>'+(a.notes?'<div class="adv-notes-text">'+a.notes+'</div>':'')+'<div class="adv-nums"><div class="adv-num"><div class="adv-num-l">العهدة</div><div class="adv-num-v" style="color:#185FA5">'+fn(totalGiven)+'</div></div><div class="adv-num"><div class="adv-num-l">صرف</div><div class="adv-num-v" style="color:#922B21">'+fn(spent)+'</div></div><div class="adv-num"><div class="adv-num-l">الباقي</div><div class="adv-num-v" style="color:'+remColor+'">'+fn(rem)+'</div></div></div><div class="adv-progress-wrap"><div class="adv-progress-bar-inner"></div></div></div>';
     }).join('');
   }catch(e){document.getElementById('advList').innerHTML='<div class="emp">❌ خطأ في التحميل</div>';}
 }
