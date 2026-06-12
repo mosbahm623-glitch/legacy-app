@@ -5593,7 +5593,7 @@ async function searchAdvances(){
     }).join('');
   }catch(e){div.innerHTML='<div class="search-error-msg">❌ '+e.message+'</div>';}
 }
-  if(_profMapCache)return _profMapCache;
+async function getProfileMap(){
   try{const profs=await sb('profiles');_profMapCache={};profs.forEach(p=>{_profMapCache[p.id]=p.name||'—';});}catch(e){_profMapCache={};}
   return _profMapCache;
 }
