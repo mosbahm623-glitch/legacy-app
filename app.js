@@ -3111,22 +3111,6 @@ function initRealtime(){
         if(curScreen==='dash')loadDashboard();
       })
       .subscribe();
-    // pending realtime — approvals screen + badge
-    if(window._rtPendCh){_sbc.removeChannel(window._rtPendCh);window._rtPendCh=null;}
-    window._rtPendCh=_sbc.channel('pending-all')
-      .on('postgres_changes',{event:'*',schema:'public',table:'pending_entries'},async()=>{
-        window._rtOk=true;
-        updatePendingBadge();
-        if(curScreen==='approvals')loadApprovals();
-        if(curScreen==='dash')loadDashboard();
-      })
-      .on('postgres_changes',{event:'*',schema:'public',table:'pending_advances'},async()=>{
-        window._rtOk=true;
-        updatePendingBadge();
-        if(curScreen==='approvals')loadApprovals();
-        if(curScreen==='dash')loadDashboard();
-      })
-      .subscribe();
   }catch(e){console.error(e);}
 }
 
@@ -3134,7 +3118,6 @@ function cleanupRealtime(){
   if(!window._sbc)return;
   if(_rtEntCh){_sbc.removeChannel(_rtEntCh);_rtEntCh=null;}
   if(_rtAdvCh){_sbc.removeChannel(_rtAdvCh);_rtAdvCh=null;}
-  if(window._rtPendCh){_sbc.removeChannel(window._rtPendCh);window._rtPendCh=null;}
   window._rtOk=false;
 }
 
@@ -6292,32 +6275,39 @@ function setupNotifRealtime(){
   if(_rtNotifCh){_sbc.removeChannel(_rtNotifCh);_rtNotifCh=null;}
   if(_rtPendNotifCh){_sbc.removeChannel(_rtPendNotifCh);_rtPendNotifCh=null;}
 
-  // pending entries/advances — للأدمن فقط
-  if(uRole==='admin'){
-    _rtPendNotifCh=_sbc.channel('notif-pending')
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_entries'},
-        async(payload)=>{
+  _rtPendNotifCh=_sbc.channel('notif-pending')
+    .on('postgres_changes',{event:'*',schema:'public',table:'pending_entries'},
+      async(payload)=>{
+        window._rtOk=true;
+        updatePendingBadge();
+        if(curScreen==='approvals')loadApprovals();
+        if(curScreen==='dash')loadDashboard();
+        // إشعار للأدمن فقط عند INSERT من غيره
+        if(uRole==='admin'&&payload.eventType==='INSERT'){
           const r=payload.new;
           if(r.submitted_by===uid)return;
           const who=await getUserName(r.submitted_by);
           const projName=allProjectsMap[r.project_id]?.name||'مشروع';
           pushNotif({type:'pending_entry',title:`${who} طلب موافقة على قيد`,sub:`${fn(r.amount)} ج · ${projName}${r.category?' · '+r.category:''}`});
-          updatePendingBadge();
-          if(curScreen==='approvals')loadApprovals();
         }
-      )
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_advances'},
-        async(payload)=>{
+      }
+    )
+    .on('postgres_changes',{event:'*',schema:'public',table:'pending_advances'},
+      async(payload)=>{
+        window._rtOk=true;
+        updatePendingBadge();
+        if(curScreen==='approvals')loadApprovals();
+        if(curScreen==='dash')loadDashboard();
+        // إشعار للأدمن فقط عند INSERT من غيره
+        if(uRole==='admin'&&payload.eventType==='INSERT'){
           const r=payload.new;
           if(r.submitted_by===uid)return;
           const who=await getUserName(r.submitted_by);
           const label=r.type==='advance'?'عهدة جديدة':'دفعة';
           pushNotif({type:'pending_adv',title:`${who} طلب موافقة — ${label}`,sub:r.person_name?`${r.person_name}`:r.amount?`${fn(r.amount)} ج`:''});
-          updatePendingBadge();
-          if(curScreen==='approvals')loadApprovals();
         }
-      )
-      .subscribe((status)=>{});
-  }
+      }
+    )
+    .subscribe((status)=>{});
 }
 
