@@ -443,12 +443,12 @@ async function initApp(){
     document.getElementById('fab').style.display='none';
   }
 
-  // تحميل parallel — كل حاجة في نفس الوقت
+  // تحميل parallel — loadAllProjects و loadCategories في نفس الوقت
+  await loadAllProjects();
   await Promise.all([
-    loadAllProjects(),
-    loadCategories()
+    loadCategories(),
+    uRole!=='viewer' ? loadProjects() : Promise.resolve()
   ]);
-  if(uRole!=='viewer') await loadProjects();
   if(uRole!=='viewer') buildSidebarProjects();
   initAllDateInputs();
   checkAdvNotifications();
@@ -678,10 +678,10 @@ function buildProjListScreen(){
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.innerHTML=projects.map(p=>{
-    const s=projSummaries[p.id]||{bal:0,inc:0,exp:0};
-    const bal=s.bal||0;
+    const s=projSummaries[p.id]||{balDirect:0,inc:0,expDirect:0};
+    const bal=s.balDirect||0;
     const inc=s.inc||0;
-    const exp=s.exp||0;
+    const exp=s.expDirect||0;
     const balClass=bal<0?'neg':bal>0?'pos':'';
     const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
     return `<div class="proj-card" onclick="goToProject('${p.id}')">
@@ -1271,17 +1271,17 @@ function refreshProjSummary(pid){
 }
 
 async function loadAllProjects(){
-  // نجيب المشاريع + ملخص القيود (حقول أساسية بس للسرعة)
+  // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sbAll('entries?select=id,project_id,type,amount,category,advance_id,entry_date,description,contractor,entry_no,created_at&order=created_at.desc')
+    sbAll('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
   allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
   // المشاريع النشطة بس (غير المؤرشفة)
   allProjects=allProjects.filter(p=>!p.archived);
-  // نحسب ملخص أولي من allEntries
+  // نحسب ملخص كل مشروع مرة واحدة ونخزنه
   projSummaries={};
   allProjects.forEach(p=>{
     const pe=allEntries.filter(e=>e.project_id===p.id);
@@ -1464,16 +1464,7 @@ async function sed(){
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
   cep();
-  await loadEntries();
-  // حدّث الملخص من القيود الفعلية للمشروع
-  const inc=entries.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-  const exp=entries.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-  const expDirect=entries.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-  const cats=[...new Set(entries.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-  projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:entries.length};
-  // لو شاشة المشاريع ظاهرة حدّث الكروت
-  if(document.getElementById('projCardsGrid'))buildProjListScreen();
-  setSav('☁️ متصل','ok');
+  await loadEntries();setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
