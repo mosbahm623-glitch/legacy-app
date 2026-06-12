@@ -1271,25 +1271,29 @@ function refreshProjSummary(pid){
 }
 
 async function loadAllProjects(){
-  // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
+  // نجيب المشاريع + الملخصات من الـ View مرة واحدة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
     sb('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc&limit=5000')
   ]);
+  // نجيب الملخصات الجاهزة من الـ View
+  let summariesData=[];
+  try{ summariesData=await sb('project_summaries'); }catch(_){}
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
   allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
   // المشاريع النشطة بس (غير المؤرشفة)
   allProjects=allProjects.filter(p=>!p.archived);
-  // نحسب ملخص كل مشروع مرة واحدة ونخزنه
+  // نبني projSummaries من الـ View
   projSummaries={};
   allProjects.forEach(p=>{
-    const pe=allEntries.filter(e=>e.project_id===p.id);
-    const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-    const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-    const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-    const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-    projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
+    const sv=summariesData.find(s=>s.project_id===p.id);
+    const inc=sv?parseFloat(sv.inc)||0:0;
+    const exp=sv?parseFloat(sv.exp)||0:0;
+    const expDirect=sv?parseFloat(sv.exp_direct)||0:0;
+    const pe=allEntries.filter(e=>e.project_id===p.id&&e.type==='e'&&!e.advance_id);
+    const cats=[...new Set(pe.map(e=>e.category).filter(Boolean))];
+    projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:sv?parseInt(sv.total_count)||0:0};
   });
   // إظهار أزرار الأدمن
   if(uRole==='admin'){
