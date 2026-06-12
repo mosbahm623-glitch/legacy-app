@@ -2165,17 +2165,9 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
   .ls-app-name{font-size:18px;margin-bottom:2px}
   .ls-app-sub{font-size:10px}
   .ls-left-bottom{display:none}
-  .ls-right{flex:1;padding:28px 20px 32px;align-items:flex-start !important;justify-content:flex-start !important}
+  .ls-right{flex:1;padding:32px 20px;align-items:flex-start !important;justify-content:flex-start !important}
   .ls-form-wrap{width:100%;max-width:100%}
-  .ls-form-wrap::after{
-    content:'';display:block;height:1px;background:rgba(29,60,42,.1);margin:24px 0 16px
-  }
-  .ls-mobile-credit{display:flex !important;flex-direction:column;gap:3px}
 }
-.ls-mobile-credit{display:none}
-.ls-mobile-credit .ls-credit-label{font-size:8.5px;color:rgba(29,60,42,.35);letter-spacing:1.4px;font-family:'Manrope',sans-serif}
-.ls-mobile-credit .ls-credit-name{font-size:13px;font-weight:700;color:rgba(29,60,42,.55);font-family:'Manrope',sans-serif;font-style:italic}
-.ls-mobile-credit .ls-credit-phone{font-size:10px;color:rgba(29,60,42,.3);letter-spacing:.6px;font-family:'Manrope',sans-serif}
 
 /* ══ Archive Screen ══ */
 .gsm-archive{background:var(--warning-bg,#FFF3CD)!important;color:var(--warning-dark,#856404)!important;border:1.5px solid var(--warning,#F59E0B)!important}
