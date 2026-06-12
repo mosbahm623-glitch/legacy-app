@@ -3077,12 +3077,10 @@ function initRealtime(){
     _rtEntCh=_sbc.channel('entries-all')
       .on('postgres_changes',{event:'*',schema:'public',table:'entries'},async(payload)=>{
         window._rtOk=true;
-        if(payload.new?.created_by===uid||payload.old?.project_id===curPid||payload.new?.project_id===curPid){
-          await loadAllProjects();
-          if(curPid)await loadEntries();
-          if(curScreen==='dash')loadDashboard();
-          else rp();
-        }
+        await loadAllProjects();
+        if(curPid)await loadEntries();
+        if(curScreen==='dash')loadDashboard();
+        else rp();
       })
       .subscribe((s)=>{if(s==='SUBSCRIBED')window._rtOk=true;});
     // advances realtime
@@ -3091,10 +3089,28 @@ function initRealtime(){
       .on('postgres_changes',{event:'*',schema:'public',table:'advances'},async()=>{
         window._rtOk=true;
         if(curScreen==='adv')await loadAdvList();
+        if(curScreen==='dash')loadDashboard();
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'advance_installments'},async()=>{
         window._rtOk=true;
         if(curScreen==='adv'&&curAdv)await loadAdvDetail(curAdv.id);
+        if(curScreen==='dash')loadDashboard();
+      })
+      .subscribe();
+    // pending realtime — approvals screen + badge
+    if(window._rtPendCh){_sbc.removeChannel(window._rtPendCh);window._rtPendCh=null;}
+    window._rtPendCh=_sbc.channel('pending-all')
+      .on('postgres_changes',{event:'*',schema:'public',table:'pending_entries'},async()=>{
+        window._rtOk=true;
+        updatePendingBadge();
+        if(curScreen==='approvals')loadApprovals();
+        if(curScreen==='dash')loadDashboard();
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'pending_advances'},async()=>{
+        window._rtOk=true;
+        updatePendingBadge();
+        if(curScreen==='approvals')loadApprovals();
+        if(curScreen==='dash')loadDashboard();
       })
       .subscribe();
   }catch(e){console.error(e);}
@@ -3104,6 +3120,7 @@ function cleanupRealtime(){
   if(!window._sbc)return;
   if(_rtEntCh){_sbc.removeChannel(_rtEntCh);_rtEntCh=null;}
   if(_rtAdvCh){_sbc.removeChannel(_rtAdvCh);_rtAdvCh=null;}
+  if(window._rtPendCh){_sbc.removeChannel(window._rtPendCh);window._rtPendCh=null;}
   window._rtOk=false;
 }
 
