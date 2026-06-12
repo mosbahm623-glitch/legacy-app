@@ -443,12 +443,12 @@ async function initApp(){
     document.getElementById('fab').style.display='none';
   }
 
-  // تحميل parallel — loadAllProjects و loadCategories في نفس الوقت
-  await loadAllProjects();
+  // تحميل parallel — كل حاجة في نفس الوقت
   await Promise.all([
-    loadCategories(),
-    uRole!=='viewer' ? loadProjects() : Promise.resolve()
+    loadAllProjects(),
+    loadCategories()
   ]);
+  if(uRole!=='viewer') await loadProjects();
   if(uRole!=='viewer') buildSidebarProjects();
   initAllDateInputs();
   checkAdvNotifications();
@@ -1271,10 +1271,10 @@ function refreshProjSummary(pid){
 }
 
 async function loadAllProjects(){
-  // نجيب المشاريع وكل القيود مرة واحدة
+  // نجيب المشاريع + ملخص القيود (حقول أساسية بس للسرعة)
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sbAll('entries?order=created_at.desc')
+    sbAll('entries?select=id,project_id,type,amount,category,advance_id,entry_date,description,contractor,entry_no,created_at&order=created_at.desc')
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
