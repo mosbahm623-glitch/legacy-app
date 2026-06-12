@@ -6296,23 +6296,25 @@ function setupNotifRealtime(){
   if(uRole==='admin'){
     _rtPendNotifCh=_sbc.channel('notif-pending')
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_entries'},
-        (payload)=>{
+        async(payload)=>{
           const r=payload.new;
           if(r.submitted_by===uid)return;
-          const who=getUserName(r.submitted_by);
+          const who=await getUserName(r.submitted_by);
           const projName=allProjectsMap[r.project_id]?.name||'مشروع';
           pushNotif({type:'pending_entry',title:`${who} طلب موافقة على قيد`,sub:`${fn(r.amount)} ج · ${projName}${r.category?' · '+r.category:''}`});
           updatePendingBadge();
+          if(curScreen==='approvals')loadApprovals();
         }
       )
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_advances'},
-        (payload)=>{
+        async(payload)=>{
           const r=payload.new;
           if(r.submitted_by===uid)return;
-          const who=getUserName(r.submitted_by);
+          const who=await getUserName(r.submitted_by);
           const label=r.type==='advance'?'عهدة جديدة':'دفعة';
           pushNotif({type:'pending_adv',title:`${who} طلب موافقة — ${label}`,sub:r.person_name?`${r.person_name}`:r.amount?`${fn(r.amount)} ج`:''});
           updatePendingBadge();
+          if(curScreen==='approvals')loadApprovals();
         }
       )
       .subscribe((status)=>{});
