@@ -3997,9 +3997,9 @@ function openReport(type){
   _curReport=type;
   document.getElementById('repHub').style.display='none';
   document.getElementById('repView').style.display='block';
-  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل'};
+  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل',monthly:'📅 المقارنة الشهرية'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
-  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel'].forEach(id=>{
+  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repMonthlyPanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
   });
   if(type==='cash'){
@@ -4030,6 +4030,12 @@ function openReport(type){
       const f=document.getElementById('rClientFrom');const t=document.getElementById('rClientTo');
       if(f)initDateInput(f);if(t)initDateInput(t);
     },0);
+  } else if(type==='monthly'){
+    document.getElementById('repMonthlyPanel').style.display='block';
+    _populateRepProjSel('rMonthlyProj');
+    // السنة الحالية افتراضي
+    const yearSel=document.getElementById('rMonthlyYear');
+    if(yearSel)yearSel.value=new Date().getFullYear().toString();
   }
 }
 
@@ -5059,6 +5065,124 @@ async function saveMqPay(){
       setTimeout(()=>closeMqPay(),1200);
     }
   }catch(e){setSav('❌ '+friendlyError(e),'er');msg.style.color='var(--danger-alt)';}
+}
+
+// ══════════════════════════════════════════
+//  MONTHLY COMPARISON REPORT
+// ══════════════════════════════════════════
+const _MONTHS_AR=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+let _monthlyData=null;
+
+function runMonthlyReport(){
+  const projId=document.getElementById('rMonthlyProj').value;
+  const year=parseInt(document.getElementById('rMonthlyYear').value);
+  const el=document.getElementById('repMonthlyResult');
+  el.innerHTML='<div class="rep-no-data-msg">⏳ جاري الحساب...</div>';
+  let ents=allEntries.filter(e=>{if(!e.entry_date)return false;const d=parseDt(e.entry_date);return d&&d.getFullYear()===year;});
+  if(projId!=='all')ents=ents.filter(e=>e.project_id===projId);
+  const months=[];
+  for(let m=0;m<12;m++){
+    const mEnts=ents.filter(e=>{const d=parseDt(e.entry_date);return d&&d.getMonth()===m;});
+    const inc=mEnts.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+    const exp=mEnts.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+    months.push({m,inc,exp,bal:inc-exp,count:mEnts.length});
+  }
+  const activeMonths=months.filter(m=>m.count>0);
+  if(!activeMonths.length){el.innerHTML='<div class="rep-no-data-msg">لا توجد بيانات في '+year+'</div>';return;}
+  const totInc=activeMonths.reduce((s,m)=>s+m.inc,0);
+  const totExp=activeMonths.reduce((s,m)=>s+m.exp,0);
+  const totBal=totInc-totExp;
+  const projName=projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
+  _monthlyData={months:activeMonths,totInc,totExp,totBal,year,projName};
+  el.innerHTML=`
+    <div class="cf-kpi-row" style="margin-bottom:16px">
+      <div class="cf-kpi"><div class="cf-kpi-lbl">إجمالي الوارد</div><div class="cf-kpi-val" style="color:#7DBFA0">+${fn(totInc)} ج</div></div>
+      <div class="cf-kpi"><div class="cf-kpi-lbl">إجمالي المصاريف</div><div class="cf-kpi-val" style="color:#C86060">-${fn(totExp)} ج</div></div>
+      <div class="cf-kpi"><div class="cf-kpi-lbl">صافي الرصيد</div><div class="cf-kpi-val" style="color:${totBal>=0?'var(--success-soft)':'var(--danger-soft)'}">${totBal>=0?'+':''}${fn(totBal)} ج</div></div>
+    </div>
+    <div class="rep-chart-wrap"><canvas id="monthlyChart" role="img" aria-label="مخطط المقارنة الشهرية">مقارنة شهرية ${year}</canvas></div>
+    <div style="display:flex;gap:14px;margin-bottom:12px;font-size:12px;color:var(--text-soft)">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1D9E75;margin-left:4px"></span>الوارد</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E24B4A;margin-left:4px"></span>المصاريف</span>
+      <span><span style="display:inline-block;width:2px;height:10px;background:#378ADD;margin-left:4px"></span>الرصيد</span>
+    </div>
+    <div style="border:0.5px solid var(--border-light);border-radius:12px;overflow:hidden">
+      <table class="rep-tbl" style="margin-top:0">
+        <thead><tr><th>الشهر</th><th>الوارد</th><th>المصاريف</th><th>الرصيد</th><th>نسبة الصرف</th></tr></thead>
+        <tbody>${activeMonths.map(m=>{
+          const pct=m.inc>0?Math.round(m.exp/m.inc*100):0;
+          const pctColor=pct>90?'var(--danger)':pct>70?'var(--warning-dark)':'var(--primary-btn)';
+          return`<tr><td style="font-weight:600">${_MONTHS_AR[m.m]}</td><td class="amt inc">+${fn(m.inc)} ج</td><td class="amt neg">-${fn(m.exp)} ج</td><td class="amt ${m.bal>=0?'inc':'neg'}">${m.bal>=0?'+':''}${fn(m.bal)} ج</td><td style="color:${pctColor};font-weight:700">${m.inc>0?pct+'%':'—'}</td></tr>`;
+        }).join('')}</tbody>
+        <tfoot><tr><td>الإجمالي</td><td class="amt inc">+${fn(totInc)} ج</td><td class="amt neg">-${fn(totExp)} ج</td><td class="amt ${totBal>=0?'inc':'neg'}">${totBal>=0?'+':''}${fn(totBal)} ج</td><td></td></tr></tfoot>
+      </table>
+    </div>`;
+  _loadChartJs(()=>{
+    const ctx=document.getElementById('monthlyChart');
+    if(!ctx||!window.Chart)return;
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    ctx._chartInst=new Chart(ctx,{
+      type:'bar',
+      data:{labels:activeMonths.map(m=>_MONTHS_AR[m.m]),datasets:[
+        {label:'الوارد',data:activeMonths.map(m=>m.inc),backgroundColor:'rgba(29,158,117,0.7)',borderRadius:4,borderSkipped:false},
+        {label:'المصاريف',data:activeMonths.map(m=>m.exp),backgroundColor:'rgba(226,75,74,0.7)',borderRadius:4,borderSkipped:false},
+        {label:'الرصيد',data:activeMonths.map(m=>m.bal),type:'line',borderColor:'#378ADD',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointBackgroundColor:'#378ADD',tension:0.3}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fn(c.parsed.y)} ج`}}},
+        scales:{x:{ticks:{color:'rgba(212,196,154,0.5)',font:{size:11},autoSkip:false,maxRotation:30},grid:{display:false}},y:{ticks:{color:'rgba(212,196,154,0.5)',font:{size:10},callback:v=>v>=1000000?(v/1000000).toFixed(1)+'م':v>=1000?(v/1000).toFixed(0)+'ك':fn(v)},grid:{color:'rgba(128,128,128,0.1)'}}}}
+    });
+  });
+}
+
+function clearMonthlyReport(){document.getElementById('repMonthlyResult').innerHTML='';_monthlyData=null;}
+
+async function monthlyExportExcel(){
+  if(!_monthlyData){notify('اضغط عرض أولاً','warn');return;}
+  const d=_monthlyData;
+  setSav('⏳ جاري التحميل...','ng');
+  try{
+    await loadExcelJS();
+    const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
+    const ws=wb.addWorksheet('المقارنة الشهرية',{views:[{rightToLeft:true}]});
+    const COLS=5;ws.columns=[{width:20},{width:18},{width:18},{width:18},{width:14}];
+    _xlHeader(ws,'📅 المقارنة الشهرية — '+d.projName,'سنة '+d.year+'  |  وارد: '+fn(d.totInc)+' ج  |  مصاريف: '+fn(d.totExp)+' ج  |  رصيد: '+fn(d.totBal)+' ج',COLS);
+    _xlHdrRow(ws,['الشهر','الوارد (ج)','المصاريف (ج)','الرصيد (ج)','نسبة الصرف'],COLS);
+    d.months.forEach((m,i)=>{
+      const pct=m.inc>0?Math.round(m.exp/m.inc*100):0;
+      _xlDataRow(ws,[_MONTHS_AR[m.m],m.inc,m.exp,m.bal,m.inc>0?pct+'%':'—'],i,[null,_XC.PS,_XC.RD,m.bal>=0?_XC.PS:_XC.RD,null]);
+    });
+    _xlTotRow(ws,['الإجمالي',d.totInc,d.totExp,d.totBal,''],COLS);
+    _xlFooter(ws,COLS);
+    const buf=await wb.xlsx.writeBuffer();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    a.download='مقارنة_شهرية_'+d.year+'.xlsx';a.click();
+    setSav('✅ تم التحميل','ok');
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function monthlyExportPDF(){
+  if(!_monthlyData){notify('اضغط عرض أولاً','warn');return;}
+  const d=_monthlyData;
+  const canvas=document.getElementById('monthlyChart');
+  const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
+  const rows=d.months.map(m=>{
+    const pct=m.inc>0?Math.round(m.exp/m.inc*100):0;
+    const pctColor=pct>90?'#922B21':pct>70?'#E65100':'#1E6B3A';
+    return`<tr><td style="font-weight:600">${_MONTHS_AR[m.m]}</td><td class="amt pos">+${fn(m.inc)} ج</td><td class="amt neg">-${fn(m.exp)} ج</td><td class="amt ${m.bal>=0?'pos':'neg'}">${m.bal>=0?'+':''}${fn(m.bal)} ج</td><td style="color:${pctColor};font-weight:700">${m.inc>0?pct+'%':'—'}</td></tr>`;
+  }).join('');
+  const html=_pdfOpen('المقارنة الشهرية — '+d.year)+
+    _pdfHeader('📅 المقارنة الشهرية','المشروع: '+d.projName+' · السنة: '+d.year)+
+    `<div class="kpis kpis-3">
+      <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">+${fn(d.totInc)} ج</div></div>
+      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصاريف</div><div class="kpi-val">-${fn(d.totExp)} ج</div></div>
+      <div class="kpi ${d.totBal>=0?'kpi-net-pos':'kpi-net-neg'}"><div class="kpi-lbl">صافي الرصيد</div><div class="kpi-val">${d.totBal>=0?'+':''}${fn(d.totBal)} ج</div></div>
+    </div>${chartImg}
+    <div class="sec-ttl">📋 تفاصيل شهرية</div>
+    <table><thead><tr><th>الشهر</th><th>الوارد</th><th>المصاريف</th><th>الرصيد</th><th>نسبة الصرف</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td>الإجمالي</td><td class="amt pos">+${fn(d.totInc)} ج</td><td class="amt neg">-${fn(d.totExp)} ج</td><td class="amt ${d.totBal>=0?'pos':'neg'}">${d.totBal>=0?'+':''}${fn(d.totBal)} ج</td><td></td></tr></tfoot></table>`+
+    _pdfFooter()+_pdfClose();
+  openPrintWindow(html);
 }
 
 window.onload=()=>{

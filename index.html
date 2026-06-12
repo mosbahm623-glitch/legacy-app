@@ -759,6 +759,12 @@
               <div class="rhc-sub">ملخص احترافي PDF للعميل بدون تفاصيل داخلية</div>
               <div class="rhc-arrow">←</div>
             </div>
+            <div class="rep-hub-card" onclick="openReport('monthly')">
+              <div class="rhc-icon rhc-icon-blue">📅</div>
+              <div class="rhc-title">المقارنة الشهرية</div>
+              <div class="rhc-sub">مقارنة الوارد والمصاريف شهر بشهر لكل المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
             <div class="rep-hub-card" onclick="openMqManager()">
               <div class="rhc-icon rhc-icon-gold">🔧</div>
               <div class="rhc-title">إدارة أسماء المقاولين</div>
@@ -899,6 +905,29 @@
               </div>
             </div>
             <div id="repClientResult"></div>
+          </div>
+
+          <!-- MONTHLY COMPARISON -->
+          <div id="repMonthlyPanel" style="display:none">
+            <div class="filter-bar rep-filter-mb">
+              <div class="rep-proj-wrap"><label>📁 المشروع</label>
+                <select id="rMonthlyProj" class="rep-proj-sel"><option value="all">كل المشاريع</option></select>
+              </div>
+              <div><label>📅 السنة</label>
+                <select id="rMonthlyYear">
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runMonthlyReport()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearMonthlyReport()">✕ مسح</button>
+                <button class="filter-btn rep-exp-xls" onclick="monthlyExportExcel()">📗 Excel</button>
+                <button class="filter-btn rep-exp-pdf" onclick="monthlyExportPDF()">📕 PDF</button>
+              </div>
+            </div>
+            <div id="repMonthlyResult"></div>
           </div>
 
         </div><!-- end repView -->
