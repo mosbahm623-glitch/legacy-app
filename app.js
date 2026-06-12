@@ -621,6 +621,20 @@ function showScreen(s){
     if(sel&&allProjects.length){
       sel.innerHTML='<option value="">كل المشاريع</option>'+allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
     }
+    // populate users filter
+    getProfileMap().then(profMap=>{
+      const uSel=document.getElementById('srch-user-filter');
+      const uSelAdv=document.getElementById('srch-adv-user');
+      if(uSel){uSel.innerHTML='<option value="">الكل</option>'+Object.entries(profMap).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');}
+      if(uSelAdv){uSelAdv.innerHTML='<option value="">الكل</option>'+Object.entries(profMap).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');}
+    });
+    // init date pickers
+    setTimeout(()=>{
+      const df=document.getElementById('srch-date-from');
+      const dt=document.getElementById('srch-date-to');
+      if(df&&!df._dpInit)initDateInput(df);
+      if(dt&&!dt._dpInit)initDateInput(dt);
+    },100);
   }
   if(s==='daily')loadDailyLog();
   if(s==='dash')loadDashboard();
@@ -5435,6 +5449,51 @@ async function confirmAdvImport(){
 
 // ══════════ SEARCH ══════════
 let _profMapCache=null;
+let _srchTab='entries';
+function setSrchTab(t){
+  _srchTab=t;
+  document.getElementById('srch-entries-panel').style.display=t==='entries'?'block':'none';
+  document.getElementById('srch-advances-panel').style.display=t==='advances'?'block':'none';
+  const on='var(--primary)',off='var(--bg-pure)';
+  const onC='var(--accent)',offC='var(--text-muted)';
+  ['entries','advances'].forEach(x=>{
+    const b=document.getElementById('stab-'+x);
+    if(!b)return;
+    const active=x===t;
+    b.style.background=active?on:off;
+    b.style.color=active?onC:offC;
+    b.style.borderColor=active?on:'var(--border)';
+  });
+  document.getElementById('searchResult').innerHTML='';
+  document.getElementById('searchAdvResult').innerHTML='';
+}
+function getSrchFilters(){
+  const pid=document.getElementById('srch-proj-filter')?.value||'';
+  const type=document.getElementById('srch-type-filter')?.value||'';
+  const userId=document.getElementById('srch-user-filter')?.value||'';
+  const fromRaw=document.getElementById('srch-date-from')?.value||'';
+  const toRaw=document.getElementById('srch-date-to')?.value||'';
+  const parseSrchDate=s=>{if(!s)return null;const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);};
+  return{pid,type,userId,from:parseSrchDate(fromRaw),to:parseSrchDate(toRaw)};
+}
+function applyEntryFilters(arr){
+  const f=getSrchFilters();
+  return arr.filter(e=>{
+    if(f.pid&&e.project_id!==f.pid)return false;
+    if(f.type&&e.type!==f.type)return false;
+    if(f.userId&&e.created_by!==f.userId)return false;
+    if(f.from||f.to){
+      let ed=null;
+      if(e.entry_date){const p=e.entry_date.includes('/')?e.entry_date.split('/'):null;ed=p?new Date(+p[2],+p[1]-1,+p[0]):new Date(e.entry_date);}
+      else if(e.created_at){ed=new Date(e.created_at);}
+      if(ed){
+        if(f.from&&ed<f.from)return false;
+        if(f.to){const t=new Date(f.to);t.setHours(23,59,59);if(ed>t)return false;}
+      }
+    }
+    return true;
+  });
+}
 let _searchMode='seq';
 function setSearchMode(m){
   _searchMode=m;
@@ -5456,10 +5515,9 @@ async function searchBySeq(){
   if(!seq||isNaN(seq)){div.innerHTML='<div class="search-warn-msg">⚠️ أدخل رقم القيد</div>';return;}
   div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
   try{
-    const selPid=document.getElementById('srch-proj-filter').value;
     let data=await sb('entries?or=(seq.eq.'+seq+',entry_no.eq.'+seq+')&order=created_at');
-    if(selPid)data=data.filter(e=>e.project_id===selPid);
-    if(!data||!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
+    data=applyEntryFilters(data||[]);
+    if(!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const profMap=await getProfileMap();
     div.innerHTML=data.map((e,i)=>buildSearchCard(e,i,data.length,projMap,profMap)).join('');
@@ -5475,15 +5533,14 @@ async function searchByName(){try{
   const inDesc=document.getElementById('sf-desc').checked;
   const inCat=document.getElementById('sf-cat').checked;
   const ql=q.toLowerCase();
-  const selPid=document.getElementById('srch-proj-filter').value;
   let results=allEntries.filter(e=>(inMq&&(e.contractor||'').toLowerCase().includes(ql))||(inDesc&&(e.description||'').toLowerCase().includes(ql))||(inCat&&(e.category||'').toLowerCase().includes(ql)));
-  if(selPid)results=results.filter(e=>e.project_id===selPid);
+  results=applyEntryFilters(results);
   const total=results.length;
-  results=results.slice(0,50);
+  results=results.slice(0,200);
   if(!total){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج لـ &quot;'+q+'&quot;</div>';return;}
   const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
   const profMap=await getProfileMap();
-  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>50?' (أول 50)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
+  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>200?' (أول 200)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
   setTimeout(()=>{results.forEach(e=>{const el=document.getElementById('se-date-'+e.id);if(el)initDateInput(el);});},0);
 }catch(_e){const _d=document.getElementById('searchResult');if(_d)_d.innerHTML='<div class="search-warn-msg">⚠️ خطأ في البحث</div>';}}
 async function searchByAmt(){
@@ -5498,17 +5555,44 @@ async function searchByAmt(){
   const min=amt-range;
   const max=amt+range;
   let results=allEntries.filter(e=>Math.abs(e.amount)>=min&&Math.abs(e.amount)<=max);
-  const selPid=document.getElementById('srch-proj-filter').value;
-  if(selPid)results=results.filter(e=>e.project_id===selPid);
+  results=applyEntryFilters(results);
   const total=results.length;
-  results=results.slice(0,50);
+  results=results.slice(0,200);
   if(!total){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج للمبلغ '+fn(amt)+' ج</div>';return;}
   const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
   const profMap=await getProfileMap();
-  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>50?' (أول 50)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
+  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>200?' (أول 200)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
   setTimeout(()=>{results.forEach(e=>{const el=document.getElementById('se-date-'+e.id);if(el)initDateInput(el);});},0);
 }
-async function getProfileMap(){
+async function searchAdvances(){
+  const q=(document.getElementById('searchAdvInp')?.value||'').trim().toLowerCase();
+  const div=document.getElementById('searchAdvResult');
+  div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
+  try{
+    const status=document.getElementById('srch-adv-status')?.value||'';
+    const userId=document.getElementById('srch-adv-user')?.value||'';
+    let url='advances?order=person_name';
+    if(status)url+='&status=eq.'+status;
+    if(userId)url+='&user_id=eq.'+userId;
+    let data=await sb(url);
+    if(q)data=data.filter(a=>(a.person_name||'').toLowerCase().includes(q)||(a.notes||'').toLowerCase().includes(q));
+    if(!data.length){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج</div>';return;}
+    const profMap=await getProfileMap();
+    div.innerHTML='<div class="search-results-count">📊 '+data.length+' نتيجة</div>'+data.map(a=>{
+      const bal=fn(a.amount||0);
+      const st=a.status==='open'?'<span style="color:var(--warning-text)">مفتوحة</span>':'<span style="color:var(--ok-text)">مغلقة</span>';
+      const owner=profMap[a.user_id]||'—';
+      return `<div class="search-card-header" style="margin-bottom:10px;cursor:pointer" onclick="showScreen('adv');setTimeout(()=>openAdv('${a.id}'),400)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700;color:var(--accent)">${a.person_name||'—'}</span>
+          ${st}
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">💰 الرصيد: ${bal} ج &nbsp;·&nbsp; 👤 ${owner}</div>
+        ${a.notes?`<div style="font-size:12px;color:var(--text-muted);margin-top:2px">📝 ${a.notes}</div>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){div.innerHTML='<div class="search-error-msg">❌ '+e.message+'</div>';}
+}
   if(_profMapCache)return _profMapCache;
   try{const profs=await sb('profiles');_profMapCache={};profs.forEach(p=>{_profMapCache[p.id]=p.name||'—';});}catch(e){_profMapCache={};}
   return _profMapCache;

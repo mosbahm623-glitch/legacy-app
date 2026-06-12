@@ -654,50 +654,114 @@
       <!-- SEARCH SCREEN -->
       <div id="searchScreen" style="display:none;padding:16px;max-width:720px;margin:0 auto">
         <div class="mb-18">
-          <h2 class="srch-h2">🔍 البحث في القيود</h2>
-          <p class="srch-sub">ابحث برقم القيد أو باسم (مقاول / بيان / بند)</p>
+          <h2 class="srch-h2">🔍 البحث الشامل</h2>
+          <p class="srch-sub">ابحث في القيود والعهد بفلاتر متقدمة</p>
         </div>
-        <div class="srch-filters-row" style="margin-bottom:10px">
-          <label class="srch-filter-lbl">📁 المشروع:</label>
-          <select id="srch-proj-filter" class="srch-inp-sm" style="flex:1;max-width:220px">
-            <option value="">كل المشاريع</option>
-          </select>
+        <!-- Tabs: entries / advances -->
+        <div class="srch-tab-row">
+          <button id="stab-entries" onclick="setSrchTab('entries')" class="srch-tab-on">📋 القيود</button>
+          <button id="stab-advances" onclick="setSrchTab('advances')" class="srch-tab-off">🤝 العهد</button>
         </div>
-        <div class="srch-mode-row">
-          <button id="smode-seq" onclick="setSearchMode('seq')" class="srch-btn-on">🔢 برقم القيد</button>
-          <button id="smode-name" onclick="setSearchMode('name')" class="srch-btn-off">🔤 بالاسم</button>
-          <button id="smode-amt" onclick="setSearchMode('amt')" class="srch-btn-off">💰 بالقيمة</button>
-        </div>
-        <div id="sform-seq" class="srch-inp-row">
-          <input id="searchSeqInp" type="number" min="1" placeholder="رقم القيد..." class="srch-inp" onkeydown="if(event.key==='Enter')searchBySeq()">
-          <button onclick="searchBySeq()" class="srch-go-btn">🔍 بحث</button>
-        </div>
-        <div id="sform-amt" style="display:none;margin-bottom:18px">
-          <div class="flex-gap8-mb8">
-            <input id="searchAmtInp" type="number" min="0" placeholder="المبلغ بالجنيه..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByAmt()">
-            <button onclick="searchByAmt()" class="srch-go-btn">🔍 بحث</button>
+
+        <!-- ===== ENTRIES TAB ===== -->
+        <div id="srch-entries-panel">
+          <!-- Shared filters -->
+          <div class="srch-advanced-box">
+            <div class="srch-filters-row" style="flex-wrap:wrap;gap:8px">
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">📁 المشروع</label>
+                <select id="srch-proj-filter" class="srch-inp-sm">
+                  <option value="">كل المشاريع</option>
+                </select>
+              </div>
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">📅 من تاريخ</label>
+                <input id="srch-date-from" type="text" class="srch-inp-sm dp-input" placeholder="dd/mm/yyyy" readonly style="cursor:pointer;max-width:130px">
+              </div>
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">📅 لتاريخ</label>
+                <input id="srch-date-to" type="text" class="srch-inp-sm dp-input" placeholder="dd/mm/yyyy" readonly style="cursor:pointer;max-width:130px">
+              </div>
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">📊 النوع</label>
+                <select id="srch-type-filter" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                  <option value="e">مصروف ⬇</option>
+                  <option value="i">وارد ⬆</option>
+                </select>
+              </div>
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">👤 المُدخِل</label>
+                <select id="srch-user-filter" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="srch-filters-row">
-            <label class="srch-filter-lbl">هامش التقريب:</label>
-            <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-exact" checked> تطابق تام</label>
-            <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-100"> ± 100</label>
-            <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-500"> ± 500</label>
-            <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-1000"> ± 1000</label>
+          <!-- Search modes -->
+          <div class="srch-mode-row">
+            <button id="smode-seq" onclick="setSearchMode('seq')" class="srch-btn-on">🔢 برقم القيد</button>
+            <button id="smode-name" onclick="setSearchMode('name')" class="srch-btn-off">🔤 بالاسم</button>
+            <button id="smode-amt" onclick="setSearchMode('amt')" class="srch-btn-off">💰 بالقيمة</button>
           </div>
+          <div id="sform-seq" class="srch-inp-row">
+            <input id="searchSeqInp" type="number" min="1" placeholder="رقم القيد..." class="srch-inp" onkeydown="if(event.key==='Enter')searchBySeq()">
+            <button onclick="searchBySeq()" class="srch-go-btn">🔍 بحث</button>
+          </div>
+          <div id="sform-amt" style="display:none;margin-bottom:18px">
+            <div class="flex-gap8-mb8">
+              <input id="searchAmtInp" type="number" min="0" placeholder="المبلغ بالجنيه..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByAmt()">
+              <button onclick="searchByAmt()" class="srch-go-btn">🔍 بحث</button>
+            </div>
+            <div class="srch-filters-row">
+              <label class="srch-filter-lbl">هامش التقريب:</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-exact" checked> تطابق تام</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-100"> ± 100</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-500"> ± 500</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-1000"> ± 1000</label>
+            </div>
+          </div>
+          <div id="sform-name" style="display:none;margin-bottom:18px">
+            <div class="flex-gap8-mb8">
+              <input id="searchNameInp" type="text" placeholder="اسم مقاول / بيان / بند..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByName()">
+              <button onclick="searchByName()" class="srch-go-btn">🔍 بحث</button>
+            </div>
+            <div class="srch-filters-row">
+              <label class="srch-filter-lbl">بحث في:</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-mq" checked> المقاول</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-desc" checked> البيان</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-cat" checked> البند</label>
+            </div>
+          </div>
+          <div id="searchResult"></div>
         </div>
-        <div id="sform-name" style="display:none;margin-bottom:18px">
-          <div class="flex-gap8-mb8">
-            <input id="searchNameInp" type="text" placeholder="اسم مقاول / بيان / بند..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByName()">
-            <button onclick="searchByName()" class="srch-go-btn">🔍 بحث</button>
+
+        <!-- ===== ADVANCES TAB ===== -->
+        <div id="srch-advances-panel" style="display:none">
+          <div class="srch-advanced-box">
+            <div class="srch-filters-row" style="flex-wrap:wrap;gap:8px">
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">📊 الحالة</label>
+                <select id="srch-adv-status" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                  <option value="open">مفتوحة</option>
+                  <option value="closed">مغلقة</option>
+                </select>
+              </div>
+              <div class="srch-filter-group">
+                <label class="srch-filter-lbl">👤 المسؤول</label>
+                <select id="srch-adv-user" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="srch-filters-row">
-            <label class="srch-filter-lbl">بحث في:</label>
-            <label class="srch-check-lbl"><input type="checkbox" id="sf-mq" checked> المقاول</label>
-            <label class="srch-check-lbl"><input type="checkbox" id="sf-desc" checked> البيان</label>
-            <label class="srch-check-lbl"><input type="checkbox" id="sf-cat" checked> البند</label>
+          <div class="srch-inp-row" style="margin-top:12px">
+            <input id="searchAdvInp" type="text" placeholder="اسم صاحب العهدة..." class="srch-inp" onkeydown="if(event.key==='Enter')searchAdvances()">
+            <button onclick="searchAdvances()" class="srch-go-btn">🔍 بحث</button>
           </div>
+          <div id="searchAdvResult"></div>
         </div>
-        <div id="searchResult"></div>
       </div>
 
       <!-- MESSAGES SCREEN -->
