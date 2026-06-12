@@ -307,9 +307,10 @@ td{font-weight:400}
 .ls-stat{display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .ls-stat-dot{width:7px;height:7px;border-radius:50%;background:#27AE60;flex-shrink:0}
 .ls-stat span{font-size:11px;color:rgba(212,196,154,.5)}
-.ls-credit{display:flex;flex-direction:column;gap:3px}
-.ls-credit-name{font-size:11px;color:rgba(212,196,154,.4);letter-spacing:2px;font-family:'Manrope',sans-serif}
-.ls-credit-phone{font-size:11px;color:rgba(212,196,154,.25);letter-spacing:1px;font-family:'Manrope',sans-serif}
+.ls-credit{display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(212,196,154,.12);padding-top:12px}
+.ls-credit-label{font-size:8.5px;color:rgba(212,196,154,.3);letter-spacing:1.4px;font-family:'Manrope',sans-serif}
+.ls-credit-name{font-size:14px;font-weight:700;color:rgba(212,196,154,.65);font-family:'Manrope',sans-serif;font-style:italic}
+.ls-credit-phone{font-size:10px;color:rgba(212,196,154,.3);letter-spacing:.6px;font-family:'Manrope',sans-serif}
 .ls-right{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:40px 32px}
 .ls-form-wrap{width:100%;max-width:360px}
 .ls-welcome{font-size:22px;font-weight:800;color:#1D3C2A;font-family:'Alexandria',sans-serif;margin-bottom:6px}
