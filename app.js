@@ -1271,7 +1271,7 @@ function refreshProjSummary(pid){
 }
 
 async function loadAllProjects(){
-  // نجيب المشاريع وكل القيود
+  // نجيب المشاريع وكل القيود مرة واحدة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
     sbAll('entries?order=created_at.desc')
@@ -1281,17 +1281,16 @@ async function loadAllProjects(){
   allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
   // المشاريع النشطة بس (غير المؤرشفة)
   allProjects=allProjects.filter(p=>!p.archived);
-  // نجيب قيود كل مشروع لوحده عشان advance_id يجي صح
-  await Promise.all(allProjects.map(async p=>{
-    try{
-      const pe=await sbAll('entries?project_id=eq.'+p.id+'&order=created_at');
-      const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-      const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-      const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-      const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-      projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
-    }catch(_){}
-  }));
+  // نحسب ملخص أولي من allEntries
+  projSummaries={};
+  allProjects.forEach(p=>{
+    const pe=allEntries.filter(e=>e.project_id===p.id);
+    const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
+    const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+    const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+    const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
+    projSummaries[p.id]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
+  });
   // إظهار أزرار الأدمن
   if(uRole==='admin'){
     const archBtn=document.getElementById('sbi-archive');if(archBtn)archBtn.style.display='flex';
@@ -1472,6 +1471,8 @@ async function sw(pid){
   const expDirect=entries.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
   const cats=[...new Set(entries.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
   projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:entries.length};
+  // لو شاشة المشاريع ظاهرة حدّث الكروت
+  if(document.getElementById('projCardsGrid'))buildProjListScreen();
   setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
