@@ -320,17 +320,6 @@
               </div>
             </div>
 
-            <!-- المقارنة الشهرية -->
-            <div class="d-panel">
-              <div class="d-panel-hdr" style="cursor:pointer" onclick="showMonthlyReport()">
-                <span class="d-panel-title">📅 المقارنة الشهرية</span>
-                <span style="font-size:11px;color:var(--accent-gold);opacity:.8">عرض الكل ←</span>
-              </div>
-              <div id="dMonthlyWrap" style="overflow-x:auto">
-                <div class="d-empty">جاري التحميل...</div>
-              </div>
-            </div>
-
             <!-- آخر وارد 15 يوم -->
             <div class="d-panel d-panel-shortcuts">
               <div class="d-panel-hdr">
@@ -403,7 +392,6 @@
         <div class="pb">
           <select id="ps" onchange="sw(this.value)"></select>
           <button class="gsm" id="editPBtn" onclick="editProject()" title="تعديل المشروع" class="btn-gsm-blue">✏️</button>
-          <button class="gsm" id="budgetPBtn" onclick="showBudgetModal()" title="ميزانية البنود" style="background:rgba(212,196,154,.15);color:var(--accent-gold)">🎯</button>
           <button class="gsm" id="addPBtn" onclick="np()">+ مشروع</button>
           <button class="gsm gsm-archive" id="archPBtn" onclick="archiveProject()" title="أرشفة المشروع" style="display:none">📦</button>
           <button class="gsm" id="delPBtn" onclick="dp()" class="btn-gsm-red">🗑</button>
@@ -775,13 +763,6 @@
               <div class="rhc-icon rhc-icon-gold">🔧</div>
               <div class="rhc-title">إدارة أسماء المقاولين</div>
               <div class="rhc-sub">توحيد وإعادة تسمية أسماء المقاولين عبر المشاريع</div>
-              <div class="rhc-arrow">←</div>
-            </div>
-
-            <div class="rep-hub-card" onclick="showMonthlyReport()">
-              <div class="rhc-icon rhc-icon-green">📅</div>
-              <div class="rhc-title">المقارنة الشهرية</div>
-              <div class="rhc-sub">مقارنة الوارد والمصاريف والصافي شهراً بشهر مع نسبة التغيير</div>
               <div class="rhc-arrow">←</div>
             </div>
           </div>

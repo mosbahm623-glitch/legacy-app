@@ -70,7 +70,6 @@ let projects=[],entries=[],allProjects=[],allEntries=[],advances=[],allInstallme
 let allProjectsMap={};
 let cT='e',cTab='s',edId=null,edType=null,imType='e',xOK=false,curScreen='proj';
 let allChatUsers=[];
-let allBudgets=[]; // ميزانيات البنود
 let _rtEntCh=null,_rtAdvCh=null;
 
 async function sb(path,method,body){
@@ -679,10 +678,10 @@ function buildProjListScreen(){
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.innerHTML=projects.map(p=>{
-    const pe=allEntries.filter(e=>e.project_id===p.id);
-    const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-    const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-    const bal=inc-exp;
+    const s=projSummaries[p.id]||{balDirect:0,inc:0,expDirect:0};
+    const bal=s.balDirect||0;
+    const inc=s.inc||0;
+    const exp=s.expDirect||0;
     const balClass=bal<0?'neg':bal>0?'pos':'';
     const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
     return `<div class="proj-card" onclick="goToProject('${p.id}')">
@@ -777,7 +776,6 @@ async function backupAll(){
     // جيب كل البيانات
     const [prjs,ents,advs,insts,profs]=await Promise.all([
       sb('projects?order=created_at'),
-      sb('budgets?order=created_at'),
       sbAll('entries?order=created_at'),
       sb('advances?order=created_at'),
       sb('advance_installments?order=created_at'),
@@ -976,7 +974,6 @@ async function loadDashboard(){
       const s=projSummaries[p.id]||{inc:0,exp:0};
       totalInc+=s.inc; totalExp+=s.exp;
     });
-    // رصيد العهد المتبقي (اللي لسه ما اتسقطش)
     let totalAdv=0;
     allAdvances.forEach(a=>{
       const inst=allInstallments.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
@@ -1066,17 +1063,6 @@ async function loadDashboard(){
       if(rem<0)alerts.push({type:'red',ico:'💼',title:'عهدة بها عجز',sub:a.person_name+' — عجز '+fn(Math.abs(rem))+' ج'});
     });
     if(bal<0)alerts.push({type:'red',ico:'📉',title:'رصيد النقدية سالب',sub:'صافي: '+fn(bal)+' ج'});
-
-    // تنبيهات الميزانية — لو البند وصل 80% أو أكتر
-    allProjects.forEach(p=>{
-      const pBudgets=allBudgets.filter(b=>b.project_id===p.id&&b.amount>0);
-      pBudgets.forEach(b=>{
-        const spent=allEntries.filter(e=>e.project_id===p.id&&e.type==='e'&&e.category===b.category).reduce((s,e)=>s+e.amount,0);
-        const pct=Math.round((spent/b.amount)*100);
-        if(pct>=100)alerts.push({type:'red',ico:'🎯',title:'تجاوز ميزانية البند',sub:p.name+' — '+b.category+' — '+pct+'%',pid:p.id});
-        else if(pct>=80)alerts.push({type:'yellow',ico:'🎯',title:'ميزانية البند على وشك',sub:p.name+' — '+b.category+' — '+pct+'%',pid:p.id});
-      });
-    });
     const alertsList=document.getElementById('dAlertsList');
     const alertCount=document.getElementById('dAlertCount');
     if(alertCount)alertCount.textContent=alerts.length||'';
@@ -1114,13 +1100,6 @@ async function loadDashboard(){
 
     // التدفق النقدي - Chart.js
     _renderCashFlowChart(allEntries);
-
-    // المقارنة الشهرية في الداشبورد — آخر 3 شهور
-    const monthlyWrap=document.getElementById('dMonthlyWrap');
-    if(monthlyWrap){
-      const data=buildMonthlyData(null).slice(-3);
-      monthlyWrap.innerHTML=renderMonthlyTable(data);
-    }
 
     // آخر وارد 15 يوم
     const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
@@ -1282,10 +1261,10 @@ let projSummaries={};
 // تحديث ملخص مشروع واحد بعد أي تغيير
 function refreshProjSummary(pid){
   if(!pid)return;
-  // استخدم entries المحملة لو هي نفس المشروع، وإلا allEntries
-  const pe=(pid===curPid&&entries.length)?entries:allEntries.filter(e=>e.project_id===pid);
+  const pe=allEntries.filter(e=>e.project_id===pid);
   const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
   const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
+  // expDirect = مصروف مباشر فقط (بدون مصروفات العهد)
   const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
   const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
   projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:pe.length};
@@ -1293,10 +1272,9 @@ function refreshProjSummary(pid){
 
 async function loadAllProjects(){
   // نجيب المشاريع وعمودين بس من القيود — بدل ما نجيب كل حاجة
-  [allProjects,allEntries,allBudgets]=await Promise.all([
+  [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sbAll('entries?order=created_at.desc'),
-    sb('budgets?order=created_at').catch(()=>[])
+    sbAll('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc')
   ]);
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
@@ -1486,16 +1464,7 @@ async function sed(){
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
   cep();
-  await loadEntries();
-  // حدّث ملخص المشروع من القيود المحملة حديثاً
-  if(entries.length||projSummaries[pid]){
-    const inc=entries.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-    const exp=entries.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-    const expDirect=entries.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
-    const cats=[...new Set(entries.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
-    projSummaries[pid]={inc,exp,expDirect,bal:inc-exp,balDirect:inc-expDirect,cats,count:entries.length};
-  }
-  setSav('☁️ متصل','ok');
+  await loadEntries();setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
@@ -1540,10 +1509,10 @@ async function loadArchivedProjects(){
     _archiveData=archived.map(p=>{
       const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
       const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-      const exp=pe.filter(e=>e.type==='e').reduce((s,e)=>s+e.amount,0);
-      const bal=inc-exp;
-      const cats=[...new Set(pe.filter(e=>e.type==='e').map(e=>e.category).filter(Boolean))];
-      return{...p,_inc:inc,_exp:exp,_bal:bal,_cats:cats,_count:pe.length};
+      const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+      const bal=inc-expDirect;
+      const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
+      return{...p,_inc:inc,_exp:expDirect,_bal:bal,_cats:cats,_count:pe.length};
     });
     if(countEl)countEl.textContent=_archiveData.length+' مشروع مؤرشف';
     renderArchiveCards(_archiveData,div);
@@ -1804,187 +1773,6 @@ let _allDues=[];
 let _duesFilter='all';
 
 function goToNotes(){showScreen('notes');}
-
-// ═══════════════════════════════════════
-//  BUDGET SYSTEM — ميزانية البنود
-// ═══════════════════════════════════════
-
-function getBudget(projectId, category){
-  const b=allBudgets.find(b=>b.project_id===projectId&&b.category===category);
-  return b?b.amount:0;
-}
-
-async function saveBudget(projectId, category, amount){
-  const existing=allBudgets.find(b=>b.project_id===projectId&&b.category===category);
-  if(existing){
-    const r=await sb('budgets?id=eq.'+existing.id,'PATCH',{amount});
-    allBudgets=allBudgets.map(b=>b.id===existing.id?{...b,amount}:b);
-  } else {
-    const r=await sb('budgets','POST',{project_id:projectId,category,amount});
-    if(r&&r[0])allBudgets.push(r[0]);
-  }
-}
-
-function showBudgetModal(){
-  const p=allProjects.find(pr=>pr.id===curPid);
-  if(!p){notify('اختار مشروع الأول','warn');return;}
-  // البنود الموجودة في المشروع
-  const cats=[...new Set(allEntries.filter(e=>e.project_id===curPid&&e.type==='e'&&e.category).map(e=>e.category))].sort();
-  if(!cats.length){notify('مفيش بنود مصروفات في المشروع','warn');return;}
-  const rows=cats.map(cat=>{
-    const spent=allEntries.filter(e=>e.project_id===curPid&&e.type==='e'&&e.category===cat).reduce((s,e)=>s+e.amount,0);
-    const budget=getBudget(curPid,cat);
-    const pct=budget>0?Math.round((spent/budget)*100):0;
-    const barColor=pct>=100?'var(--danger)':pct>=80?'var(--warning)':'var(--success)';
-    return `<tr>
-      <td style="padding:8px 6px;font-weight:600;color:var(--text-main)">${cat}</td>
-      <td style="padding:8px 6px;text-align:left;color:var(--danger)">${fn(spent)} ج</td>
-      <td style="padding:8px 6px">
-        <input type="number" class="bgt-inp" data-cat="${cat.replace(/"/g,'&quot;')}" value="${budget||''}" placeholder="0" min="0" style="width:110px;padding:5px 8px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-faint);color:var(--text-main);font-family:inherit;font-size:13px">
-      </td>
-      <td style="padding:8px 6px;min-width:100px">
-        ${budget>0?`<div style="background:var(--bg-page);border-radius:6px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.min(pct,100)}%;background:${barColor};transition:width .3s"></div></div><div style="font-size:10px;color:var(--text-hint);margin-top:2px;text-align:center">${pct}%</div>`:'<span style="font-size:10px;color:var(--text-hint)">لم تُحدد</span>'}
-      </td>
-    </tr>`;
-  }).join('');
-
-  const modal=document.createElement('div');
-  modal.id='budgetModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
-  modal.innerHTML=`
-    <div style="background:var(--bg-pure);border-radius:16px;width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;direction:rtl">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:16px;font-weight:700;color:var(--text-main)">🎯 ميزانية البنود</div>
-          <div style="font-size:12px;color:var(--text-hint)">${p.name}</div>
-        </div>
-        <button onclick="document.getElementById('budgetModal').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-hint)">✕</button>
-      </div>
-      <div style="overflow-y:auto;flex:1;padding:8px">
-        <table style="width:100%;border-collapse:collapse">
-          <thead><tr style="font-size:11px;color:var(--text-hint);border-bottom:1px solid var(--border-color)">
-            <th style="padding:8px 6px;text-align:right">البند</th>
-            <th style="padding:8px 6px;text-align:left">المصروف</th>
-            <th style="padding:8px 6px;text-align:right">الميزانية (ج)</th>
-            <th style="padding:8px 6px;text-align:center">نسبة الصرف</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <div style="padding:12px 20px;border-top:1px solid var(--border-color);display:flex;gap:8px;justify-content:flex-end">
-        <button onclick="document.getElementById('budgetModal').remove()" style="padding:8px 18px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-faint);color:var(--text-main);cursor:pointer;font-family:inherit">إلغاء</button>
-        <button onclick="saveBudgets()" style="padding:8px 18px;border-radius:10px;border:none;background:var(--primary);color:#D4C49A;cursor:pointer;font-family:inherit;font-weight:700">💾 حفظ</button>
-      </div>
-      <div id="bgtMsg" style="text-align:center;font-size:12px;padding:4px;color:var(--success)"></div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-async function saveBudgets(){
-  const inputs=document.querySelectorAll('.bgt-inp');
-  const msg=document.getElementById('bgtMsg');
-  if(msg)msg.textContent='جاري الحفظ...';
-  try{
-    for(const inp of inputs){
-      const cat=inp.dataset.cat;
-      const amt=parseFloat(inp.value)||0;
-      if(amt>0)await saveBudget(curPid,cat,amt);
-    }
-    if(msg){msg.textContent='✅ تم الحفظ';msg.style.color='var(--success)';}
-    setTimeout(()=>{const m=document.getElementById('budgetModal');if(m)m.remove();},800);
-  }catch(e){if(msg){msg.textContent='❌ '+e.message;msg.style.color='var(--danger)';}}
-}
-
-// ═══════════════════════════════════════
-//  MONTHLY COMPARISON — المقارنة الشهرية
-// ═══════════════════════════════════════
-
-function buildMonthlyData(projId){
-  const entries=projId?allEntries.filter(e=>e.project_id===projId):allEntries;
-  const months={};
-  entries.forEach(e=>{
-    if(!e.entry_date)return;
-    const p=e.entry_date.split('/');
-    if(p.length!==3)return;
-    const key=p[2]+'-'+p[1].padStart(2,'0');
-    if(!months[key])months[key]={inc:0,exp:0};
-    if(e.type==='i')months[key].inc+=e.amount;
-    else months[key].exp+=e.amount;
-  });
-  return Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>({
-    key:k,
-    label:_monthLabel(+k.split('-')[0],+k.split('-')[1]-1),
-    ...v,
-    net:v.inc-v.exp
-  }));
-}
-
-function renderMonthlyTable(data){
-  if(!data.length)return '<div class="d-empty">لا توجد بيانات</div>';
-  const rows=data.map((m,i)=>{
-    const prev=data[i-1];
-    const expChange=prev&&prev.exp>0?Math.round(((m.exp-prev.exp)/prev.exp)*100):null;
-    const arrow=expChange===null?'':(expChange>0?`<span style="color:var(--danger);font-size:10px"> ▲${expChange}%</span>`:`<span style="color:var(--success);font-size:10px"> ▼${Math.abs(expChange)}%</span>`);
-    const netColor=m.net>=0?'var(--success)':'var(--danger)';
-    return `<tr style="border-bottom:1px solid var(--border-faint)">
-      <td style="padding:9px 8px;font-weight:600;color:var(--text-main)">${m.label}</td>
-      <td style="padding:9px 8px;color:var(--success);text-align:left">▲ ${fn(m.inc)}</td>
-      <td style="padding:9px 8px;color:var(--danger);text-align:left">▼ ${fn(m.exp)}${arrow}</td>
-      <td style="padding:9px 8px;font-weight:700;color:${netColor};text-align:left">${m.net>=0?'+':''}${fn(m.net)}</td>
-    </tr>`;
-  }).join('');
-  const totInc=data.reduce((s,m)=>s+m.inc,0);
-  const totExp=data.reduce((s,m)=>s+m.exp,0);
-  const totNet=totInc-totExp;
-  return `<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="font-size:11px;color:var(--text-hint);border-bottom:1.5px solid var(--border-color)">
-      <th style="padding:8px;text-align:right">الشهر</th>
-      <th style="padding:8px;text-align:left">الوارد</th>
-      <th style="padding:8px;text-align:left">المصاريف</th>
-      <th style="padding:8px;text-align:left">الصافي</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-    <tfoot><tr style="background:var(--bg-faint);font-weight:700;font-size:13px">
-      <td style="padding:9px 8px;color:var(--text-main)">الإجمالي</td>
-      <td style="padding:9px 8px;color:var(--success)">▲ ${fn(totInc)}</td>
-      <td style="padding:9px 8px;color:var(--danger)">▼ ${fn(totExp)}</td>
-      <td style="padding:9px 8px;color:${totNet>=0?'var(--success)':'var(--danger)'};">${totNet>=0?'+':''}${fn(totNet)}</td>
-    </tr></tfoot>
-  </table>`;
-}
-
-function showMonthlyReport(){
-  const modal=document.createElement('div');
-  modal.id='monthlyModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
-
-  const projOpts=allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-
-  modal.innerHTML=`
-    <div style="background:var(--bg-pure);border-radius:16px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;direction:rtl">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:16px;font-weight:700;color:var(--text-main)">📅 المقارنة الشهرية</div>
-        <button onclick="document.getElementById('monthlyModal').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-hint)">✕</button>
-      </div>
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border-faint)">
-        <select id="monthlyProjSel" onchange="refreshMonthlyTable()" style="width:100%;max-width:280px;padding:7px 12px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-faint);color:var(--text-main);font-family:inherit;font-size:13px">
-          <option value="">كل المشاريع</option>
-          ${projOpts}
-        </select>
-      </div>
-      <div id="monthlyTableWrap" style="overflow-y:auto;flex:1;padding:12px 16px"></div>
-    </div>`;
-  document.body.appendChild(modal);
-  refreshMonthlyTable();
-}
-
-function refreshMonthlyTable(){
-  const sel=document.getElementById('monthlyProjSel');
-  const pid=sel?sel.value:'';
-  const data=buildMonthlyData(pid||null);
-  const wrap=document.getElementById('monthlyTableWrap');
-  if(wrap)wrap.innerHTML=renderMonthlyTable(data);
-}
 
 // ══════════════════════════════════════════
 //  NOTES SCREEN
