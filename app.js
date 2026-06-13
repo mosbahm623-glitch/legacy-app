@@ -741,7 +741,16 @@ function buildProjListScreen(){
     </div>`;
   }).join('');
 }
-function goToProject(pid){
+function filterProjCards(q){
+  const cards=document.querySelectorAll('#projCardsGrid .proj-card, #projCardsGrid .deficit');
+  const term=q.trim().toLowerCase();
+  cards.forEach(card=>{
+    const name=card.querySelector('.proj-card-name')?.textContent?.toLowerCase()||'';
+    card.style.display=(!term||name.includes(term))?'':'none';
+  });
+}
+
+
   curPid=pid;
   showScreen('proj');
   const projScr=document.getElementById('projScreen');

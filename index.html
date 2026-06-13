@@ -384,6 +384,9 @@
             <button class="gsm" onclick="np()">+ مشروع جديد</button>
           </div>
         </div>
+        <div style="padding:0 0 12px 0">
+          <input id="projSearchInput" type="text" placeholder="🔍 ابحث عن مشروع..." oninput="filterProjCards(this.value)" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
         <div id="projCardsGrid" class="proj-cards-grid"></div>
       </div>
 
