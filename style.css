@@ -1450,6 +1450,7 @@ body.dark-mode .adv-det-notes{color:rgba(212,196,154,.5)}
 
 /* ── Approvals ── */
 .appr-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+#approvalsList{max-width:860px}
 .appr-title-wrap{}
 .appr-h2{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:3px}
 .appr-sub{font-size:11px;color:var(--text-soft)}
