@@ -1462,6 +1462,8 @@ body.dark-mode .adv-det-notes{color:rgba(212,196,154,.5)}
 .srch-sub{font-size:12px;color:var(--text-soft)}
 .srch-tab-row{display:flex;gap:8px;margin-bottom:14px}
 .srch-tab-on{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--primary);background:var(--primary);color:var(--accent);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#dashRefreshBtn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.3);opacity:.9}
+#dashRefreshBtn:active{transform:scale(.95)}
 #dashRefreshBtn.spin{animation:btn-spin .6s linear}@keyframes btn-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .srch-tab-off{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-pure);color:var(--text-muted);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .srch-advanced-box{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px}
