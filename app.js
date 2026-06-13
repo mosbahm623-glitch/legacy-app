@@ -5953,6 +5953,7 @@ async function approveEntry(id){
     setSav('✅ تمت الموافقة وتم حفظ القيد','ok');
     updatePendingBadge();
     loadApprovals();
+    if(curAdv)loadAdvDetail();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -5963,6 +5964,7 @@ async function rejectEntry(id){
     setSav('🗑️ تم رفض القيد','ng');
     updatePendingBadge();
     loadApprovals();
+    if(curAdv)loadAdvDetail();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 // ══════════════════════════════════════
