@@ -63,6 +63,12 @@ const COLORS = {
   'warning-tint': 'var(--warning-tint)',
 };
 
+// ══════ GLOBAL ERROR HANDLER ══════
+window.addEventListener('unhandledrejection',function(e){
+  console.error('Unhandled error:',e.reason);
+  try{notify('❌ حدث خطأ غير متوقع — حاول تاني','err');}catch(_){}
+});
+
 const SB='https://ctcoqgluaytwelnutrox.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
 let token=null,uid=null,uRole=null,uName='',uEmail='';
