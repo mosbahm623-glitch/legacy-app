@@ -481,7 +481,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:39}
 .sb-overlay.show{display:block}
 /* MAIN CONTENT */
-.main-content{flex:1;overflow:auto;min-width:0;background:var(--bg-page)}
+.main-content{flex:1;overflow:auto;min-width:0;background:var(--bg-page);width:0}
 /* FAB */
 .fab{position:fixed;bottom:22px;left:18px;z-index:200;direction:ltr;touch-action:none;user-select:none}
 .fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--accent);border:none;font-size:24px;cursor:grab;box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.3);transition:transform .2s,background .15s,box-shadow .2s;display:flex;align-items:center;justify-content:center;animation:fab-pulse 2.5s ease-in-out infinite}@keyframes fab-pulse{0%,100%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.2)}50%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 8px rgba(212,196,154,.05)}}
