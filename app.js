@@ -2560,7 +2560,10 @@ function toggleAdvSection(id){
   list.style.display=open?'block':'none';
   if(arrow)arrow.textContent=open?'▲':'▼';
 }
-async function loadAdvDetail(){
+async function loadAdvDetail(silent=false){
+  // احفظ حالة الـ accordion قبل الـ reload
+  const installsOpen=document.getElementById('installs-list')?.style.display==='block';
+  const entriesOpen=document.getElementById('entries-list')?.style.display==='block';
   // Viewer يشوف الدفعات والمصاريف بس - بدون تعديل أو حذف
   const isViewer=uRole==='viewer';
   const editBtn=document.getElementById('advEditBtn');
@@ -2633,6 +2636,9 @@ async function loadAdvDetail(){
     il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
     ae.innerHTML=`<div class='emp'>لا توجد مصروفات بعد</div>`;
   }
+  // أرجع حالة الـ accordion
+  if(installsOpen){const el=document.getElementById('installs-list');const ar=document.getElementById('installs-arrow');if(el){el.style.display='block';if(ar)ar.textContent='▲';}}
+  if(entriesOpen){const el=document.getElementById('entries-list');const ar=document.getElementById('entries-arrow');if(el){el.style.display='block';if(ar)ar.textContent='▲';}}
 }
 
 async function addAdvEntry(){
