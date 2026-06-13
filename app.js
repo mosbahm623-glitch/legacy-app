@@ -5477,11 +5477,17 @@ async function confirmAdvImport(){
   if(!valid.length){notify('لازم تحدد مشروع لصف واحد على الأقل','warn');return;}
   if(skip>0)await new Promise(res=>showConfirm({icon:'⚠️',title:'صفوف بدون مشروع',msg:skip+' صف بدون مشروع هيتخطى. تكمل؟',okLabel:'إكمال',okType:'warning',onOk:res}));
   const ents=valid.map(r=>({id:uid_(),project_id:r.pid,type:'e',amount:r.amt,description:r.desc||'',entry_date:r.dt||fd(ts()),category:r.cat,contractor:r.mq||'',advance_id:curAdv.id}));
-  if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');closeAdvImModal();return;}
   setSav('💾 جاري الاستيراد...','ng');
   try{
-    await sb('entries','POST',ents);
-    setSav('✅ تم استيراد '+ents.length+' قيد'+(skip?' (تخطي '+skip+')':''),'ok');
+    if(uRole==='admin'){
+      await sb('entries','POST',ents);
+      setSav('✅ تم استيراد '+ents.length+' قيد'+(skip?' (تخطي '+skip+')':''),'ok');
+    }else{
+      const pending=ents.map(e=>({...e,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()}));
+      for(const p of pending){await sb('pending_entries','POST',p);}
+      setSav('⏳ تم إرسال '+ents.length+' قيد للموافقة','ng');
+      notify('⏳ تم إرسال '+ents.length+' قيد للموافقة من الأدمن','warn');
+    }
     closeAdvImModal();
     await loadAdvDetail();
     await loadEntries();
