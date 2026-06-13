@@ -5807,6 +5807,54 @@ async function downloadAdvTemplate(){
 }
 
 // ══════════ APPROVAL SYSTEM ══════════
+function toggleSelectAll(checked){
+  document.querySelectorAll('.appr-chk').forEach(c=>c.checked=checked);
+}
+function updateBulkBar(){
+  const all=document.querySelectorAll('.appr-chk');
+  const checked=document.querySelectorAll('.appr-chk:checked');
+  const selectAllChk=document.getElementById('selectAllChk');
+  if(selectAllChk)selectAllChk.checked=all.length>0&&checked.length===all.length;
+}
+async function bulkApprove(){
+  const checked=[...document.querySelectorAll('.appr-chk:checked')];
+  if(!checked.length){notify('حدد عناصر أول','warn');return;}
+  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة جماعية',msg:'هتوافق على '+checked.length+' عنصر. تكمل؟',okLabel:'موافقة',okType:'primary',onOk:res}));
+  setSav('💾 جاري الموافقة...','ng');
+  let done=0;
+  for(const chk of checked){
+    const id=chk.dataset.id;
+    const type=chk.dataset.type;
+    try{
+      if(type==='entry') await approveEntry(id,true);
+      else await approveAdv(id,true);
+      done++;
+    }catch(e){console.error(e);}
+  }
+  setSav('✅ تم الموافقة على '+done+' عنصر','ok');
+  await loadApprovals();
+  await updatePendingBadge();
+}
+async function bulkReject(){
+  const checked=[...document.querySelectorAll('.appr-chk:checked')];
+  if(!checked.length){notify('حدد عناصر أول','warn');return;}
+  await new Promise(res=>showConfirm({icon:'❌',title:'رفض جماعي',msg:'هترفض '+checked.length+' عنصر. تكمل؟',okLabel:'رفض',okType:'danger',onOk:res}));
+  setSav('💾 جاري الرفض...','ng');
+  let done=0;
+  for(const chk of checked){
+    const id=chk.dataset.id;
+    const type=chk.dataset.type;
+    try{
+      if(type==='entry') await rejectEntry(id,true);
+      else await rejectAdv(id,true);
+      done++;
+    }catch(e){console.error(e);}
+  }
+  setSav('✅ تم رفض '+done+' عنصر','ok');
+  await loadApprovals();
+  await updatePendingBadge();
+}
+
 async function updatePendingBadge(){
   try{
     const [e1,e2]=await Promise.all([
@@ -5839,6 +5887,17 @@ async function loadApprovals(){
     const profMap=await getProfileMap();
     let html='';
 
+    // ── شريط التحكم الجماعي ──
+    const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
+    html+=`<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">
+        <input type="checkbox" id="selectAllChk" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer">
+        تحديد الكل (${totalCount})
+      </label>
+      <button onclick="bulkApprove()" style="background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">✅ موافقة المحدد</button>
+      <button onclick="bulkReject()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">❌ رفض المحدد</button>
+    </div>`;
+
     // ── قيود المشاريع ──
     if(hasEntries){
       html+=`<div class="appr-entries-title">📋 قيود المشاريع (${entRows.length})</div>`;
@@ -5847,12 +5906,15 @@ async function loadApprovals(){
         const typeLabel=r.type==='i'
           ?'<span class="appr-income-badge">📤 وارد</span>'
           :'<span class="appr-expense-badge">📥 مصروف</span>';
-        return `<div class="appr-item">
+        return `<div class="appr-item" id="appr-e-${r.id}">
           <div class="appr-item-header">
-            <div class="appr-item-title-row">
-              ${typeLabel}
-              <span class="title-sm">${fn(r.amount)} ج</span>
-              ${r.category?`<span class="appr-item-cat">${r.category}</span>`:''}
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+              <div class="appr-item-title-row">
+                ${typeLabel}
+                <span class="title-sm">${fn(r.amount)} ج</span>
+                ${r.category?`<span class="appr-item-cat">${r.category}</span>`:''}
+              </div>
             </div>
             <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
           </div>
@@ -5883,9 +5945,12 @@ async function loadApprovals(){
         const detail=isAdv
           ?`<span class="title-sm">${r.person_name||'—'}</span>${r.notes?` <span class="appr-meta-text">· ${r.notes}</span>`:''}`
           :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
-        return `<div class="appr-item">
+        return `<div class="appr-item" id="appr-a-${r.id}">
           <div class="appr-item-header">
-            <div class="appr-item-title-row">${label} ${detail}</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="adv" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+              <div class="appr-item-title-row">${label} ${detail}</div>
+            </div>
             <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
           </div>
           <div style="display:flex;gap:8px">
@@ -5987,46 +6052,35 @@ async function confirmEditApprove(id){
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
-async function approveEntry(id){
-  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على القيد',msg:'هيتحفظ القيد في المشروع.',okLabel:'موافقة',okType:'success',onOk:res}));
+async function approveEntry(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على القيد',msg:'هيتحفظ القيد في المشروع.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
-    // جيب القيد من pending
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    // احسب آخر seq
     const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
     let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
     if(nextSeq<20260000)nextSeq=20260000;
     nextSeq++;
-    // انقله لـ entries
     const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,seq:nextSeq,created_by:r.submitted_by};
     await sb('entries','POST',entry);
-    // احذفه من pending
     await sb('pending_entries?id=eq.'+id,'DELETE');
-    // لو المشروع ده اللي مفتوح، حدّث البيانات
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
-    setSav('✅ تمت الموافقة وتم حفظ القيد','ok');
-    updatePendingBadge();
-    loadApprovals();
-    if(curAdv)loadAdvDetail();
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+    if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();loadApprovals();if(curAdv)loadAdvDetail();}
+  }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
-async function rejectEntry(id){
-  await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
+async function rejectEntry(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
-    setSav('🗑️ تم رفض القيد','ng');
-    updatePendingBadge();
-    loadApprovals();
-    if(curAdv)loadAdvDetail();
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+    if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();loadApprovals();if(curAdv)loadAdvDetail();}
+  }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 // ══════════════════════════════════════
 
-async function approveAdv(id){
-  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:res}));
+async function approveAdv(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
     const rows=await sb('pending_advances?id=eq.'+id);
     if(!rows||!rows.length)return;
@@ -6034,25 +6088,22 @@ async function approveAdv(id){
     if(r.type==='advance'){
       const a=await sb('advances','POST',{person_name:r.person_name,amount:0,notes:r.notes||'',status:'open',user_id:r.adv_user_id||r.submitted_by});
       advances.push(a[0]);
-      setSav('✅ تمت الموافقة — تم إنشاء العهدة','ok');
+      if(!silent)setSav('✅ تمت الموافقة — تم إنشاء العهدة','ok');
     }else if(r.type==='installment'){
       await sb('advance_installments','POST',{advance_id:r.advance_id,amount:r.amount,inst_date:r.inst_date||'',note:r.inst_note||'دفعة'});
-      setSav('✅ تمت الموافقة — تم إضافة الدفعة','ok');
+      if(!silent)setSav('✅ تمت الموافقة — تم إضافة الدفعة','ok');
     }
     await sb('pending_advances?id=eq.'+id,'DELETE');
-    updatePendingBadge();
-    loadApprovals();
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+    if(!silent){updatePendingBadge();loadApprovals();}
+  }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
-async function rejectAdv(id){
-  await new Promise(res=>showConfirm({icon:'❌',title:'رفض الطلب',msg:'هيتحذف الطلب نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
+async function rejectAdv(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'❌',title:'رفض الطلب',msg:'هيتحذف الطلب نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_advances?id=eq.'+id,'DELETE');
-    setSav('🗑️ تم الرفض','ng');
-    updatePendingBadge();
-    loadApprovals();
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+    if(!silent){setSav('🗑️ تم الرفض','ng');updatePendingBadge();loadApprovals();}
+  }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
 if('serviceWorker' in navigator){
