@@ -622,20 +622,6 @@ function showScreen(s){
     if(sel&&allProjects.length){
       sel.innerHTML='<option value="">كل المشاريع</option>'+allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
     }
-    // populate users filter
-    getProfileMap().then(profMap=>{
-      const uSel=document.getElementById('srch-user-filter');
-      const uSelAdv=document.getElementById('srch-adv-user');
-      if(uSel){uSel.innerHTML='<option value="">الكل</option>'+Object.entries(profMap).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');}
-      if(uSelAdv){uSelAdv.innerHTML='<option value="">الكل</option>'+Object.entries(profMap).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');}
-    });
-    // init date pickers
-    setTimeout(()=>{
-      const df=document.getElementById('srch-date-from');
-      const dt=document.getElementById('srch-date-to');
-      if(df&&!df._dpInit)initDateInput(df);
-      if(dt&&!dt._dpInit)initDateInput(dt);
-    },100);
   }
   if(s==='daily')loadDailyLog();
   if(s==='dash')loadDashboard();
@@ -963,16 +949,6 @@ async function renameMq(oldName){
   renderMqManager(document.getElementById('mqMgrSearch')?.value||'');
 }
 
-async function dashRefresh(){
-  const btn=document.getElementById('dashRefreshBtn');
-  if(btn){btn.classList.add('spin');setTimeout(()=>btn.classList.remove('spin'),600);}
-  try{
-    await loadAllProjects();
-    if(curPid)await loadEntries();
-    await loadDashboard();
-    notify('✅ تم التحديث','ok');
-  }catch(e){notify('❌ خطأ في التحديث','er');}
-}
 async function loadDashboard(){
   try{
     loadNotes();
@@ -3102,10 +3078,12 @@ function initRealtime(){
     _rtEntCh=_sbc.channel('entries-all')
       .on('postgres_changes',{event:'*',schema:'public',table:'entries'},async(payload)=>{
         window._rtOk=true;
-        await loadAllProjects();
-        if(curPid)await loadEntries();
-        if(curScreen==='dash')loadDashboard();
-        else rp();
+        if(payload.new?.created_by===uid||payload.old?.project_id===curPid||payload.new?.project_id===curPid){
+          await loadAllProjects();
+          if(curPid)await loadEntries();
+          if(curScreen==='dash')loadDashboard();
+          else rp();
+        }
       })
       .subscribe((s)=>{if(s==='SUBSCRIBED')window._rtOk=true;});
     // advances realtime
@@ -3114,12 +3092,10 @@ function initRealtime(){
       .on('postgres_changes',{event:'*',schema:'public',table:'advances'},async()=>{
         window._rtOk=true;
         if(curScreen==='adv')await loadAdvList();
-        if(curScreen==='dash')loadDashboard();
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'advance_installments'},async()=>{
         window._rtOk=true;
         if(curScreen==='adv'&&curAdv)await loadAdvDetail(curAdv.id);
-        if(curScreen==='dash')loadDashboard();
       })
       .subscribe();
   }catch(e){console.error(e);}
@@ -5443,51 +5419,6 @@ async function confirmAdvImport(){
 
 // ══════════ SEARCH ══════════
 let _profMapCache=null;
-let _srchTab='entries';
-function setSrchTab(t){
-  _srchTab=t;
-  document.getElementById('srch-entries-panel').style.display=t==='entries'?'block':'none';
-  document.getElementById('srch-advances-panel').style.display=t==='advances'?'block':'none';
-  const on='var(--primary)',off='var(--bg-pure)';
-  const onC='var(--accent)',offC='var(--text-muted)';
-  ['entries','advances'].forEach(x=>{
-    const b=document.getElementById('stab-'+x);
-    if(!b)return;
-    const active=x===t;
-    b.style.background=active?on:off;
-    b.style.color=active?onC:offC;
-    b.style.borderColor=active?on:'var(--border)';
-  });
-  document.getElementById('searchResult').innerHTML='';
-  document.getElementById('searchAdvResult').innerHTML='';
-}
-function getSrchFilters(){
-  const pid=document.getElementById('srch-proj-filter')?.value||'';
-  const type=document.getElementById('srch-type-filter')?.value||'';
-  const userId=document.getElementById('srch-user-filter')?.value||'';
-  const fromRaw=document.getElementById('srch-date-from')?.value||'';
-  const toRaw=document.getElementById('srch-date-to')?.value||'';
-  const parseSrchDate=s=>{if(!s)return null;const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);};
-  return{pid,type,userId,from:parseSrchDate(fromRaw),to:parseSrchDate(toRaw)};
-}
-function applyEntryFilters(arr){
-  const f=getSrchFilters();
-  return arr.filter(e=>{
-    if(f.pid&&e.project_id!==f.pid)return false;
-    if(f.type&&e.type!==f.type)return false;
-    if(f.userId&&e.created_by!==f.userId)return false;
-    if(f.from||f.to){
-      let ed=null;
-      if(e.entry_date){const p=e.entry_date.includes('/')?e.entry_date.split('/'):null;ed=p?new Date(+p[2],+p[1]-1,+p[0]):new Date(e.entry_date);}
-      else if(e.created_at){ed=new Date(e.created_at);}
-      if(ed){
-        if(f.from&&ed<f.from)return false;
-        if(f.to){const t=new Date(f.to);t.setHours(23,59,59);if(ed>t)return false;}
-      }
-    }
-    return true;
-  });
-}
 let _searchMode='seq';
 function setSearchMode(m){
   _searchMode=m;
@@ -5509,9 +5440,10 @@ async function searchBySeq(){
   if(!seq||isNaN(seq)){div.innerHTML='<div class="search-warn-msg">⚠️ أدخل رقم القيد</div>';return;}
   div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
   try{
+    const selPid=document.getElementById('srch-proj-filter').value;
     let data=await sb('entries?or=(seq.eq.'+seq+',entry_no.eq.'+seq+')&order=created_at');
-    data=applyEntryFilters(data||[]);
-    if(!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
+    if(selPid)data=data.filter(e=>e.project_id===selPid);
+    if(!data||!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const profMap=await getProfileMap();
     div.innerHTML=data.map((e,i)=>buildSearchCard(e,i,data.length,projMap,profMap)).join('');
@@ -5527,14 +5459,15 @@ async function searchByName(){try{
   const inDesc=document.getElementById('sf-desc').checked;
   const inCat=document.getElementById('sf-cat').checked;
   const ql=q.toLowerCase();
+  const selPid=document.getElementById('srch-proj-filter').value;
   let results=allEntries.filter(e=>(inMq&&(e.contractor||'').toLowerCase().includes(ql))||(inDesc&&(e.description||'').toLowerCase().includes(ql))||(inCat&&(e.category||'').toLowerCase().includes(ql)));
-  results=applyEntryFilters(results);
+  if(selPid)results=results.filter(e=>e.project_id===selPid);
   const total=results.length;
-  results=results.slice(0,200);
+  results=results.slice(0,50);
   if(!total){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج لـ &quot;'+q+'&quot;</div>';return;}
   const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
   const profMap=await getProfileMap();
-  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>200?' (أول 200)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
+  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>50?' (أول 50)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
   setTimeout(()=>{results.forEach(e=>{const el=document.getElementById('se-date-'+e.id);if(el)initDateInput(el);});},0);
 }catch(_e){const _d=document.getElementById('searchResult');if(_d)_d.innerHTML='<div class="search-warn-msg">⚠️ خطأ في البحث</div>';}}
 async function searchByAmt(){
@@ -5549,45 +5482,18 @@ async function searchByAmt(){
   const min=amt-range;
   const max=amt+range;
   let results=allEntries.filter(e=>Math.abs(e.amount)>=min&&Math.abs(e.amount)<=max);
-  results=applyEntryFilters(results);
+  const selPid=document.getElementById('srch-proj-filter').value;
+  if(selPid)results=results.filter(e=>e.project_id===selPid);
   const total=results.length;
-  results=results.slice(0,200);
+  results=results.slice(0,50);
   if(!total){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج للمبلغ '+fn(amt)+' ج</div>';return;}
   const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
   const profMap=await getProfileMap();
-  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>200?' (أول 200)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
+  div.innerHTML='<div class="search-results-count">📊 '+total+' نتيجة'+(total>50?' (أول 50)':'')+'</div>'+results.map((e,i)=>buildSearchCard(e,i,results.length,projMap,profMap)).join('');
   setTimeout(()=>{results.forEach(e=>{const el=document.getElementById('se-date-'+e.id);if(el)initDateInput(el);});},0);
 }
-async function searchAdvances(){
-  const q=(document.getElementById('searchAdvInp')?.value||'').trim().toLowerCase();
-  const div=document.getElementById('searchAdvResult');
-  div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
-  try{
-    const status=document.getElementById('srch-adv-status')?.value||'';
-    const userId=document.getElementById('srch-adv-user')?.value||'';
-    let url='advances?order=person_name';
-    if(status)url+='&status=eq.'+status;
-    if(userId)url+='&user_id=eq.'+userId;
-    let data=await sb(url);
-    if(q)data=data.filter(a=>(a.person_name||'').toLowerCase().includes(q)||(a.notes||'').toLowerCase().includes(q));
-    if(!data.length){div.innerHTML='<div class="search-empty-msg">❌ لا نتائج</div>';return;}
-    const profMap=await getProfileMap();
-    div.innerHTML='<div class="search-results-count">📊 '+data.length+' نتيجة</div>'+data.map(a=>{
-      const bal=fn(a.amount||0);
-      const st=a.status==='open'?'<span style="color:var(--warning-text)">مفتوحة</span>':'<span style="color:var(--ok-text)">مغلقة</span>';
-      const owner=profMap[a.user_id]||'—';
-      return `<div class="search-card-header" style="margin-bottom:10px;cursor:pointer" onclick="showScreen('adv');setTimeout(()=>openAdv('${a.id}'),400)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-weight:700;color:var(--accent)">${a.person_name||'—'}</span>
-          ${st}
-        </div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">💰 الرصيد: ${bal} ج &nbsp;·&nbsp; 👤 ${owner}</div>
-        ${a.notes?`<div style="font-size:12px;color:var(--text-muted);margin-top:2px">📝 ${a.notes}</div>`:''}
-      </div>`;
-    }).join('');
-  }catch(e){div.innerHTML='<div class="search-error-msg">❌ '+e.message+'</div>';}
-}
 async function getProfileMap(){
+  if(_profMapCache)return _profMapCache;
   try{const profs=await sb('profiles');_profMapCache={};profs.forEach(p=>{_profMapCache[p.id]=p.name||'—';});}catch(e){_profMapCache={};}
   return _profMapCache;
 }
@@ -5787,7 +5693,6 @@ async function loadApprovals(){
     }
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
-    const profMap=await getProfileMap();
     let html='';
 
     // ── قيود المشاريع ──
@@ -5811,8 +5716,7 @@ async function loadApprovals(){
             ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
             ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
             <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
-            <span class="appr-meta-text">📅 ${r.entry_date||'—'}</span> &nbsp;
-            <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
+            <span class="appr-meta-text">📅 ${r.entry_date||'—'}</span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
@@ -5839,7 +5743,6 @@ async function loadApprovals(){
             <div class="appr-item-title-row">${label} ${detail}</div>
             <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
           </div>
-          <div class="appr-item-meta" style="margin-bottom:8px">👤 ${profMap[r.submitted_by]||'—'}</div>
           <div style="display:flex;gap:8px">
             <button onclick="approveAdv('${r.id}')" class="appr-adv-approve-btn">✅ موافقة</button>
             <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
@@ -6282,13 +6185,6 @@ function initNotifSystem(){
   setupNotifRealtime();
   // refresh online every 45s
   setInterval(()=>{updatePresence().then(()=>refreshOnlineUsers());},45000);
-  // polling للموافقات كل 5 ثواني للأدمن — backup للـ realtime
-  if(uRole==='admin'){
-    setInterval(async()=>{
-      await updatePendingBadge();
-      if(curScreen==='approvals')loadApprovals();
-    },5000);
-  }
 }
 
 function setupNotifRealtime(){
@@ -6296,39 +6192,30 @@ function setupNotifRealtime(){
   if(_rtNotifCh){_sbc.removeChannel(_rtNotifCh);_rtNotifCh=null;}
   if(_rtPendNotifCh){_sbc.removeChannel(_rtPendNotifCh);_rtPendNotifCh=null;}
 
-  _rtPendNotifCh=_sbc.channel('notif-pending')
-    .on('postgres_changes',{event:'*',schema:'public',table:'pending_entries'},
-      async(payload)=>{
-        window._rtOk=true;
-        updatePendingBadge();
-        loadApprovals(); // دايماً في الخلفية
-        if(curScreen==='dash')loadDashboard();
-        // إشعار للأدمن فقط عند INSERT من غيره
-        if(uRole==='admin'&&payload.eventType==='INSERT'){
+  // pending entries/advances — للأدمن فقط
+  if(uRole==='admin'){
+    _rtPendNotifCh=_sbc.channel('notif-pending')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_entries'},
+        (payload)=>{
           const r=payload.new;
           if(r.submitted_by===uid)return;
-          const who=await getUserName(r.submitted_by);
+          const who=getUserName(r.submitted_by);
           const projName=allProjectsMap[r.project_id]?.name||'مشروع';
           pushNotif({type:'pending_entry',title:`${who} طلب موافقة على قيد`,sub:`${fn(r.amount)} ج · ${projName}${r.category?' · '+r.category:''}`});
+          updatePendingBadge();
         }
-      }
-    )
-    .on('postgres_changes',{event:'*',schema:'public',table:'pending_advances'},
-      async(payload)=>{
-        window._rtOk=true;
-        updatePendingBadge();
-        loadApprovals(); // دايماً في الخلفية
-        if(curScreen==='dash')loadDashboard();
-        // إشعار للأدمن فقط عند INSERT من غيره
-        if(uRole==='admin'&&payload.eventType==='INSERT'){
+      )
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'pending_advances'},
+        (payload)=>{
           const r=payload.new;
           if(r.submitted_by===uid)return;
-          const who=await getUserName(r.submitted_by);
+          const who=getUserName(r.submitted_by);
           const label=r.type==='advance'?'عهدة جديدة':'دفعة';
           pushNotif({type:'pending_adv',title:`${who} طلب موافقة — ${label}`,sub:r.person_name?`${r.person_name}`:r.amount?`${fn(r.amount)} ج`:''});
+          updatePendingBadge();
         }
-      }
-    )
-    .subscribe((status)=>{});
+      )
+      .subscribe((status)=>{});
+  }
 }
 
