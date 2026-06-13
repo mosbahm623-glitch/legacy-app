@@ -714,7 +714,11 @@ function buildProjListScreen(){
   const grid=document.getElementById('projCardsGrid');
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
-  grid.innerHTML=projects.map(p=>{
+  grid.innerHTML=[...projects].sort((a,b)=>{
+    const sa=projSummaries[a.id]||{bal:0};
+    const sb=projSummaries[b.id]||{bal:0};
+    return (sa.bal||0)-(sb.bal||0); // عجز أول (سالب أصغر)
+  }).map(p=>{
     const s=projSummaries[p.id]||{bal:0,inc:0,exp:0};
     const bal=s.bal||0;
     const inc=s.inc||0;
