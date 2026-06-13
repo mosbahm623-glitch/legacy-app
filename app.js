@@ -964,10 +964,13 @@ async function renameMq(oldName){
 
 async function dashRefresh(){
   const btn=document.getElementById('dashRefreshBtn');
-  if(btn){btn.style.transform='rotate(360deg)';btn.style.transition='transform .5s';setTimeout(()=>{btn.style.transform='';},500);}
-  await loadAllProjects();
-  await loadDashboard();
-  notify('✅ تم التحديث','ok');
+  if(btn){btn.classList.add('spin');setTimeout(()=>btn.classList.remove('spin'),600);}
+  try{
+    await loadAllProjects();
+    if(curPid)await loadEntries();
+    await loadDashboard();
+    notify('✅ تم التحديث','ok');
+  }catch(e){notify('❌ خطأ في التحديث','er');}
 }
 async function loadDashboard(){
   try{
