@@ -2265,16 +2265,23 @@ async function confirmImport(){
   closeImportPreview();
   setSav('💾 جاري الاستيراد ('+ents.length+' قيد)...','ng');
   try{
-    const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
-    let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
-    if(nextSeq<20260000)nextSeq=20260000;
-    ents.forEach(e=>{nextSeq++;e.seq=nextSeq;e.created_by=uid;});
-    await sb('entries','POST',ents);
-    await loadEntries();
-    allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);
-    refreshProjSummary(curPid);
-    setSav('✅ تم استيراد '+ents.length+' قيد','ok');
-    document.getElementById('imT').value='';
+    if(uRole==='admin'){
+      const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
+      let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
+      if(nextSeq<20260000)nextSeq=20260000;
+      ents.forEach(e=>{nextSeq++;e.seq=nextSeq;e.created_by=uid;});
+      await sb('entries','POST',ents);
+      await loadEntries();
+      allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);
+      refreshProjSummary(curPid);
+      setSav('✅ تم استيراد '+ents.length+' قيد','ok');
+    }else{
+      const pending=ents.map(e=>({...e,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()}));
+      for(const p of pending){await sb('pending_entries','POST',p);}
+      setSav('⏳ تم إرسال '+ents.length+' قيد للموافقة','ng');
+      notify('⏳ تم إرسال '+ents.length+' قيد للموافقة من الأدمن','warn');
+    }
+    document.getElementById('imT')&&(document.getElementById('imT').value='');
     document.getElementById('im').style.display='none';
     rp();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
@@ -2315,35 +2322,12 @@ async function importFromXlsx(input){
       }
     });
     if(!ents.length){setSav('⚠️ لم يتم التعرف على أي قيد','er');input.value='';return;}
-    if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');input.value='';return;}
     input.value='';
     setSav('','ok');
     showImportPreview(ents,sk);
   }catch(e){setSav('❌ '+friendlyError(e),'er');input.value='';}
 }
-async function doim(){try{
-  const txt=document.getElementById('imT').value.trim();
-  if(!txt){notify('الصق البيانات أولاً','warn');return;}
-  if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');return;}
-  const ents=[];let sk=0;
-  txt.split('\n').filter(l=>l.trim()).forEach(l=>{
-    const ps=l.split('\t').map(x=>x.trim());
-    const am=parseFloat(ps[0].replace(/,/g,''));
-    if(isNaN(am)){sk++;return;}
-    let e;
-    if(imType==='e'){
-      if(!ps[1]){sk++;return;}
-      e={id:uid_(),project_id:curPid,type:'e',amount:am,category:ps[1],description:ps[2]||'',entry_date:pimd(ps[3]||''),contractor:ps[4]||''};
-    }else{
-      e={id:uid_(),project_id:curPid,type:'i',amount:am,category:'',contractor:''};
-      ps.length===2?(e.description='دفعة',e.entry_date=pimd(ps[1])):(e.description=ps[1]||'دفعة',e.entry_date=pimd(ps[2]||''));
-    }
-    ents.push(e);
-  });
-  if(!ents.length){notify('لم يتم استيراد أي قيد','warn');return;}
-  if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');return;}
-  showImportPreview(ents,sk);
-}catch(_e){setSav('⚠️ خطأ في الاستيراد','er');}}
+
 
 function rp(){
   // Rebuild sidebar project list
