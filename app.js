@@ -2552,14 +2552,15 @@ async function openAdv(id){try{
   await loadAdvDetail();
 }catch(_e){notify('⚠️ خطأ في فتح العهدة','er');}}
 
-function toggleAdvSection(id){
-  const list=document.getElementById(id+'-list');
-  const arrow=document.getElementById(id+'-arrow');
-  if(!list)return;
-  const open=list.style.display==='none';
-  list.style.display=open?'block':'none';
-  if(arrow)arrow.textContent=open?'▲':'▼';
+function switchAdvTab(t){
+  document.getElementById('advTabPanel-exp').style.display=t==='exp'?'block':'none';
+  document.getElementById('advTabPanel-inst').style.display=t==='inst'?'block':'none';
+  document.getElementById('advTab-exp').className='adv-tab '+(t==='exp'?'adv-tab-on':'adv-tab-off');
+  document.getElementById('advTab-inst').className='adv-tab '+(t==='inst'?'adv-tab-on':'adv-tab-off');
 }
+function downloadInstallmentsReport(){downloadAdvReport('installs');}
+function downloadInstallmentsPDF(){downloadAdvPDF('installs');}
+function toggleAdvSection(){}
 async function loadAdvDetail(silent=false){
   // احفظ حالة الـ accordion قبل الـ reload
   const installsOpen=document.getElementById('installs-list')?.style.display==='block';

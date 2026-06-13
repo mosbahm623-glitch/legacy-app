@@ -573,66 +573,75 @@
           </div>
         </div>
         <div class="adv-detail-kp" id="advDetKp"></div>
-        <div class="adv-entry-form" id="advInstDiv">
-          <h4>💰 إضافة دفعة جديدة</h4>
-          <div class="adv-ig">
-            <input id="advInstAmt" type="number" placeholder="المبلغ (ج)" step="any">
-            <input id="advInstDate" type="text" placeholder="dd/mm/yyyy" maxlength="10">
-            <input id="advInstNote" class="fl" placeholder="ملاحظة (اختياري)">
-          </div>
-          <button class="svb" onclick="addInstallment()">+ إضافة الدفعة</button>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          <button id="advTab-exp" onclick="switchAdvTab('exp')" class="adv-tab adv-tab-on">📋 المصروفات</button>
+          <button id="advTab-inst" onclick="switchAdvTab('inst')" class="adv-tab adv-tab-off">💰 الدفعات</button>
         </div>
-        <h4 class="adv-screen-h4-sm">💰 الدفعات</h4>
-        <div class="adv-entries" id="advInstList"><div class="emp">⏳...</div></div>
-        <div class="adv-entry-form adv-entry-mt" id="advEntryFormDiv">
-          <h4>➕ إضافة مصروف على العهدة</h4>
-          <div class="adv-ig">
-            <select id="advProjSel" class="fl"><option value="">اختار المشروع</option></select>
-            <input id="advCat" placeholder="البند" list="cl">
-            <input id="advDesc" class="fl" placeholder="البيان">
-            <input id="advEntAmt" type="number" placeholder="المبلغ (ج)" step="any">
-            <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
-            <input id="advMq" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)" list="ql">
+
+        <!-- EXPENSES TAB -->
+        <div id="advTabPanel-exp">
+          <div class="adv-entry-form" id="advEntryFormDiv">
+            <h4>➕ إضافة مصروف على العهدة</h4>
+            <div class="adv-ig">
+              <select id="advProjSel" class="fl"><option value="">اختار المشروع</option></select>
+              <input id="advCat" placeholder="البند" list="cl">
+              <input id="advDesc" class="fl" placeholder="البيان">
+              <input id="advEntAmt" type="number" placeholder="المبلغ (ج)" step="any">
+              <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+              <input id="advMq" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)" list="ql">
+            </div>
+            <div class="adv-svb-btns">
+              <button class="svb adv-svb-flex" onclick="addAdvEntry()">+ إضافة</button>
+              <button class="svb adv-svb-brown" onclick="document.getElementById('advXlsFile').click()">📥 استيراد Excel</button>
+              <button class="svb adv-svb-blue" onclick="downloadAdvTemplate()">📋 تحميل Template</button>
+              <input type="file" id="advXlsFile" accept=".xlsx" style="display:none" onchange="readAdvXls(this)">
+            </div>
+            <div class="adv-im" id="advIm" style="display:none"></div>
           </div>
-          <div class="adv-svb-btns">
-            <button class="svb adv-svb-flex" onclick="addAdvEntry()">+ إضافة</button>
-            <button class="svb adv-svb-brown" onclick="document.getElementById('advXlsFile').click()">📥 استيراد Excel</button>
-            <button class="svb adv-svb-blue" onclick="downloadAdvTemplate()">📋 تحميل Template</button>
-            <input type="file" id="advXlsFile" accept=".xlsx" style="display:none" onchange="readAdvXls(this)">
+          <div class="ep adv-ep-mb" id="advEp">
+            <div class="ep-h"><span id="advEpT">تعديل المصروف</span><button onclick="cancelAdvEdit()" class="btn-close-x">✕</button></div>
+            <div class="ep-g">
+              <select id="advEPrj" class="fl ep-select"></select>
+              <input id="advEA" type="number" placeholder="المبلغ" step="any">
+              <input id="advEC" placeholder="البند">
+              <input id="advED" class="fl" placeholder="البيان">
+              <input id="advEDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+              <input id="advEM" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)">
+            </div>
+            <button class="svb" onclick="saveAdvEntry()">💾 حفظ التعديل</button>
           </div>
-          <div class="adv-im" id="advIm" style="display:none"></div>
+          <div class="filter-bar adv-filter-mt" id="advFilterBar">
+            <div><label>📅 من</label><input type="text" id="advFDateFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+            <div><label>📅 لحد</label><input type="text" id="advFDateTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+            <div class="adv-filter-row">
+              <button class="filter-btn" onclick="runAdvFilter()">🔍 فلتر</button>
+              <button class="filter-btn sec" onclick="clearAdvFilter()">✕</button>
+              <button class="filter-btn dl" onclick="downloadAdvReport()">📥 Excel</button>
+              <button class="filter-btn dl btn-pdf-red" onclick="downloadAdvPDF()">📕 PDF</button>
+            </div>
+          </div>
+          <div class="adv-entries" id="advEntries"><div class="emp">⏳ جاري التحميل...</div></div>
         </div>
-        <div class="ep adv-ep-mb" id="advEp">
-          <div class="ep-h"><span id="advEpT">تعديل المصروف</span><button onclick="cancelAdvEdit()" class="btn-close-x">✕</button></div>
-          <div class="ep-g">
-            <select id="advEPrj" class="fl ep-select"></select>
-            <input id="advEA" type="number" placeholder="المبلغ" step="any">
-            <input id="advEC" placeholder="البند">
-            <input id="advED" class="fl" placeholder="البيان">
-            <input id="advEDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
-            <input id="advEM" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)">
+
+        <!-- INSTALLMENTS TAB -->
+        <div id="advTabPanel-inst" style="display:none">
+          <div class="adv-entry-form" id="advInstDiv">
+            <h4>💰 إضافة دفعة جديدة</h4>
+            <div class="adv-ig">
+              <input id="advInstAmt" type="number" placeholder="المبلغ (ج)" step="any">
+              <input id="advInstDate" type="text" placeholder="dd/mm/yyyy" maxlength="10">
+              <input id="advInstNote" class="fl" placeholder="ملاحظة (اختياري)">
+            </div>
+            <button class="svb" onclick="addInstallment()">+ إضافة الدفعة</button>
           </div>
-          <button class="svb" onclick="saveAdvEntry()">💾 حفظ التعديل</button>
+          <div style="display:flex;justify-content:flex-start;gap:6px;margin-bottom:10px">
+            <button class="filter-btn dl" onclick="downloadInstallmentsReport()">📥 Excel</button>
+            <button class="filter-btn dl btn-pdf-red" onclick="downloadInstallmentsPDF()">📕 PDF</button>
+          </div>
+          <div class="adv-entries" id="advInstList"><div class="emp">⏳...</div></div>
         </div>
-        <h4 class="adv-screen-h4-sm">📋 مصروفات العهدة</h4>
-        <!-- ADVANCE DATE FILTER -->
-        <div class="filter-bar adv-filter-mt" id="advFilterBar">
-          <div>
-            <label>📅 من</label>
-            <input type="text" id="advFDateFrom" placeholder="dd/mm/yyyy" maxlength="10">
-          </div>
-          <div>
-            <label>📅 لحد</label>
-            <input type="text" id="advFDateTo" placeholder="dd/mm/yyyy" maxlength="10">
-          </div>
-          <div class="adv-filter-row">
-            <button class="filter-btn" onclick="runAdvFilter()">🔍 فلتر</button>
-            <button class="filter-btn sec" onclick="clearAdvFilter()">✕</button>
-            <button class="filter-btn dl" onclick="downloadAdvReport()">📥 Excel</button>
-            <button class="filter-btn dl btn-pdf-red" onclick="downloadAdvPDF()">📕 PDF</button>
-          </div>
-        </div>
-        <div class="adv-entries" id="advEntries"><div class="emp">⏳ جاري التحميل...</div></div>
       </div>
 
       <!-- ADMIN -->

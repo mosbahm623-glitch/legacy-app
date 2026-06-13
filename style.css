@@ -639,7 +639,9 @@ body.dark-mode .im{background:rgba(255,255,255,.03);border-color:rgba(212,196,15
 .emsg{font-size:10px;color:var(--text-soft);text-align:center;padding:3px;min-height:14px}
 .vnotice{background:var(--info-faint);border:1px solid var(--info-tint);border-radius:8px;padding:12px;text-align:center;color:var(--info-deep);font-size:12px;margin:12px}
 /* ADVANCES */
-.adv-screen{padding:14px}
+.adv-tab{flex:1;padding:10px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;border:1.5px solid transparent}
+.adv-tab-on{background:var(--primary);border-color:rgba(212,196,154,.2);color:var(--accent)}
+.adv-tab-off{background:rgba(255,255,255,.03);border-color:rgba(212,196,154,.08);color:var(--text-muted)}
 .adv-card{background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:12px;margin-bottom:10px;cursor:pointer}
 .adv-card:hover{background:var(--bg-surface)}
 body.dark-mode .adv-card{background:rgba(255,255,255,.04);border-color:rgba(212,196,154,.12)}
