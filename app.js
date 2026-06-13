@@ -2568,7 +2568,7 @@ async function loadAdvDetail(){
   const closeBtn=document.getElementById('advCloseBtn');
   const instDiv=document.getElementById('advInstDiv');
   const linkBtn=document.getElementById('advLinkBtn');
-  if(editBtn)editBtn.style.display='';
+  if(editBtn)editBtn.style.display=isViewer?'none':'';
   if(delBtn)delBtn.style.display=isViewer?'none':'';
   if(closeBtn)closeBtn.style.display=isViewer?'none':'';
   if(instDiv)instDiv.style.display=isViewer?'none':'';
@@ -2596,6 +2596,7 @@ async function loadAdvDetail(){
     var installs=[];
     try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}
     catch(e2){installs=[];}
+    window._curAdvInstalls=installs;
     // قفل التعديل لو في دفعات (يعني الأدمن وافق) أو لو viewer
     if(editBtn&&uRole!=='admin'){
       if(isViewer||installs.length>0){
@@ -2802,6 +2803,10 @@ async function delInstall(id){
 }
 
 async function editAdv(){
+  if(uRole==='viewer'||(uRole!=='admin'&&advances.find(a=>a.id===curAdv.id)&&window._curAdvInstalls?.length>0)){
+    showConfirm({icon:'🔒',title:'العهدة مقفولة',msg:'العهدة اتوافق عليها ومش ممكن تتعدل. تواصل مع الأدمن لو محتاج تعديل.',okLabel:'حسناً',okType:'primary',onOk:()=>{}});
+    return;
+  }
   const newName=prompt('اسم الشخص:',curAdv.person_name);
   if(!newName||!newName.trim())return;
   const newNotes=prompt('ملاحظات:',curAdv.notes||'');
