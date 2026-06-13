@@ -2562,9 +2562,6 @@ function downloadInstallmentsReport(){downloadAdvReport('installs');}
 function downloadInstallmentsPDF(){downloadAdvPDF('installs');}
 function toggleAdvSection(){}
 async function loadAdvDetail(silent=false){
-  // احفظ حالة الـ accordion قبل الـ reload
-  const installsOpen=document.getElementById('installs-list')?.style.display==='block';
-  const entriesOpen=document.getElementById('entries-list')?.style.display==='block';
   // Viewer يشوف الدفعات والمصاريف بس - بدون تعديل أو حذف
   const isViewer=uRole==='viewer';
   const editBtn=document.getElementById('advEditBtn');
@@ -2621,7 +2618,7 @@ async function loadAdvDetail(silent=false){
       il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
     }else{
       const instHtml=installs.map(ins=>{var db=uRole!=='viewer'?`<button class='db' onclick='delInstall("${ins.id}")'>🗑</button>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${ins.note||'دفعة'}</div><div class='rm'>${ins.inst_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:4px'><div class='ra pos'>+${fn(ins.amount)} ج</div>${db}</div></div>`;}).join('');
-      il.innerHTML=`<div onclick="toggleAdvSection('installs')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:4px"><span style="font-weight:700;color:var(--accent)">💰 الدفعات (${installs.length})</span><span id="installs-arrow" style="color:var(--text-muted);font-size:12px">▼</span></div><div id="installs-list" style="display:none">${instHtml}</div>`;
+      il.innerHTML=instHtml;
     }
     if(advEntries.length===0&&pendingAdvEntries.length===0){
       ae.innerHTML=`<div class='emp'>لا توجد مصروفات بعد</div>`;
@@ -2631,15 +2628,12 @@ async function loadAdvDetail(silent=false){
       const approvedHtml=advEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';var mq=e2.contractor?`<span class='qb'>${e2.contractor}</span>`:'';var isAdvLocked=uRole!=='admin'&&installs.length>0;var canEditAdv=!isAdvLocked&&(uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid));var db2=isAdvLocked&&uRole!=='admin'?`<button class="db" onclick="notify('العهدة مقفولة — تواصل مع الأدمن','warn')" style="opacity:.5;cursor:not-allowed">🔒</button>`:canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';var seqBadge=e2.seq?`<span class='nb'>#${e2.seq}</span>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} ج</div>${db2}</div></div>`;}).join('');
       const pendingHtml=pendingAdvEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;}).join('');
       const totalEntries=advEntries.length+pendingAdvEntries.length;
-      ae.innerHTML=`<div onclick="toggleAdvSection('entries')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:4px"><span style="font-weight:700;color:var(--accent)">📋 المصروفات (${totalEntries})</span><span id="entries-arrow" style="color:var(--text-muted);font-size:12px">▼</span></div><div id="entries-list" style="display:none">${approvedHtml+pendingHtml}</div>`;
+      ae.innerHTML=approvedHtml+pendingHtml;
     }
   }catch(e){
     il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
     ae.innerHTML=`<div class='emp'>لا توجد مصروفات بعد</div>`;
   }
-  // أرجع حالة الـ accordion
-  if(installsOpen){const el=document.getElementById('installs-list');const ar=document.getElementById('installs-arrow');if(el){el.style.display='block';if(ar)ar.textContent='▲';}}
-  if(entriesOpen){const el=document.getElementById('entries-list');const ar=document.getElementById('entries-arrow');if(el){el.style.display='block';if(ar)ar.textContent='▲';}}
 }
 
 async function addAdvEntry(){
