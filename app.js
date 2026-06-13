@@ -6290,7 +6290,7 @@ function setupNotifRealtime(){
       async(payload)=>{
         window._rtOk=true;
         updatePendingBadge();
-        if(curScreen==='approvals')loadApprovals();
+        loadApprovals(); // دايماً في الخلفية
         if(curScreen==='dash')loadDashboard();
         // إشعار للأدمن فقط عند INSERT من غيره
         if(uRole==='admin'&&payload.eventType==='INSERT'){
@@ -6306,7 +6306,7 @@ function setupNotifRealtime(){
       async(payload)=>{
         window._rtOk=true;
         updatePendingBadge();
-        if(curScreen==='approvals')loadApprovals();
+        loadApprovals(); // دايماً في الخلفية
         if(curScreen==='dash')loadDashboard();
         // إشعار للأدمن فقط عند INSERT من غيره
         if(uRole==='admin'&&payload.eventType==='INSERT'){
