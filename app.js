@@ -418,6 +418,7 @@ async function initApp(){
   try{allChatUsers=await sb('profiles?order=name');}catch(e){allChatUsers=[];}
   const app=document.getElementById('mainApp');
   app.style.display='flex';
+  closeAhdrMenu();
   document.getElementById('loginScreen').style.display='none';
   applyUserTheme();
   document.getElementById('uname').textContent=uName;
