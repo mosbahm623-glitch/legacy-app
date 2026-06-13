@@ -1707,7 +1707,54 @@ function oe(id){
 }
 function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
 function st(t){cT=t;document.getElementById('tx').classList.toggle('on',t==='e');document.getElementById('ti').classList.toggle('on',t==='i');document.getElementById('ic').style.display=t==='e'?'block':'none';document.getElementById('iq').style.display=t==='e'?'block':'none';}
-function stab(t){cTab=t;window._rpPage=0;rp();}
+function stab(t){
+  cTab=t;window._rpPage=0;
+  const fb=document.getElementById('entryFilterBar');
+  if(fb)fb.style.display=t==='j'?'flex':'none';
+  if(t==='j'){
+    setTimeout(()=>{
+      const ff=document.getElementById('entFltFrom');
+      const ft=document.getElementById('entFltTo');
+      if(ff&&!ff._dpInit)initDateInput(ff);
+      if(ft&&!ft._dpInit)initDateInput(ft);
+    },100);
+  }
+  rp();
+}
+let _entFltActive=false;
+function applyEntryFilter(){
+  _entFltActive=true;
+  window._rpPage=0;
+  re();
+}
+function clearEntryFilter(){
+  document.getElementById('entFltText').value='';
+  document.getElementById('entFltType').value='';
+  document.getElementById('entFltFrom').value='';
+  document.getElementById('entFltTo').value='';
+  _entFltActive=false;
+  window._rpPage=0;
+  re();
+}
+function getFilteredEntries(){
+  if(!_entFltActive)return null;
+  const q=(document.getElementById('entFltText')?.value||'').toLowerCase().trim();
+  const type=document.getElementById('entFltType')?.value||'';
+  const fromRaw=document.getElementById('entFltFrom')?.value||'';
+  const toRaw=document.getElementById('entFltTo')?.value||'';
+  const parseD=s=>{if(!s)return null;const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);};
+  const from=parseD(fromRaw);const to=parseD(toRaw);
+  return entries.filter(e=>{
+    if(type&&e.type!==type)return false;
+    if(q&&!(e.description||'').toLowerCase().includes(q)&&!(e.contractor||'').toLowerCase().includes(q)&&!(e.category||'').toLowerCase().includes(q))return false;
+    if(from||to){
+      let ed=null;
+      if(e.entry_date){const p=e.entry_date.includes('/')?e.entry_date.split('/'):null;ed=p?new Date(+p[2],+p[1]-1,+p[0]):new Date(e.entry_date);}
+      if(ed){if(from&&ed<from)return false;if(to){const t=new Date(to);t.setHours(23,59,59);if(ed>t)return false;}}
+    }
+    return true;
+  });
+}
 
 // ══════════════════════════════════════════
 //  CONTRACTOR DUES TAB
@@ -2317,7 +2364,7 @@ function re(){
   const el=document.getElementById('ent');
   const canEdit=uRole!=='viewer'&&uRole!=='owner';
   if(cTab==='s'){const cs={};pExp().forEach(e=>{cs[e.category]=(cs[e.category]||0)+e.amount;});const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);const tt=ls.reduce((s,c)=>s+c[1],0);el.innerHTML=ls.length?ls.map(([c,a])=>'<div class="rw"><div class="ri"><div class="rd">'+c+'</div><div class="rm">'+(tt?((a/tt)*100).toFixed(1):0)+'%</div></div><div class="ra">'+fn(a)+' ج</div></div>').join(''):'<div class="emp">لا توجد بيانات</div>';return;}
-  if(cTab==='j'){const j=gJ();if(!j.length){el.innerHTML='<div class="emp">لا توجد قيود بعد</div>';return;}
+  if(cTab==='j'){const flt=getFilteredEntries();const j=flt?[...flt].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)):gJ();if(!j.length){el.innerHTML='<div class="emp">لا توجد قيود'+(flt?' للفلتر الحالي':' بعد')+'</div>';return;}
     const PAGE=60;const totalPages=Math.ceil(j.length/PAGE);
     const cp=window._rpPage||0;const start=cp*PAGE;const slice=j.slice(start,start+PAGE);
     const pager=totalPages>1?`<div class="pg-bar">${cp>0?`<button class="pg-btn" onclick="window._rpPage=${cp-1};re()">‹ السابق</button>`:''}
@@ -2505,6 +2552,14 @@ async function openAdv(id){try{
   await loadAdvDetail();
 }catch(_e){notify('⚠️ خطأ في فتح العهدة','er');}}
 
+function toggleAdvSection(id){
+  const list=document.getElementById(id+'-list');
+  const arrow=document.getElementById(id+'-arrow');
+  if(!list)return;
+  const open=list.style.display==='none';
+  list.style.display=open?'block':'none';
+  if(arrow)arrow.textContent=open?'▲':'▼';
+}
 async function loadAdvDetail(){
   // Viewer يشوف الدفعات والمصاريف بس - بدون تعديل أو حذف
   const isViewer=uRole==='viewer';
@@ -2550,29 +2605,18 @@ async function loadAdvDetail(){
     if(installs.length===0){
       il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
     }else{
-      il.innerHTML=installs.map(ins=>{
-        var db=uRole!=='viewer'?`<button class='db' onclick='delInstall("${ins.id}")'>🗑</button>`:'';
-        return `<div class='rw'><div class='ri'><div class='rd'>${ins.note||'دفعة'}</div><div class='rm'>${ins.inst_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:4px'><div class='ra pos'>+${fn(ins.amount)} ج</div>${db}</div></div>`;
-      }).join('');
+      const instHtml=installs.map(ins=>{var db=uRole!=='viewer'?`<button class='db' onclick='delInstall("${ins.id}")'>🗑</button>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${ins.note||'دفعة'}</div><div class='rm'>${ins.inst_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:4px'><div class='ra pos'>+${fn(ins.amount)} ج</div>${db}</div></div>`;}).join('');
+      il.innerHTML=`<div onclick="toggleAdvSection('installs')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:4px"><span style="font-weight:700;color:var(--accent)">💰 الدفعات (${installs.length})</span><span id="installs-arrow" style="color:var(--text-muted);font-size:12px">▼</span></div><div id="installs-list" style="display:none">${instHtml}</div>`;
     }
     if(advEntries.length===0&&pendingAdvEntries.length===0){
       ae.innerHTML=`<div class='emp'>لا توجد مصروفات بعد</div>`;
     }else{
       var projMap={};
       allProjects.forEach(p=>{projMap[p.id]=p.name;});
-      const approvedHtml=advEntries.map(e2=>{
-        var pName=projMap[e2.project_id]||'&mdash;';
-        var mq=e2.contractor?`<span class='qb'>${e2.contractor}</span>`:'';
-        var canEditAdv=uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid);
-        var db2=canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';
-        var seqBadge=e2.seq?`<span class='nb'>#${e2.seq}</span>`:'';
-        return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} ج</div>${db2}</div></div>`;
-      }).join('');
-      const pendingHtml=pendingAdvEntries.map(e2=>{
-        var pName=projMap[e2.project_id]||'&mdash;';
-        return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;
-      }).join('');
-      ae.innerHTML=approvedHtml+pendingHtml;
+      const approvedHtml=advEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';var mq=e2.contractor?`<span class='qb'>${e2.contractor}</span>`:'';var canEditAdv=uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid);var db2=canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';var seqBadge=e2.seq?`<span class='nb'>#${e2.seq}</span>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} ج</div>${db2}</div></div>`;}).join('');
+      const pendingHtml=pendingAdvEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;}).join('');
+      const totalEntries=advEntries.length+pendingAdvEntries.length;
+      ae.innerHTML=`<div onclick="toggleAdvSection('entries')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:4px"><span style="font-weight:700;color:var(--accent)">📋 المصروفات (${totalEntries})</span><span id="entries-arrow" style="color:var(--text-muted);font-size:12px">▼</span></div><div id="entries-list" style="display:none">${approvedHtml+pendingHtml}</div>`;
     }
   }catch(e){
     il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
@@ -4029,13 +4073,58 @@ async function downloadAdvPDF(){
 let repTab='proj', _repFilterData=null, _repAdvData=null, _curReport=null;
 
 // ── REPORTS HUB ────────────────────────────────
+function renderCompareReport(){
+  const div=document.getElementById('repCompareResult');
+  if(!div)return;
+  const sort=document.getElementById('cmpSort')?.value||'bal';
+  const data=allProjects.map(p=>{
+    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0};
+    return{name:p.name,inc:s.inc||0,exp:s.exp||0,bal:s.bal||0,count:s.count||0};
+  });
+  data.sort((a,b)=>{
+    if(sort==='bal')return b.bal-a.bal;
+    if(sort==='inc')return b.inc-a.inc;
+    if(sort==='exp')return b.exp-a.exp;
+    return a.name.localeCompare(b.name,'ar');
+  });
+  const maxInc=Math.max(...data.map(d=>d.inc),1);
+  const maxExp=Math.max(...data.map(d=>d.exp),1);
+  const totalInc=data.reduce((s,d)=>s+d.inc,0);
+  const totalExp=data.reduce((s,d)=>s+d.exp,0);
+  const totalBal=totalInc-totalExp;
+  div.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+      <div class="kc"><div class="kl">إجمالي الوارد</div><div class="kv" style="color:var(--info)">${fn(totalInc)} ج</div></div>
+      <div class="kc"><div class="kl">إجمالي المصروف</div><div class="kv" style="color:var(--danger)">${fn(totalExp)} ج</div></div>
+      <div class="kc"><div class="kl">${totalBal>=0?'✅ الرصيد':'⚠️ عجز'}</div><div class="kv" style="color:${totalBal>=0?'var(--primary-btn)':'var(--danger)'}">${fn(totalBal)} ج</div></div>
+    </div>
+    ${data.map(d=>{
+      const balClr=d.bal>=0?'var(--primary-btn)':'var(--danger)';
+      const incPct=d.inc?Math.round(d.inc/maxInc*100):0;
+      const expPct=d.exp?Math.round(d.exp/maxExp*100):0;
+      return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-weight:700;color:var(--accent);font-size:14px">${d.name}</span>
+          <span style="font-size:12px;color:${balClr};font-weight:700">${d.bal>=0?'+':''}${fn(d.bal)} ج</span>
+        </div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:3px"><span>⬆ وارد</span><span>${fn(d.inc)} ج</span></div>
+          <div style="background:var(--bg-page);border-radius:4px;height:8px;overflow:hidden"><div style="background:var(--info);height:100%;width:${incPct}%;border-radius:4px;transition:width .4s"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:3px"><span>⬇ مصروف</span><span>${fn(d.exp)} ج</span></div>
+          <div style="background:var(--bg-page);border-radius:4px;height:8px;overflow:hidden"><div style="background:var(--danger);height:100%;width:${expPct}%;border-radius:4px;transition:width .4s"></div></div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
 function openReport(type){
   _curReport=type;
   document.getElementById('repHub').style.display='none';
   document.getElementById('repView').style.display='block';
-  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل'};
+  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل',compare:'⚖️ مقارنة المشاريع'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
-  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel'].forEach(id=>{
+  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
   });
   if(type==='cash'){
@@ -4066,6 +4155,9 @@ function openReport(type){
       const f=document.getElementById('rClientFrom');const t=document.getElementById('rClientTo');
       if(f)initDateInput(f);if(t)initDateInput(t);
     },0);
+  } else if(type==='compare'){
+    document.getElementById('repComparePanel').style.display='block';
+    renderCompareReport();
   }
 }
 

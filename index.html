@@ -490,6 +490,17 @@
         </div>
         <div id="vnotice" class="vnotice" style="display:none">👁 وضع المشاهدة فقط</div>
         <div class="hi" id="ehint">💡 اضغط على أي قيد لتعديله</div>
+        <div id="entryFilterBar" style="display:none;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+          <input id="entFltText" type="text" placeholder="🔍 بيان / مقاول..." style="flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body)" oninput="applyEntryFilter()">
+          <select id="entFltType" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body)" onchange="applyEntryFilter()">
+            <option value="">الكل</option>
+            <option value="e">مصروف</option>
+            <option value="i">وارد</option>
+          </select>
+          <input id="entFltFrom" type="text" class="dp-input" placeholder="من تاريخ" readonly style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body);cursor:pointer">
+          <input id="entFltTo" type="text" class="dp-input" placeholder="لتاريخ" readonly style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body);cursor:pointer">
+          <button onclick="clearEntryFilter()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text-muted);font-family:inherit;font-size:12px;cursor:pointer">✕ مسح</button>
+        </div>
         <div class="tbs" id="tbs"></div>
         <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
         <div class="im" id="im">
@@ -788,6 +799,12 @@
               <div class="rhc-arrow">←</div>
             </div>
 
+            <div class="rep-hub-card" onclick="openReport('compare')">
+              <div class="rhc-icon rhc-icon-green">⚖️</div>
+              <div class="rhc-title">مقارنة المشاريع</div>
+              <div class="rhc-sub">مقارنة الوارد والمصروف والرصيد لكل المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
             <div class="rep-hub-card" onclick="openReport('contractor')">
               <div class="rhc-icon rhc-icon-gold">👷</div>
               <div class="rhc-title">تقرير مقاول</div>
@@ -950,6 +967,19 @@
               </div>
             </div>
             <div id="repClientResult"></div>
+          </div>
+
+          <!-- COMPARE PANEL -->
+          <div id="repComparePanel" style="display:none">
+            <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="cmpSort" onchange="renderCompareReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                <option value="bal">ترتيب حسب الرصيد</option>
+                <option value="inc">ترتيب حسب الوارد</option>
+                <option value="exp">ترتيب حسب المصروف</option>
+                <option value="name">ترتيب حسب الاسم</option>
+              </select>
+            </div>
+            <div id="repCompareResult"></div>
           </div>
 
         </div><!-- end repView -->
