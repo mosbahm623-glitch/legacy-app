@@ -750,7 +750,7 @@ function filterProjCards(q){
   });
 }
 
-
+function goToProject(pid){
   curPid=pid;
   showScreen('proj');
   const projScr=document.getElementById('projScreen');
