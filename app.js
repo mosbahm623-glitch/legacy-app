@@ -306,6 +306,30 @@ function pExpAdv(){return entries.filter(e=>e.type==='e'&&e.advance_id);}
 function gJ(){const all=entries.map(e=>({...e}));all.sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date)||(a.entry_no||0)-(b.entry_no||0));let b=0;all.forEach(e=>{b+=e.type==='i'?e.amount:-e.amount;e.bal=b;});return all;}
 function gM(){const map={};pExp().forEach(e=>{if(!e.contractor)return;if(!map[e.contractor])map[e.contractor]={n:e.contractor,t:0,cnt:0,cats:new Set(),last:''};const m=map[e.contractor];m.t+=e.amount;m.cnt++;if(e.category)m.cats.add(e.category);if(pdt(e.entry_date)>pdt(m.last))m.last=e.entry_date;});return Object.values(map).sort((a,b)=>b.t-a.t).map(m=>({...m,ca:[...m.cats]}));}
 
+// ══════ CONFIRM MODAL — بديل confirm() ══════
+function showConfirm({icon='⚠️',title='تأكيد',msg='',okLabel='تأكيد',okType='danger',onOk=()=>{}}){
+  const ex=document.getElementById('_confirmModal');if(ex)ex.remove();
+  const ov=document.createElement('div');
+  ov.id='_confirmModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease';
+  const okColors={danger:'#e74c3c',success:'#27ae60',warning:'#f39c12',primary:'var(--primary)'};
+  const okColor=okColors[okType]||okColors.danger;
+  ov.innerHTML=`<div style="background:var(--primary,#1D3C2A);border:1px solid rgba(212,196,154,.2);border-radius:20px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:slideUp .25s cubic-bezier(.16,1,.3,1);text-align:center;direction:rtl">
+    <div style="font-size:38px;margin-bottom:12px">${icon}</div>
+    <div style="font-size:16px;font-weight:800;color:var(--accent,#D4C49A);margin-bottom:8px">${title}</div>
+    <div style="font-size:13px;color:rgba(212,196,154,.6);margin-bottom:24px;line-height:1.6">${msg}</div>
+    <div style="display:flex;gap:10px">
+      <button id="_confirmCancel" style="flex:1;padding:12px;background:rgba(212,196,154,.08);border:1px solid rgba(212,196,154,.15);border-radius:12px;color:rgba(212,196,154,.7);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">إلغاء</button>
+      <button id="_confirmOk" style="flex:1;padding:12px;background:${okColor};border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">${okLabel}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.addEventListener('click',e=>{if(e.target===ov)close();});
+  document.getElementById('_confirmCancel').addEventListener('click',close);
+  document.getElementById('_confirmOk').addEventListener('click',()=>{close();onOk();});
+}
+
 // ══════ NOTIFY HELPER — بديل alert() ══════
 function notify(msg, type){
   // type: 'err' | 'ok' | 'warn' | 'info'
@@ -1486,13 +1510,13 @@ async function sw(pid){
   rp();
 }
 async function np(){const n=prompt('اسم المشروع الجديد:');if(!n||!n.trim())return;try{const p=await sb('projects','POST',{name:n.trim(),start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
-async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}if(!confirm('حذف "'+curP().name+'" بالكامل؟'))return;try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}showConfirm({icon:'🗑️',title:'حذف المشروع',msg:'هيتحذف مشروع "'+curP().name+'" بالكامل مع كل قيوده. متأكد؟',okLabel:'حذف',okType:'danger',onOk:async()=>{try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}});}
 
 // ══ أرشفة المشاريع ══
 async function archiveProject(){
   if(!curPid)return;
   const p=curP();
-  if(!confirm('📦 أرشفة "'+p.name+'"؟\n\nسيختفي من القائمة الرئيسية ويمكن استعادته من الأرشيف.'))return;
+  await new Promise(res=>showConfirm({icon:'📦',title:'أرشفة المشروع',msg:'مشروع "'+p.name+'" هيختفي من القائمة الرئيسية. تقدر تستعيده من الأرشيف.',okLabel:'أرشفة',okType:'warning',onOk:res}));
   try{
     await sb('projects?id=eq.'+curPid,'PATCH',{archived:true});
     allProjects=allProjects.filter(x=>x.id!==curPid);
@@ -1573,7 +1597,7 @@ function filterArchive(q){
 }
 
 async function restoreProject(pid,name){
-  if(!confirm('↩ استعادة "'+name+'"؟\nسيظهر مجدداً في قائمة المشاريع.'))return;
+  await new Promise(res=>showConfirm({icon:'↩️',title:'استعادة المشروع',msg:'مشروع "'+name+'" هيظهر تاني في القائمة الرئيسية.',okLabel:'استعادة',okType:'success',onOk:res}));
   try{
     await sb('projects?id=eq.'+pid,'PATCH',{archived:false});
     notify('✅ تم استعادة "'+name+'"','ok');
@@ -2085,7 +2109,7 @@ async function toggleDueFromScreen(id,newStatus){
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
 
-async function deleteDue(id){  if(!confirm('حذف المستحق؟'))return;
+async function deleteDue(id){await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف المستحق',msg:'هيتحذف المستحق نهائياً.',okLabel:'حذف',okType:'danger',onOk:res}));
   try{
     await sb('contractor_dues?id=eq.'+id,'DELETE');
     _duesList=_duesList.filter(d=>d.id!==id);
@@ -2575,7 +2599,7 @@ async function addAdvEntry(){
   const _remAfter=_remBefore-amt;
   if(_remAfter<0){
     const over=fn(Math.abs(_remAfter));
-    const ok=confirm(`⚠️ تحذير: المصروف هيتجاوز العهدة بـ ${over} ج\n\nالعهدة: ${fn(_totalGiven)} ج\nالصرف الحالي: ${fn(_spent)} ج\nهذا المصروف: ${fn(amt)} ج\nالعجز بعد الصرف: ${over} ج\n\nهل تريد الإكمال رغم ذلك؟`);
+    const ok=await new Promise(res=>showConfirm({icon:'⚠️',title:'تجاوز العهدة',msg:'المصروف هيتجاوز العهدة بـ '+over+' ج. العجز بعد الصرف: '+over+' ج. هل تريد الإكمال؟',okLabel:'إكمال',okType:'warning',onOk:()=>res(true)}));
     if(!ok)return;
   }
   const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.entry_no||20260000),20260000);
@@ -2643,7 +2667,7 @@ async function saveAdvEntry(){
 }
 
 async function delAdvEntry(id){
-  if(!confirm('حذف هذا المصروف؟'))return;
+  await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف المصروف',msg:'هيتحذف المصروف نهائياً.',okLabel:'حذف',okType:'danger',onOk:res}));
   setSav('💾 جاري الحذف...','ng');
   try{await sb('entries?id=eq.'+id,'DELETE');setSav('✅ تم الحذف','ok');await loadAdvDetail();}
   catch(e){setSav('❌ '+friendlyError(e),'er');}
@@ -2717,7 +2741,7 @@ async function addInstallment(){
 }
 
 async function delInstall(id){
-  if(!confirm('حذف هذه الدفعة؟'))return;
+  await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف الدفعة',msg:'هيتحذف الدفعة نهائياً.',okLabel:'حذف',okType:'danger',onOk:res}));
   setSav('💾 جاري الحذف...','ng');
   try{await sb('advance_installments?id=eq.'+id,'DELETE');setSav('✅ تم الحذف','ok');await loadAdvDetail();}
   catch(e){setSav('❌ '+friendlyError(e),'er');}
@@ -2740,7 +2764,7 @@ async function editAdv(){
 }
 
 async function deleteAdv(){
-  if(!confirm('حذف عهدة "'+curAdv.person_name+'" بالكامل؟\nسيتم حذف جميع الدفعات والمصروفات!'))return;
+  await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف العهدة',msg:'هيتحذف عهدة "'+curAdv.person_name+'" مع كل الدفعات والمصروفات. متأكد؟',okLabel:'حذف',okType:'danger',onOk:res}));
   setSav('💾 جاري الحذف...','ng');
   try{
     await sb('advance_installments?advance_id=eq.'+curAdv.id,'DELETE');
@@ -2799,7 +2823,7 @@ async function addUser(){
 }
 async function togAcc(uid2,pid,btn){const isOn=btn.classList.contains('on');try{if(isOn){await sb('project_access?user_id=eq.'+uid2+'&project_id=eq.'+pid,'DELETE');btn.classList.remove('on');}else{await sb('project_access','POST',{user_id:uid2,project_id:pid});btn.classList.add('on');}setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 async function chRole(uid2,role){try{await sb('profiles?id=eq.'+uid2,'PATCH',{role});setSav('✅ تم','ok');}catch(e){setSav('❌ '+friendlyError(e),'er');}}
-async function delUser(uid2,name){if(!confirm('حذف "'+name+'"؟'))return;try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function delUser(uid2,name){await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف المستخدم',msg:'هيتحذف "'+name+'" نهائياً.',okLabel:'حذف',okType:'danger',onOk:res}));try{await sb('profiles?id=eq.'+uid2,'DELETE');setSav('✅ تم حذف المستخدم','ok');await loadAdminPanel();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
 
 async function pdfClient(){
   const p=curP();if(!p)return;
@@ -3194,7 +3218,7 @@ setTimeout(initLoginParticles,100);
 })();
 
 // ══ DARK MODE ══
-function confirmRestart(){if(confirm("إعادة تشغيل؟"))window.location.href=window.location.href.split("?")[0]+"?v="+Date.now();}
+function confirmRestart(){showConfirm({icon:'🔄',title:'إعادة تشغيل',msg:'هيتعمل reload للتطبيق.',okLabel:'إعادة تشغيل',okType:'primary',onOk:()=>window.location.href=window.location.href.split("?")[0]+"?v="+Date.now()});}
 function toggleDark(){
   const body=document.body;
   const isDay=body.classList.contains('day-mode');
@@ -3467,7 +3491,7 @@ function showAdvNotifications(){
     msg+=`${i+1}. ${n.user} - عهدة: ${n.advName}\n   ${n.cat}: ${n.amt} ج${n.desc?' ('+n.desc+')':''}\n   ${t}\n\n`;
   });
   msg+='اضغط OK لمسح الإشعارات';
-  if(confirm(msg))clearAdvNotifications();
+  showConfirm({icon:'🔔',title:'مسح الإشعارات',msg:msg,okLabel:'مسح',okType:'warning',onOk:clearAdvNotifications});
 }
 
 // ══════════════════════════════════════════
@@ -5291,7 +5315,7 @@ async function confirmAdvImport(){
   const valid=advImRows.filter(r=>r.pid);
   const skip=advImRows.length-valid.length;
   if(!valid.length){notify('لازم تحدد مشروع لصف واحد على الأقل','warn');return;}
-  if(skip>0&&!confirm(`${skip} صف بدون مشروع هيتخطى — تكمل؟`))return;
+  if(skip>0)await new Promise(res=>showConfirm({icon:'⚠️',title:'صفوف بدون مشروع',msg:skip+' صف بدون مشروع هيتخطى. تكمل؟',okLabel:'إكمال',okType:'warning',onOk:res}));
   const ents=valid.map(r=>({id:uid_(),project_id:r.pid,type:'e',amount:r.amt,description:r.desc||'',entry_date:r.dt||fd(ts()),category:r.cat,contractor:r.mq||'',advance_id:curAdv.id}));
   if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');closeAdvImModal();return;}
   setSav('💾 جاري الاستيراد...','ng');
@@ -5508,7 +5532,7 @@ async function saveSearchEdit(id){
   }catch(er){msgEl.innerHTML='❌ '+er.message;msgEl.style.color='var(--danger)';}
 }
 async function deleteSearchEntry(id,seq){
-  if(!confirm('هتحذف القيد رقم '+seq+'?'))return;
+  await new Promise(res=>showConfirm({icon:'🗑️',title:'حذف القيد',msg:'هيتحذف القيد رقم '+seq+' نهائياً.',okLabel:'حذف',okType:'danger',onOk:res}));
   try{
     await sb('entries?id=eq.'+id,'DELETE');
     allEntries=allEntries.filter(x=>x.id!==id);entries=entries.filter(x=>x.id!==id);
@@ -5798,7 +5822,7 @@ async function confirmEditApprove(id){
 }
 
 async function approveEntry(id){
-  if(!confirm('موافقة على هذا القيد؟'))return;
+  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على القيد',msg:'هيتحفظ القيد في المشروع.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
     // جيب القيد من pending
     const rows=await sb('pending_entries?id=eq.'+id);
@@ -5823,7 +5847,7 @@ async function approveEntry(id){
 }
 
 async function rejectEntry(id){
-  if(!confirm('رفض هذا القيد؟ سيتم حذفه.'))return;
+  await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
     setSav('🗑️ تم رفض القيد','ng');
@@ -5834,7 +5858,7 @@ async function rejectEntry(id){
 // ══════════════════════════════════════
 
 async function approveAdv(id){
-  if(!confirm('موافقة على هذا الطلب؟'))return;
+  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
     const rows=await sb('pending_advances?id=eq.'+id);
     if(!rows||!rows.length)return;
@@ -5854,7 +5878,7 @@ async function approveAdv(id){
 }
 
 async function rejectAdv(id){
-  if(!confirm('رفض هذا الطلب؟ سيتم حذفه.'))return;
+  await new Promise(res=>showConfirm({icon:'❌',title:'رفض الطلب',msg:'هيتحذف الطلب نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_advances?id=eq.'+id,'DELETE');
     setSav('🗑️ تم الرفض','ng');
