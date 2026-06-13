@@ -2596,6 +2596,16 @@ async function loadAdvDetail(){
     var installs=[];
     try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}
     catch(e2){installs=[];}
+    // قفل التعديل لو في دفعات (يعني الأدمن وافق)
+    if(editBtn&&uRole!=='admin'){
+      if(installs.length>0){
+        editBtn.onclick=()=>showConfirm({icon:'🔒',title:'العهدة مقفولة',msg:'العهدة اتوافق عليها ومش ممكن تتعدل. تواصل مع الأدمن لو محتاج تعديل.',okLabel:'حسناً',okType:'primary',onOk:()=>{}});
+        editBtn.style.opacity='0.5';
+      } else {
+        editBtn.onclick=()=>editAdv();
+        editBtn.style.opacity='1';
+      }
+    }
     var totalGiven=installs.reduce((s,ii)=>s+ii.amount,0);
     var spent=advEntries.reduce((s,ee)=>s+ee.amount,0);
     var pendingSpent=pendingAdvEntries.reduce((s,ee)=>s+ee.amount,0);
