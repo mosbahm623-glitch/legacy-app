@@ -2568,7 +2568,7 @@ async function loadAdvDetail(){
   const closeBtn=document.getElementById('advCloseBtn');
   const instDiv=document.getElementById('advInstDiv');
   const linkBtn=document.getElementById('advLinkBtn');
-  if(editBtn)editBtn.style.display=isViewer?'none':'';
+  if(editBtn)editBtn.style.display='';
   if(delBtn)delBtn.style.display=isViewer?'none':'';
   if(closeBtn)closeBtn.style.display=isViewer?'none':'';
   if(instDiv)instDiv.style.display=isViewer?'none':'';
@@ -2596,9 +2596,9 @@ async function loadAdvDetail(){
     var installs=[];
     try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}
     catch(e2){installs=[];}
-    // قفل التعديل لو في دفعات (يعني الأدمن وافق)
+    // قفل التعديل لو في دفعات (يعني الأدمن وافق) أو لو viewer
     if(editBtn&&uRole!=='admin'){
-      if(installs.length>0){
+      if(isViewer||installs.length>0){
         editBtn.onclick=()=>showConfirm({icon:'🔒',title:'العهدة مقفولة',msg:'العهدة اتوافق عليها ومش ممكن تتعدل. تواصل مع الأدمن لو محتاج تعديل.',okLabel:'حسناً',okType:'primary',onOk:()=>{}});
         editBtn.style.opacity='0.5';
       } else {
