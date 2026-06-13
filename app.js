@@ -725,7 +725,8 @@ function buildProjListScreen(){
     const exp=s.exp||0;
     const balClass=bal<0?'neg':bal>0?'pos':'';
     const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
-    return `<div class="proj-card" onclick="goToProject('${p.id}')">
+    const cardClass='proj-card'+(bal<0?' deficit':'');
+    return `<div class="${cardClass}" onclick="goToProject('${p.id}')">
       <div class="proj-card-name">${p.name}</div>
       <div class="proj-card-row"><span class="proj-card-lbl">الوارد</span><span class="proj-card-val pos">+${fn(inc)}</span></div>
       <div class="proj-card-row"><span class="proj-card-lbl">المصروف</span><span class="proj-card-val neg">-${fn(exp)}</span></div>
