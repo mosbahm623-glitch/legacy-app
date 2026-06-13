@@ -258,7 +258,7 @@
 .np-clear:hover{background:rgba(255,255,255,.09);color:var(--accent)}
 .np-empty{text-align:center;padding:40px 20px;color:rgba(212,196,154,.3);font-size:13px}
 </style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
 body{font-family:'Cairo','IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;background:var(--primary);min-height:100vh;direction:rtl;margin:0;padding:0;font-feature-settings:'kern' 1,'liga' 1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
 /* ══ PREMIUM TYPOGRAPHY SYSTEM ══ */
