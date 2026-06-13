@@ -2613,7 +2613,7 @@ async function loadAdvDetail(silent=false){
     if(installs.length===0){
       il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
     }else{
-      const instHtml=installs.map(ins=>{var db=uRole!=='viewer'?`<button class='db' onclick='delInstall("${ins.id}")'>🗑</button>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${ins.note||'دفعة'}</div><div class='rm'>${ins.inst_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:4px'><div class='ra pos'>+${fn(ins.amount)} ج</div>${db}</div></div>`;}).join('');
+      const instHtml=installs.map(ins=>{var btns=uRole!=='viewer'?`<button style='background:none;border:1px solid #185FA5;color:#185FA5;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px;font-family:inherit' onclick='editInstall("${ins.id}",${ins.amount},"${ins.inst_date||''}","${(ins.note||'دفعة').replace(/"/g,"'")}")'>✏️</button><button class='db' onclick='delInstall("${ins.id}")'>🗑</button>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${ins.note||'دفعة'}</div><div class='rm'>${ins.inst_date||'&mdash;'}</div></div><div style='display:flex;align-items:center;gap:4px'><div class='ra pos'>+${fn(ins.amount)} ج</div>${btns}</div></div>`;}).join('');
       il.innerHTML=instHtml;
     }
     if(advEntries.length===0&&pendingAdvEntries.length===0){
@@ -2793,6 +2793,46 @@ async function addInstallment(){
     document.getElementById('advInstNote').value='';
     await loadAdvDetail();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function editInstall(id,amount,date,note){
+  const ex=document.getElementById('_editInstModal');if(ex)ex.remove();
+  const ov=document.createElement('div');
+  ov.id='_editInstModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<div class="modal-box" style="max-width:360px;width:100%">
+    <div style="text-align:center;margin-bottom:16px"><div style="font-size:28px">✏️</div><div class="title-md">تعديل الدفعة</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="_eiAmt" type="number" placeholder="المبلغ (ج)" value="${amount}" class="inp-lg">
+      <input id="_eiDate" type="text" placeholder="dd/mm/yyyy" value="${date}" maxlength="10" class="inp-lg">
+      <input id="_eiNote" type="text" placeholder="ملاحظة" value="${note}" class="inp-lg">
+    </div>
+    <div id="_eiMsg" style="color:var(--danger);font-size:12px;min-height:18px;margin-top:6px"></div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button onclick="saveEditInstall('${id}')" class="btn-primary">💾 حفظ</button>
+      <button onclick="document.getElementById('_editInstModal').remove()" class="btn-cancel">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  setTimeout(()=>{const el=document.getElementById('_eiDate');if(el)initDateInput(el);},100);
+  setTimeout(()=>document.getElementById('_eiAmt')?.focus(),150);
+}
+
+async function saveEditInstall(id){
+  const amt=parseFloat(document.getElementById('_eiAmt').value);
+  const date=fd(document.getElementById('_eiDate').value.trim());
+  const note=document.getElementById('_eiNote').value.trim()||'دفعة';
+  const msg=document.getElementById('_eiMsg');
+  if(isNaN(amt)||amt<=0){msg.textContent='❌ ادخل مبلغ صح';return;}
+  setSav('💾 جاري الحفظ...','ng');
+  try{
+    await sb('advance_installments?id=eq.'+id,'PATCH',{amount:amt,inst_date:date,note});
+    document.getElementById('_editInstModal')?.remove();
+    setSav('✅ تم التعديل','ok');
+    notify('✅ تم تعديل الدفعة','ok');
+    await loadAdvDetail();
+  }catch(e){msg.textContent='❌ '+friendlyError(e);setSav('❌ فشل التعديل','er');}
 }
 
 async function delInstall(id){
