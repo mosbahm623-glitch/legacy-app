@@ -353,7 +353,7 @@ td{font-weight:400}
 .sav.er .sav-icon-wrap{background:#7a1f1f}
 .sav.ng .sav-icon-wrap{background:#5a4a00}
 /* SIDEBAR */
-.app-body{display:flex;flex:1;min-height:calc(100vh - 62px);position:relative}
+.app-body{display:flex;flex:1;width:100%;min-height:calc(100vh - 62px);position:relative}
 .sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;z-index:40}
 .sidebar.mini{width:54px}
 .sb-head{padding:14px 12px 10px;border-bottom:1px solid rgba(212,196,154,.1);white-space:nowrap;overflow:hidden}
