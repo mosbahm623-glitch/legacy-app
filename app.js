@@ -5982,6 +5982,12 @@ async function rejectAdv(id){
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>{console.error(e);});});
 }
+// Reset zoom after keyboard closes on iOS
+document.addEventListener('focusout',()=>{
+  if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
+    window.scrollTo(0,0);
+  }
+});
 
 // ══════════════════════════════════════════════════
 //  NOTIFICATION SYSTEM
