@@ -6278,6 +6278,13 @@ function initNotifSystem(){
   setupNotifRealtime();
   // refresh online every 45s
   setInterval(()=>{updatePresence().then(()=>refreshOnlineUsers());},45000);
+  // polling للموافقات كل 10 ثواني للأدمن — backup للـ realtime
+  if(uRole==='admin'){
+    setInterval(async()=>{
+      await updatePendingBadge();
+      if(curScreen==='approvals')loadApprovals();
+    },10000);
+  }
 }
 
 function setupNotifRealtime(){
