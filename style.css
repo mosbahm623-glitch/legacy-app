@@ -481,7 +481,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:39}
 .sb-overlay.show{display:block}
 /* MAIN CONTENT */
-.main-content{flex:1;overflow:auto;min-width:0;background:var(--bg-page);width:0}
+.main-content{flex:1;overflow:auto;min-width:0;background:var(--bg-page)}
 /* FAB */
 .fab{position:fixed;bottom:22px;left:18px;z-index:200;direction:ltr;touch-action:none;user-select:none}
 .fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--accent);border:none;font-size:24px;cursor:grab;box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.3);transition:transform .2s,background .15s,box-shadow .2s;display:flex;align-items:center;justify-content:center;animation:fab-pulse 2.5s ease-in-out infinite}@keyframes fab-pulse{0%,100%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.2)}50%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 8px rgba(212,196,154,.05)}}
@@ -505,7 +505,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 /* DASHBOARD */
 .dash{padding:0;background:var(--dark-moss);min-height:calc(100vh - 120px);overflow:hidden;position:relative}
 .dash-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:clamp(40px,10vw,90px);font-weight:900;color:rgba(212,196,154,.04);white-space:nowrap;pointer-events:none;letter-spacing:4px;z-index:0;user-select:none;font-family:'Cairo','Segoe UI',Tahoma,sans-serif;line-height:1.3;text-align:center}
-.dash-inner{position:relative;z-index:1;padding:16px;width:100%;box-sizing:border-box}
+.dash-inner{position:relative;z-index:1;padding:16px}
 .dash-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:16px;padding:22px 20px;margin-bottom:16px;text-align:center;border:1px solid rgba(212,196,154,.15);box-shadow:0 4px 24px rgba(0,0,0,.3)}
 .dash-hero-lbl{font-size:10px;color:var(--accent);opacity:.7;margin-bottom:8px;letter-spacing:2px}
 .dash-hero-val{font-size:36px;font-weight:900;color:var(--accent);margin-bottom:4px;text-shadow:0 2px 12px rgba(0,0,0,.3)}
@@ -743,9 +743,9 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ap{padding:20px 24px}
   .asec{padding:20px}
   .im{padding:16px 24px}
-  .new-adv{width:100%}
-  .adv-entry-form{width:100%}
-  .nuf{width:100%}
+  .new-adv{max-width:600px}
+  .adv-entry-form{max-width:800px}
+  .nuf{max-width:600px}
 }@media(max-width:767px){
   body{padding:0}
   #loginScreen{padding:16px}
@@ -1093,7 +1093,7 @@ body.dark-mode .rep-empty{color:rgba(212,196,154,.3)}
 .appr-entries-title{font-size:11px;font-weight:700;color:var(--text-soft);letter-spacing:1px;margin-bottom:8px;margin-top:4px}
 .appr-income-badge{background:var(--success-bg);color:var(--primary-btn);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-expense-badge{background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
-.appr-item{border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint);background:#fff}
+.appr-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint)}
 .appr-item-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .appr-item-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .appr-item-cat{background:var(--accent-ivory);color:var(--warning-text);padding:2px 8px;border-radius:8px;font-size:11px}
@@ -1450,8 +1450,6 @@ body.dark-mode .adv-det-notes{color:rgba(212,196,154,.5)}
 
 /* ── Approvals ── */
 .appr-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
-#approvalsList{width:100%}
-.appr-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint);width:100%;box-sizing:border-box}
 .appr-title-wrap{}
 .appr-h2{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:3px}
 .appr-sub{font-size:11px;color:var(--text-soft)}

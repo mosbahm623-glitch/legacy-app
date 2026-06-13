@@ -338,7 +338,7 @@
 
         </div>
       </div>
-      <div id="projStatusScreen" style="display:none;width:100%;box-sizing:border-box">
+      <div id="projStatusScreen" style="display:none">
         <div class="dash-inner">
           <div class="d-welcome">
             <div>
@@ -356,7 +356,7 @@
       </div>
 
       <!-- TIMELINE SCREEN -->
-      <div id="timelineScreen" style="display:none;width:100%;box-sizing:border-box">
+      <div id="timelineScreen" style="display:none">
         <div class="dash-inner">
           <div class="d-welcome">
             <div>
@@ -371,7 +371,7 @@
       </div>
 
       <!-- DAILY LOG -->
-      <div id="dailyScreen" style="display:none;width:100%;box-sizing:border-box">
+      <div id="dailyScreen" style="display:none">
         <div class="daily-wrap">
           <div class="daily-date" id="dailyDateTitle">📋 Booking Journal</div>
           <div id="dailyList"><div class="emp">⏳ جاري التحميل...</div></div>
@@ -379,7 +379,7 @@
       </div>
 
       <!-- PROJECT LIST SCREEN -->
-      <div id="projListScreen" style="display:none;width:100%;box-sizing:border-box;padding:16px">
+      <div id="projListScreen" style="display:none">
         <div class="proj-list-header">
           <div class="proj-list-title">📁 المشاريع</div>
           <div style="display:flex;gap:8px">
@@ -390,7 +390,7 @@
       </div>
 
       <!-- PROJECTS -->
-      <div id="projScreen" style="display:none;width:100%;box-sizing:border-box">
+      <div id="projScreen" style="display:none">
         <div class="pb">
           <select id="ps" onchange="sw(this.value)"></select>
           <button class="gsm" id="editPBtn" onclick="editProject()" title="تعديل المشروع" class="btn-gsm-blue">✏️</button>
@@ -628,12 +628,13 @@
 
       <!-- ADMIN -->
       <!-- APPROVALS SCREEN -->
-      <div id="approvalsScreen" style="display:none;padding:16px;width:100%;box-sizing:border-box">
+      <div id="approvalsScreen" style="display:none;padding:16px;max-width:780px;margin:0 auto">
         <div class="appr-header">
           <div>
             <h2 class="appr-h2">✅ الموافقات</h2>
             <p class="appr-sub">القيود التي تنتظر موافقتك</p>
           </div>
+          <button style="display:none" onclick="loadApprovals()" class="appr-refresh-btn">🔄 تحديث</button>
         </div>
         <div id="approvalsList"><div class="appr-loading">⏳ جاري التحميل...</div></div>
       </div>
@@ -652,7 +653,7 @@
       </div>
 
       <!-- SEARCH SCREEN -->
-      <div id="searchScreen" style="display:none;padding:16px;width:100%;box-sizing:border-box">
+      <div id="searchScreen" style="display:none;padding:16px;max-width:720px;margin:0 auto">
         <div class="mb-18">
           <h2 class="srch-h2">🔍 البحث الشامل</h2>
           <p class="srch-sub">ابحث في القيود والعهد بفلاتر متقدمة</p>
@@ -767,7 +768,7 @@
       <!-- MESSAGES SCREEN -->
       <!-- MESSAGES SCREEN (NEW CHAT SYSTEM) -->
       <!-- REPORTS SCREEN -->
-      <div id="repScreen" style="display:none;padding:16px 20px;width:100%;box-sizing:border-box">
+      <div id="repScreen" style="display:none;padding:16px 20px;max-width:960px;margin:0 auto">
 
         <!-- HUB -->
         <div id="repHub">
@@ -1001,7 +1002,7 @@
 
 
       <!-- ARCHIVE SCREEN -->
-      <div id="archiveScreen" style="display:none;padding:20px;width:100%;box-sizing:border-box">
+      <div id="archiveScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
         <div class="arch-header">
           <div class="arch-header-title">
             <span class="arch-header-icon">📦</span>
@@ -1017,7 +1018,7 @@
         <div id="archivedProjList" class="arch-list"></div>
       </div><!-- end archiveScreen -->
 
-      <div id="notesScreen" style="display:none;padding:20px;width:100%;box-sizing:border-box;direction:rtl">
+      <div id="notesScreen" style="display:none;padding:20px;max-width:700px;margin:0 auto;direction:rtl">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
           <div style="display:flex;align-items:center;gap:10px">
             <div style="width:10px;height:10px;border-radius:50%;background:#1D3C2A"></div>
@@ -1038,7 +1039,7 @@
         <div id="notesScreenList"></div>
       </div>
 
-      <div id="duesScreen" style="display:none;padding:20px;width:100%;box-sizing:border-box">
+      <div id="duesScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
           <span style="font-size:24px">💰</span>
           <div>
