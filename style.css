@@ -678,7 +678,7 @@ body.dark-mode .adv-entry-form h4{color:var(--accent)}
 body.dark-mode .adv-ig input,body.dark-mode .adv-ig select{background:var(--dark-card);color:var(--accent);border-color:rgba(212,196,154,.15)}
 body.dark-mode .adv-ig input::placeholder{color:rgba(212,196,154,.3)}
 .adv-ig input.fl,.adv-ig select.fl{grid-column:1/-1}
-.adv-entries{max-height:260px;overflow-y:auto;background:#fff;border-radius:8px;border:1px solid var(--border-faint)}
+.adv-entries{background:#fff;border-radius:8px;border:1px solid var(--border-faint)}
 body.dark-mode .adv-entries{background:rgba(255,255,255,.03);border-color:rgba(212,196,154,.08)}
 .adv-im{display:none;padding:12px;background:var(--bg-faint);border-top:2px solid var(--accent-dark);border-radius:0 0 8px 8px}
 body.dark-mode .adv-im{background:rgba(255,255,255,.03);border-color:rgba(212,196,154,.15)}
@@ -737,7 +737,6 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .adv-detail{padding:20px 24px}
   .adv-ig{grid-template-columns:1fr 1fr 1fr}
   .adv-ig input.fl,.adv-ig select.fl{grid-column:1/-1}
-  .adv-entries{max-height:400px}
   .adv-detail-kp{padding:0;background:transparent;gap:12px}
   .ap{padding:20px 24px}
   .asec{padding:20px}
