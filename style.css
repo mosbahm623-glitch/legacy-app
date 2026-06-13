@@ -743,9 +743,9 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ap{padding:20px 24px}
   .asec{padding:20px}
   .im{padding:16px 24px}
-  .new-adv{max-width:600px}
-  .adv-entry-form{max-width:800px}
-  .nuf{max-width:600px}
+  .new-adv{width:100%}
+  .adv-entry-form{width:100%}
+  .nuf{width:100%}
 }@media(max-width:767px){
   body{padding:0}
   #loginScreen{padding:16px}
