@@ -2741,7 +2741,6 @@ function toggleAdvIm(){const im=document.getElementById('advIm');im.style.displa
 
 async function doAdvIm(){
   const txt=document.getElementById('advImT').value.trim();if(!txt){notify('الصق البيانات أولاً','warn');return;}
-  if(uRole!=='admin'){setSav('⚠️ الاستيراد متاح للأدمن فقط','er');return;}
   const ents=[];let sk=0;
   const projMap={};allProjects.forEach(p=>{projMap[p.name.trim().toLowerCase()]=p.id;});
   const projSeqs={};
@@ -2758,24 +2757,29 @@ async function doAdvIm(){
     ents.push(e);
   });
   if(!ents.length){notify('لم يتم استيراد أي قيد — تأكد من اسم المشروع صح','warn');return;}
-  // جيب آخر seq لكل مشروع من الداتابيز
   setSav('💾 جاري الاستيراد...','ng');
   try{
-    const pids=[...new Set(ents.map(e=>e.project_id))];
-    const seqBase={};
-    await Promise.all(pids.map(async pid=>{
-      try{const r=await sb('entries?project_id=eq.'+pid+'&select=entry_no&order=entry_no.desc&limit=1');seqBase[pid]=r.length?(r[0].entry_no||0):0;}
-      catch(e){seqBase[pid]=0;}
-    }));
-    // أعد ترقيم الـ seq بشكل صح
-    const counter={};
-    ents.forEach(e=>{
-      if(!counter[e.project_id])counter[e.project_id]=seqBase[e.project_id]||0;
-      counter[e.project_id]++;
-      e.seq=counter[e.project_id];
-    });
-    await sb('entries','POST',ents);
-    setSav('✅ تم استيراد '+ents.length+' قيد'+(sk?' (تخطي '+sk+')':''),'ok');
+    if(uRole==='admin'){
+      const pids=[...new Set(ents.map(e=>e.project_id))];
+      const seqBase={};
+      await Promise.all(pids.map(async pid=>{
+        try{const r=await sb('entries?project_id=eq.'+pid+'&select=entry_no&order=entry_no.desc&limit=1');seqBase[pid]=r.length?(r[0].entry_no||0):0;}
+        catch(e){seqBase[pid]=0;}
+      }));
+      const counter={};
+      ents.forEach(e=>{
+        if(!counter[e.project_id])counter[e.project_id]=seqBase[e.project_id]||0;
+        counter[e.project_id]++;
+        e.seq=counter[e.project_id];
+      });
+      await sb('entries','POST',ents);
+      setSav('✅ تم استيراد '+ents.length+' قيد'+(sk?' (تخطي '+sk+')':''),'ok');
+    }else{
+      const pending=ents.map(e=>({...e,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()}));
+      for(const p of pending){await sb('pending_entries','POST',p);}
+      setSav('⏳ تم إرسال '+ents.length+' قيد للموافقة','ng');
+      notify('⏳ تم إرسال '+ents.length+' قيد للموافقة من الأدمن','warn');
+    }
     document.getElementById('advImT').value='';
     document.getElementById('advIm').style.display='none';
     await loadAdvDetail();
