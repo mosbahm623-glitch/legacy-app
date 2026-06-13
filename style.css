@@ -1093,7 +1093,7 @@ body.dark-mode .rep-empty{color:rgba(212,196,154,.3)}
 .appr-entries-title{font-size:11px;font-weight:700;color:var(--text-soft);letter-spacing:1px;margin-bottom:8px;margin-top:4px}
 .appr-income-badge{background:var(--success-bg);color:var(--primary-btn);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-expense-badge{background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
-.appr-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint)}
+.appr-item{border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint);background:#fff}
 .appr-item-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .appr-item-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .appr-item-cat{background:var(--accent-ivory);color:var(--warning-text);padding:2px 8px;border-radius:8px;font-size:11px}
@@ -1450,7 +1450,8 @@ body.dark-mode .adv-det-notes{color:rgba(212,196,154,.5)}
 
 /* ── Approvals ── */
 .appr-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
-#approvalsList{max-width:860px}
+#approvalsList{width:100%}
+.appr-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint);width:100%;box-sizing:border-box}
 .appr-title-wrap{}
 .appr-h2{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:3px}
 .appr-sub{font-size:11px;color:var(--text-soft)}
