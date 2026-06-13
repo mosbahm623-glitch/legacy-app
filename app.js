@@ -2646,17 +2646,20 @@ async function addAdvEntry(){
   if(!cat){notify('ادخل البند','err');return;}
   if(isNaN(amt)||amt<=0){notify('ادخل مبلغ صحيح','err');return;}
   // ── تحذير تجاوز العهدة ──
-  const _installs=allInstallments.filter(i=>i.advance_id===curAdv.id);
-  const _totalGiven=_installs.reduce((s,i)=>s+i.amount,0);
-  const _advEntries=allEntries.filter(e=>e.advance_id===curAdv.id);
-  const _spent=_advEntries.reduce((s,e)=>s+e.amount,0);
-  const _remBefore=_totalGiven-_spent;
-  const _remAfter=_remBefore-amt;
-  if(_remAfter<0){
-    const over=fn(Math.abs(_remAfter));
-    const ok=await new Promise(res=>showConfirm({icon:'⚠️',title:'تجاوز العهدة',msg:'المصروف هيتجاوز العهدة بـ '+over+' ج. العجز بعد الصرف: '+over+' ج. هل تريد الإكمال؟',okLabel:'إكمال',okType:'warning',onOk:()=>res(true)}));
-    if(!ok)return;
-  }
+  try{
+    const [freshInstalls,freshEntries]=await Promise.all([
+      sb('advance_installments?advance_id=eq.'+curAdv.id+'&select=amount'),
+      sb('entries?advance_id=eq.'+curAdv.id+'&select=amount')
+    ]);
+    const _totalGiven=(freshInstalls||[]).reduce((s,i)=>s+i.amount,0);
+    const _spent=(freshEntries||[]).reduce((s,e)=>s+e.amount,0);
+    const _remAfter=_totalGiven-_spent-amt;
+    if(_remAfter<0){
+      const over=fn(Math.abs(_remAfter));
+      const ok=await new Promise(res=>showConfirm({icon:'⚠️',title:'تجاوز العهدة',msg:'المصروف هيتجاوز العهدة بـ '+over+' ج. العجز بعد الصرف: '+over+' ج. هل تريد الإكمال؟',okLabel:'إكمال',okType:'warning',onOk:()=>res(true)}));
+      if(!ok)return;
+    }
+  }catch(e2){console.error(e2);}
   const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.entry_no||20260000),20260000);
   const advNextSeq=advMaxSeq<20260000?20260001:advMaxSeq+1;
   const entry={id:uid_(),project_id:pid,type:'e',amount:amt,description:desc,entry_date:dt,category:cat,contractor:mq,advance_id:curAdv.id,seq:advNextSeq,created_by:uid};
