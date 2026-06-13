@@ -742,9 +742,9 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ap{padding:20px 24px}
   .asec{padding:20px}
   .im{padding:16px 24px}
-  .new-adv{max-width:600px}
-  .adv-entry-form{max-width:800px}
-  .nuf{max-width:600px}
+  .new-adv{width:100%}
+  .adv-entry-form{width:100%}
+  .nuf{width:100%}
 }@media(max-width:767px){
   body{padding:0}
   #loginScreen{padding:16px}
@@ -2064,7 +2064,7 @@ body.day-mode .d-inc-sub{color:var(--text-hint)}
 .d-alerts-list::-webkit-scrollbar,.d-txn-list::-webkit-scrollbar{display:none}
 
 /* ══ MQ MANAGER ══ */
-.mq-mgr-wrap{max-width:700px;margin:0 auto;padding:8px}
+.mq-mgr-wrap{width:100%;padding:8px}
 .mq-mgr-hdr{display:flex;align-items:center;gap:14px;margin-bottom:8px}
 .mq-mgr-search-wrap{margin-bottom:12px}
 .mq-mgr-search{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-soft);background:var(--bg-pure);color:var(--text-primary);font-size:13px;outline:none}
