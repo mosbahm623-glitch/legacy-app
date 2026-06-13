@@ -5786,6 +5786,7 @@ async function loadApprovals(){
     }
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
+    const profMap=await getProfileMap();
     let html='';
 
     // ── قيود المشاريع ──
@@ -5809,7 +5810,8 @@ async function loadApprovals(){
             ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
             ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
             <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
-            <span class="appr-meta-text">📅 ${r.entry_date||'—'}</span>
+            <span class="appr-meta-text">📅 ${r.entry_date||'—'}</span> &nbsp;
+            <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
@@ -5836,6 +5838,7 @@ async function loadApprovals(){
             <div class="appr-item-title-row">${label} ${detail}</div>
             <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
           </div>
+          <div class="appr-item-meta" style="margin-bottom:8px">👤 ${profMap[r.submitted_by]||'—'}</div>
           <div style="display:flex;gap:8px">
             <button onclick="approveAdv('${r.id}')" class="appr-adv-approve-btn">✅ موافقة</button>
             <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
