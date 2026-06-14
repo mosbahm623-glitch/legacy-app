@@ -670,7 +670,12 @@ function showScreen(s){
   if(s==='adv')loadAdvList();
   if(s==='admin')loadAdminPanel();
   if(s==='rep')loadRepScreen();
-  if(s==='approvals')loadApprovals();
+  if(s==='approvals'){
+    loadApprovals();
+    if(_approvalsInterval){clearInterval(_approvalsInterval);_approvalsInterval=null;}
+  }else{
+    if(_approvalsInterval){clearInterval(_approvalsInterval);_approvalsInterval=null;}
+  }
   if(s==='projStatus')loadProjStatus();
   if(s==='timeline')loadTimeline();
   if(s==='archive')loadArchivedProjects();
@@ -5925,10 +5930,11 @@ async function updatePendingBadge(){
   }catch(e){console.error(e);}
 }
 
-async function loadApprovals(){
+let _approvalsInterval=null;
+async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
-  el.innerHTML='<div class="appr-loading">⏳ جاري التحميل...</div>';
+  if(!silent)el.innerHTML='<div class="appr-loading">⏳ جاري التحميل...</div>';
   try{
     const [entRows,advRows]=await Promise.all([
       sb('pending_entries?status=eq.pending&order=submitted_at.asc'),
