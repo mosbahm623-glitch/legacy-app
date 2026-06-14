@@ -4994,15 +4994,33 @@ function contractorExportPDF(){
   const d=_repContrData;
   const canvas=document.getElementById('contrRepChart');
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
-  const rows=d.filtered.map((e,i)=>`<tr>
-    <td class="rep-table-num">${i+1}</td>
-    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
-    <td>${cleanDate(e.entry_date)||'—'}</td>
-    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
-    <td>${e.category||'—'}</td>
-    <td>${e.description||'—'}</td>
-    <td class="amt neg">▼ ${fn(e.amount)} ج</td>
-  </tr>`).join('');
+  const projGroups={};
+  d.filtered.forEach(e=>{
+    const pid=e.project_id;
+    if(!projGroups[pid])projGroups[pid]={name:allProjectsMap[pid]?.name||'—',entries:[],total:0};
+    projGroups[pid].entries.push(e);
+    projGroups[pid].total+=e.amount;
+  });
+  let rowNum=0;
+  const rows=Object.values(projGroups).map(g=>{
+    const entryRows=g.entries.map(e=>{
+      rowNum++;
+      return `<tr>
+        <td class="rep-table-num">${rowNum}</td>
+        <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
+        <td>${cleanDate(e.entry_date)||'—'}</td>
+        <td>${g.name}</td>
+        <td>${e.category||'—'}</td>
+        <td>${e.description||'—'}</td>
+        <td class="amt neg">▼ ${fn(e.amount)} ج</td>
+      </tr>`;
+    }).join('');
+    const subtotal=`<tr style="background:#f5f5f3;font-weight:700">
+      <td colspan="6" style="text-align:right;padding:6px 8px;color:#1D3C2A">إجمالي ${g.name}</td>
+      <td class="amt neg" style="font-weight:700">▼ ${fn(g.total)} ج</td>
+    </tr>`;
+    return entryRows+subtotal;
+  }).join('');
   const html=_pdfOpen('تقرير المقاول — '+d.mq)+
     _pdfHeader('👷 تقرير المقاول','المقاول: '+d.mq+' · الفترة: '+d.period)+
     `<div class="kpis kpis-2">
@@ -5012,9 +5030,9 @@ function contractorExportPDF(){
     ${chartImg}
     <div class="sec-ttl">📒 تفاصيل المصروفات</div>
     <table>
-      <thead><tr><th>#</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="5">الإجمالي</td><td class="amt neg">▼ ${fn(d.total)} ج</td></tr></tfoot>
+      <tfoot><tr><td colspan="6">الإجمالي الكلي</td><td class="amt neg">▼ ${fn(d.total)} ج</td></tr></tfoot>
     </table>`+
     _pdfFooter()+_pdfClose();
   openPrintWindow(html);
