@@ -69,6 +69,20 @@ window.addEventListener('unhandledrejection',function(e){
   try{notify('❌ حدث خطأ غير متوقع — حاول تاني','err');}catch(_){}
 });
 
+// ══════ AUDIT LOG ══════
+async function auditLog(action,tableName,recordId,details){
+  try{
+    await sb('audit_log','POST',{
+      user_id:uid||null,
+      user_name:uName||uEmail||'—',
+      action,
+      table_name:tableName||null,
+      record_id:String(recordId||''),
+      details:details||null
+    });
+  }catch(e){console.warn('audit log failed:',e);}
+}
+
 const SB='https://ctcoqgluaytwelnutrox.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
 let token=null,uid=null,uRole=null,uName='',uEmail='';
@@ -639,14 +653,14 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues','notes'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues','notes','auditlog'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
-  ['dash','adv','daily','admin','rep','search','approvals','archive'].forEach(x=>{
+  ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog'].forEach(x=>{
     const el=document.getElementById('sbi-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -689,6 +703,7 @@ function showScreen(s){
   if(s==='archive')loadArchivedProjects();
   if(s==='dues')loadDuesScreen();
   if(s==='notes')loadNotesScreen();
+  if(s==='auditlog')loadAuditLog();
   closeSidebar();
   setTimeout(()=>renderBreadcrumb(s),50);
 }
@@ -1427,6 +1442,7 @@ async function loadAllProjects(){
   if(uRole==='admin'){
     const archBtn=document.getElementById('sbi-archive');if(archBtn)archBtn.style.display='flex';
     const archPBtn=document.getElementById('archPBtn');if(archPBtn)archPBtn.style.display='';
+    const auditBtn=document.getElementById('sbi-auditlog');if(auditBtn)auditBtn.style.display='flex';
     updateBackupDateDisplay();
   }
   populateAdvProjSel();
@@ -1472,6 +1488,7 @@ async function ae(){
       refreshProjSummary(savedPid);
       setSav('✅ تم الحفظ','ok');
       notify(`✅ تم حفظ القيد في مشروع: ${savedProjName}`,'ok');
+      auditLog('إضافة قيد','entries',entry.id,{project:savedProjName,amount:entry.amount,category:entry.category,type:entry.type});
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
       await sb('pending_entries','POST',pending);
@@ -1554,10 +1571,12 @@ async function de(id){
   confirmWithPassword('تأكيد حذف القيد','🗑️',async()=>{
     setSav('💾 جاري الحذف...','ng');
     try{
+      const delEntry=allEntries.find(e=>e.id===id);
       await sb('entries?id=eq.'+id,'DELETE');
       await loadEntries();
       allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);
       setSav('✅ تم الحذف','ok');
+      auditLog('حذف قيد','entries',id,{project:allProjects.find(p=>p.id===curPid)?.name,amount:delEntry?.amount,category:delEntry?.category});
       rp();
     }catch(e){setSav('❌ '+friendlyError(e),'er');}
   });
@@ -1622,6 +1641,32 @@ async function archiveProject(){
 }
 
 let _archiveData=[];
+
+async function loadAuditLog(){
+  const el=document.getElementById('auditLogList');
+  if(!el)return;
+  el.innerHTML='<div class="emp">⏳ جاري التحميل...</div>';
+  try{
+    const rows=await sb('audit_log?order=created_at.desc&limit=200');
+    if(!rows||!rows.length){el.innerHTML='<div class="emp">لا يوجد سجلات بعد</div>';return;}
+    const actionColor={
+      'إضافة قيد':'var(--success)','موافقة على قيد':'var(--success)',
+      'حذف قيد':'var(--danger)','رفض قيد':'var(--danger)',
+    };
+    el.innerHTML=rows.map(r=>{
+      const dt=new Date(r.created_at);
+      const dateStr=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+      const color=actionColor[r.action]||'var(--text-hint)';
+      const details=r.details?Object.entries(r.details).filter(([k,v])=>v).map(([k,v])=>k+': '+v).join(' · '):'';
+      return `<div class="rw" style="margin-bottom:6px">
+        <div class="ri">
+          <div class="rd"><span style="color:${color};font-weight:600">${r.action}</span> ${details?'<span style="color:var(--text-hint);font-size:11px">· '+details+'</span>':''}</div>
+          <div class="rm">👤 ${r.user_name||'—'} · 📅 ${dateStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ '+e.message+'</div>';}
+}
 
 async function loadArchivedProjects(){
   const div=document.getElementById('archivedProjList');
@@ -6138,6 +6183,7 @@ async function approveEntry(id,silent=false){
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
+    auditLog('موافقة على قيد','entries',id,{project:allProjects.find(p=>p.id===r.project_id)?.name,amount:r.amount,category:r.category,submitted_by:r.submitted_by});
     if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();loadApprovals();if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
@@ -6146,6 +6192,7 @@ async function rejectEntry(id,silent=false){
   if(!silent)await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
+    auditLog('رفض قيد','pending_entries',id,{});
     if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();loadApprovals();if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }

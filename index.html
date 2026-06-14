@@ -198,6 +198,9 @@
         <button class="sb-item" id="sbi-archive" style="display:none" onclick="showScreen('archive')">
           <span class="sb-icon">📦</span><span class="sb-label">الأرشيف</span>
         </button>
+        <button class="sb-item" id="sbi-auditlog" onclick="showScreen('auditlog')" style="display:none">
+          <span class="sb-icon">📋</span><span class="sb-label">لوج التعديلات</span>
+        </button>
         <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
           <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
         </button>
@@ -1007,6 +1010,17 @@
         </div>
         <div id="archivedProjList" class="arch-list"></div>
       </div><!-- end archiveScreen -->
+
+      <div id="auditlogScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <h2 style="font-size:18px;font-weight:700;color:var(--text-main)">📋 لوج التعديلات</h2>
+            <p style="font-size:12px;color:var(--text-hint);margin-top:2px">سجل كل العمليات في التطبيق</p>
+          </div>
+          <button onclick="loadAuditLog()" class="gsm">🔄 تحديث</button>
+        </div>
+        <div id="auditLogList"><div class="emp">⏳ جاري التحميل...</div></div>
+      </div>
 
       <div id="notesScreen" style="display:none;padding:20px;max-width:700px;margin:0 auto;direction:rtl">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
