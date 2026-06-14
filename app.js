@@ -6453,13 +6453,6 @@ function initNotifSystem(){
   setupNotifRealtime();
   // refresh online every 45s
   setInterval(()=>{updatePresence().then(()=>refreshOnlineUsers());},45000);
-  // polling للموافقات كل 5 ثواني للأدمن
-  if(uRole==='admin'){
-    setInterval(async()=>{
-      await updatePendingBadge();
-      if(curScreen==='approvals')loadApprovals();
-    },5000);
-  }
 }
 
 function setupNotifRealtime(){
