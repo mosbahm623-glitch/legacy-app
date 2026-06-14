@@ -677,6 +677,64 @@ function showScreen(s){
   if(s==='dues')loadDuesScreen();
   if(s==='notes')loadNotesScreen();
   closeSidebar();
+  setTimeout(()=>renderBreadcrumb(s),50);
+}
+
+function renderBreadcrumb(s){
+  const map={
+    projList:['الرئيسية','المشاريع'],
+    proj:['الرئيسية','المشاريع',null],
+    adv:['الرئيسية','العهد'],
+    rep:['الرئيسية','التقارير'],
+    approvals:['الرئيسية','الموافقات'],
+    search:['الرئيسية','بحث برقم القيد'],
+    notes:['الرئيسية','ملاحظاتي'],
+    dues:['الرئيسية','مستحقات المقاولين'],
+    archive:['الرئيسية','الأرشيف'],
+    projStatus:['الرئيسية','حالة المشاريع'],
+    timeline:['الرئيسية','آخر التحركات'],
+    daily:['الرئيسية','اليومية'],
+  };
+  const crumbs=map[s];
+  if(!crumbs)return;
+  const targetEl=document.getElementById(s+'Screen');
+  if(!targetEl)return;
+  const existing=targetEl.querySelector('.bc-wrap');
+  if(existing)existing.remove();
+  const bc=document.createElement('div');
+  bc.className='bc-wrap';
+  bc.style.cssText='display:flex;align-items:center;gap:5px;font-size:11px;padding:6px 0 8px;flex-wrap:wrap;opacity:.85';
+  const actions={
+    'الرئيسية':()=>showScreen('dash'),
+    'المشاريع':()=>showScreen('projList'),
+  };
+  crumbs.forEach((c,i)=>{
+    if(i>0){
+      const sep=document.createElement('span');
+      sep.textContent='←';
+      sep.style.cssText='color:var(--text-hint);font-size:10px;opacity:.5';
+      bc.appendChild(sep);
+    }
+    if(c===null){
+      const projName=allProjects.find(p=>p.id===curPid)?.name||'—';
+      const span=document.createElement('span');
+      span.textContent=projName;
+      span.style.cssText='color:var(--text-main);font-weight:500';
+      bc.appendChild(span);
+    }else if(i<crumbs.length-1){
+      const span=document.createElement('span');
+      span.textContent=c;
+      span.style.cssText='color:#185FA5;cursor:pointer';
+      span.onclick=actions[c]||null;
+      bc.appendChild(span);
+    }else{
+      const span=document.createElement('span');
+      span.textContent=c;
+      span.style.cssText='color:var(--text-hint)';
+      bc.appendChild(span);
+    }
+  });
+  targetEl.insertBefore(bc,targetEl.firstChild);
 }
 
 // SIDEBAR FUNCTIONS
