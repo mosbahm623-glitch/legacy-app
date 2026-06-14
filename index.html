@@ -944,8 +944,9 @@
           <!-- CONTRACTOR REPORT -->
           <div id="repContractorPanel" style="display:none">
             <div class="filter-bar rep-filter-mb">
-              <div><label>👷 المقاول</label>
-                <select id="rContrSel"><option value="">-- اختار مقاول --</option></select>
+              <div style="position:relative"><label>👷 المقاول</label>
+                <input id="rContrSel" type="text" placeholder="اكتب اسم المقاول..." autocomplete="off" oninput="onContrRepSearch(this.value)" onclick="onContrRepSearch(this.value)" style="width:100%;padding:8px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-pure);color:var(--text-main);font-family:inherit;font-size:13px;outline:none">
+                <div id="rContrDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-pure);border:0.5px solid var(--border);border-radius:8px;z-index:999;max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
               </div>
               <div><label>📅 من</label><input type="text" id="rContrFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
               <div><label>📅 لحد</label><input type="text" id="rContrTo" placeholder="dd/mm/yyyy" maxlength="10"></div>

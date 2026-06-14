@@ -4932,7 +4932,7 @@ function repAdvExportPDF(){
 // ── CONTRACTOR REPORT ──────────────────────────
 let _repContrData=null,_repClientData=null;
 function runContractorReport(){
-  const mq=document.getElementById('rContrSel').value;
+  const mq=document.getElementById('rContrSel').value.trim();
   const fromStr=document.getElementById('rContrFrom').value;
   const toStr=document.getElementById('rContrTo').value;
   const incArchived=document.getElementById('rContrIncArchived')?.checked||false;
@@ -4991,6 +4991,29 @@ function runContractorReport(){
     [{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}]
   );
 }
+function onContrRepSearch(q){
+  const dd=document.getElementById('rContrDD');
+  if(!dd)return;
+  const contractors=[...new Set(allEntries.filter(e=>e.type==='e'&&e.contractor).map(e=>e.contractor))].sort();
+  const filtered=q?contractors.filter(c=>c.toLowerCase().includes(q.toLowerCase())):contractors;
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(c=>`<div onclick="selectContrRep('${c.replace(/'/g,"\\'")}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:0.5px solid var(--border-faint)" onmouseover="this.style.background='var(--bg-faint)'" onmouseout="this.style.background=''">${c}</div>`).join('');
+}
+function selectContrRep(name){
+  const inp=document.getElementById('rContrSel');
+  const dd=document.getElementById('rContrDD');
+  if(inp)inp.value=name;
+  if(dd)dd.style.display='none';
+  runContractorReport();
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#rContrDD')&&e.target.id!=='rContrSel'){
+    const dd=document.getElementById('rContrDD');
+    if(dd)dd.style.display='none';
+  }
+});
+
 function clearContractorReport(){
   document.getElementById('rContrSel').value='';
   document.getElementById('rContrFrom').value='';
