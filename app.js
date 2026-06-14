@@ -331,7 +331,7 @@ function curP(){return projects.find(p=>p.id===curPid)||null;}
 function pInc(){return entries.filter(e=>e.type==='i');}
 function pExp(){return entries.filter(e=>e.type==='e');}
 function pExpAdv(){return entries.filter(e=>e.type==='e'&&e.advance_id);}
-function gJ(){const all=entries.map(e=>({...e}));all.sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date)||(a.entry_no||0)-(b.entry_no||0));let b=0;all.forEach(e=>{b+=e.type==='i'?e.amount:-e.amount;e.bal=b;});return all;}
+function gJ(){const all=entries.map(e=>({...e}));all.sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date)||(a.seq||0)-(b.seq||0));let b=0;all.forEach(e=>{b+=e.type==='i'?e.amount:-e.amount;e.bal=b;});return all;}
 function gM(){const map={};pExp().forEach(e=>{if(!e.contractor)return;if(!map[e.contractor])map[e.contractor]={n:e.contractor,t:0,cnt:0,cats:new Set(),last:''};const m=map[e.contractor];m.t+=e.amount;m.cnt++;if(e.category)m.cats.add(e.category);if(pdt(e.entry_date)>pdt(m.last))m.last=e.entry_date;});return Object.values(map).sort((a,b)=>b.t-a.t).map(m=>({...m,ca:[...m.cats]}));}
 
 // ══════ CONFIRM MODAL — بديل confirm() ══════
@@ -892,7 +892,7 @@ async function loadDailyLog(){
     return `<div class="daily-entry">
       <div class="daily-type ${isInc?'inc':'exp'}">${isInc?'📤':'📥'}</div>
       <div style="flex:1;min-width:0">
-        <div class="entry-desc">${e.description||'—'} ${e.entry_no?'<span class="seq-badge">#'+e.entry_no+'</span>':''}</div>
+        <div class="entry-desc">${e.description||'—'} ${e.seq?'<span class="seq-badge">#'+e.seq+'</span>':''}</div>
         <div class="daily-proj">${proj}${e.category?' · '+e.category:''}</div>
       </div>
       <div class="daily-amt ${isInc?'inc':'exp'}">${isInc?'+':'-'}${fn(Math.abs(e.amount))} ج</div>
@@ -959,7 +959,7 @@ async function backupAll(){
     const wsE=wb.addWorksheet('القيود',{views:[{rightToLeft:true}]});
     hdr(wsE,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'المقاول',k:'mq',w:20},{h:'رقم',k:'seq',w:8}]);
     const projMap={};prjs.forEach(p=>projMap[p.id]=p.name);
-    ents.forEach(e=>wsE.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',mq:e.contractor||'',seq:e.entry_no||''}));
+    ents.forEach(e=>wsE.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',mq:e.contractor||'',seq:e.seq||''}));
     styleRows(wsE,ents.length);
     // لون الوارد والمصروف
     for(let i=2;i<=ents.length+1;i++){
@@ -1417,8 +1417,10 @@ async function loadAllProjects(){
   // نجيب المشاريع + الملخصات من الـ View مرة واحدة
   [allProjects,allEntries]=await Promise.all([
     sb('projects?order=created_at'),
-    sb('entries?select=id,entry_no,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc&limit=5000')
+    sb('entries?select=id,seq,project_id,type,amount,category,description,contractor,entry_date,created_at,advance_id&order=created_at.desc&limit=5000')
   ]);
+  // استخدم seq كـ entry_no لو seq أكبر من 20260000
+  allEntries.forEach(e=>{if(e.seq&&e.seq>20260000)e.seq=e.seq;});
   // نجيب الملخصات الجاهزة من الـ View
   let summariesData=[];
   try{ summariesData=await sb('project_summaries'); }catch(_){}
@@ -1463,7 +1465,7 @@ async function loadProjects(){
     setSav('☁️ متصل — بياناتك محفوظة','ok');if(curScreen==='proj'||!curScreen)rp();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
-async function loadEntries(){if(!curPid)return;entries=await sbAll('entries?project_id=eq.'+curPid+'&order=created_at');}
+async function loadEntries(){if(!curPid)return;entries=await sbAll('entries?project_id=eq.'+curPid+'&order=created_at');entries.forEach(e=>{if(e.seq&&e.seq>20260000)e.seq=e.seq;});}
 
 async function ae(){
   const a=parseFloat(document.getElementById('ia').value);
@@ -1476,7 +1478,7 @@ async function ae(){
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
-  const maxSeq2=allEntries.reduce((mx,e)=>Math.max(mx,e.entry_no||20260000),20260000);
+  const maxSeq2=allEntries.reduce((mx,e)=>Math.max(mx,e.seq||20260000),20260000);
   const nextSeq=maxSeq2<20260000?20260001:maxSeq2+1;
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,seq:uRole==='admin'?nextSeq:0,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
@@ -1821,7 +1823,7 @@ function oe(id){
   if(uRole==='viewer')return;
   const e=entries.find(x=>x.id===id);if(!e)return;
   edId=id;edType=e.type;
-  document.getElementById('ep-t').textContent='تعديل القيد #'+(e.entry_no||'?');
+  document.getElementById('ep-t').textContent='تعديل القيد #'+(e.seq||'?');
   // populate project dropdown
   const ePrj=document.getElementById('ePrj');
   ePrj.innerHTML=allProjects.map(p=>'<option value="'+p.id+'"'+(p.id===e.project_id?' selected':'')+'>'+p.name+'</option>').join('');
@@ -2391,8 +2393,8 @@ async function confirmImport(){
   setSav('💾 جاري الاستيراد ('+ents.length+' قيد)...','ng');
   try{
     if(uRole==='admin'){
-      const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
-      let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
+      const last=await sb('entries?select=seq&order=seq.desc&limit=1');
+      let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
       if(nextSeq<20260000)nextSeq=20260000;
       ents.forEach(e=>{nextSeq++;e.seq=nextSeq;e.created_by=uid;});
       await sb('entries','POST',ents);
@@ -2491,7 +2493,7 @@ function re(){
     const pager=totalPages>1?`<div class="pg-bar">${cp>0?`<button class="pg-btn" onclick="window._rpPage=${cp-1};re()">‹ السابق</button>`:''}
       <span class="pg-info">صفحة ${cp+1} / ${totalPages} (${j.length} قيد)</span>
       ${cp<totalPages-1?`<button class="pg-btn" onclick="window._rpPage=${cp+1};re()">التالي ›</button>`:''}</div>`:'';
-    el.innerHTML=pager+slice.map(e=>{const ii=e.type==='i';const mq=e.contractor?'<span class="qb">'+e.contractor+'</span>':'';const ab=e.advance_id?'<span class="ab-badge">عهدة</span>':'';const no='<span class="nb">#'+(e.entry_no||'?')+'</span>';const del=canEdit?'<button class="db" onclick="event.stopPropagation();de(\''+e.id+'\')">🗑</button>':'';return '<div class="rw mob-card'+(canEdit?' clk':'')+'" data-eid="'+e.id+'" onclick="oe(\''+e.id+'\')"><div class="ri"><div class="rd">'+ab+mq+(e.description||'—')+no+'</div><div class="rm">'+cleanDate(e.entry_date)+' · '+(ii?'وارد':e.category||'—')+'</div></div><div class="mob-card-foot flex-center-gap"><div class="mob-card-nums"><div class="ra '+(ii?'pos':'neg')+'">'+(ii?'+':'-')+fn(Math.abs(e.amount))+' ج</div><div class="jb '+(e.bal<0?'neg':e.bal>0?'pos':'')+'">رصيد: '+fn(e.bal)+' ج</div></div>'+del+'</div></div>';}).join('')+pager;return;}
+    el.innerHTML=pager+slice.map(e=>{const ii=e.type==='i';const mq=e.contractor?'<span class="qb">'+e.contractor+'</span>':'';const ab=e.advance_id?'<span class="ab-badge">عهدة</span>':'';const no='<span class="nb">#'+(e.seq||'?')+'</span>';const del=canEdit?'<button class="db" onclick="event.stopPropagation();de(\''+e.id+'\')">🗑</button>':'';return '<div class="rw mob-card'+(canEdit?' clk':'')+'" data-eid="'+e.id+'" onclick="oe(\''+e.id+'\')"><div class="ri"><div class="rd">'+ab+mq+(e.description||'—')+no+'</div><div class="rm">'+cleanDate(e.entry_date)+' · '+(ii?'وارد':e.category||'—')+'</div></div><div class="mob-card-foot flex-center-gap"><div class="mob-card-nums"><div class="ra '+(ii?'pos':'neg')+'">'+(ii?'+':'-')+fn(Math.abs(e.amount))+' ج</div><div class="jb '+(e.bal<0?'neg':e.bal>0?'pos':'')+'">رصيد: '+fn(e.bal)+' ج</div></div>'+del+'</div></div>';}).join('')+pager;return;}
   if(cTab==='m'){
     const mqMap={};
     pExp().filter(e=>e.contractor).forEach(e=>{
@@ -2517,7 +2519,7 @@ function re(){
         const etC={'payment':'var(--primary-btn)','work':'var(--info)','material':'var(--warning-dark)'};
         const tag=e.entry_type?`<span style="background:${etBg[e.entry_type]};color:${etC[e.entry_type]};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700">${etLbl[e.entry_type]||e.entry_type}</span>`:'';
         const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">\u{1F5D1}</button>`:'';
-        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${e.description||'—'} <span class="nb">#${e.entry_no||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${e.category||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${del}</div></div>`;
+        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${e.description||'—'} <span class="nb">#${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${e.category||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${del}</div></div>`;
       }).join('');
       const kpis=hasTypes?`<div class="mq-kpi-grid"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">${fn(m.pay)}</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">${fn(m.work)}</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">${fn(m.mat)}</div></div><div style="background:${rem>=0?'var(--success-ghost)':'var(--danger-ghost)'};border-radius:8px;padding:8px;text-align:center"><div class="lbl-sm">${rem>=0?'الباقي معاه':'مستحق عليك'}</div><div style="font-weight:900;color:${rem>=0?'var(--primary)':'var(--danger)'};font-size:13px">${fn(Math.abs(rem))}</div></div></div>`:`<div class="mq-total-row"><span style="color:var(--text-soft);font-size:12px">إجمالي المسحوب</span><span style="font-weight:700;color:#1D3C2A">${fn(m.pay+m.work+m.mat+m.other)} ج</span></div>`;
       return `<div class="mq-contractor-card"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:14px 16px">${kpis}<div>${rows}</div></div></div>`;
@@ -2526,7 +2528,7 @@ function re(){
   }
   if(cTab==='dues'){loadDuesTab(el);return;}
   let es=cTab==='i'?pInc():pExp().filter(e=>e.category===cTab);
-  es=[...es].sort((a,b)=>(b.entry_no||0)-(a.entry_no||0));
+  es=[...es].sort((a,b)=>(b.seq||0)-(a.seq||0));
   if(!es.length){el.innerHTML='<div class="emp">لا توجد قيود</div>';return;}
   const hasMqTypes=es.some(e=>e.contractor&&e.entry_type);
   const etypeLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
@@ -2540,7 +2542,7 @@ function re(){
   html+=es.map(e=>{
     const mq=e.contractor?'<span class="qb">'+e.contractor+'</span>':'';
     const ab=e.advance_id?'<span class="ab-badge">عهدة</span>':'';
-    const no='<span class="nb">#'+(e.entry_no||'?')+'</span>';
+    const no='<span class="nb">#'+(e.seq||'?')+'</span>';
     const etBg=e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':e.entry_type==='material'?'var(--warning-pale)':'';
     const etC=e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':e.entry_type==='material'?'var(--warning-dark)':'';
     const et=e.entry_type&&e.contractor?'<span class="entry-type-badge">'+(etypeLbl[e.entry_type]||'')+'</span>':'';
@@ -2782,7 +2784,7 @@ async function addAdvEntry(){
       if(!ok)return;
     }
   }catch(e2){console.error(e2);}
-  const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.entry_no||20260000),20260000);
+  const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.seq||20260000),20260000);
   const advNextSeq=advMaxSeq<20260000?20260001:advMaxSeq+1;
   const entry={id:uid_(),project_id:pid,type:'e',amount:amt,description:desc,entry_date:dt,category:cat,contractor:mq,advance_id:curAdv.id,seq:advNextSeq,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
@@ -2811,7 +2813,7 @@ function editAdvEntry(id){
   sb('entries?id=eq.'+id).then(res=>{
     if(!res||!res.length)return;
     var e=res[0];
-    document.getElementById('advEpT').textContent='تعديل المصروف #'+(e.entry_no||'?');
+    document.getElementById('advEpT').textContent='تعديل المصروف #'+(e.seq||'?');
     // ملي قائمة المشاريع
     const sel=document.getElementById('advEPrj');
     sel.innerHTML=allProjects.map(p=>`<option value="${p.id}"${p.id===e.project_id?' selected':''}>${p.name}</option>`).join('');
@@ -2879,7 +2881,7 @@ async function doAdvIm(){
       const pids=[...new Set(ents.map(e=>e.project_id))];
       const seqBase={};
       await Promise.all(pids.map(async pid=>{
-        try{const r=await sb('entries?project_id=eq.'+pid+'&select=entry_no&order=entry_no.desc&limit=1');seqBase[pid]=r.length?(r[0].entry_no||0):0;}
+        try{const r=await sb('entries?project_id=eq.'+pid+'&select=seq&order=seq.desc&limit=1');seqBase[pid]=r.length?(r[0].entry_no||0):0;}
         catch(e){seqBase[pid]=0;}
       }));
       const counter={};
@@ -3133,7 +3135,7 @@ async function bldClient(){
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const safeSheet=n=>{let s=(n||'شيت').replace(/[:\\\\/\?\*\[\]]/g,'').trim().substring(0,28);return s||'شيت';};
   const ct=Object.entries(cm).map(([n,rs])=>({n:safeSheet(n),r:rs,tr:6+rs.length,t:rs.reduce((a,e)=>a+(e.amount||0),0)}));
-  const ic=pInc().map(e=>[e.entry_no||'',e.description||'دفعة',e.entry_date||'—',e.amount]);
+  const ic=pInc().map(e=>[e.seq||'',e.description||'دفعة',e.entry_date||'—',e.amount]);
   const IT=6+ic.length;
   const G1='1D3C2A',G2='2A5C38',G5='EDF5EE',G6='F4F8F5',B1='D4C49A',B2='E8D8B0',B3='F5EDDB',B4='FAF5EC';
   const BL='1A3A5C',LB='D6E8F7',RD='922B21',PS='1E6B3A',LP='E2F5EA',DEF='6E1C1C',LD='FAE5E5';
@@ -3178,7 +3180,7 @@ async function bldClient(){
 
   // البنود بدون عمود المقاول
   const TC=['1D5C3A','1E6B4A','235E3F','1A7050','2A6B45','0D5C3A','326050','254840'];
-  ct.forEach((cat,idx)=>{const wc=wb.addWorksheet(cat.n,{tabColor:{argb:'FF'+TC[idx%TC.length]}});[8,36,16,20].forEach((w,i)=>wc.getColumn(i+1).width=w);bs(wc,cat.n+'  —  '+p.name,4);wc.getRow(5).height=22;['#','البيان','التاريخ','المبلغ (ج)'].forEach((v,i)=>{const c=wc.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let cr=6;cat.r.forEach((e,ix)=>{wc.getRow(cr).height=21;const cs=[wc.getCell('A'+cr),wc.getCell('B'+cr),wc.getCell('C'+cr),wc.getCell('D'+cr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=e.entry_no||'';A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=e.description||'—';A(cs[1],'right');T(cs[1],'1A1A1A',10);cs[2].value=e.entry_date||'—';A(cs[2],'center');T(cs[2],'666666',9);cs[3].value=e.amount;A(cs[3],'left');N(cs[3]);T(cs[3],e.amount<0?RD:G1,10,true);cr++;});wc.getRow(cr).height=28;MC(wc,'A'+cr,'C'+cr);wc.getCell('A'+cr).value='إجمالي '+cat.n;F(wc.getCell('A'+cr),G1);T(wc.getCell('A'+cr),B1,11,true);A(wc.getCell('A'+cr),'right');const tD=wc.getCell('D'+cr);tD.value={formula:'SUM(D6:D'+(cr-1)+')',result:cat.t};F(tD,G1);T(tD,B1,11,true);A(tD,'left');N(tD);af(wc,cr+2,'Legacy Fine Touch  |  '+cat.n+'  |  '+p.name,4);});
+  ct.forEach((cat,idx)=>{const wc=wb.addWorksheet(cat.n,{tabColor:{argb:'FF'+TC[idx%TC.length]}});[8,36,16,20].forEach((w,i)=>wc.getColumn(i+1).width=w);bs(wc,cat.n+'  —  '+p.name,4);wc.getRow(5).height=22;['#','البيان','التاريخ','المبلغ (ج)'].forEach((v,i)=>{const c=wc.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let cr=6;cat.r.forEach((e,ix)=>{wc.getRow(cr).height=21;const cs=[wc.getCell('A'+cr),wc.getCell('B'+cr),wc.getCell('C'+cr),wc.getCell('D'+cr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=e.seq||'';A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=e.description||'—';A(cs[1],'right');T(cs[1],'1A1A1A',10);cs[2].value=e.entry_date||'—';A(cs[2],'center');T(cs[2],'666666',9);cs[3].value=e.amount;A(cs[3],'left');N(cs[3]);T(cs[3],e.amount<0?RD:G1,10,true);cr++;});wc.getRow(cr).height=28;MC(wc,'A'+cr,'C'+cr);wc.getCell('A'+cr).value='إجمالي '+cat.n;F(wc.getCell('A'+cr),G1);T(wc.getCell('A'+cr),B1,11,true);A(wc.getCell('A'+cr),'right');const tD=wc.getCell('D'+cr);tD.value={formula:'SUM(D6:D'+(cr-1)+')',result:cat.t};F(tD,G1);T(tD,B1,11,true);A(tD,'left');N(tD);af(wc,cr+2,'Legacy Fine Touch  |  '+cat.n+'  |  '+p.name,4);});
 
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='عميل_'+p.name.replace(/\s+/g,'_')+'.xlsx';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
@@ -3187,8 +3189,8 @@ async function xl(){const msg=document.getElementById('emsg');
   const p=curP();if(!p)return;
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const safeSheet=n=>{let s=(n||'شيت').replace(/[:\\\/\?\*\[\]]/g,'').trim().substring(0,28);return s||'شيت';};
-  const ct=Object.entries(cm).map(([n,rs])=>({n:safeSheet(n),r:rs.map(e=>[e.entry_no||'',e.description||'—',e.entry_date||'—',e.amount,e.contractor||'']),tr:6+rs.length,t:rs.reduce((s,e)=>s+(e.amount||0),0)}));
-  const ic=pInc().map(e=>[e.entry_no||'',e.description||'دفعة',e.entry_date||'—',e.amount]);
+  const ct=Object.entries(cm).map(([n,rs])=>({n:safeSheet(n),r:rs.map(e=>[e.seq||'',e.description||'—',e.entry_date||'—',e.amount,e.contractor||'']),tr:6+rs.length,t:rs.reduce((s,e)=>s+(e.amount||0),0)}));
+  const ic=pInc().map(e=>[e.seq||'',e.description||'دفعة',e.entry_date||'—',e.amount]);
   const IT=6+ic.length,J=gJ(),M=gM();
   const G1='1D3C2A',G2='2A5C38',G5='EDF5EE',G6='F4F8F5',B1='D4C49A',B2='E8D8B0',B3='F5EDDB',B4='FAF5EC';
   const BL='1A3A5C',LB='D6E8F7',RD='922B21',PS='1E6B3A',LP='E2F5EA',DEF='6E1C1C',LD='FAE5E5',MQ='A05F1A',LM='FDE8C8';
@@ -3203,7 +3205,7 @@ async function xl(){const msg=document.getElementById('emsg');
   const bs=(w,sub,nc)=>{const lc=String.fromCharCode(64+nc);w.views=[{rightToLeft:true}];w.getRow(1).height=30;MC(w,'A1',lc+'1');const h=w.getCell('A1');h.value='Legacy Fine Touch';F(h,G1);T(h,B1,15,true);A(h,'center');w.getRow(2).height=18;MC(w,'A2',lc+'2');const t=w.getCell('A2');t.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(t,G2);T(t,B2,9,false,true);A(t,'center');w.getRow(3).height=22;MC(w,'A3',lc+'3');const s=w.getCell('A3');s.value=sub;F(s,'C8D8C0');T(s,G1,11,true);A(s,'center');w.getRow(4).height=8;MC(w,'A4',lc+'4');F(w.getCell('A4'),B4);};
   const af=(w,r,t,nc)=>{const lc=String.fromCharCode(64+nc);MC(w,'A'+r,lc+r);const f=w.getCell('A'+r);f.value=t;F(f,B3);T(f,G1,8,false,true);A(f,'center');};
   const wS=wb.addWorksheet('ملخص',{tabColor:{argb:'FF'+G1}});wS.views=[{rightToLeft:true}];[26,20,13,18].forEach((w,i)=>wS.getColumn(i+1).width=w);wS.getRow(1).height=30;MC(wS,'A1','D1');const sh=wS.getCell('A1');sh.value='Legacy Fine Touch';F(sh,G1);T(sh,B1,16,true);A(sh,'center');wS.getRow(2).height=18;MC(wS,'A2','D2');const s2=wS.getCell('A2');s2.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(s2,G2);T(s2,B2,9,false,true);A(s2,'center');wS.getRow(3).height=10;MC(wS,'A3','D3');F(wS.getCell('A3'),B4);wS.getRow(4).height=20;['المشروع','المهندس','تاريخ البدء','تاريخ التقفيل'].forEach((v,i)=>{const c=wS.getCell(4,i+1);c.value=v;F(c,G1);T(c,B1,9,true);A(c,'center');});wS.getRow(5).height=26;[p.name,'م. محمد شكري',p.start_date,p.close_date].forEach((v,i)=>{const c=wS.getCell(5,i+1);c.value=v;F(c,G5);T(c,G1,11,true);A(c,'center');const b={style:'thin',color:{argb:'FFA8C8A8'}};c.border={top:b,left:b,bottom:b,right:b};});wS.getRow(6).height=10;MC(wS,'A6','D6');F(wS.getCell('A6'),B4);wS.getRow(7).height=22;MC(wS,'A7','B7');[['A7','إجمالي الوارد',BL],['C7','إجمالي المصروفات',RD],['D7',df?'⚠ عجز':'✅ الرصيد',df?DEF:PS]].forEach(x=>{const c=wS.getCell(x[0]);c.value=x[1];F(c,x[2]);T(c,'FFFFFF',9,true);A(c,'center');});wS.getRow(8).height=46;MC(wS,'A8','B8');const eF=ct.length?ct.map(c=>"'"+c.n+"'!D"+c.tr).join('+'):'0';const k8a=wS.getCell('A8');k8a.value={formula:"'الوارد'!D"+IT,result:inc};F(k8a,LB);T(k8a,BL,18,true);A(k8a,'center');k8a.numFmt='#,##0 "ج"';const k8c=wS.getCell('C8');k8c.value={formula:eF,result:exp};F(k8c,'FAE5E5');T(k8c,RD,18,true);A(k8c,'center');k8c.numFmt='#,##0 "ج"';const k8d=wS.getCell('D8');k8d.value={formula:'A8-C8',result:inc-exp};F(k8d,df?LD:LP);T(k8d,df?DEF:PS,18,true);A(k8d,'center');k8d.numFmt='#,##0 "ج"';wS.getRow(9).height=10;MC(wS,'A9','D9');F(wS.getCell('A9'),B4);wS.getRow(10).height=28;MC(wS,'A10','D10');wS.getCell('A10').value='تفصيل المصروفات بالبنود';F(wS.getCell('A10'),G1);T(wS.getCell('A10'),B1,12,true);A(wS.getCell('A10'),'center');wS.getRow(11).height=22;['البند','إجمالي المصروف (ج)','النسبة %','ملاحظة'].forEach((v,i)=>{const c=wS.getCell(11,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let SR=12;const CR=[];ct.forEach((ct2,ix)=>{wS.getRow(SR).height=21;const ca=wS.getCell('A'+SR);ca.value=ct2.n;BD(ca);T(ca,G1,10,true);A(ca,'right');if(ix%2===0)F(ca,G6);const cb=wS.getCell('B'+SR);cb.value={formula:"'"+ct2.n+"'!D"+ct2.tr,result:ct2.t};BD(cb);A(cb,'left');T(cb,G1,10,true);N(cb);if(ix%2===0)F(cb,G6);const cc=wS.getCell('C'+SR);BD(cc);A(cc,'center');T(cc,'888888',9);if(ix%2===0)F(cc,G6);BD(wS.getCell('D'+SR));if(ix%2===0)F(wS.getCell('D'+SR),G6);CR.push(SR);SR++;});const GR=SR;wS.getRow(SR).height=28;wS.getCell('A'+SR).value='إجمالي المصروفات';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const gb=wS.getCell('B'+SR);gb.value={formula:ct.length?'SUM(B12:B'+(SR-1)+')':'0',result:exp};F(gb,G1);T(gb,B1,11,true);A(gb,'left');N(gb);wS.getCell('C'+SR).value='100%';F(wS.getCell('C'+SR),G1);T(wS.getCell('C'+SR),B2,10,true);A(wS.getCell('C'+SR),'center');F(wS.getCell('D'+SR),G1);SR++;CR.forEach((rr,i)=>{const c=wS.getCell('C'+rr);c.value={formula:'B'+rr+'/$B$'+GR,result:exp?(ct[i].t/exp):0};c.numFmt='0.0%';});wS.getRow(SR).height=26;wS.getCell('A'+SR).value='إجمالي الوارد';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const ib2=wS.getCell('B'+SR);ib2.value={formula:"'الوارد'!D"+IT,result:inc};F(ib2,G1);T(ib2,B1,11,true);A(ib2,'left');N(ib2);F(wS.getCell('C'+SR),G1);F(wS.getCell('D'+SR),G1);const IR=SR;SR++;wS.getRow(SR).height=32;const BC=df?DEF:PS;wS.getCell('A'+SR).value=df?'⚠ عجز':'✅ الرصيد المتبقي';F(wS.getCell('A'+SR),BC);T(wS.getCell('A'+SR),'FFFFFF',12,true);A(wS.getCell('A'+SR),'right');const bb=wS.getCell('B'+SR);bb.value={formula:'B'+IR+'-B'+GR,result:inc-exp};F(bb,BC);T(bb,'FFFFFF',12,true);A(bb,'left');N(bb);F(wS.getCell('C'+SR),BC);F(wS.getCell('D'+SR),BC);SR+=2;MC(wS,'A'+SR,'D'+SR);wS.getCell('A'+SR).value='Legacy Fine Touch  |  '+p.name+'  |  م. محمد شكري  |  '+(p.close_date||'');F(wS.getCell('A'+SR),B3);T(wS.getCell('A'+SR),G1,8,false,true);A(wS.getCell('A'+SR),'center');
-  const wJ=wb.addWorksheet('يومية',{tabColor:{argb:'FF6B4D1A'}});[8,14,24,15,16,13,13,16].forEach((w,i)=>wJ.getColumn(i+1).width=w);bs(wJ,'دفتر اليومية  —  '+p.name,8);wJ.getRow(5).height=22;['#','التاريخ','البيان','البند','المقاول','الوارد','المصروف','الرصيد'].forEach((v,i)=>{const c=wJ.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let jr=6;J.forEach((e,ix)=>{wJ.getRow(jr).height=21;const cs=[wJ.getCell('A'+jr),wJ.getCell('B'+jr),wJ.getCell('C'+jr),wJ.getCell('D'+jr),wJ.getCell('E'+jr),wJ.getCell('F'+jr),wJ.getCell('G'+jr),wJ.getCell('H'+jr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=e.entry_no||'';A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=e.entry_date||'—';A(cs[1],'center');T(cs[1],'666666',9);cs[2].value=e.description||'—';A(cs[2],'right');T(cs[2],'1A1A1A',10);cs[3].value=e.type==='i'?'وارد':(e.category||'—');A(cs[3],'center');T(cs[3],e.type==='i'?BL:G2,9,true);cs[4].value=e.contractor||'';A(cs[4],'center');T(cs[4],MQ,9,true);if(e.contractor)F(cs[4],LM);if(e.type==='i'){cs[5].value=e.amount;T(cs[5],BL,10,true);}A(cs[5],'left');N(cs[5]);if(e.type==='e'){cs[6].value=e.amount;T(cs[6],RD,10,true);}A(cs[6],'left');N(cs[6]);cs[7].value={formula:jr===6?'F6-G6':'H'+(jr-1)+'+F'+jr+'-G'+jr,result:e.bal};A(cs[7],'left');N(cs[7]);T(cs[7],G1,10,true);F(cs[7],LP);jr++;});if(J.length){wJ.getRow(jr).height=28;MC(wJ,'A'+jr,'E'+jr);wJ.getCell('A'+jr).value='الإجمالي';F(wJ.getCell('A'+jr),G1);T(wJ.getCell('A'+jr),B1,11,true);A(wJ.getCell('A'+jr),'right');['F','G'].forEach(col=>{const c=wJ.getCell(col+jr);c.value={formula:'SUM('+col+'6:'+col+(jr-1)+')',result:col==='F'?inc:exp};F(c,G1);T(c,B1,11,true);A(c,'left');N(c);});const th=wJ.getCell('H'+jr);th.value={formula:'F'+jr+'-G'+jr,result:inc-exp};F(th,G1);T(th,B1,11,true);A(th,'left');N(th);jr++;}af(wJ,jr+1,'Legacy Fine Touch  |  يومية  |  '+p.name,8);
+  const wJ=wb.addWorksheet('يومية',{tabColor:{argb:'FF6B4D1A'}});[8,14,24,15,16,13,13,16].forEach((w,i)=>wJ.getColumn(i+1).width=w);bs(wJ,'دفتر اليومية  —  '+p.name,8);wJ.getRow(5).height=22;['#','التاريخ','البيان','البند','المقاول','الوارد','المصروف','الرصيد'].forEach((v,i)=>{const c=wJ.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let jr=6;J.forEach((e,ix)=>{wJ.getRow(jr).height=21;const cs=[wJ.getCell('A'+jr),wJ.getCell('B'+jr),wJ.getCell('C'+jr),wJ.getCell('D'+jr),wJ.getCell('E'+jr),wJ.getCell('F'+jr),wJ.getCell('G'+jr),wJ.getCell('H'+jr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=e.seq||'';A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=e.entry_date||'—';A(cs[1],'center');T(cs[1],'666666',9);cs[2].value=e.description||'—';A(cs[2],'right');T(cs[2],'1A1A1A',10);cs[3].value=e.type==='i'?'وارد':(e.category||'—');A(cs[3],'center');T(cs[3],e.type==='i'?BL:G2,9,true);cs[4].value=e.contractor||'';A(cs[4],'center');T(cs[4],MQ,9,true);if(e.contractor)F(cs[4],LM);if(e.type==='i'){cs[5].value=e.amount;T(cs[5],BL,10,true);}A(cs[5],'left');N(cs[5]);if(e.type==='e'){cs[6].value=e.amount;T(cs[6],RD,10,true);}A(cs[6],'left');N(cs[6]);cs[7].value={formula:jr===6?'F6-G6':'H'+(jr-1)+'+F'+jr+'-G'+jr,result:e.bal};A(cs[7],'left');N(cs[7]);T(cs[7],G1,10,true);F(cs[7],LP);jr++;});if(J.length){wJ.getRow(jr).height=28;MC(wJ,'A'+jr,'E'+jr);wJ.getCell('A'+jr).value='الإجمالي';F(wJ.getCell('A'+jr),G1);T(wJ.getCell('A'+jr),B1,11,true);A(wJ.getCell('A'+jr),'right');['F','G'].forEach(col=>{const c=wJ.getCell(col+jr);c.value={formula:'SUM('+col+'6:'+col+(jr-1)+')',result:col==='F'?inc:exp};F(c,G1);T(c,B1,11,true);A(c,'left');N(c);});const th=wJ.getCell('H'+jr);th.value={formula:'F'+jr+'-G'+jr,result:inc-exp};F(th,G1);T(th,B1,11,true);A(th,'left');N(th);jr++;}af(wJ,jr+1,'Legacy Fine Touch  |  يومية  |  '+p.name,8);
   if(M.length){const wM=wb.addWorksheet('المقاولين',{tabColor:{argb:'FF'+MQ}});[22,30,13,18,15].forEach((w,i)=>wM.getColumn(i+1).width=w);bs(wM,'حساب المقاولين  —  '+p.name,5);wM.getRow(5).height=22;['المقاول','البنود','عدد الدفعات','الإجمالي (ج)','آخر دفعة'].forEach((v,i)=>{const c=wM.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let mr=6;M.forEach((m,ix)=>{wM.getRow(mr).height=22;const cs=[wM.getCell('A'+mr),wM.getCell('B'+mr),wM.getCell('C'+mr),wM.getCell('D'+mr),wM.getCell('E'+mr)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,LM);});cs[0].value=m.n;A(cs[0],'right');T(cs[0],MQ,11,true);cs[1].value=m.ca.join(' · ');A(cs[1],'right');T(cs[1],'444444',10);cs[2].value=m.cnt;A(cs[2],'center');cs[3].value=m.t;A(cs[3],'left');N(cs[3]);T(cs[3],G1,11,true);cs[4].value=m.last||'—';A(cs[4],'center');T(cs[4],'666666',9);mr++;});wM.getRow(mr).height=28;MC(wM,'A'+mr,'C'+mr);wM.getCell('A'+mr).value='إجمالي المسحوب';F(wM.getCell('A'+mr),G1);T(wM.getCell('A'+mr),B1,11,true);A(wM.getCell('A'+mr),'right');const md=wM.getCell('D'+mr);md.value={formula:'SUM(D6:D'+(mr-1)+')',result:M.reduce((a,b)=>a+b.t,0)};F(md,G1);T(md,B1,11,true);A(md,'left');N(md);F(wM.getCell('E'+mr),G1);af(wM,mr+2,'Legacy Fine Touch  |  المقاولين  |  '+p.name,5);}
   const wI=wb.addWorksheet('الوارد',{tabColor:{argb:'FF2A5C38'}});[8,32,16,20].forEach((w,i)=>wI.getColumn(i+1).width=w);bs(wI,'حركة الوارد  —  '+p.name,4);wI.getRow(5).height=22;['#','البيان','التاريخ','المبلغ (ج)'].forEach((v,i)=>{const c=wI.getCell(5,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let ir=6;ic.forEach((row,ix)=>{wI.getRow(ir).height=21;const cs=[wI.getCell('A'+ir),wI.getCell('B'+ir),wI.getCell('C'+ir),wI.getCell('D'+ir)];cs.forEach(c=>{BD(c);if(ix%2===0)F(c,G6);});cs[0].value=row[0];A(cs[0],'center');T(cs[0],G1,9,true);cs[1].value=row[1];A(cs[1],'right');T(cs[1],'1A1A1A',10);cs[2].value=row[2];A(cs[2],'center');T(cs[2],'666666',9);cs[3].value=row[3];A(cs[3],'left');N(cs[3]);T(cs[3],BL,10,true);ir++;});wI.getRow(ir).height=28;MC(wI,'A'+ir,'C'+ir);wI.getCell('A'+ir).value='الإجمالي';F(wI.getCell('A'+ir),G1);T(wI.getCell('A'+ir),B1,11,true);A(wI.getCell('A'+ir),'right');const iD=wI.getCell('D'+ir);iD.value={formula:ic.length?'SUM(D6:D'+(ir-1)+')':'0',result:inc};F(iD,G1);T(iD,B1,11,true);A(iD,'left');N(iD);af(wI,ir+2,'Legacy Fine Touch  |  الوارد  |  '+p.name,4);
   const TC=['1D5C3A','1E6B4A','235E3F','1A7050','2A6B45','0D5C3A','326050','254840'];
@@ -4089,7 +4091,7 @@ async function downloadDashPDF(){try{
     const proj=allProjectsMap[e.project_id];
     const color=e.type==='i'?'var(--primary-btn)':'var(--danger)';
     return `<tr>
-      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
       <td>${cleanDate(e.entry_date)}</td>
       <td style="color:${color};font-weight:700">${e.type==='i'?'وارد':'مصروف'}</td>
       <td>${e.category||'—'}</td>
@@ -4213,7 +4215,7 @@ async function downloadAdvPDF(){
       const proj=allProjectsMap[e.project_id];
       return `<tr>
         <td style="text-align:center;color:#888">${i+1}</td>
-        <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+        <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
         <td style="font-size:10px">${cleanDate(e.entry_date)}</td>
         <td style="font-weight:700;color:#922B21">${e.category||'—'}</td>
         <td style="color:#555">${e.description||'—'}</td>
@@ -4858,7 +4860,7 @@ async function repExportPDF(){
     const etLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
     const et=e.entry_type?`<span style="font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;background:${e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':'var(--warning-pale)'};color:${e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':'var(--warning-dark)'}">${etLbl[e.entry_type]}</span> `:'';
     const creator=e.created_by?(profileMap[e.created_by]||'—'):'غير مسجل';
-    return `<tr><td class="rep-table-num">${i+1}</td><td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td><td style="font-size:10px">${cleanDate(e.entry_date)}</td><td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${isI?'var(--success-pale)':'var(--danger-pale)'};color:${c}">${isI?'▲ وارد':'▼ مصروف'}</span></td><td style="font-size:10px;color:#555">${proj?.name||''}</td><td style="font-weight:600">${e.category||'—'}</td><td style="color:#555">${et}${e.description||''}</td><td style="font-size:10px;color:#555">${e.contractor||'—'}</td><td class="rep-creator-cell">${creator}</td><td style="color:${c};font-weight:700;white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td></tr>`;
+    return `<tr><td class="rep-table-num">${i+1}</td><td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td><td style="font-size:10px">${cleanDate(e.entry_date)}</td><td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${isI?'var(--success-pale)':'var(--danger-pale)'};color:${c}">${isI?'▲ وارد':'▼ مصروف'}</span></td><td style="font-size:10px;color:#555">${proj?.name||''}</td><td style="font-weight:600">${e.category||'—'}</td><td style="color:#555">${et}${e.description||''}</td><td style="font-size:10px;color:#555">${e.contractor||'—'}</td><td class="rep-creator-cell">${creator}</td><td style="color:${c};font-weight:700;white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td></tr>`;
   }).join('');
   // ملخص المقاولين
   const mqMap={};
@@ -4902,7 +4904,7 @@ function repAdvExportPDF(){
     const proj=allProjectsMap[e.project_id];
     return `<tr>
       <td class="rep-table-num">${i+1}</td>
-      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
       <td>${cleanDate(e.entry_date)||'—'}</td>
       <td>${e.category||'—'}</td>
       <td>${e.description||'—'}</td>
@@ -4994,7 +4996,7 @@ function contractorExportPDF(){
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
-    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
     <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
     <td>${e.category||'—'}</td>
@@ -5099,7 +5101,7 @@ function clientExportPDF(){
   const chartImg=canvas?`<div class="chart-wrap"><img src="${canvas.toDataURL('image/png')}"></div>`:'';
   const rows=d.filtered.map((e,i)=>`<tr>
     <td class="rep-table-num">${i+1}</td>
-    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
     <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
     <td>${e.description||'—'}</td>
@@ -5297,7 +5299,7 @@ function mqPrintReport(idx){
   const trs=rows.map((e,i)=>`
     <tr>
       <td style="text-align:center;color:#888">${i+1}</td>
-      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.entry_no||'—'}</td>
+      <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
       <td style="text-align:center">${e.entry_date||'—'}</td>
       <td>${e.entry_type?etLbl[e.entry_type]||'—':'—'}</td>
       <td>${e.category||'—'}</td>
@@ -5352,8 +5354,8 @@ async function saveMqPay(){
   // جيب آخر seq من Supabase مباشرة عشان نضمن التفرد
   let nextSeq=20260001;
   try{
-    const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
-    const lastSeq=last&&last.length?Number(last[0].entry_no||20260000):20260000;
+    const last=await sb('entries?select=seq&order=seq.desc&limit=1');
+    const lastSeq=last&&last.length?Number(last[0].seq||20260000):20260000;
     nextSeq=lastSeq<20260000?20260001:lastSeq+1;
   }catch(e){console.error(e);}
   const entry={id:uid_(),project_id:curPid,type:'e',amount:a,description:desc||'دفعة',entry_date:dt,category:cat,contractor:_mqName,entry_type:etype,seq:uRole==='admin'?nextSeq:0,created_by:uid};
@@ -5769,7 +5771,7 @@ function buildSearchCard(e,idx,total,projMap,profMap){
   const descVal=(e.description||'').replace(/"/g,'&quot;');
   return '<div id="sc-'+e.id+'" class="search-card-header">'+
     '<div class="search-card-type-badge">'+
-      '<div><div class="mq-card-name">قيد رقم '+(e.entry_no||'?')+' — '+projName+'</div>'+
+      '<div><div class="mq-card-name">قيد رقم '+(e.seq||'?')+' — '+projName+'</div>'+
       '<div class="search-card-amount">✍️ أدخله: '+creator+'</div></div>'+
       '<span class="search-card-meta">'+(isInc?'⬆ وارد':'⬇ مصروف')+'</span>'+
     '</div>'+
@@ -6138,8 +6140,8 @@ async function confirmEditApprove(id){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
     const r=rows[0];
-    const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
-    let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
+    const last=await sb('entries?select=seq&order=seq.desc&limit=1');
+    let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
     if(nextSeq<20260000)nextSeq=20260000;
     nextSeq++;
     const entry={
@@ -6175,8 +6177,8 @@ async function approveEntry(id,silent=false){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    const last=await sb('entries?select=entry_no&order=entry_no.desc&limit=1');
-    let nextSeq=(last&&last.length?Number(last[0].entry_no||20260000):20260000);
+    const last=await sb('entries?select=seq&order=seq.desc&limit=1');
+    let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
     if(nextSeq<20260000)nextSeq=20260000;
     nextSeq++;
     const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,seq:nextSeq,created_by:r.submitted_by};
