@@ -949,6 +949,10 @@
               </div>
               <div><label>📅 من</label><input type="text" id="rContrFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
               <div><label>📅 لحد</label><input type="text" id="rContrTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+                <input type="checkbox" id="rContrIncArchived" style="width:16px;height:16px;cursor:pointer">
+                <label for="rContrIncArchived" style="font-size:12px;cursor:pointer;color:var(--text-main)">تضمين المشاريع المؤرشفة</label>
+              </div>
               <div class="rep-filter-row">
                 <button class="filter-btn" onclick="runContractorReport()">🔍 عرض</button>
                 <button class="filter-btn sec" onclick="clearContractorReport()">✕ مسح</button>

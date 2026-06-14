@@ -4935,11 +4935,20 @@ function runContractorReport(){
   const mq=document.getElementById('rContrSel').value;
   const fromStr=document.getElementById('rContrFrom').value;
   const toStr=document.getElementById('rContrTo').value;
+  const incArchived=document.getElementById('rContrIncArchived')?.checked||false;
   const el=document.getElementById('repContractorResult');
   if(!mq){el.innerHTML='<div class="rep-empty">اختار مقاول الأول</div>';return;}
   const from=fromStr?parseDt(fromStr):null;
   const to=toStr?(()=>{const d=parseDt(toStr);if(d)d.setHours(23,59,59,999);return d;})():null;
-  let filtered=allEntries.filter(e=>e.type==='e'&&(mq==='__ALL__'?e.contractor:e.contractor===mq));
+  let filtered=allEntries.filter(e=>{
+    if(e.type!=='e')return false;
+    if(mq==='__ALL__'?!e.contractor:e.contractor!==mq)return false;
+    if(!incArchived){
+      const proj=allProjectsMap[e.project_id];
+      if(proj&&proj.archived)return false;
+    }
+    return true;
+  });
   if(from)filtered=filtered.filter(e=>{const d=parseDt(e.entry_date);return d&&d>=from;});
   if(to)filtered=filtered.filter(e=>{const d=parseDt(e.entry_date);return d&&d<=to;});
   filtered.sort((a,b)=>(parseDt(a.entry_date)||0)-(parseDt(b.entry_date)||0));
