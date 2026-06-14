@@ -6465,7 +6465,7 @@ function setupNotifRealtime(){
       async(payload)=>{
         window._rtOk=true;
         updatePendingBadge();
-        loadApprovals();
+        if(curScreen==='approvals')loadApprovals(true);
         if(curScreen==='dash')loadDashboard();
         if(uRole==='admin'&&payload.eventType==='INSERT'){
           const r=payload.new;
@@ -6480,7 +6480,7 @@ function setupNotifRealtime(){
       async(payload)=>{
         window._rtOk=true;
         updatePendingBadge();
-        loadApprovals();
+        if(curScreen==='approvals')loadApprovals(true);
         if(curScreen==='dash')loadDashboard();
         if(uRole==='admin'&&payload.eventType==='INSERT'){
           const r=payload.new;
