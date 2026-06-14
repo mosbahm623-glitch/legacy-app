@@ -119,7 +119,15 @@ function setLS(m,c){const el=document.getElementById('lst');el.textContent=m;el.
 function fn(n){return Number(n||0).toLocaleString('en-US');}
 function uid_(){return Date.now()+'-'+Math.random().toString(36).substr(2,5);}
 function ts(){const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
-function fd(d){if(!d)return'';if(d.includes('/'))return d;const p=d.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;}
+function fd(d){
+  if(!d)return'';
+  if(d.includes('/')&&/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d.trim()))return d.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d.trim())){const p=d.trim().split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  // Full date string like "Wed Jun 03 2026 03:00:00..."
+  const dt=new Date(d);
+  if(!isNaN(dt))return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
+  return d;
+}
 
 // ===== DATE PICKER =====
 (function(){
