@@ -5015,10 +5015,11 @@ function contractorExportPDF(){
         <td class="amt neg">▼ ${fn(e.amount)} ج</td>
       </tr>`;
     }).join('');
-    const subtotal=`<tr style="background:#f5f5f3;font-weight:700">
-      <td colspan="6" style="text-align:right;padding:6px 8px;color:#1D3C2A">إجمالي ${g.name}</td>
-      <td class="amt neg" style="font-weight:700">▼ ${fn(g.total)} ج</td>
-    </tr>`;
+    const subtotal=`<tr style="background:#1D3C2A;font-weight:700">
+      <td colspan="6" style="text-align:right;padding:8px 10px;color:#D4C49A;font-size:12px">إجمالي ${g.name}</td>
+      <td style="color:#D4C49A;font-weight:700;font-size:12px;padding:8px 6px">▼ ${fn(g.total)} ج</td>
+    </tr>
+    <tr style="height:6px"><td colspan="7"></td></tr>`;
     return entryRows+subtotal;
   }).join('');
   const html=_pdfOpen('تقرير المقاول — '+d.mq)+
