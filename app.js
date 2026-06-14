@@ -5986,7 +5986,7 @@ async function loadApprovals(silent=false){
             ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
             ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
             <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
-            <span class="appr-meta-text">📅 ${r.entry_date||'—'}</span> &nbsp;
+            <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span> &nbsp;
             <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
