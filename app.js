@@ -5015,9 +5015,9 @@ function contractorExportPDF(){
         <td class="amt neg">▼ ${fn(e.amount)} ج</td>
       </tr>`;
     }).join('');
-    const subtotal=`<tr style="background:#1D3C2A;font-weight:700">
-      <td colspan="6" style="text-align:right;padding:8px 10px;color:#D4C49A;font-size:12px">إجمالي ${g.name}</td>
-      <td style="color:#D4C49A;font-weight:700;font-size:12px;padding:8px 6px">▼ ${fn(g.total)} ج</td>
+    const subtotal=`<tr style="background:#1D3C2A !important;font-weight:700">
+      <td colspan="6" style="text-align:right;padding:8px 10px;color:#D4C49A !important;font-size:12px;background:#1D3C2A !important">إجمالي ${g.name}</td>
+      <td style="color:#D4C49A !important;font-weight:700;font-size:12px;padding:8px 6px;background:#1D3C2A !important">▼ ${fn(g.total)} ج</td>
     </tr>
     <tr style="height:6px"><td colspan="7"></td></tr>`;
     return entryRows+subtotal;
