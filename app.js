@@ -5031,7 +5031,7 @@ function contractorExportPDF(){
     ${chartImg}
     <div class="sec-ttl">📒 تفاصيل المصروفات</div>
     <table>
-      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr style="background:#1D3C2A"><th style="color:#D4C49A !important">#</th><th style="color:#D4C49A !important">رقم القيد</th><th style="color:#D4C49A !important">التاريخ</th><th style="color:#D4C49A !important">المشروع</th><th style="color:#D4C49A !important">البند</th><th style="color:#D4C49A !important">البيان</th><th style="color:#D4C49A !important">المبلغ</th></tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr><td colspan="6">الإجمالي الكلي</td><td class="amt neg">▼ ${fn(d.total)} ج</td></tr></tfoot>
     </table>`+
