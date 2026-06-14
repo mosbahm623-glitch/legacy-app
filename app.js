@@ -2881,7 +2881,7 @@ async function doAdvIm(){
       const pids=[...new Set(ents.map(e=>e.project_id))];
       const seqBase={};
       await Promise.all(pids.map(async pid=>{
-        try{const r=await sb('entries?project_id=eq.'+pid+'&select=seq&order=seq.desc&limit=1');seqBase[pid]=r.length?(r[0].entry_no||0):0;}
+        try{const r=await sb('entries?project_id=eq.'+pid+'&select=seq&order=seq.desc&limit=1');seqBase[pid]=r.length?(r[0].seq||0):0;}
         catch(e){seqBase[pid]=0;}
       }));
       const counter={};
@@ -5703,7 +5703,7 @@ async function searchBySeq(){
   div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
   try{
     const selPid=document.getElementById('srch-proj-filter').value;
-    let data=await sb('entries?or=(seq.eq.'+seq+',entry_no.eq.'+seq+')&order=created_at');
+    let data=await sb('entries?seq.eq.'+seq+'&order=created_at');
     if(selPid)data=data.filter(e=>e.project_id===selPid);
     if(!data||!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
