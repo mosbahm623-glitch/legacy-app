@@ -2868,7 +2868,40 @@ async function loadAdvDetail(silent=false){
     }else{
       var projMap={};
       allProjects.forEach(p=>{projMap[p.id]=p.name;});
-      const approvedHtml=advEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';var mq=e2.contractor?`<span class='qb'>${e2.contractor}</span>`:'';var isAdvLocked=uRole!=='admin'&&installs.length>0;var canEditAdv=!isAdvLocked&&(uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid));var db2=isAdvLocked&&uRole!=='admin'?`<button class="db" onclick="notify('العهدة مقفولة — تواصل مع الأدمن','warn')" style="opacity:.5;cursor:not-allowed">🔒</button>`:canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';var seqBadge=e2.seq?`<span class='nb'>#${e2.seq}</span>`:'';return `<div class='rw'><div class='ri'><div class='rd'>${seqBadge}${mq}${e2.description||'&mdash;'}</div><div class='rm'>${pName} &middot; ${e2.category} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center;gap:3px'><div class='ra neg'>${fn(e2.amount)} ج</div>${db2}</div></div>`;}).join('');
+      const approvedHtml=(()=>{
+        if(!advEntries.length) return '';
+        return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#1D3C2A">
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">#</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">رقم القيد</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px;white-space:nowrap">التاريخ</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">المشروع</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">البند</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">البيان</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">المقاول</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px;white-space:nowrap">المبلغ</th>
+            <th></th>
+          </tr></thead>
+          <tbody>${advEntries.map((e2,i)=>{
+            const pName=projMap[e2.project_id]||'—';
+            const isAdvLocked=uRole!=='admin'&&installs.length>0;
+            const canEditAdv=!isAdvLocked&&(uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid));
+            const btns=isAdvLocked&&uRole!=='admin'?`<button class="db" onclick="notify('العهدة مقفولة','warn')" style="opacity:.5">🔒</button>`:canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';
+            const rowBg=i%2===0?'#fff':'#f7f7f5';
+            return `<tr style="background:${rowBg};border-bottom:0.5px solid #eee" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+              <td style="padding:7px 10px;color:#aaa;font-size:11px">${i+1}</td>
+              <td style="padding:7px 10px">${e2.seq?`<span class="nb">#${e2.seq}</span>`:'—'}</td>
+              <td style="padding:7px 10px;color:#888;font-size:11px;white-space:nowrap">${cleanDate(e2.entry_date)||'—'}</td>
+              <td style="padding:7px 10px;color:#555;font-size:11px">${pName}</td>
+              <td style="padding:7px 10px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${e2.category||'—'}</span></td>
+              <td style="padding:7px 10px;color:#333">${e2.description||'—'}</td>
+              <td style="padding:7px 10px;color:#888;font-size:11px">${e2.contractor||'—'}</td>
+              <td style="padding:7px 10px;font-weight:500;color:#C0392B;white-space:nowrap">▼ ${fn(e2.amount)} ج</td>
+              <td style="padding:4px 6px;white-space:nowrap">${btns}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>`;
+      })();
       const pendingHtml=pendingAdvEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;}).join('');
       const totalEntries=advEntries.length+pendingAdvEntries.length;
       ae.innerHTML=approvedHtml+pendingHtml;
