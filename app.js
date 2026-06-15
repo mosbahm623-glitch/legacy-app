@@ -6099,6 +6099,7 @@ async function loadApprovals(silent=false){
             <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
             <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
             <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
+            <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">📋 طلب فاتورة</button>
           </div>
         </div>`;
       }).join('');
@@ -6220,6 +6221,38 @@ async function confirmEditApprove(id){
     updatePendingBadge();
     loadApprovals();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function requestInvoice(id,desc,cat,date,amount,proj,contractor){
+  const msg=`السلام عليكم،\nبرجاء إرسال فاتورة للبند التالي:\n\n📋 البيان: ${desc||'—'}\n🏷️ البند: ${cat||'—'}\n🏗️ المشروع: ${proj||'—'}\n💰 المبلغ: ${fn(amount)} ج\n📅 التاريخ: ${cleanDate(date)||'—'}${contractor?'\n👷 المقاول: '+contractor:''}\n\nشكراً`;
+  // عرض modal مع الرسالة
+  const ex=document.getElementById('_invReqModal');if(ex)ex.remove();
+  const ov=document.createElement('div');
+  ov.id='_invReqModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<div class="modal-box" style="max-width:400px;width:100%">
+    <div style="text-align:center;margin-bottom:14px"><div style="font-size:28px">📋</div><div class="title-md">طلب فاتورة</div></div>
+    <textarea id="_invReqTxt" style="width:100%;height:180px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-faint);color:var(--text-main);font-family:inherit;font-size:13px;resize:none;direction:rtl;line-height:1.7">${msg}</textarea>
+    <div class="modal-btns" style="margin-top:12px">
+      <button onclick="copyInvReq()" class="btn-primary">📋 نسخ الرسالة</button>
+      <button onclick="document.getElementById('_invReqModal').remove()" class="btn-cancel">إغلاق</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+function copyInvReq(){
+  const txt=document.getElementById('_invReqTxt');
+  if(!txt)return;
+  navigator.clipboard.writeText(txt.value).then(()=>{
+    notify('✅ تم نسخ الرسالة','ok');
+    document.getElementById('_invReqModal')?.remove();
+  }).catch(()=>{
+    txt.select();
+    document.execCommand('copy');
+    notify('✅ تم نسخ الرسالة','ok');
+    document.getElementById('_invReqModal')?.remove();
+  });
 }
 
 async function approveEntry(id,silent=false){
