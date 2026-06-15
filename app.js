@@ -1101,6 +1101,7 @@ async function renameMq(oldName){
 async function loadDashboard(){
 // ██ DASHBOARD ══════════════════════════════════════
   try{
+    setSav('⏳ جاري تحميل الداشبورد...','ng');
     loadNotes();
     // Welcome
     const nameEl=document.getElementById('dWelcomeName');
@@ -2710,6 +2711,7 @@ function re(){
 
 // ADVANCES
 async function loadAdvList(){
+  setSav('⏳ جاري تحميل العهد...','ng');
   // Populate user selector (admin only)
   if(uRole==='admin'){
     const sel=document.getElementById('advUserSel');
@@ -3228,6 +3230,7 @@ function backToAdvList(){
 
 // ADMIN
 async function loadAdminPanel(){
+  setSav('⏳ جاري تحميل لوحة الإدارة...','ng');
   try{
     const allP=await sb('profiles?order=created_at');
     const allA=await sb('project_access');
