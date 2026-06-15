@@ -1280,7 +1280,7 @@ async function loadDashboard(){
         </div>`;
       }).join(''):'<div class="d-empty">لا يوجد وارد في آخر 30 يوم</div>';
     }
-
+    setSav('☁️ متصل — بياناتك محفوظة','ok');
   }catch(e){setSav('❌ '+friendlyError(e),'er');console.error('Dashboard error:',e);}
 }
 
