@@ -1923,14 +1923,8 @@ function renderDuesTab(el){
     </div>`;
 
   if(canEdit){
-    html+=`<div class="ef" style="margin-bottom:12px">
-      <div class="ig">
-        <input id="dueContr" placeholder="اسم المقاول" class="input-full">
-        <input id="dueAmt" type="number" placeholder="المبلغ (ج)" step="any">
-        <input id="dueDesc" placeholder="البيان" class="input-full">
-        <input id="dueDate" placeholder="📅 التاريخ dd/mm/yyyy" class="input-full" maxlength="10" autocomplete="off">
-      </div>
-      <button class="save-btn" onclick="addDue()" style="margin-top:8px;width:100%">+ إضافة مستحق</button>
+    html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button onclick="showAddDueForm()" class="gsm">+ إضافة مستحق</button>
     </div>`;
   }
 
@@ -1974,6 +1968,30 @@ function renderDuesTab(el){
   if(dtEl)initDateInput(dtEl);
 }
 
+function showAddDueForm(){
+  const ex=document.getElementById('_addDueModal');if(ex)ex.remove();
+  const ov=document.createElement('div');
+  ov.id='_addDueModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<div class="modal-box" style="max-width:360px;width:100%">
+    <div style="text-align:center;margin-bottom:14px"><div style="font-size:26px">💰</div><div class="title-md">إضافة مستحق</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="dueContr" placeholder="اسم المقاول" class="inp-lg">
+      <input id="dueAmt" type="number" placeholder="المبلغ (ج)" step="any" class="inp-lg">
+      <input id="dueDesc" placeholder="البيان" class="inp-lg">
+      <input id="dueDate" placeholder="📅 التاريخ dd/mm/yyyy" class="inp-lg" maxlength="10" autocomplete="off">
+    </div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button onclick="addDue()" class="btn-primary">+ إضافة</button>
+      <button onclick="document.getElementById('_addDueModal').remove()" class="btn-cancel">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  setTimeout(()=>{const el=document.getElementById('dueDate');if(el)initDateInput(el);},100);
+  setTimeout(()=>document.getElementById('dueContr')?.focus(),150);
+}
+
 async function addDue(){
   const contractor=document.getElementById('dueContr')?.value?.trim();
   const amount=parseFloat(document.getElementById('dueAmt')?.value);
@@ -1993,6 +2011,7 @@ async function addDue(){
     });
     _duesList.unshift(res[0]);
     notify('✅ تم الإضافة','ok');
+    document.getElementById('_addDueModal')?.remove();
     renderDuesTab(document.getElementById('ent'));
   }catch(e){notify('❌ '+friendlyError(e),'er');}
 }
