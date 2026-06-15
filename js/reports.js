@@ -907,9 +907,9 @@ function clientExportPDF(){
     ${chartImg}
     <div class="sec-ttl">📒 تفاصيل المدفوعات</div>
     <table>
-      <thead><tr><th>#</th><th>التاريخ</th><th>المشروع</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البيان</th><th>المبلغ</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="4">الإجمالي</td><td class="amt pos">▲ ${fn(d.total)} ج</td></tr></tfoot>
+      <tfoot><tr><td colspan="5">الإجمالي</td><td class="amt pos">▲ ${fn(d.total)} ج</td></tr></tfoot>
     </table>`+
     _pdfFooter()+_pdfClose();
   openPrintWindow(html);
