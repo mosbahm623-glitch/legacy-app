@@ -2519,7 +2519,7 @@ function re(){
   const el=document.getElementById('ent');
   const canEdit=uRole!=='viewer'&&uRole!=='owner';
   if(cTab==='s'){
-    const cs={};pExp().forEach(e=>{cs[e.category]=(cs[e.category]||0)+e.amount;});
+    const cs={};pExp().forEach(e=>{const cat=e.category||'بدون بند';cs[cat]=(cs[cat]||0)+e.amount;});
     const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
     const tt=ls.reduce((s,c)=>s+c[1],0);
     if(!ls.length){el.innerHTML='<div class="emp">لا توجد بيانات</div>';return;}
