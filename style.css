@@ -609,7 +609,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .tab.jr{background:var(--accent-sand);color:var(--accent-dark)}.tab.jr.on{background:var(--accent-dark);color:#fff}
 .tab.mq{background:var(--accent-cream);color:var(--accent-brown)}.tab.mq.on{background:var(--accent-brown);color:#fff}
 .tab.ad{background:var(--purple-tint);color:var(--purple-dark)}.tab.ad.on{background:var(--purple-dark);color:#fff}
-.ent{max-height:280px;overflow-y:auto;background:#fff}
+.ent{max-height:280px;overflow-y:auto;overflow-x:hidden;background:#fff}
 .rw{padding:9px 12px;border-bottom:1px solid var(--bg-neutral);display:flex;justify-content:space-between;align-items:center;gap:7px}
 .rw.clk{cursor:pointer}.rw.clk:hover{background:var(--bg-soft)}
 .ri{flex:1;min-width:0}
@@ -2223,6 +2223,15 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 
 /* ══ MOBILE ENTRY CARDS ══ */
 @media(max-width:767px){
+  /* تثبيت الجدول على الموبايل */
+  #ent table{table-layout:fixed;width:100% !important;}
+  #ent table th:nth-child(1),
+  #ent table td:nth-child(1){width:30px;}
+  #ent table th:nth-child(2),
+  #ent table td:nth-child(2){display:none;}
+  #ent table th:nth-child(6),
+  #ent table td:nth-child(6){display:none;}
+  #ent table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
   #ent .rw{
     display:block !important;
     padding:12px 14px !important;
