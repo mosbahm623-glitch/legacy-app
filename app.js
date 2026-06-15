@@ -1937,23 +1937,36 @@ function renderDuesTab(el){
   if(!_duesList.length){
     html+='<div class="emp">لا توجد مستحقات</div>';
   } else {
-    html+='<div class="entries-list">';
-    _duesList.forEach(d=>{
-      const isPaid=d.status==='paid';
-      html+=`<div class="rw" style="opacity:${isPaid?0.6:1}">
-        <div class="ri">
-          <div class="rd" style="font-weight:700">${d.contractor}</div>
-          <div class="rm" style="color:#888;font-size:11px">${d.description||'—'} ${d.due_date?'· '+d.due_date:''}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="ra" style="color:${isPaid?'var(--success)':'var(--danger)'}">${isPaid?'✅':'▼'} ${fn(d.amount)} ج</div>
-          ${canEdit?`<button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'var(--danger)':'var(--success)'};background:transparent;color:${isPaid?'var(--danger)':'var(--success)'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
-          <button onclick="editDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #aaa;background:transparent;color:#555;cursor:pointer">✏️ تعديل</button>
-          <button onclick="deleteDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>`:''}
-        </div>
-      </div>`;
-    });
-    html+='</div>';
+    html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#1D3C2A">
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البيان</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">التاريخ</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">المبلغ</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">الحالة</th>
+        ${canEdit?'<th style="color:#D4C49A;padding:8px 10px"></th>':''}
+      </tr></thead>
+      <tbody>
+      ${_duesList.map((d,i)=>{
+        const isPaid=d.status==='paid';
+        const rowBg=i%2===0?'#fff':'#f7f7f5';
+        return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;opacity:${isPaid?0.7:1}" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+          <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
+          <td style="padding:7px 10px;font-weight:500;color:#222">${d.contractor||'—'}</td>
+          <td style="padding:7px 10px;color:#555">${d.description||'—'}</td>
+          <td style="padding:7px 10px;color:#888;font-size:11px;white-space:nowrap">${d.due_date||'—'}</td>
+          <td style="padding:7px 10px;font-weight:500;color:${isPaid?'#27AE60':'#E74C3C'};white-space:nowrap">${isPaid?'✅':' ▼'} ${fn(d.amount)} ج</td>
+          <td style="padding:7px 10px"><span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${isPaid?'#e8f8f0':'#fef0f0'};color:${isPaid?'#27AE60':'#E74C3C'}">${isPaid?'مدفوع':'غير مدفوع'}</span></td>
+          ${canEdit?`<td style="padding:4px 8px;white-space:nowrap">
+            <button onclick="toggleDue('${d.id}','${isPaid?'unpaid':'paid'}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ${isPaid?'#E74C3C':'#27AE60'};background:transparent;color:${isPaid?'#E74C3C':'#27AE60'};cursor:pointer">${isPaid?'إلغاء':'✅ دفع'}</button>
+            <button onclick="editDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #aaa;background:transparent;color:#555;cursor:pointer">✏️</button>
+            <button onclick="deleteDue('${d.id}')" style="font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid #ccc;background:transparent;color:#999;cursor:pointer">🗑</button>
+          </td>`:''}
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>`;
   }
   el.innerHTML=html;
   // تفعيل date picker على حقل التاريخ
