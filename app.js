@@ -476,7 +476,8 @@ async function initApp(){
   document.getElementById('fab').style.display=canEdit?'block':'none';
   document.getElementById('idt').value=ts();
   if(uRole==='viewer')document.getElementById('idt').setAttribute('readonly','readonly');
-  document.getElementById('advEntDate').value=ts();
+  const advEntDateEl=document.getElementById('advEntDate');
+  if(advEntDateEl)advEntDateEl.value=ts();
 
   // أولاً: أظهر كل عناصر السيدبار للجميع
   ['sbi-dash','sbi-proj-hdr','sbi-daily'].forEach(id=>{
@@ -2781,17 +2782,19 @@ async function openAdv(id){try{
   document.getElementById('advEntryFormDiv').style.display=(canEdit||viewerCanAdd)?'block':'none';
   // Viewer: lock date to today
   const dateField=document.getElementById('advEntDate');
-  if(viewerCanAdd){
-    const today=new Date().toISOString().split('T')[0];
-    dateField.value=today;
-    dateField.setAttribute('readonly','readonly');
-    dateField.style.background='var(--bg-light)';
-    dateField.style.color='var(--text-hint)';
-    dateField.title='التاريخ ثابت - اليوم فقط';
-  } else {
-    dateField.removeAttribute('readonly');
-    dateField.style.background='';
-    dateField.style.color='';
+  if(dateField){
+    if(viewerCanAdd){
+      const today=new Date().toISOString().split('T')[0];
+      dateField.value=today;
+      dateField.setAttribute('readonly','readonly');
+      dateField.style.background='var(--bg-light)';
+      dateField.style.color='var(--text-hint)';
+      dateField.title='التاريخ ثابت - اليوم فقط';
+    } else {
+      dateField.removeAttribute('readonly');
+      dateField.style.background='';
+      dateField.style.color='';
+    }
   }
   await loadAdvDetail();
 }catch(_e){notify('⚠️ خطأ في فتح العهدة','er');}}
