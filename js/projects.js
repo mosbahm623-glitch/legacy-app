@@ -307,7 +307,10 @@ function renderArchiveCards(data,div){
         <div class="arch-cats">${catsHtml}</div>
         <div class="arch-card-footer">
           <div class="arch-entries-count">📋 ${p._count} قيد محاسبي</div>
-          <button class="arch-restore-btn" onclick="restoreProject('${p.id}','${safeName}')">↩ استعادة</button>
+          <div style="display:flex;gap:6px">
+            <button class="arch-edit-btn" onclick="editArchivedProject('${p.id}')">✏️ تعديل</button>
+            <button class="arch-restore-btn" onclick="restoreProject('${p.id}','${safeName}')">↩ استعادة</button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -319,6 +322,64 @@ function filterArchive(q){
   const div=document.getElementById('archivedProjList');
   const filtered=q.trim()?_archiveData.filter(p=>p.name.includes(q.trim())):_archiveData;
   renderArchiveCards(filtered,div);
+}
+
+function editArchivedProject(pid){
+  const p=_archiveData.find(x=>x.id===pid);
+  if(!p)return;
+  let ov=document.getElementById('editProjModal');
+  if(ov)ov.remove();
+  ov=document.createElement('div');
+  ov.id='editProjModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML=`
+    <div class="modal-box-lg">
+      <div class="modal-hdr">
+        <div class="title-lg">✏️ تعديل المشروع المؤرشف</div>
+        <button onclick="document.getElementById('editProjModal').remove()" class="btn-close-sm">✕</button>
+      </div>
+      <label class="lbl-lg">اسم المشروع</label>
+      <input id="epName" type="text" value="${(p.name||'').replace(/"/g,'&quot;')}" class="inp-lg"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+      <div class="proj-edit-dates-row">
+        <div>
+          <label class="lbl-lg">📅 تاريخ البداية</label>
+          <input id="epStart" type="text" value="${p.start_date||''}" placeholder="dd/mm/yyyy" class="inp-md"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div>
+          <label class="lbl-lg">📅 تاريخ الإغلاق</label>
+          <input id="epClose" type="text" value="${p.close_date||''}" placeholder="dd/mm/yyyy" class="inp-md"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+      </div>
+      <div id="epMsg" class="proj-edit-msg"></div>
+      <div class="modal-btns">
+        <button onclick="saveArchivedProjectEdit('${pid}')" class="btn-primary">💾 حفظ التعديلات</button>
+        <button onclick="document.getElementById('editProjModal').remove()" class="btn-cancel">إلغاء</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  document.getElementById('epName').focus();
+  setTimeout(()=>{initDateInput(document.getElementById('epStart'));initDateInput(document.getElementById('epClose'));},0);
+}
+
+async function saveArchivedProjectEdit(pid){
+  const name=document.getElementById('epName').value.trim();
+  const start=document.getElementById('epStart').value.trim();
+  const close=document.getElementById('epClose').value.trim();
+  const msg=document.getElementById('epMsg');
+  if(!name){msg.style.color='var(--danger)';msg.textContent='❌ الاسم مطلوب';return;}
+  msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
+  try{
+    const upd={name,start_date:start||null,close_date:close||null};
+    await sb('projects?id=eq.'+pid,'PATCH',upd);
+    const idx=_archiveData.findIndex(p=>p.id===pid);
+    if(idx>=0){_archiveData[idx]={..._archiveData[idx],...upd};}
+    msg.style.color='var(--primary-btn)';msg.textContent='✅ تم الحفظ';
+    setSav('✅ تم تعديل المشروع المؤرشف','ok');
+    setTimeout(()=>{document.getElementById('editProjModal')?.remove();loadArchivedProjects();},700);
+  }catch(e){msg.style.color='var(--danger)';msg.textContent='❌ خطأ: '+e.message;}
 }
 
 async function restoreProject(pid,name){

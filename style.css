@@ -2205,6 +2205,8 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
 .arch-entries-count{font-size:11px;color:var(--text-soft)}
 .arch-restore-btn{background:var(--primary);color:var(--accent-gold,#D4C49A);border:none;border-radius:10px;padding:9px 18px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s}
 .arch-restore-btn:hover{opacity:.85}
+.arch-edit-btn{background:var(--accent-gold,#D4C49A);color:var(--primary);border:none;border-radius:10px;padding:9px 18px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.arch-edit-btn:hover{opacity:.85}
 .arch-empty{text-align:center;padding:60px 20px;color:var(--text-soft)}
 .arch-empty-icon{font-size:48px;margin-bottom:12px}
 .arch-empty-txt{font-size:14px;font-weight:600;color:var(--text-mid)}
