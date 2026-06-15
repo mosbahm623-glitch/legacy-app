@@ -2722,6 +2722,10 @@ async function loadAdvList(){
           sel.innerHTML+=`<option value="${u.id}">${role} ${u.name}</option>`;
         });
       }catch(e){notify('⚠️ تعذّر تحميل قائمة المستخدمين','warn');console.warn(e);}
+    }
+  }
+  try{
+    const query=uRole==='viewer'
       ?'advances?user_id=eq.'+uid+'&order=created_at'
       :'advances?order=created_at';
     advances=await sb(query);
