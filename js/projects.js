@@ -308,6 +308,7 @@ function renderArchiveCards(data,div){
         <div class="arch-card-footer">
           <div class="arch-entries-count">📋 ${p._count} قيد محاسبي</div>
           <div style="display:flex;gap:6px">
+            <button class="arch-edit-btn" onclick="openArchivedEntries('${p.id}')">📋 القيود</button>
             <button class="arch-edit-btn" onclick="editArchivedProject('${p.id}')">✏️ تعديل</button>
             <button class="arch-restore-btn" onclick="restoreProject('${p.id}','${safeName}')">↩ استعادة</button>
           </div>
@@ -322,6 +323,22 @@ function filterArchive(q){
   const div=document.getElementById('archivedProjList');
   const filtered=q.trim()?_archiveData.filter(p=>p.name.includes(q.trim())):_archiveData;
   renderArchiveCards(filtered,div);
+}
+
+async function openArchivedEntries(pid){
+  // نضيف المشروع المؤرشف مؤقتاً عشان يتحمّل
+  const archProj=_archiveData.find(p=>p.id===pid);
+  if(!archProj)return;
+  // لو مش موجود في allProjects نضيفه مؤقتاً
+  if(!allProjects.find(p=>p.id===pid)){
+    allProjects.push(archProj);
+    allProjectsMap[pid]=archProj;
+  }
+  // نروح شاشة المشاريع ونفتح المشروع ده
+  showScreen('proj');
+  await sw(pid);
+  // نبيّن إنه مؤرشف
+  setSav('📦 مشروع مؤرشف — يمكن التعديل على قيوده','ok');
 }
 
 function editArchivedProject(pid){
