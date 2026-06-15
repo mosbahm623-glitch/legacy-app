@@ -2232,6 +2232,7 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   #ent table th:nth-child(6),
   #ent table td:nth-child(6){display:none;}
   #ent table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
+  .mob-hide{display:none !important;}
   #ent .rw{
     display:block !important;
     padding:12px 14px !important;
