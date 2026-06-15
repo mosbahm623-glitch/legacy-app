@@ -149,7 +149,7 @@ function showScreen(s){
   if(s==='search'){
     const sel=document.getElementById('srch-proj-filter');
     if(sel&&allProjects.length){
-      sel.innerHTML='<option value="">كل المشاريع</option>'+allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+      sel.innerHTML='<option value="">كل المشاريع</option>'+allProjects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
     }
     getProfileMap().then(profMap=>{
       const uSel=document.getElementById('srch-user-filter');

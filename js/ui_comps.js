@@ -355,7 +355,7 @@ function initDashFilter(){
   if(!sel)return;
   sel.innerHTML='<option value="all">كل المشاريع</option>';
   allProjects.forEach(p=>{
-    sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`;
+    sel.innerHTML+=`<option value="${p.id}">${esc(p.name)}</option>`;
   });
 }
 

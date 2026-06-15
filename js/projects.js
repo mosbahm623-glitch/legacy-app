@@ -836,7 +836,7 @@ async function loadDuesScreen(){
   if(sel&&allProjects.length){
     sel.innerHTML='<option value="all">كل المشاريع</option>';
     allProjects.forEach(p=>{
-      sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`;
+      sel.innerHTML+=`<option value="${p.id}">${esc(p.name)}</option>`;
     });
   }
   // إخفاء النتائج والأزرار في البداية
@@ -994,8 +994,8 @@ function showImportPreview(ents,sk){
       const proj=allProjectsMap[e.project_id];
       const typeCell=`<td><span style="padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;background:${e.type==='i'?'var(--success-glow)':'var(--danger-pale)'};color:${e.type==='i'?'var(--primary-btn)':'var(--danger)'}">${e.type==='i'?'▲ وارد':'▼ مصروف'}</span></td>`;
       const amtCell=`<td class="${e.type==='i'?'td-inc':'td-exp'}">${fn(e.amount)} ج</td>`;
-      if(isExp)return `<tr><td style="color:var(--text-hint)">${i+1}</td>${typeCell}${amtCell}<td>${e.category||'—'}</td><td>${e.description||'—'}</td><td>${e.entry_date||'—'}</td><td>${e.contractor||'—'}</td><td>${proj?.name||'—'}</td></tr>`;
-      return `<tr><td style="color:var(--text-hint)">${i+1}</td>${typeCell}${amtCell}<td>${e.description||'—'}</td><td>${e.entry_date||'—'}</td><td>${proj?.name||'—'}</td></tr>`;
+      if(isExp)return `<tr><td style="color:var(--text-hint)">${i+1}</td>${typeCell}${amtCell}<td>${esc(e.category)||'—'}</td><td>${esc(e.description)||'—'}</td><td>${e.entry_date||'—'}</td><td>${esc(e.contractor)||'—'}</td><td>${proj?.name||'—'}</td></tr>`;
+      return `<tr><td style="color:var(--text-hint)">${i+1}</td>${typeCell}${amtCell}<td>${esc(e.description)||'—'}</td><td>${e.entry_date||'—'}</td><td>${proj?.name||'—'}</td></tr>`;
     }).join('')
   }${ents.length>100?`<tr><td colspan="${headers.length}" style="text-align:center;padding:10px;color:var(--text-hint)">... و${ents.length-100} قيد آخر</td></tr>`:''}
   </tbody>`;
@@ -1163,8 +1163,8 @@ function re(){
         <td style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">#${e.seq||'?'}</span></td>
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
         <td style="padding:7px 10px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${ii?'وارد':e.category||'—'}</span></td>
-        <td style="padding:7px 10px;color:#222">${ab}${e.description||'—'}</td>
-        <td style="padding:7px 10px;color:#888;font-size:11px">${e.contractor||'—'}</td>
+        <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
         ${del}
@@ -1209,7 +1209,7 @@ function re(){
         const etC={'payment':'var(--primary-btn)','work':'var(--info)','material':'var(--warning-dark)'};
         const tag=e.entry_type?`<span style="background:${etBg[e.entry_type]};color:${etC[e.entry_type]};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700">${etLbl[e.entry_type]||e.entry_type}</span>`:'';
         const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">\u{1F5D1}</button>`:'';
-        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${e.description||'—'} <span class="nb">#${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${e.category||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${del}</div></div>`;
+        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${esc(e.description)||'—'} <span class="nb">#${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${del}</div></div>`;
       }).join('');
       const kpis=hasTypes?`<div class="mq-kpi-grid"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">${fn(m.pay)}</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">${fn(m.work)}</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">${fn(m.mat)}</div></div><div style="background:${rem>=0?'var(--success-ghost)':'var(--danger-ghost)'};border-radius:8px;padding:8px;text-align:center"><div class="lbl-sm">${rem>=0?'الباقي معاه':'مستحق عليك'}</div><div style="font-weight:900;color:${rem>=0?'var(--primary)':'var(--danger)'};font-size:13px">${fn(Math.abs(rem))}</div></div></div>`:`<div class="mq-total-row"><span style="color:var(--text-soft);font-size:12px">إجمالي المسحوب</span><span style="font-weight:700;color:#1D3C2A">${fn(m.pay+m.work+m.mat+m.other)} ج</span></div>`;
       return `<div class="mq-contractor-card"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:14px 16px">${kpis}<div>${rows}</div></div></div>`;
@@ -1250,9 +1250,9 @@ function re(){
         <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
         <td style="padding:7px 10px;white-space:nowrap">${no}</td>
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${e.category||'—'}</span></td>
-        <td style="padding:7px 10px;color:#222">${ab}${e.description||'—'}</td>
-        <td style="padding:7px 10px;color:#888;font-size:11px">${e.contractor||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${esc(e.category)||'—'}</span></td>
+        <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'#27AE60':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         ${del}
       </tr>`;

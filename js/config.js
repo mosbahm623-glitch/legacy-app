@@ -408,3 +408,13 @@ function friendlyError(e){
   return'حدث خطأ غير متوقع — حاول مرة أخرى';
 }
 
+// ── XSS Protection ──────────────────────────────────
+function esc(str){
+  if(!str)return'';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}

@@ -352,14 +352,14 @@ function _populateRepSelectors(){
   const ps=document.getElementById('rProjSel');
   if(ps){
     ps.innerHTML='<option value="all">كل المشاريع</option>';
-    allProjects.forEach(p=>{ps.innerHTML+=`<option value="${p.id}">${p.name}</option>`;});
+    allProjects.forEach(p=>{ps.innerHTML+=`<option value="${p.id}">${esc(p.name)}</option>`;});
   }
   // Populate advances selector
   const as=document.getElementById('rAdvSel');
   if(as){
     as.innerHTML='<option value="all">كل العهد</option>';
     sb('advances?order=person_name').then(advs=>{
-      (advs||[]).forEach(a=>{as.innerHTML+=`<option value="${a.id}">${a.person_name}</option>`;});
+      (advs||[]).forEach(a=>{as.innerHTML+=`<option value="${a.id}">${esc(a.person_name)}</option>`;});
     }).catch(()=>{});
   }
 }
@@ -1354,9 +1354,9 @@ async function readAdvXls(input){
 }
 
 function showAdvImModal(){
-  const projOpts=allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  const projOpts=allProjects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   document.getElementById('advImBody').innerHTML=advImRows.map((r,i)=>{
-    const opts=`<option value="">— اختر المشروع —</option>`+allProjects.map(p=>`<option value="${p.id}"${p.id===r.pid?' selected':''}>${p.name}</option>`).join('');
+    const opts=`<option value="">— اختر المشروع —</option>`+allProjects.map(p=>`<option value="${p.id}"${p.id===r.pid?' selected':''}>${esc(p.name)}</option>`).join('');
     const bg=i%2===0?'var(--bg-pure)':'var(--bg-warm2)';
     const hasPrj=!!r.pid;
     return `<tr style="background:${bg}">
