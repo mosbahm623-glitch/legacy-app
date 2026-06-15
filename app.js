@@ -80,7 +80,7 @@ async function auditLog(action,tableName,recordId,details){
       record_id:String(recordId||''),
       details:details||null
     });
-  }catch(e){console.warn('audit log failed:',e);}
+  }catch(e){console.warn('audit log failed:',e);} // صامت متعمد — الـ audit log مش يوقف الشغل
 }
 
 const SB='https://ctcoqgluaytwelnutrox.supabase.co';
@@ -422,7 +422,7 @@ async function login(){
   }catch(e){setLS('❌ '+friendlyError(e),'er');}
 }
 async function logout(){
-  try{await sbAuth('logout','POST');}catch(e){console.error(e);}
+  try{await sbAuth('logout','POST');}catch(e){console.warn('logout API failed:',e);} // صامت متعمد — الـ logout المحلي يكمل حتى لو الـ API فشل
   token=null;uid=null;uRole=null;
   localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');
   const mobNav=document.getElementById('mobBottomNav');
@@ -433,7 +433,7 @@ async function logout(){
 async function checkSaved(){
   const tk=localStorage.getItem('lg_tk'),id=localStorage.getItem('lg_uid'),em=localStorage.getItem('lg_em');
   if(tk&&id){
-    try{const r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':AK,'Authorization':'Bearer '+tk}});if(r.ok){token=tk;uid=id;uEmail=em||'';await initApp();return;}}catch(e){console.error(e);}
+    try{const r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':AK,'Authorization':'Bearer '+tk}});if(r.ok){token=tk;uid=id;uEmail=em||'';await initApp();return;}}catch(e){console.warn('session check failed:',e);} // صامت متعمد — هيروح لشاشة الـ login
     localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');localStorage.removeItem('lg_em');
   }
   document.getElementById('loginScreen').style.display='flex';
@@ -559,7 +559,7 @@ function showBackupReminder(msg){
 async function checkNotesReminder(){
   setTimeout(async()=>{
     if(!_notesList.length){
-      try{ await loadNotes(); }catch(e){}
+      try{ await loadNotes(); }catch(e){} // صامت متعمد — تنبيه الملاحظات مش حرج
     }
     const undone=_notesList.filter(n=>!n.done).length;
     if(undone>0){
@@ -650,11 +650,7 @@ async function autoOpenViewerAdv(){
   try{
     const myAdvs=advances.filter(a=>a.user_id===uid);
     if(myAdvs.length===1)openAdv(myAdvs[0].id);
-  }catch(e){console.error(e);}
-}
-
-function showScreen(s){
-// ██ UI NAVIGATION — SCREENS + SIDEBAR ════════════
+  }catch(e){console.warn('autoOpenViewerAdv failed:',e);} // صامت متعمد — فتح العهدة تلقائي مش حرج
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
@@ -1092,9 +1088,7 @@ async function renameMq(oldName){
       await sb('entries?id=eq.'+e.id,'PATCH',{contractor:newName});
       e.contractor=newName;
       done++;
-    }catch(err){console.error(err);}
-  }
-  notify('✅ تم تحديث '+done+' قيد','ok');
+    }catch(err){console.error(err);notify('❌ فشل تحديث قيد: '+friendlyError(err),'err');}
   renderMqManager(document.getElementById('mqMgrSearch')?.value||'');
 }
 
@@ -2727,11 +2721,7 @@ async function loadAdvList(){
           const role={admin:'👑',editor:'✏️',viewer:'👁'}[u.role]||'';
           sel.innerHTML+=`<option value="${u.id}">${role} ${u.name}</option>`;
         });
-      }catch(e){console.error(e);}
-    }
-  }
-  try{
-    const query=uRole==='viewer'
+      }catch(e){notify('⚠️ تعذّر تحميل قائمة المستخدمين','warn');console.warn(e);}
       ?'advances?user_id=eq.'+uid+'&order=created_at'
       :'advances?order=created_at';
     advances=await sb(query);
@@ -2852,7 +2842,7 @@ async function loadAdvDetail(silent=false){
     window._curAdvEntries=advEntries; // للفلتر
     // جيب القيود المنتظرة للعهدة دي
     var pendingAdvEntries=[];
-    try{pendingAdvEntries=await sb('pending_entries?advance_id=eq.'+curAdv.id+'&order=submitted_at');}catch(e2){console.error(e2);}
+    try{pendingAdvEntries=await sb('pending_entries?advance_id=eq.'+curAdv.id+'&order=submitted_at');}catch(e2){console.warn('pending adv entries failed:',e2);}
     var installs=[];
     try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}
     catch(e2){installs=[];}
@@ -2981,8 +2971,7 @@ async function addAdvEntry(){
       const ok=await new Promise(res=>showConfirm({icon:'⚠️',title:'تجاوز العهدة',msg:'المصروف هيتجاوز العهدة بـ '+over+' ج. العجز بعد الصرف: '+over+' ج. هل تريد الإكمال؟',okLabel:'إكمال',okType:'warning',onOk:()=>res(true)}));
       if(!ok)return;
     }
-  }catch(e2){console.error(e2);}
-  const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.seq||20260000),20260000);
+  }catch(e2){console.warn('advance overspend check failed:',e2);} // صامت متعمد — التحقق من التجاوز احتياطي، الحفظ يكمل((mx,e)=>Math.max(mx,e.seq||20260000),20260000);
   const advNextSeq=advMaxSeq<20260000?20260001:advMaxSeq+1;
   const entry={id:uid_(),project_id:pid,type:'e',amount:amt,description:desc,entry_date:dt,category:cat,contractor:mq,advance_id:curAdv.id,seq:advNextSeq,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
@@ -3401,7 +3390,7 @@ async function xl(){const msg=document.getElementById('emsg');
   const A=(c,h)=>c.alignment={horizontal:h||'right',vertical:'middle',readingOrder:'rightToLeft'};
   const BD=c=>{const b={style:'thin',color:{argb:'FFD8CEB8'}};c.border={top:b,left:b,bottom:b,right:b};};
   const N=c=>c.numFmt='#,##0';
-  const MC=(w,a,b)=>{try{w.mergeCells(a+':'+b);}catch(e){console.error(e);}};
+  const MC=(w,a,b)=>{try{w.mergeCells(a+':'+b);}catch(e){console.warn('mergeCells failed:',e);}}; // صامت متعمد — الدمج cosmetic
   const bs=(w,sub,nc)=>{const lc=String.fromCharCode(64+nc);w.views=[{rightToLeft:true}];w.getRow(1).height=30;MC(w,'A1',lc+'1');const h=w.getCell('A1');h.value='Legacy Fine Touch';F(h,G1);T(h,B1,15,true);A(h,'center');w.getRow(2).height=18;MC(w,'A2',lc+'2');const t=w.getCell('A2');t.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(t,G2);T(t,B2,9,false,true);A(t,'center');w.getRow(3).height=22;MC(w,'A3',lc+'3');const s=w.getCell('A3');s.value=sub;F(s,'C8D8C0');T(s,G1,11,true);A(s,'center');w.getRow(4).height=8;MC(w,'A4',lc+'4');F(w.getCell('A4'),B4);};
   const af=(w,r,t,nc)=>{const lc=String.fromCharCode(64+nc);MC(w,'A'+r,lc+r);const f=w.getCell('A'+r);f.value=t;F(f,B3);T(f,G1,8,false,true);A(f,'center');};
   const wS=wb.addWorksheet('ملخص',{tabColor:{argb:'FF'+G1}});wS.views=[{rightToLeft:true}];[26,20,13,18].forEach((w,i)=>wS.getColumn(i+1).width=w);wS.getRow(1).height=30;MC(wS,'A1','D1');const sh=wS.getCell('A1');sh.value='Legacy Fine Touch';F(sh,G1);T(sh,B1,16,true);A(sh,'center');wS.getRow(2).height=18;MC(wS,'A2','D2');const s2=wS.getCell('A2');s2.value='Innovation · Quality · Integrity  |  م. محمد شكري  |  01099808939';F(s2,G2);T(s2,B2,9,false,true);A(s2,'center');wS.getRow(3).height=10;MC(wS,'A3','D3');F(wS.getCell('A3'),B4);wS.getRow(4).height=20;['المشروع','المهندس','تاريخ البدء','تاريخ التقفيل'].forEach((v,i)=>{const c=wS.getCell(4,i+1);c.value=v;F(c,G1);T(c,B1,9,true);A(c,'center');});wS.getRow(5).height=26;[p.name,'م. محمد شكري',p.start_date,p.close_date].forEach((v,i)=>{const c=wS.getCell(5,i+1);c.value=v;F(c,G5);T(c,G1,11,true);A(c,'center');const b={style:'thin',color:{argb:'FFA8C8A8'}};c.border={top:b,left:b,bottom:b,right:b};});wS.getRow(6).height=10;MC(wS,'A6','D6');F(wS.getCell('A6'),B4);wS.getRow(7).height=22;MC(wS,'A7','B7');[['A7','إجمالي الوارد',BL],['C7','إجمالي المصروفات',RD],['D7',df?'⚠ عجز':'✅ الرصيد',df?DEF:PS]].forEach(x=>{const c=wS.getCell(x[0]);c.value=x[1];F(c,x[2]);T(c,'FFFFFF',9,true);A(c,'center');});wS.getRow(8).height=46;MC(wS,'A8','B8');const eF=ct.length?ct.map(c=>"'"+c.n+"'!D"+c.tr).join('+'):'0';const k8a=wS.getCell('A8');k8a.value={formula:"'الوارد'!D"+IT,result:inc};F(k8a,LB);T(k8a,BL,18,true);A(k8a,'center');k8a.numFmt='#,##0 "ج"';const k8c=wS.getCell('C8');k8c.value={formula:eF,result:exp};F(k8c,'FAE5E5');T(k8c,RD,18,true);A(k8c,'center');k8c.numFmt='#,##0 "ج"';const k8d=wS.getCell('D8');k8d.value={formula:'A8-C8',result:inc-exp};F(k8d,df?LD:LP);T(k8d,df?DEF:PS,18,true);A(k8d,'center');k8d.numFmt='#,##0 "ج"';wS.getRow(9).height=10;MC(wS,'A9','D9');F(wS.getCell('A9'),B4);wS.getRow(10).height=28;MC(wS,'A10','D10');wS.getCell('A10').value='تفصيل المصروفات بالبنود';F(wS.getCell('A10'),G1);T(wS.getCell('A10'),B1,12,true);A(wS.getCell('A10'),'center');wS.getRow(11).height=22;['البند','إجمالي المصروف (ج)','النسبة %','ملاحظة'].forEach((v,i)=>{const c=wS.getCell(11,i+1);c.value=v;F(c,G2);T(c,'FFFFFF',10,true);A(c,'center');});let SR=12;const CR=[];ct.forEach((ct2,ix)=>{wS.getRow(SR).height=21;const ca=wS.getCell('A'+SR);ca.value=ct2.n;BD(ca);T(ca,G1,10,true);A(ca,'right');if(ix%2===0)F(ca,G6);const cb=wS.getCell('B'+SR);cb.value={formula:"'"+ct2.n+"'!D"+ct2.tr,result:ct2.t};BD(cb);A(cb,'left');T(cb,G1,10,true);N(cb);if(ix%2===0)F(cb,G6);const cc=wS.getCell('C'+SR);BD(cc);A(cc,'center');T(cc,'888888',9);if(ix%2===0)F(cc,G6);BD(wS.getCell('D'+SR));if(ix%2===0)F(wS.getCell('D'+SR),G6);CR.push(SR);SR++;});const GR=SR;wS.getRow(SR).height=28;wS.getCell('A'+SR).value='إجمالي المصروفات';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const gb=wS.getCell('B'+SR);gb.value={formula:ct.length?'SUM(B12:B'+(SR-1)+')':'0',result:exp};F(gb,G1);T(gb,B1,11,true);A(gb,'left');N(gb);wS.getCell('C'+SR).value='100%';F(wS.getCell('C'+SR),G1);T(wS.getCell('C'+SR),B2,10,true);A(wS.getCell('C'+SR),'center');F(wS.getCell('D'+SR),G1);SR++;CR.forEach((rr,i)=>{const c=wS.getCell('C'+rr);c.value={formula:'B'+rr+'/$B$'+GR,result:exp?(ct[i].t/exp):0};c.numFmt='0.0%';});wS.getRow(SR).height=26;wS.getCell('A'+SR).value='إجمالي الوارد';F(wS.getCell('A'+SR),G1);T(wS.getCell('A'+SR),B1,11,true);A(wS.getCell('A'+SR),'right');const ib2=wS.getCell('B'+SR);ib2.value={formula:"'الوارد'!D"+IT,result:inc};F(ib2,G1);T(ib2,B1,11,true);A(ib2,'left');N(ib2);F(wS.getCell('C'+SR),G1);F(wS.getCell('D'+SR),G1);const IR=SR;SR++;wS.getRow(SR).height=32;const BC=df?DEF:PS;wS.getCell('A'+SR).value=df?'⚠ عجز':'✅ الرصيد المتبقي';F(wS.getCell('A'+SR),BC);T(wS.getCell('A'+SR),'FFFFFF',12,true);A(wS.getCell('A'+SR),'right');const bb=wS.getCell('B'+SR);bb.value={formula:'B'+IR+'-B'+GR,result:inc-exp};F(bb,BC);T(bb,'FFFFFF',12,true);A(bb,'left');N(bb);F(wS.getCell('C'+SR),BC);F(wS.getCell('D'+SR),BC);SR+=2;MC(wS,'A'+SR,'D'+SR);wS.getCell('A'+SR).value='Legacy Fine Touch  |  '+p.name+'  |  م. محمد شكري  |  '+(p.close_date||'');F(wS.getCell('A'+SR),B3);T(wS.getCell('A'+SR),G1,8,false,true);A(wS.getCell('A'+SR),'center');
@@ -3516,7 +3505,7 @@ async function addNewCat(){
   name=name.trim();
   try{
     await sb('categories','POST',{name});
-  }catch(ex){console.error(ex);}
+  }catch(ex){notify('❌ فشل حفظ البند: '+friendlyError(ex),'err');console.error(ex);return;}
   if(!allCategories.includes(name)){allCategories.push(name);allCategories.sort();}
   selectCat(name);
   setSav('✅ تم إضافة البند: '+name,'ok');
@@ -3564,10 +3553,7 @@ function initRealtime(){
         if(curScreen==='adv'&&curAdv)await loadAdvDetail(curAdv.id);
       })
       .subscribe();
-  }catch(e){console.error(e);}
-}
-
-function cleanupRealtime(){
+  }catch(e){console.warn('realtime init failed:',e);setSav('⚠️ الـ realtime غير متاح — التحديثات الفورية متوقفة','ng');}
   if(!window._sbc)return;
   if(_rtEntCh){_sbc.removeChannel(_rtEntCh);_rtEntCh=null;}
   if(_rtAdvCh){_sbc.removeChannel(_rtAdvCh);_rtAdvCh=null;}
@@ -4407,7 +4393,7 @@ async function downloadAdvPDF(){
   setSav('⏳ جاري تجهيز PDF...','ng');
   try{
     let installs=[];
-    try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}catch(e2){console.error(e2);}
+    try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}catch(e2){console.warn('installs fetch failed in PDF:',e2);}
     const totalGiven=installs.reduce((s,i)=>s+i.amount,0);
     const totalSpent=entries.reduce((s,e)=>s+e.amount,0);
     const remaining=totalGiven-totalSpent;
@@ -5055,7 +5041,7 @@ async function repExportPDF(){
     const profiles=await sb('profiles');
     if(profiles&&profiles.length)profiles.forEach(p=>{profileMap[p.id]=p.name||'—';});
     _profMapCache=profileMap;
-  }catch(e){console.warn('profiles error:',e);}
+  }catch(e){console.warn('profiles error:',e);notify('⚠️ تعذّر تحميل أسماء المستخدمين — سيظهر الرقم بدلاً من الاسم','warn');}
   const rows=d.filtered.map((e,i)=>{
     const proj=allProjectsMap[e.project_id];
     const isI=e.type==='i';
@@ -5611,8 +5597,7 @@ async function saveMqPay(){
     const last=await sb('entries?select=seq&order=seq.desc&limit=1');
     const lastSeq=last&&last.length?Number(last[0].seq||20260000):20260000;
     nextSeq=lastSeq<20260000?20260001:lastSeq+1;
-  }catch(e){console.error(e);}
-  const entry={id:uid_(),project_id:curPid,type:'e',amount:a,description:desc||'دفعة',entry_date:dt,category:cat,contractor:_mqName,entry_type:etype,seq:uRole==='admin'?nextSeq:0,created_by:uid};
+  }catch(e){console.warn('seq fetch failed, using default:',e);} // صامت متعمد — هيستخدم الـ seq الافتراضي,entry_date:dt,category:cat,contractor:_mqName,entry_type:etype,seq:uRole==='admin'?nextSeq:0,created_by:uid};
   try{
     if(uRole==='admin'){
       await sb('entries','POST',entry);
@@ -6201,9 +6186,9 @@ async function bulkApprove(){
       if(type==='entry') await approveEntry(id,true);
       else await approveAdv(id,true);
       done++;
-    }catch(e){console.error(e);}
+    }catch(e){console.error(e);notify('❌ فشلت الموافقة على عنصر: '+friendlyError(e),'err');}
   }
-  setSav('✅ تم الموافقة على '+done+' عنصر','ok');
+  setSav('✅ تم الموافقة على '+done+' من '+checked.length+' عنصر','ok');
   await loadApprovals();
   await updatePendingBadge();
 }
@@ -6220,9 +6205,9 @@ async function bulkReject(){
       if(type==='entry') await rejectEntry(id,true);
       else await rejectAdv(id,true);
       done++;
-    }catch(e){console.error(e);}
+    }catch(e){console.error(e);notify('❌ فشل الرفض على عنصر: '+friendlyError(e),'err');}
   }
-  setSav('✅ تم رفض '+done+' عنصر','ok');
+  setSav('✅ تم رفض '+done+' من '+checked.length+' عنصر','ok');
   await loadApprovals();
   await updatePendingBadge();
 }
@@ -6236,10 +6221,7 @@ async function updatePendingBadge(){
     const cnt=(e1?e1.length:0)+(e2?e2.length:0);
     const badge=document.getElementById('pending-badge');
     if(badge){badge.textContent=cnt;badge.style.display=cnt>0?'inline':'none';}
-  }catch(e){console.error(e);}
-}
-
-let _approvalsInterval=null;
+  }catch(e){console.warn('updatePendingBadge failed:',e);} // صامت متعمد — الـ badge مش حرج
 async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
@@ -6769,14 +6751,11 @@ async function refreshOnlineUsers(){
     if(pill&&cnt>0){pill.style.display='flex';if(cntEl)cntEl.textContent=cnt;}
     else if(pill){pill.style.display='none';}
     if(notifPanelOpen&&npCurrentTab==='online')renderNpOnline();
-  }catch(e){console.error(e);}
-}
-
-async function getUserName(userId){
+  }catch(e){console.warn('refreshOnlineUsers failed:',e);} // صامت متعمد — المستخدمين أونلاين مش حرج
   if(!userId)return 'مستخدم';
   if(notifUserMap[userId])return notifUserMap[userId].name||'مستخدم';
   // لو مش موجود في الـ map، اجيب البيانات
-  try{await refreshOnlineUsers();}catch(e){console.error(e);}
+  try{await refreshOnlineUsers();}catch(e){console.warn('getUserName refresh failed:',e);}
   return notifUserMap[userId]?.name||'مستخدم';
 }
 
@@ -6785,10 +6764,7 @@ async function updatePresence(){
   try{
     if(!window._sbc||!uid)return;
     await _sbc.from('user_presence').upsert({user_id:uid,is_online:true,last_seen:new Date().toISOString()},{onConflict:'user_id'});
-  }catch(e){console.error(e);}
-}
-
-function initNotifSystem(){
+  }catch(e){console.warn('updatePresence failed:',e);} // صامت متعمد — الحضور background task
   // show bell
   const bell=document.getElementById('notifBellBtn');
   if(bell)bell.style.display='block';
