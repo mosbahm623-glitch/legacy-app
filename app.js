@@ -1452,6 +1452,7 @@ async function loadAllProjects(){
 }
 function populateAdvProjSel(){
   const sel=document.getElementById('advProjSel');
+  if(!sel)return;
   sel.innerHTML='<option value="">اختار المشروع</option>';
   allProjects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
 }
