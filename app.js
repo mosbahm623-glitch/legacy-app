@@ -2912,6 +2912,35 @@ async function loadAdvDetail(silent=false){
   }
 }
 
+function showAdvEntryModal(){
+  const ex=document.getElementById('_advEntModal');if(ex)ex.remove();
+  const projs=allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  const ov=document.createElement('div');
+  ov.id='_advEntModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<div class="modal-box" style="max-width:400px;width:100%">
+    <div style="text-align:center;margin-bottom:14px"><div style="font-size:26px">➕</div><div class="title-md">إضافة مصروف على العهدة</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <select id="advProjSel" class="inp-lg"><option value="">اختار المشروع</option>${projs}</select>
+      <input id="advCat" placeholder="البند" class="inp-lg" list="cl">
+      <input id="advDesc" placeholder="البيان" class="inp-lg">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input id="advEntAmt" type="number" placeholder="المبلغ (ج)" step="any" class="inp-lg">
+        <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="inp-lg">
+      </div>
+      <input id="advMq" placeholder="👷 المقاول (اختياري)" class="inp-lg" list="ql">
+    </div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button onclick="addAdvEntry()" class="btn-primary">+ إضافة</button>
+      <button onclick="document.getElementById('_advEntModal').remove()" class="btn-cancel">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  setTimeout(()=>{const el=document.getElementById('advEntDate');if(el)initDateInput(el);},100);
+  setTimeout(()=>document.getElementById('advCat')?.focus(),150);
+}
+
 async function addAdvEntry(){
   const pid=document.getElementById('advProjSel').value;
   const cat=document.getElementById('advCat').value.trim();
@@ -2955,6 +2984,7 @@ async function addAdvEntry(){
     document.getElementById('advDesc').value='';
     document.getElementById('advEntAmt').value='';
     document.getElementById('advMq').value='';
+    document.getElementById('_advEntModal')?.remove();
     await loadAdvDetail();
     if(curPid===pid)await loadEntries();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}

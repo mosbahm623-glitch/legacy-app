@@ -562,20 +562,11 @@
 
         <!-- EXPENSES TAB -->
         <div id="advTabPanel-exp">
-          <div class="adv-entry-form" id="advEntryFormDiv">
-            <h4>➕ إضافة مصروف على العهدة</h4>
-            <div class="adv-ig">
-              <select id="advProjSel" class="fl"><option value="">اختار المشروع</option></select>
-              <input id="advCat" placeholder="البند" list="cl">
-              <input id="advDesc" class="fl" placeholder="البيان">
-              <input id="advEntAmt" type="number" placeholder="المبلغ (ج)" step="any">
-              <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
-              <input id="advMq" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)" list="ql">
-            </div>
-            <div class="adv-svb-btns">
-              <button class="svb adv-svb-flex" onclick="addAdvEntry()">+ إضافة</button>
-              <button class="svb adv-svb-brown" onclick="document.getElementById('advXlsFile').click()">📥 استيراد Excel</button>
-              <button class="svb adv-svb-blue" onclick="downloadAdvTemplate()">📋 تحميل Template</button>
+          <div id="advEntryFormDiv">
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+              <button onclick="showAdvEntryModal()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#1D3C2A;color:#D4C49A;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">➕ إضافة مصروف</button>
+              <button onclick="document.getElementById('advXlsFile').click()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#854F0B;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📥 استيراد Excel</button>
+              <button onclick="downloadAdvTemplate()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#185FA5;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📋 Template</button>
               <input type="file" id="advXlsFile" accept=".xlsx" style="display:none" onchange="readAdvXls(this)">
             </div>
             <div class="adv-im" id="advIm" style="display:none"></div>
