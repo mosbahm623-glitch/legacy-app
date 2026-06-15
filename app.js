@@ -1846,6 +1846,7 @@ function oe(id){
 }
 function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
 function st(t){cT=t;document.getElementById('tx').classList.toggle('on',t==='e');document.getElementById('ti').classList.toggle('on',t==='i');document.getElementById('ic').style.display=t==='e'?'block':'none';document.getElementById('iq').style.display=t==='e'?'block':'none';}
+function setCTab(t){stab(t);}
 function stab(t){
   cTab=t;window._rpPage=0;
   const fb=document.getElementById('entryFilterBar');
@@ -2534,7 +2535,7 @@ function re(){
       ${ls.map(([c,a],i)=>{
         const pct=tt?((a/tt)*100).toFixed(1):0;
         const rowBg=i%2===0?'#fff':'#f7f7f5';
-        return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+        return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="setCTab('${c.replace(/'/g,"\\'")}');re()" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'" title="اضغط لعرض قيود ${c}">
           <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
           <td style="padding:7px 10px;font-weight:500;color:#222">${c}</td>
           <td style="padding:7px 10px">
