@@ -2539,16 +2539,36 @@ function re(){
       <button onclick="setCatView('mq',this)" class="cat-view-mq-btn" id="cvMq">👷 المقاولين</button>
     </div><div id="catListView">`;
   }
-  html+=es.map(e=>{
-    const mq=e.contractor?'<span class="qb">'+e.contractor+'</span>':'';
-    const ab=e.advance_id?'<span class="ab-badge">عهدة</span>':'';
-    const no='<span class="nb">#'+(e.seq||'?')+'</span>';
-    const etBg=e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':e.entry_type==='material'?'var(--warning-pale)':'';
-    const etC=e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':e.entry_type==='material'?'var(--warning-dark)':'';
-    const et=e.entry_type&&e.contractor?'<span class="entry-type-badge">'+(etypeLbl[e.entry_type]||'')+'</span>':'';
-    const del=canEdit?'<button class="db" onclick="event.stopPropagation();de(\''+e.id+'\')">🗑</button>':'';
-    return '<div class="rw'+(canEdit?' clk':'')+'" onclick="oe(\''+e.id+'\')"><div class="ri"><div class="rd">'+ab+et+mq+(e.description||'—')+no+'</div><div class="rm">'+(e.entry_date||'—')+(e.category?' · '+e.category:'')+'</div></div><div style="display:flex;align-items:center;gap:3px"><div class="ra '+(e.amount<0?'neg':'')+'" >'+fn(e.amount)+' ج</div>'+del+'</div></div>';
-  }).join('');
+  html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#1D3C2A">
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">#</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">رقم القيد</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">التاريخ</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">البند</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px">البيان</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المقاول</th>
+      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المبلغ</th>
+      ${canEdit?'<th style="color:#D4C49A;padding:8px 10px;text-align:center;font-weight:500;font-size:11px"></th>':''}
+    </tr></thead>
+    <tbody>
+    ${es.map((e,i)=>{
+      const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
+      const no=`<span class="nb" style="font-size:10px">#${e.seq||'?'}</span>`;
+      const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
+      const rowBg=i%2===0?'background:var(--color-background-primary)':'background:var(--color-background-secondary)';
+      return `<tr style="${rowBg};border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='var(--color-background-tertiary)'" onmouseout="this.style.background='${i%2===0?'var(--color-background-primary)':'var(--color-background-secondary)'}'">
+        <td style="padding:7px 10px;color:var(--color-text-secondary);font-size:11px">${i+1}</td>
+        <td style="padding:7px 10px;white-space:nowrap">${no}</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:var(--color-text-secondary);font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);padding:2px 7px;border-radius:10px;color:var(--color-text-secondary)">${e.category||'—'}</span></td>
+        <td style="padding:7px 10px;color:var(--color-text-primary)">${ab}${e.description||'—'}</td>
+        <td style="padding:7px 10px;color:var(--color-text-secondary);font-size:11px">${e.contractor||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'var(--color-text-success)':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        ${del}
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table></div>`;
   if(hasMqTypes){
     html+='</div><div id="catMqView" style="display:none">';
     const mqMap={};
