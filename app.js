@@ -2518,7 +2518,44 @@ function rp(){
 function re(){
   const el=document.getElementById('ent');
   const canEdit=uRole!=='viewer'&&uRole!=='owner';
-  if(cTab==='s'){const cs={};pExp().forEach(e=>{cs[e.category]=(cs[e.category]||0)+e.amount;});const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);const tt=ls.reduce((s,c)=>s+c[1],0);el.innerHTML=ls.length?ls.map(([c,a])=>'<div class="rw"><div class="ri"><div class="rd">'+c+'</div><div class="rm">'+(tt?((a/tt)*100).toFixed(1):0)+'%</div></div><div class="ra">'+fn(a)+' ج</div></div>').join(''):'<div class="emp">لا توجد بيانات</div>';return;}
+  if(cTab==='s'){
+    const cs={};pExp().forEach(e=>{cs[e.category]=(cs[e.category]||0)+e.amount;});
+    const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
+    const tt=ls.reduce((s,c)=>s+c[1],0);
+    if(!ls.length){el.innerHTML='<div class="emp">لا توجد بيانات</div>';return;}
+    el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#1D3C2A">
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البند</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">النسبة</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">الإجمالي</th>
+      </tr></thead>
+      <tbody>
+      ${ls.map(([c,a],i)=>{
+        const pct=tt?((a/tt)*100).toFixed(1):0;
+        const rowBg=i%2===0?'#fff':'#f7f7f5';
+        return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+          <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
+          <td style="padding:7px 10px;font-weight:500;color:#222">${c}</td>
+          <td style="padding:7px 10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="flex:1;background:#eee;border-radius:4px;height:6px">
+                <div style="width:${pct}%;background:#1D3C2A;border-radius:4px;height:6px"></div>
+              </div>
+              <span style="color:#888;font-size:11px;min-width:35px">${pct}%</span>
+            </div>
+          </td>
+          <td style="padding:7px 10px;font-weight:500;color:#E74C3C;white-space:nowrap">▼ ${fn(a)} ج</td>
+        </tr>`;
+      }).join('')}
+      <tr style="background:#1D3C2A">
+        <td colspan="3" style="padding:8px 10px;color:#D4C49A;font-weight:500;font-size:11px">الإجمالي الكلي</td>
+        <td style="padding:8px 10px;color:#D4C49A;font-weight:500;white-space:nowrap">▼ ${fn(tt)} ج</td>
+      </tr>
+      </tbody>
+    </table></div>`;
+    return;
+  }
   if(cTab==='j'){const flt=getFilteredEntries();const j=flt?[...flt].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)):gJ();if(!j.length){el.innerHTML='<div class="emp">لا توجد قيود'+(flt?' للفلتر الحالي':' بعد')+'</div>';return;}
     const PAGE=60;const totalPages=Math.ceil(j.length/PAGE);
     const cp=window._rpPage||0;const start=cp*PAGE;const slice=j.slice(start,start+PAGE);
