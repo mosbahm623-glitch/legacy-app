@@ -1253,6 +1253,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="app.js"></script>
+<!-- ═══ Legacy Core — Modules (الترتيب مهم) ═══ -->
+<script src="config.js"></script>          <!-- ثوابت + state + Supabase API -->
+<script src="utils.js"></script>           <!-- date picker + helpers + confirm + notify -->
+<script src="auth.js"></script>            <!-- login / logout / initApp -->
+<script src="ui-helpers.js"></script>      <!-- network status + backup reminder + sidebar -->
+<script src="dashboard.js"></script>       <!-- لوحة التحكم + MQ Manager -->
+<script src="projects-entries.js"></script><!-- مشاريع + قيود + عهد + مستحقات + ملاحظات -->
+<script src="admin.js"></script>           <!-- لوحة الأدمن + المستخدمين + categories -->
+<script src="ui-components.js"></script>   <!-- dark mode + FAB + password + particles -->
+<script src="reports.js"></script>         <!-- كل التقارير (PDF + Excel) -->
+<script src="search.js"></script>          <!-- البحث الشامل -->
+<script src="notifications.js"></script>   <!-- إشعارات + realtime + approvals -->
 </body>
 </html>
