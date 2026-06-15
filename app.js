@@ -1935,7 +1935,7 @@ function renderDuesTab(el){
     html+='<div class="emp">لا توجد مستحقات</div>';
   } else {
     html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#1D3C2A">
+      <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البيان</th>
@@ -2527,7 +2527,7 @@ function re(){
     const tt=ls.reduce((s,c)=>s+c[1],0);
     if(!ls.length){el.innerHTML='<div class="emp">لا توجد بيانات</div>';return;}
     el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#1D3C2A">
+      <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البند</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">النسبة</th>
@@ -2583,7 +2583,7 @@ function re(){
       </tr>`;
     }).join('');
     el.innerHTML=pager+`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#1D3C2A">
+      <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">رقم القيد</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">التاريخ</th>
@@ -2642,7 +2642,7 @@ function re(){
     </div><div id="catListView">`;
   }
   html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="background:#1D3C2A">
+    <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">#</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">رقم القيد</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">التاريخ</th>
@@ -2875,7 +2875,7 @@ async function loadAdvDetail(silent=false){
       const approvedHtml=(()=>{
         if(!advEntries.length) return '';
         return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead><tr style="background:#1D3C2A">
+          <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">#</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">رقم القيد</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px;white-space:nowrap">التاريخ</th>
@@ -5250,7 +5250,7 @@ function contractorExportPDF(){
     ${chartImg}
     <div class="sec-ttl">📒 تفاصيل المصروفات</div>
     <table>
-      <thead><tr style="background:#1D3C2A"><th style="color:#D4C49A !important">#</th><th style="color:#D4C49A !important">رقم القيد</th><th style="color:#D4C49A !important">التاريخ</th><th style="color:#D4C49A !important">المشروع</th><th style="color:#D4C49A !important">البند</th><th style="color:#D4C49A !important">البيان</th><th style="color:#D4C49A !important">المبلغ</th></tr></thead>
+      <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A"><th style="color:#D4C49A !important">#</th><th style="color:#D4C49A !important">رقم القيد</th><th style="color:#D4C49A !important">التاريخ</th><th style="color:#D4C49A !important">المشروع</th><th style="color:#D4C49A !important">البند</th><th style="color:#D4C49A !important">البيان</th><th style="color:#D4C49A !important">المبلغ</th></tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr><td colspan="6">الإجمالي الكلي</td><td class="amt neg">▼ ${fn(d.total)} ج</td></tr></tfoot>
     </table>`+
