@@ -1934,7 +1934,7 @@ function renderDuesTab(el){
   if(!_duesList.length){
     html+='<div class="emp">لا توجد مستحقات</div>';
   } else {
-    html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
@@ -1963,7 +1963,7 @@ function renderDuesTab(el){
         </tr>`;
       }).join('')}
       </tbody>
-    </table></div>`;
+    </table>`;
   }
   el.innerHTML=html;
   // تفعيل date picker على حقل التاريخ
@@ -2526,7 +2526,7 @@ function re(){
     const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
     const tt=ls.reduce((s,c)=>s+c[1],0);
     if(!ls.length){el.innerHTML='<div class="emp">لا توجد بيانات</div>';return;}
-    el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البند</th>
@@ -2556,7 +2556,7 @@ function re(){
         <td style="padding:8px 10px;color:#D4C49A;font-weight:500;white-space:nowrap">▼ ${fn(tt)} ج</td>
       </tr>
       </tbody>
-    </table></div>`;
+    </table>`;
     return;
   }
   if(cTab==='j'){const flt=getFilteredEntries();const j=flt?[...flt].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)):gJ();if(!j.length){el.innerHTML='<div class="emp">لا توجد قيود'+(flt?' للفلتر الحالي':' بعد')+'</div>';return;}
@@ -2582,7 +2582,7 @@ function re(){
         ${del}
       </tr>`;
     }).join('');
-    el.innerHTML=pager+`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    el.innerHTML=pager+`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">رقم القيد</th>
@@ -2595,7 +2595,7 @@ function re(){
         ${canEdit?'<th></th>':''}
       </tr></thead>
       <tbody>${tblRows}</tbody>
-    </table></div>`+pager;return;}
+    </table>`+pager;return;}
   if(cTab==='m'){
     const mqMap={};
     pExp().filter(e=>e.contractor).forEach(e=>{
@@ -2641,7 +2641,7 @@ function re(){
       <button onclick="setCatView('mq',this)" class="cat-view-mq-btn" id="cvMq">👷 المقاولين</button>
     </div><div id="catListView">`;
   }
-  html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+  html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
     <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">#</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">رقم القيد</th>
@@ -2670,7 +2670,7 @@ function re(){
       </tr>`;
     }).join('')}
     </tbody>
-  </table></div>`;
+  </table>`;
   if(hasMqTypes){
     html+='</div><div id="catMqView" style="display:none">';
     const mqMap={};
@@ -2874,7 +2874,7 @@ async function loadAdvDetail(silent=false){
       allProjects.forEach(p=>{projMap[p.id]=p.name;});
       const approvedHtml=(()=>{
         if(!advEntries.length) return '';
-        return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+        return `<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
           <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">#</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">رقم القيد</th>
@@ -2904,7 +2904,7 @@ async function loadAdvDetail(silent=false){
               <td style="padding:4px 6px;white-space:nowrap">${btns}</td>
             </tr>`;
           }).join('')}</tbody>
-        </table></div>`;
+        </table>`;
       })();
       const pendingHtml=pendingAdvEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;}).join('');
       const totalEntries=advEntries.length+pendingAdvEntries.length;
