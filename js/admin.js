@@ -32,7 +32,6 @@ async function pdfClient(){
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
   const ic=pInc();
-  console.log('pInc seq check:', ic.slice(0,3).map(e=>({seq:e.seq,desc:e.description})));
   const exp=ct.reduce((s,c)=>s+c.r.reduce((ss,e)=>ss+e.amount,0),0);
   const bal=inc-exp;
   const df=bal<0;
@@ -56,14 +55,15 @@ async function pdfClient(){
     const total=cat.r.reduce((s,e)=>s+e.amount,0);
     bndRows+=`<div class="sec-ttl">📋 ${cat.n}</div>
     <table>
-      <thead><tr><th>#</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
       <tbody>${cat.r.map((e,i)=>`<tr>
         <td class="rep-table-num">${i+1}</td>
+        <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
         <td>${cleanDate(e.entry_date)||'—'}</td>
         <td>${e.description||'—'}</td>
         <td class="amt neg">▼ ${fn(e.amount)} ج</td>
       </tr>`).join('')}</tbody>
-      <tfoot><tr><td colspan="3">إجمالي ${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
+      <tfoot><tr><td colspan="4">إجمالي ${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
     </table>`;
   });
 
