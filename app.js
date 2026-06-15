@@ -5874,7 +5874,7 @@ async function searchBySeq(){
   div.innerHTML='<div class="search-loading-msg">⏳ جاري البحث...</div>';
   try{
     const selPid=document.getElementById('srch-proj-filter').value;
-    let data=await sb('entries?seq.eq.'+seq+'&order=created_at');
+    let data=await sb('entries?seq=eq.'+seq+'&order=created_at');
     if(selPid)data=data.filter(e=>e.project_id===selPid);
     if(!data||!data.length){div.innerHTML='<div class="search-empty-msg">❌ القيد <strong>'+seq+'</strong> غير موجود</div>';return;}
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
