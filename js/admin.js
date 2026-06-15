@@ -32,7 +32,7 @@ async function pdfClient(){
   const cm={};pExp().forEach(e=>{const cat=(e.category&&e.category.trim())?e.category.trim():'متنوع';if(!cm[cat])cm[cat]=[];cm[cat].push(e);});
   const ct=Object.entries(cm).map(([n,rs])=>({n,r:rs}));
   const ic=pInc();
-  const inc=ic.reduce((s,e)=>s+e.amount,0);
+  console.log('pInc seq check:', ic.slice(0,3).map(e=>({seq:e.seq,desc:e.description})));
   const exp=ct.reduce((s,c)=>s+c.r.reduce((ss,e)=>ss+e.amount,0),0);
   const bal=inc-exp;
   const df=bal<0;
