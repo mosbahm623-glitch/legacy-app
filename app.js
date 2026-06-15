@@ -2493,7 +2493,37 @@ function re(){
     const pager=totalPages>1?`<div class="pg-bar">${cp>0?`<button class="pg-btn" onclick="window._rpPage=${cp-1};re()">‹ السابق</button>`:''}
       <span class="pg-info">صفحة ${cp+1} / ${totalPages} (${j.length} قيد)</span>
       ${cp<totalPages-1?`<button class="pg-btn" onclick="window._rpPage=${cp+1};re()">التالي ›</button>`:''}</div>`:'';
-    el.innerHTML=pager+slice.map(e=>{const ii=e.type==='i';const mq=e.contractor?'<span class="qb">'+e.contractor+'</span>':'';const ab=e.advance_id?'<span class="ab-badge">عهدة</span>':'';const no='<span class="nb">#'+(e.seq||'?')+'</span>';const del=canEdit?'<button class="db" onclick="event.stopPropagation();de(\''+e.id+'\')">🗑</button>':'';return '<div class="rw mob-card'+(canEdit?' clk':'')+'" data-eid="'+e.id+'" onclick="oe(\''+e.id+'\')"><div class="ri"><div class="rd">'+ab+mq+(e.description||'—')+no+'</div><div class="rm">'+cleanDate(e.entry_date)+' · '+(ii?'وارد':e.category||'—')+'</div></div><div class="mob-card-foot flex-center-gap"><div class="mob-card-nums"><div class="ra '+(ii?'pos':'neg')+'">'+(ii?'+':'-')+fn(Math.abs(e.amount))+' ج</div><div class="jb '+(e.bal<0?'neg':e.bal>0?'pos':'')+'">رصيد: '+fn(e.bal)+' ج</div></div>'+del+'</div></div>';}).join('')+pager;return;}
+    const tblRows=slice.map((e,i)=>{
+      const ii=e.type==='i';
+      const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
+      const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
+      const rowBg=i%2===0?'#fff':'#f7f7f5';
+      return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+        <td style="padding:7px 10px;color:#999;font-size:11px">${i+1+start}</td>
+        <td style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">#${e.seq||'?'}</span></td>
+        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
+        <td style="padding:7px 10px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${ii?'وارد':e.category||'—'}</span></td>
+        <td style="padding:7px 10px;color:#222">${ab}${e.description||'—'}</td>
+        <td style="padding:7px 10px;color:#888;font-size:11px">${e.contractor||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
+        ${del}
+      </tr>`;
+    }).join('');
+    el.innerHTML=pager+`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#1D3C2A">
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">رقم القيد</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">التاريخ</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البند</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البيان</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">المبلغ</th>
+        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">الرصيد</th>
+        ${canEdit?'<th></th>':''}
+      </tr></thead>
+      <tbody>${tblRows}</tbody>
+    </table></div>`+pager;return;}
   if(cTab==='m'){
     const mqMap={};
     pExp().filter(e=>e.contractor).forEach(e=>{
@@ -2555,15 +2585,15 @@ function re(){
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
       const no=`<span class="nb" style="font-size:10px">#${e.seq||'?'}</span>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
-      const rowBg=i%2===0?'background:var(--color-background-primary)':'background:var(--color-background-secondary)';
-      return `<tr style="${rowBg};border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='var(--color-background-tertiary)'" onmouseout="this.style.background='${i%2===0?'var(--color-background-primary)':'var(--color-background-secondary)'}'">
-        <td style="padding:7px 10px;color:var(--color-text-secondary);font-size:11px">${i+1}</td>
+      const rowBg=i%2===0?'#fff':'#f7f7f5';
+      return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+        <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
         <td style="padding:7px 10px;white-space:nowrap">${no}</td>
-        <td style="padding:7px 10px;white-space:nowrap;color:var(--color-text-secondary);font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);padding:2px 7px;border-radius:10px;color:var(--color-text-secondary)">${e.category||'—'}</span></td>
-        <td style="padding:7px 10px;color:var(--color-text-primary)">${ab}${e.description||'—'}</td>
-        <td style="padding:7px 10px;color:var(--color-text-secondary);font-size:11px">${e.contractor||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'var(--color-text-success)':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${e.category||'—'}</span></td>
+        <td style="padding:7px 10px;color:#222">${ab}${e.description||'—'}</td>
+        <td style="padding:7px 10px;color:#888;font-size:11px">${e.contractor||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'#27AE60':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         ${del}
       </tr>`;
     }).join('')}
