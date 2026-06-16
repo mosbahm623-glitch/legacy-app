@@ -2305,3 +2305,46 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   body.dark-mode .mob-card-nums .jb{background:rgba(255,255,255,.07) !important}
   #ent .rw .db{font-size:18px !important;padding:6px 10px !important;min-width:38px !important;min-height:38px !important;border-radius:8px !important}
 }
+
+/* ══ MOBILE FIXES ══════════════════════════════════════ */
+@media(max-width:767px){
+  /* KPI cards — عمودين بدل تلاتة */
+  .kp{grid-template-columns:1fr 1fr !important;gap:6px !important;padding:8px !important}
+  .kc{padding:8px 10px !important}
+  .kv{font-size:15px !important}
+  /* آخر card يبقى ممتد */
+  .kp .kc:last-child{grid-column:1/-1}
+
+  /* فورم الإدخال — عمود واحد */
+  .ig{grid-template-columns:1fr 1fr !important;gap:6px !important}
+  .ig-field.full{grid-column:1/-1 !important}
+  .ig-field{grid-column:span 1}
+
+  /* حقول الفورم أكبر للإصبع */
+  .ig input,.finp,.field-input{
+    padding:10px 12px !important;
+    font-size:14px !important;
+    min-height:44px;
+  }
+
+  /* زرار الإضافة أكبر */
+  .ab{padding:12px !important;font-size:14px !important;min-height:48px}
+  .ib{padding:12px !important;font-size:12px !important;min-height:48px}
+
+  /* بانر المشروع */
+  #entryProjBanner{font-size:13px !important;padding:6px 10px !important}
+
+  /* أزرار مصروف/وارد */
+  .tb{padding:10px !important;font-size:13px !important;min-height:44px}
+
+  /* filter tabs — scroll أفقي */
+  .cat-tabs{flex-wrap:nowrap !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch}
+  .cat-tab{flex-shrink:0 !important}
+
+  /* نموذج التعديل */
+  .ep-grid{grid-template-columns:1fr !important}
+
+  /* search bar */
+  .srch-bar{flex-direction:column !important;gap:6px !important}
+  .srch-bar input{width:100% !important}
+}
