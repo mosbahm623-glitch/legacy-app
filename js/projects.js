@@ -1176,7 +1176,15 @@ function rp(){
   projects.forEach(pr=>{const o=document.createElement('option');o.value=pr.id;o.textContent=pr.name;if(pr.id===curPid)o.selected=true;ps.appendChild(o);});
   if(p){document.getElementById('dst').value=p.start_date||'';document.getElementById('dcl').value=p.close_date||'';}
   const inc=pInc().reduce((s,e)=>s+e.amount,0),exp=pExp().reduce((s,e)=>s+e.amount,0),bal=inc-exp;
-  (document.getElementById('kp')||{}).innerHTML='<div class="kc"><div class="kl">الوارد</div><div class="kv" style="color:#185FA5">'+fn(inc)+'</div></div><div class="kc"><div class="kl">المصروف</div><div class="kv" style="color:#922B21">'+fn(exp)+'</div></div><div class="kc"><div class="kl">'+(bal<0?'⚠ عجز':'✅ الرصيد')+'</div><div class="kv" style="color:'+(bal<0?'var(--danger)':'var(--primary-btn)')+'">'+fn(bal)+'</div></div>';
+  const _pct=inc>0?Math.round((exp/inc)*100):0;
+  const _pctCls=_pct<70?'kc-pct-ok':_pct<90?'kc-pct-warn':'kc-pct-danger';
+  const _balCls=bal<0?'kc-neg':'kc-bal';
+  const _balValCls=bal<0?'kv kv-neg':'kv kv-pos';
+  const _balLbl=bal<0?'⚠ عجز':'الرصيد';
+  (document.getElementById('kp')||{}).innerHTML=
+    '<div class="kc kc-inc"><div class="kl">الوارد</div><div class="kv kv-inc">'+fn(inc)+'</div></div>'+
+    '<div class="kc kc-exp"><div class="kl">المصروف <span class="kc-pct '+_pctCls+'">'+_pct+'%</span></div><div class="kv kv-exp">'+fn(exp)+'</div><div class="kc-bar"><div class="kc-bar-fill" style="width:'+Math.min(_pct,100)+'%"></div></div></div>'+
+    '<div class="kc '+_balCls+'"><div class="kl">'+_balLbl+'</div><div class="'+_balValCls+'">'+fn(Math.abs(bal))+'</div></div>';
   // Old datalist (hidden but kept for compatibility)
   const _cl=document.getElementById('cl');if(_cl)_cl.innerHTML=[...new Set(pExp().map(e=>e.category))].filter(x=>x).map(c=>'<option value="'+c+'">').join('');
   // Refresh categories list with project categories
