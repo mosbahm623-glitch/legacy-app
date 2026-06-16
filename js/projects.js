@@ -59,6 +59,15 @@ function _clearErr(inputId, errId){
   if(el){el.classList.remove('input-err');if(el.value.trim())el.classList.add('input-ok');else el.classList.remove('input-ok');}
   if(er)er.classList.remove('show');
 }
+let _periodLocksCache=null;
+async function _getPeriodLocks(){
+  if(_periodLocksCache===null){
+    try{_periodLocksCache=await sb('period_locks?order=year.desc,month.desc&limit=50')||[];}
+    catch(e){_periodLocksCache=[];}
+  }
+  return _periodLocksCache;
+}
+function _clearPeriodLocksCache(){_periodLocksCache=null;}
 async function ae(){
   const a=parseFloat(document.getElementById('ia').value);
   const c=document.getElementById('ic').value.trim();
@@ -88,16 +97,15 @@ async function ae(){
       if(!go)return;
     }
   }
-  // تحقق من إقفال الفترة المحاسبية
+  // تحقق من إقفال الفترة المحاسبية (من الكاش)
   if(dt){
-    try{
-      const _p=dt.split('/');
-      if(_p.length===3){
-        const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
-        const _lock=await sb('period_locks?year=eq.'+_yr+'&month=eq.'+_mo+'&limit=1');
-        if(_lock&&_lock.length){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
-      }
-    }catch(e){console.warn('period lock check skipped',e);}
+    const _p=dt.split('/');
+    if(_p.length===3){
+      const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
+      const _locks=await _getPeriodLocks();
+      const _locked=_locks.find(l=>l.year===_yr&&l.month===_mo);
+      if(_locked){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
+    }
   }
   // تحقق من قيد مكرر (نفس البيان + المبلغ + التاريخ في نفس المشروع)
   const _dup=entries.find(e=>e.description===d&&parseFloat(e.amount)===a&&e.entry_date===dt&&e.type===cT);
@@ -202,15 +210,14 @@ async function submitPwConfirm(){
 
 async function de(id){
   const delEntry=allEntries.find(e=>e.id===id);
-  // تحقق من إقفال الفترة قبل الحذف
+  // تحقق من إقفال الفترة قبل الحذف (من الكاش)
   if(delEntry&&delEntry.entry_date){
-    try{
-      const _p=delEntry.entry_date.split('/');
-      if(_p.length===3){
-        const _lck=await sb('period_locks?year=eq.'+_p[2]+'&month=eq.'+parseInt(_p[1])+'&limit=1');
-        if(_lck&&_lck.length){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
-      }
-    }catch(e){console.warn('period lock delete check skipped',e);}
+    const _p=delEntry.entry_date.split('/');
+    if(_p.length===3){
+      const _locks=await _getPeriodLocks();
+      const _locked=_locks.find(l=>l.year===parseInt(_p[2])&&l.month===parseInt(_p[1]));
+      if(_locked){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
+    }
   }
   // منع حذف قيد معتمد
   if(delEntry&&delEntry.status==='approved'){
