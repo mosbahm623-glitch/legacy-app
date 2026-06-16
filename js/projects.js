@@ -326,18 +326,18 @@ function filterArchive(q){
 }
 
 async function openArchivedEntries(pid){
-  // نضيف المشروع المؤرشف مؤقتاً عشان يتحمّل
   const archProj=_archiveData.find(p=>p.id===pid);
   if(!archProj)return;
-  // لو مش موجود في allProjects نضيفه مؤقتاً
+  // نضيفه مؤقتاً في allProjects و projects عشان rp() تشتغل صح
   if(!allProjects.find(p=>p.id===pid)){
     allProjects.push(archProj);
     allProjectsMap[pid]=archProj;
   }
-  // نروح شاشة المشاريع ونفتح المشروع ده
+  if(!projects.find(p=>p.id===pid)){
+    projects.push(archProj);
+  }
   showScreen('proj');
   await sw(pid);
-  // نبيّن إنه مؤرشف
   setSav('📦 مشروع مؤرشف — يمكن التعديل على قيوده','ok');
 }
 
@@ -1048,7 +1048,7 @@ async function editDueDate(id,currentDate){
 }
 
 function tim(){const im=document.getElementById('im');im.style.display=im.style.display==='block'?'none':'block';sit(cT);}
-function sit(t){imType=t;document.getElementById('imE').classList.toggle('on',t==='e');document.getElementById('imI').classList.toggle('on',t==='i');document.getElementById('imH').textContent=t==='e'?'الترتيب: المبلغ ⇥ البند ⇥ البيان ⇥ التاريخ ⇥ المقاول':'الترتيب: المبلغ ⇥ البيان ⇥ التاريخ';}
+function sit(t){imType=t;const imE=document.getElementById('imE');const imI=document.getElementById('imI');const imH=document.getElementById('imH');if(imE)imE.classList.toggle('on',t==='e');if(imI)imI.classList.toggle('on',t==='i');if(imH)imH.textContent=t==='e'?'الترتيب: المبلغ ⇥ البند ⇥ البيان ⇥ التاريخ ⇥ المقاول':'الترتيب: المبلغ ⇥ البيان ⇥ التاريخ';}
 
 function triggerImport(){sit(cT);document.getElementById('xlsxFileInput').click();}
 
