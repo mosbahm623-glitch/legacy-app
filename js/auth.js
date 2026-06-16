@@ -96,6 +96,7 @@ async function initApp(){
     uRole!=='viewer' ? loadProjects() : Promise.resolve()
   ]);
   if(uRole!=='viewer') buildSidebarProjects();
+  if(uRole!=='viewer') _updateEntryBanner();
   initAllDateInputs();
   checkAdvNotifications();
   setInterval(checkAdvNotifications, 15000);
