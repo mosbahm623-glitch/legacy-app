@@ -792,6 +792,7 @@ body.dark-mode .daily-entry{background:var(--dark-card);box-shadow:none;border:1
 .ig-err{font-size:10px;color:#A32D2D;display:none}
 .ig-err.show{display:block}
 .ig input.input-err{border-color:#E24B4A!important;background:#FCEBEB!important}
+.ig input.input-ok{border-color:#639922!important;background:#EAF3DE!important}
 .ig input.req-left{border-right:2px solid var(--primary);border-radius:0 6px 6px 0}
 .cat-dd-trig{position:relative;display:flex;align-items:center}
 .cat-dd-trig input{flex:1;padding:7px 28px 7px 9px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;background:#fff;cursor:pointer}
