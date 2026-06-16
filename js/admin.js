@@ -1,5 +1,6 @@
 async function loadAdminPanel(){
   setSav('⏳ جاري تحميل لوحة الإدارة...','ng');
+  initLockYears();
   try{
     const allP=await sb('profiles?order=created_at');
     const allA=await sb('project_access');
@@ -350,3 +351,36 @@ function cleanupRealtime(){
 
 
 // ██ UI COMPONENTS ══════════════════════════════════
+
+// ── إقفال الفترة المحاسبية ─────────────────────────────
+async function initLockYears(){
+  const sel=document.getElementById('lockYear');if(!sel)return;
+  const yr=new Date().getFullYear();
+  sel.innerHTML=[yr-1,yr,yr+1].map(y=>`<option value="${y}"${y===yr?' selected':''}>${y}</option>`).join('');
+  const mo=new Date().getMonth()+1;
+  document.getElementById('lockMonth').value=mo;
+  loadLockedPeriods();
+}
+async function loadLockedPeriods(){
+  const el=document.getElementById('lockedPeriodsList');if(!el)return;
+  const locks=await sb('period_locks?order=year.desc,month.desc&limit=24');
+  if(!locks||!locks.length){el.textContent='لا توجد فترات مقفولة حالياً';return;}
+  const months=['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  el.innerHTML='<strong>الفترات المقفولة:</strong> '+locks.map(l=>`<span style="background:#FCEBEB;color:#791F1F;padding:2px 8px;border-radius:4px;margin:2px;display:inline-block;font-size:11px">🔒 ${months[l.month]} ${l.year}</span>`).join('');
+}
+async function lockPeriod(){
+  const yr=parseInt(document.getElementById('lockYear').value);
+  const mo=parseInt(document.getElementById('lockMonth').value);
+  try{
+    await sb('period_locks','POST',{year:yr,month:mo,locked_by:uid});
+    notify(`✅ تم إقفال ${mo}/${yr}`,'ok');
+    loadLockedPeriods();
+  }catch(e){notify('❌ الشهر ده مقفول بالفعل','err');}
+}
+async function unlockPeriod(){
+  const yr=parseInt(document.getElementById('lockYear').value);
+  const mo=parseInt(document.getElementById('lockMonth').value);
+  await sb('period_locks?year=eq.'+yr+'&month=eq.'+mo,'DELETE');
+  notify(`✅ تم فتح ${mo}/${yr}`,'ok');
+  loadLockedPeriods();
+}
