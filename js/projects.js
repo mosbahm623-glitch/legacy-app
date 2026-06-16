@@ -78,19 +78,21 @@ async function ae(){
   _mark('ic','err-ic',cT==='e'&&!c);
   _mark('id_','err-id_',!d);
   if(_hasErr){notify('❌ اكمل الحقول الإلزامية','err');return;}
+  // تحويل التاريخ dd/mm/yyyy لـ Date object
+  function _parseDate(s){if(!s)return null;const p=s.split('/');if(p.length===3)return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));return null;}
   // تحذير لو التاريخ في المستقبل
   if(dt){
-    const entDt=new Date(dt);const today=new Date();today.setHours(0,0,0,0);
-    if(entDt>today){
-      const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'تاريخ في المستقبل',msg:'التاريخ المدخل ('+document.getElementById('idt').value+') في المستقبل. متأكد؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
+    const entDt=_parseDate(dt);const today=new Date();today.setHours(0,0,0,0);
+    if(entDt&&entDt>today){
+      const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'تاريخ في المستقبل',msg:'التاريخ المدخل ('+dt+') في المستقبل. متأكد؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
       if(!go)return;
     }
   }
   // تحقق من إقفال الفترة المحاسبية
   if(dt){
-    const _dtParts=dt.split('-');
-    if(_dtParts.length>=2){
-      const _yr=parseInt(_dtParts[0]);const _mo=parseInt(_dtParts[1]);
+    const _p=dt.split('/');
+    if(_p.length===3){
+      const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
       const _lock=await sb('period_locks?year=eq.'+_yr+'&month=eq.'+_mo+'&limit=1');
       if(_lock&&_lock.length){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
     }
