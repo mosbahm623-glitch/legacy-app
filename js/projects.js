@@ -273,6 +273,101 @@ async function sed(){
     }catch(e){setSav('❌ '+friendlyError(e),'er');}
   });
 }
+
+// ══ إيصال PDF ═══════════════════════════════════════════
+function printReceipt(id){
+  const e=allEntries.find(x=>x.id===id)||entries.find(x=>x.id===id);
+  if(!e){notify('لم يتم العثور على القيد','err');return;}
+  const proj=allProjectsMap[e.project_id]?.name||'—';
+  const payType=e.entry_type==='payment'?'دفعة نقدية/تحويل':e.entry_type==='work'?'أعمال':e.entry_type==='material'?'مصنعيات':'—';
+  const isExp=e.type==='e';
+  const isInc=e.type==='i';
+  const typeLbl=isExp?'دفعة مقاول':'وارد عميل';
+  const fn2=n=>Number(n).toLocaleString('ar-EG');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>إيصال رقم ${e.seq||'—'}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Cairo','Segoe UI',sans-serif;background:#fff;color:#111;padding:40px;direction:rtl}
+  .logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:2px solid #1C3A1C}
+  .logo-name{font-size:22px;font-weight:700;color:#1C3A1C}
+  .logo-sub{font-size:11px;color:#666;margin-top:2px}
+  .receipt-type{font-size:13px;font-weight:600;padding:4px 14px;border-radius:20px;background:${isExp?'#FCEBEB':'#EAF3DE'};color:${isExp?'#791F1F':'#27500A'};border:1px solid ${isExp?'#F7C1C1':'#C0DD97'}}
+  .receipt-num{text-align:center;margin-bottom:28px}
+  .receipt-num h2{font-size:18px;font-weight:700;color:#1C3A1C;margin-bottom:4px}
+  .receipt-num p{font-size:12px;color:#888}
+  .amount-box{background:#F5F9F2;border:2px solid #1C3A1C;border-radius:12px;padding:20px;text-align:center;margin-bottom:28px}
+  .amount-lbl{font-size:12px;color:#555;margin-bottom:6px}
+  .amount-val{font-size:36px;font-weight:700;color:#1C3A1C}
+  .amount-unit{font-size:16px;color:#555;margin-right:4px}
+  .details-table{width:100%;border-collapse:collapse;margin-bottom:28px}
+  .details-table tr{border-bottom:1px solid #E8F0E8}
+  .details-table td{padding:10px 8px;font-size:13px}
+  .details-table td:first-child{color:#666;width:140px;font-weight:500}
+  .details-table td:last-child{font-weight:600;color:#111}
+  .sig-row{display:flex;justify-content:space-between;margin-top:40px;gap:40px}
+  .sig-box{flex:1;text-align:center}
+  .sig-line{border-top:1px solid #999;margin-bottom:8px;margin-top:50px}
+  .sig-lbl{font-size:11px;color:#777}
+  .footer{text-align:center;margin-top:40px;padding-top:16px;border-top:1px solid #E8F0E8;font-size:10px;color:#aaa}
+  @media print{body{padding:20px}.no-print{display:none}}
+</style>
+</head>
+<body>
+<div class="logo-row">
+  <div>
+    <div class="logo-name">Legacy Fine Touch</div>
+    <div class="logo-sub">Construction & Finishing</div>
+  </div>
+  <div class="receipt-type">${typeLbl}</div>
+</div>
+
+<div class="receipt-num">
+  <h2>إيصال رقم ${e.seq||'—'}</h2>
+  <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
+</div>
+
+<div class="amount-box">
+  <div class="amount-lbl">${isExp?'المبلغ المدفوع':'المبلغ المستلم'}</div>
+  <div class="amount-val">${fn2(Math.abs(e.amount))}<span class="amount-unit">ج</span></div>
+</div>
+
+<table class="details-table">
+  <tr><td>المشروع</td><td>${proj}</td></tr>
+  <tr><td>البيان</td><td>${e.description||'—'}</td></tr>
+  <tr><td>التاريخ</td><td>${e.entry_date||'—'}</td></tr>
+  ${isExp&&e.contractor?`<tr><td>المقاول</td><td>${e.contractor}</td></tr>`:''}
+  ${isExp&&e.entry_type?`<tr><td>طريقة الدفع</td><td>${payType}</td></tr>`:''}
+  <tr><td>البند</td><td>${e.category||'—'}</td></tr>
+  <tr><td>رقم القيد</td><td>${e.seq||'—'}</td></tr>
+</table>
+
+<div class="sig-row">
+  <div class="sig-box">
+    <div class="sig-line"></div>
+    <div class="sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div>
+  </div>
+  <div class="sig-box">
+    <div class="sig-line"></div>
+    <div class="sig-lbl">المحاسب</div>
+  </div>
+  <div class="sig-box">
+    <div class="sig-line"></div>
+    <div class="sig-lbl">المدير</div>
+  </div>
+</div>
+
+<div class="footer">Legacy Fine Touch — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
+
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`);
+  w.document.close();
+}
+
 function _updateEntryBanner(){
   const el=document.getElementById('entryProjName');
   if(el)el.textContent=allProjectsMap[curPid]?.name||'—';
@@ -1325,6 +1420,7 @@ function re(){
     const tblRows=slice.map((e,i)=>{
       const ii=e.type==='i';
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
+      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:none;border:none;cursor:pointer;font-size:13px">🧾</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
@@ -1413,6 +1509,7 @@ function re(){
     ${es.map((e,i)=>{
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
       const no=`<span class="nb" style="font-size:10px">${e.seq||'?'}</span>`;
+      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:none;border:none;cursor:pointer;font-size:13px">🧾</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
