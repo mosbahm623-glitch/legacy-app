@@ -292,6 +292,18 @@ async function printReceipt(id){
   const typeLbl=isExp?'دفعة مقاول':'وارد عميل';
   const fn2=n=>Number(n).toLocaleString('en-EG');
   const w=window.open('','_blank');
+  const hdrBg=isExp?'#1C3A1C':'#0C447C';
+  const hdrClr=isExp?'#C0DD97':'#B5D4F4';
+  const amtBg=isExp?'#1C3A1C':'#0C447C';
+  const heroBg=isExp?'#EAF3DE':'#E6F1FB';
+  const heroClr=isExp?'#27500A':'#0C447C';
+  const heroSub=isExp?'#3B6D11':'#185FA5';
+  const heroBorder=isExp?'#C0DD97':'#B5D4F4';
+  const confirmBg=isExp?'#EAF3DE':'#E6F1FB';
+  const confirmClr=isExp?'#27500A':'#0C447C';
+  const confirmBorder=isExp?'#C0DD97':'#B5D4F4';
+  const footBg=isExp?'#EAF3DE':'#E6F1FB';
+  const footClr=isExp?'#3B6D11':'#378ADD';
   w.document.write(`<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
@@ -299,77 +311,70 @@ async function printReceipt(id){
 <title>إيصال رقم ${e.seq||'—'}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Cairo','Segoe UI',sans-serif;background:#fff;color:#111;padding:40px;direction:rtl}
-  .logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:2px solid #1C3A1C}
-  .logo-name{font-size:22px;font-weight:700;color:#1C3A1C}
-  .logo-sub{font-size:11px;color:#666;margin-top:2px}
-  .receipt-type{font-size:13px;font-weight:600;padding:4px 14px;border-radius:20px;background:${isExp?'#FCEBEB':'#EAF3DE'};color:${isExp?'#791F1F':'#27500A'};border:1px solid ${isExp?'#F7C1C1':'#C0DD97'}}
-  .receipt-num{text-align:center;margin-bottom:28px}
-  .receipt-num h2{font-size:18px;font-weight:700;color:#1C3A1C;margin-bottom:4px}
-  .receipt-num p{font-size:12px;color:#888}
-  .amount-box{background:#F5F9F2;border:2px solid #1C3A1C;border-radius:12px;padding:20px;text-align:center;margin-bottom:28px}
-  .amount-lbl{font-size:12px;color:#555;margin-bottom:6px}
-  .amount-val{font-size:36px;font-weight:700;color:#1C3A1C}
-  .amount-unit{font-size:16px;color:#555;margin-right:4px}
-  .details-table{width:100%;border-collapse:collapse;margin-bottom:28px}
-  .details-table tr{border-bottom:1px solid #E8F0E8}
-  .details-table td{padding:10px 8px;font-size:13px}
-  .details-table td:first-child{color:#666;width:140px;font-weight:500}
-  .details-table td:last-child{font-weight:600;color:#111}
-  .sig-row{display:flex;justify-content:space-between;margin-top:40px;gap:40px}
-  .sig-box{flex:1;text-align:center}
-  .sig-line{border-top:1px solid #999;margin-bottom:8px;margin-top:50px}
-  .sig-lbl{font-size:11px;color:#777}
-  .footer{text-align:center;margin-top:40px;padding-top:16px;border-top:1px solid #E8F0E8;font-size:10px;color:#aaa}
-  @media print{body{padding:20px}.no-print{display:none}}
+  body{font-family:'Cairo','Segoe UI',sans-serif;background:#fff;color:#111;direction:rtl;max-width:580px;margin:0 auto}
+  .rcpt-head{background:${hdrBg};padding:22px 24px;display:flex;align-items:center;justify-content:space-between}
+  .rcpt-brand{color:${hdrClr};font-size:18px;font-weight:600}
+  .rcpt-badge{font-size:11px;font-weight:600;padding:3px 12px;border-radius:4px;background:rgba(255,255,255,0.12);color:${hdrClr};border:1px solid rgba(255,255,255,0.2)}
+  .rcpt-hero{background:${heroBg};padding:22px 24px;text-align:center;border-bottom:1px solid ${heroBorder}}
+  .rcpt-hero-num{font-size:12px;color:${heroSub};margin-bottom:6px;letter-spacing:.5px}
+  .rcpt-hero-seq{font-size:20px;font-weight:700;color:${heroClr};margin-bottom:2px}
+  .rcpt-hero-date{font-size:11px;color:${heroSub}}
+  .rcpt-amount{margin:20px 24px;background:${amtBg};border-radius:10px;padding:18px;text-align:center}
+  .rcpt-amount-lbl{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:6px}
+  .rcpt-amount-val{font-size:34px;font-weight:700;color:#fff}
+  .rcpt-amount-unit{font-size:15px;color:rgba(255,255,255,0.6);margin-right:4px}
+  .rcpt-sec-lbl{font-size:10px;font-weight:600;color:#999;letter-spacing:.5px;padding:0 24px;margin-bottom:6px;text-transform:uppercase}
+  .rcpt-table{width:calc(100% - 48px);margin:0 24px 16px;border-collapse:collapse}
+  .rcpt-table tr{border-bottom:1px solid #eee}
+  .rcpt-table tr:last-child{border:none}
+  .rcpt-table td{padding:9px 4px;font-size:13px}
+  .rcpt-table td:first-child{color:#888;width:130px}
+  .rcpt-table td:last-child{font-weight:600;color:#111;text-align:left}
+  .rcpt-confirm{margin:0 24px 20px;background:${confirmBg};border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;border:1px solid ${confirmBorder}}
+  .rcpt-confirm-text{font-size:12px;color:${confirmClr};font-weight:500}
+  .rcpt-sigs{display:flex;border-top:1px solid #eee}
+  .rcpt-sig{flex:1;padding:20px 12px 16px;text-align:center;border-right:1px solid #eee}
+  .rcpt-sig:last-child{border:none}
+  .rcpt-sig-line{border-top:1px solid #bbb;margin-bottom:8px;margin-top:36px}
+  .rcpt-sig-lbl{font-size:11px;color:#999}
+  .rcpt-footer{background:${footBg};padding:10px 24px;text-align:center;font-size:10px;color:${footClr};border-top:1px solid ${heroBorder}}
+  @media print{body{max-width:100%}}
 </style>
 </head>
 <body>
-<div class="logo-row">
-  <div>
-    <div class="logo-name">Legacy Fine Touch</div>
-  </div>
-  <div class="receipt-type">${typeLbl}</div>
+<div class="rcpt-head">
+  <div class="rcpt-brand">Legacy Fine Touch</div>
+  <div class="rcpt-badge">${typeLbl}</div>
 </div>
-
-<div class="receipt-num">
-  <h2>إيصال رقم ${e.seq||'—'}</h2>
-  <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
+<div class="rcpt-hero">
+  <div class="rcpt-hero-num">إيصال رقم</div>
+  <div class="rcpt-hero-seq">${e.seq||'—'}</div>
+  <div class="rcpt-hero-date">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
 </div>
-
-<div class="amount-box">
-  <div class="amount-lbl">${isExp?'المبلغ المدفوع':'المبلغ المستلم'}</div>
-  <div class="amount-val">${fn2(Math.abs(e.amount))}<span class="amount-unit">ج</span></div>
+<div class="rcpt-amount">
+  <div class="rcpt-amount-lbl">${isExp?'المبلغ المدفوع':'المبلغ المستلم'}</div>
+  <div class="rcpt-amount-val">${fn2(Math.abs(e.amount))}<span class="rcpt-amount-unit"> ج</span></div>
 </div>
-
-<table class="details-table">
+<div class="rcpt-sec-lbl">تفاصيل الإيصال</div>
+<table class="rcpt-table">
   <tr><td>المشروع</td><td>${proj}</td></tr>
   <tr><td>البيان</td><td>${e.description||'—'}</td></tr>
   <tr><td>التاريخ</td><td>${e.entry_date||'—'}</td></tr>
   ${isExp&&e.contractor?`<tr><td>المقاول</td><td>${e.contractor}</td></tr>`:''}
   ${isExp&&e.entry_type?`<tr><td>طريقة الدفع</td><td>${payType}</td></tr>`:''}
-  <tr><td>البند</td><td>${e.category||'—'}</td></tr>
+  ${isExp?`<tr><td>البند</td><td>${e.category||'—'}</td></tr>`:''}
   <tr><td>رقم القيد</td><td>${e.seq||'—'}</td></tr>
   <tr><td>أدخله</td><td>${_creatorName}</td></tr>
 </table>
-
-<div class="sig-row">
-  <div class="sig-box">
-    <div class="sig-line"></div>
-    <div class="sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div>
-  </div>
-  <div class="sig-box">
-    <div class="sig-line"></div>
-    <div class="sig-lbl">المحاسب</div>
-  </div>
-  <div class="sig-box">
-    <div class="sig-line"></div>
-    <div class="sig-lbl">المهندس</div>
-  </div>
+<div class="rcpt-confirm">
+  <div class="rcpt-confirm-text">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
 </div>
-
-<div class="footer">Legacy Fine Touch — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
-
+<div class="rcpt-sigs">
+  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
+  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
+  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المهندس</div></div>
+</div>
+<div class="rcpt-footer">Legacy Fine Touch — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
 <script>window.onload=()=>window.print();<\/script>
 </body></html>`);
   w.document.close();
