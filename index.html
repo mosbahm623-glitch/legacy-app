@@ -419,7 +419,7 @@
                 <div class="ig-lbl">البيان <span class="ig-req">*</span></div>
                 <div class="cat-dd-trig pos-rel-flex1">
                   <input id="id_" placeholder="وصف العملية..." autocomplete="off"
-                    oninput="onDescInput(this.value)" onclick="onDescInput(this.value)"
+                    oninput="onDescInput(this.value);_clearErr('id_','err-id_')" onclick="onDescInput(this.value)"
                     class="input-full">
                   <div class="cat-dd" id="descDD" style="display:none">
                     <div id="descList"></div>
@@ -429,19 +429,19 @@
               </div>
               <div class="ig-field">
                 <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
-                <input id="ia" type="number" placeholder="0.00" step="any" class="req-left">
+                <input id="ia" type="number" placeholder="0.00" step="any" class="req-left" oninput="_clearErr('ia','err-ia')">
                 <div class="ig-err" id="err-ia">إلزامي</div>
               </div>
               <div class="ig-field">
                 <div class="ig-lbl">التاريخ <span class="ig-req">*</span></div>
-                <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left">
+                <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left" oninput="_clearErr('idt','err-idt')">
                 <div class="ig-err" id="err-idt">إلزامي</div>
               </div>
               <div class="ig-field" id="catWrap">
                 <div class="ig-lbl">البند <span class="ig-req">*</span></div>
                 <div class="cat-wrap-row">
                   <div class="cat-dd-trig cat-dd-flex1">
-                    <input id="ic" placeholder="اختر البند..." autocomplete="off" oninput="onCatSearch(this.value)" onclick="toggleCatDD()" class="input-full req-left">
+                    <input id="ic" placeholder="اختر البند..." autocomplete="off" oninput="onCatSearch(this.value);_clearErr('ic','err-ic')" onclick="toggleCatDD()" class="input-full req-left">
                     <span class="cat-arr" id="catArr">▾</span>
                     <div class="cat-dd" id="catDD" style="display:none">
                       <div class="cat-dd-search"><input id="catSrch" placeholder="🔍 بحث في البنود..." oninput="onCatSearch(this.value)"></div>
