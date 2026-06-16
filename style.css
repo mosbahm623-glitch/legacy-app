@@ -575,10 +575,24 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .gsm{background:var(--primary);color:var(--accent);border:none;border-radius:5px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500}
 .dates{padding:5px 12px;background:var(--bg-warm);font-size:10px;color:var(--primary);display:flex;gap:4px}
 .dates input{flex:1;background:transparent;border:none;font-size:10px;color:var(--primary);padding:2px;font-family:inherit}
-.kp{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--primary-muted);padding:3px;gap:2px}
-.kc{background:#fff;padding:7px;text-align:center;border-radius:3px}
-.kl{font-size:9px;color:var(--text-muted)}
-.kv{font-size:12px;font-weight:700;margin-top:2px}
+.kp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 14px;background:var(--bg-surface);border-bottom:0.5px solid var(--border-faint)}
+.kc{background:var(--bg-faint);border-radius:8px;padding:10px 12px;border-top:2.5px solid var(--border)}
+.kc.kc-inc{border-top-color:#378ADD}
+.kc.kc-exp{border-top-color:#E24B4A}
+.kc.kc-bal{border-top-color:#639922}
+.kc.kc-neg{border-top-color:#E24B4A}
+.kl{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.kv{font-size:18px;font-weight:500;line-height:1.2}
+.kv-inc{color:#185FA5}
+.kv-exp{color:#A32D2D}
+.kv-pos{color:#27500A}
+.kv-neg{color:#A32D2D}
+.kc-bar{height:3px;border-radius:2px;background:var(--border-faint);margin-top:6px;overflow:hidden}
+.kc-bar-fill{height:100%;border-radius:2px;background:#E24B4A}
+.kc-pct{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:500}
+.kc-pct-ok{background:#EAF3DE;color:#27500A}
+.kc-pct-warn{background:#FAEEDA;color:#633806}
+.kc-pct-danger{background:#FCEBEB;color:#791F1F}
 .ef{background:var(--bg-surface);padding:10px 12px;border-bottom:1px solid var(--border-neutral)}
 .tt{display:flex;gap:4px;margin-bottom:8px}
 .tb{flex:1;padding:7px;border:1px solid var(--border);border-radius:5px;background:#fff;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500}
