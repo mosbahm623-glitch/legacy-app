@@ -1532,7 +1532,7 @@ function re(){
         <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'#27AE60':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        ${del}
+        ${rcpt}${del}
       </tr>`;
     }).join('')}
     </tbody>
