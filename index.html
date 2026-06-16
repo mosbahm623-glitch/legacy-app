@@ -409,6 +409,13 @@
         <div class="kp" id="kp"></div>
         <div id="entryForm">
           <div class="ef">
+            <div id="entryProjBanner" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-faint);border:0.5px solid var(--border);border-right:3px solid var(--primary);border-radius:0 6px 6px 0;padding:7px 10px;margin-bottom:8px;font-size:12px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="color:var(--text-muted)">🏗️ المشروع:</span>
+                <span id="entryProjName" style="font-weight:600;color:var(--text-body)">—</span>
+              </div>
+              <span id="entryProjStatus" style="font-size:10px;background:var(--success-pale);color:var(--success);border:0.5px solid var(--success-muted);padding:2px 8px;border-radius:4px;font-weight:500">نشط</span>
+            </div>
             <div class="tt">
               <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
               <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
@@ -423,11 +430,11 @@
                   <div id="descList"></div>
                 </div>
               </div>
-              <input id="ia" type="number" placeholder="المبلغ (ج)" step="any">
+              <input id="ia" type="number" placeholder="المبلغ (ج) *" step="any">
               <!-- صف تاني: البند + التاريخ -->
               <div class="cat-wrap-row" id="catWrap">
                 <div class="cat-dd-trig cat-dd-flex1">
-                  <input id="ic" placeholder="🏷️ اختار البند..." autocomplete="off" oninput="onCatSearch(this.value)" onclick="toggleCatDD()" class="input-full">
+                  <input id="ic" placeholder="🏷️ البند *" autocomplete="off" oninput="onCatSearch(this.value)" onclick="toggleCatDD()" class="input-full">
                   <span class="cat-arr" id="catArr">▾</span>
                   <div class="cat-dd" id="catDD" style="display:none">
                     <div class="cat-dd-search"><input id="catSrch" placeholder="🔍 بحث في البنود..." oninput="onCatSearch(this.value)"></div>
@@ -438,7 +445,7 @@
                 <button class="cat-plus-btn" onclick="addNewCat()" title="إضافة بند جديد">+</button>
               <datalist id="cl"></datalist>
               </div>
-              <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10">
+              <input id="idt" type="text" placeholder="dd/mm/yyyy *" maxlength="10">
               <!-- صف تالت: المقاول -->
               <div class="cat-dd-trig fl pos-rel" id="mqWrap">
                 <input id="iq" class="mq" placeholder="👷 المقاول (اختياري)" autocomplete="off"
