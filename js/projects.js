@@ -78,6 +78,29 @@ async function ae(){
   _mark('ic','err-ic',cT==='e'&&!c);
   _mark('id_','err-id_',!d);
   if(_hasErr){notify('❌ اكمل الحقول الإلزامية','err');return;}
+  // تحذير لو التاريخ في المستقبل
+  if(dt){
+    const entDt=new Date(dt);const today=new Date();today.setHours(0,0,0,0);
+    if(entDt>today){
+      const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'تاريخ في المستقبل',msg:'التاريخ المدخل ('+document.getElementById('idt').value+') في المستقبل. متأكد؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
+      if(!go)return;
+    }
+  }
+  // تحقق من إقفال الفترة المحاسبية
+  if(dt){
+    const _dtParts=dt.split('-');
+    if(_dtParts.length>=2){
+      const _yr=parseInt(_dtParts[0]);const _mo=parseInt(_dtParts[1]);
+      const _lock=await sb('period_locks?year=eq.'+_yr+'&month=eq.'+_mo+'&limit=1');
+      if(_lock&&_lock.length){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
+    }
+  }
+  // تحقق من قيد مكرر (نفس البيان + المبلغ + التاريخ في نفس المشروع)
+  const _dup=entries.find(e=>e.description===d&&parseFloat(e.amount)===a&&e.entry_date===dt&&e.type===cT);
+  if(_dup){
+    const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'قيد مشابه موجود',msg:'يوجد قيد بنفس البيان والمبلغ والتاريخ (#'+(_dup.seq||'؟')+')\nمتأكد إنه مش مكرر؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
+    if(!go)return;
+  }
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
@@ -174,6 +197,25 @@ async function submitPwConfirm(){
 }
 
 async function de(id){
+  const delEntry=allEntries.find(e=>e.id===id);
+  // تحقق من إقفال الفترة قبل الحذف
+  if(delEntry&&delEntry.entry_date){
+    const _p=delEntry.entry_date.split('-');
+    if(_p.length>=2){
+      const _lck=await sb('period_locks?year=eq.'+_p[0]+'&month=eq.'+parseInt(_p[1])+'&limit=1');
+      if(_lck&&_lck.length){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
+    }
+  }
+  // منع حذف قيد معتمد
+  if(delEntry&&delEntry.status==='approved'){
+    notify('❌ القيد معتمد — لا يمكن حذفه','err');return;
+  }
+  // منع حذف قيد أقدم من 7 أيام — إلا الأدمن
+  if(uRole!=='admin'&&delEntry){
+    const entryDate=new Date(delEntry.created_at||delEntry.entry_date);
+    const diffDays=Math.floor((Date.now()-entryDate.getTime())/(1000*60*60*24));
+    if(diffDays>7){notify('❌ لا يمكن حذف قيد أقدم من 7 أيام — تواصل مع الأدمن','err');return;}
+  }
   confirmWithPassword('تأكيد حذف القيد','🗑️',async()=>{
     setSav('💾 جاري الحذف...','ng');
     try{
@@ -512,6 +554,8 @@ async function upm(k,v){const u=k==='s'?{start_date:v}:{close_date:v};try{await 
 function oe(id){
   if(uRole==='viewer')return;
   const e=entries.find(x=>x.id===id);if(!e)return;
+  // منع تعديل قيد معتمد
+  if(e.status==='approved'){notify('❌ القيد معتمد — لا يمكن تعديله','err');return;}
   edId=id;edType=e.type;
   document.getElementById('ep-t').textContent='تعديل القيد '+(e.seq||'?');
   // populate project dropdown
