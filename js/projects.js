@@ -279,11 +279,11 @@ async function printReceipt(id){
   const e=allEntries.find(x=>x.id===id)||entries.find(x=>x.id===id);
   if(!e){notify('لم يتم العثور على القيد','err');return;}
   const proj=allProjectsMap[e.project_id]?.name||'—';
-  let _creatorName='—';
+  let _creatorName='Legacy';
   try{
     if(e.created_by){
       const _prof=await sb('profiles?id=eq.'+e.created_by+'&select=name');
-      if(_prof&&_prof.length)_creatorName=_prof[0].name||'—';
+      if(_prof&&_prof.length)_creatorName=_prof[0].name||'Legacy';
     }
   }catch(err){}
   const payType=e.entry_type==='payment'?'دفعة نقدية/تحويل':e.entry_type==='work'?'أعمال':e.entry_type==='material'?'مصنعيات':'—';
