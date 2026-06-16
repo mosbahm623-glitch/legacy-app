@@ -283,7 +283,7 @@ function printReceipt(id){
   const isExp=e.type==='e';
   const isInc=e.type==='i';
   const typeLbl=isExp?'دفعة مقاول':'وارد عميل';
-  const fn2=n=>Number(n).toLocaleString('ar-EG');
+  const fn2=n=>Number(n).toLocaleString('en-EG');
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -321,7 +321,6 @@ function printReceipt(id){
 <div class="logo-row">
   <div>
     <div class="logo-name">Legacy Fine Touch</div>
-    <div class="logo-sub">Construction & Finishing</div>
   </div>
   <div class="receipt-type">${typeLbl}</div>
 </div>
