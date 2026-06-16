@@ -275,10 +275,17 @@ async function sed(){
 }
 
 // ══ إيصال PDF ═══════════════════════════════════════════
-function printReceipt(id){
+async function printReceipt(id){
   const e=allEntries.find(x=>x.id===id)||entries.find(x=>x.id===id);
   if(!e){notify('لم يتم العثور على القيد','err');return;}
   const proj=allProjectsMap[e.project_id]?.name||'—';
+  let _creatorName='—';
+  try{
+    if(e.created_by){
+      const _prof=await sb('profiles?id=eq.'+e.created_by+'&select=name');
+      if(_prof&&_prof.length)_creatorName=_prof[0].name||'—';
+    }
+  }catch(err){}
   const payType=e.entry_type==='payment'?'دفعة نقدية/تحويل':e.entry_type==='work'?'أعمال':e.entry_type==='material'?'مصنعيات':'—';
   const isExp=e.type==='e';
   const isInc=e.type==='i';
@@ -343,6 +350,7 @@ function printReceipt(id){
   ${isExp&&e.entry_type?`<tr><td>طريقة الدفع</td><td>${payType}</td></tr>`:''}
   <tr><td>البند</td><td>${e.category||'—'}</td></tr>
   <tr><td>رقم القيد</td><td>${e.seq||'—'}</td></tr>
+  <tr><td>أدخله</td><td>${_creatorName}</td></tr>
 </table>
 
 <div class="sig-row">
