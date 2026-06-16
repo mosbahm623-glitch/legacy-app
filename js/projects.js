@@ -357,7 +357,7 @@ function printReceipt(id){
   </div>
   <div class="sig-box">
     <div class="sig-line"></div>
-    <div class="sig-lbl">المدير</div>
+    <div class="sig-lbl">المهندس</div>
   </div>
 </div>
 
