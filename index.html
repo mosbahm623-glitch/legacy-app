@@ -415,37 +415,52 @@
               <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
             </div>
             <div class="ig">
-              <!-- صف أول: البيان + المبلغ -->
-              <div class="cat-dd-trig pos-rel-flex1" id="descWrap">
-                <input id="id_" placeholder="البيان" autocomplete="off"
-                  oninput="onDescInput(this.value)" onclick="onDescInput(this.value)"
-                  class="input-full">
-                <div class="cat-dd" id="descDD" style="display:none">
-                  <div id="descList"></div>
-                </div>
-              </div>
-              <input id="ia" type="number" placeholder="المبلغ (ج) *" step="any">
-              <!-- صف تاني: البند + التاريخ -->
-              <div class="cat-wrap-row" id="catWrap">
-                <div class="cat-dd-trig cat-dd-flex1">
-                  <input id="ic" placeholder="🏷️ البند *" autocomplete="off" oninput="onCatSearch(this.value)" onclick="toggleCatDD()" class="input-full">
-                  <span class="cat-arr" id="catArr">▾</span>
-                  <div class="cat-dd" id="catDD" style="display:none">
-                    <div class="cat-dd-search"><input id="catSrch" placeholder="🔍 بحث في البنود..." oninput="onCatSearch(this.value)"></div>
-                    <div id="catList"></div>
-                    <div class="cat-add-row" onclick="addNewCat()">➕ إضافة بند جديد</div>
+              <div class="ig-field full" id="descWrap">
+                <div class="ig-lbl">البيان</div>
+                <div class="cat-dd-trig pos-rel-flex1">
+                  <input id="id_" placeholder="وصف العملية..." autocomplete="off"
+                    oninput="onDescInput(this.value)" onclick="onDescInput(this.value)"
+                    class="input-full">
+                  <div class="cat-dd" id="descDD" style="display:none">
+                    <div id="descList"></div>
                   </div>
                 </div>
-                <button class="cat-plus-btn" onclick="addNewCat()" title="إضافة بند جديد">+</button>
-              <datalist id="cl"></datalist>
               </div>
-              <input id="idt" type="text" placeholder="dd/mm/yyyy *" maxlength="10">
-              <!-- صف تالت: المقاول -->
-              <div class="cat-dd-trig fl pos-rel" id="mqWrap">
-                <input id="iq" class="mq" placeholder="👷 المقاول (اختياري)" autocomplete="off"
-                  oninput="onMqInput(this.value)" onclick="toggleMqDD()" class="input-full">
-                <div class="cat-dd" id="mqDD" style="display:none">
-                  <div id="mqList"></div>
+              <div class="ig-field">
+                <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
+                <input id="ia" type="number" placeholder="0.00" step="any" class="req-left">
+                <div class="ig-err" id="err-ia">إلزامي</div>
+              </div>
+              <div class="ig-field">
+                <div class="ig-lbl">التاريخ <span class="ig-req">*</span></div>
+                <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left">
+                <div class="ig-err" id="err-idt">إلزامي</div>
+              </div>
+              <div class="ig-field" id="catWrap">
+                <div class="ig-lbl">البند <span class="ig-req">*</span></div>
+                <div class="cat-wrap-row">
+                  <div class="cat-dd-trig cat-dd-flex1">
+                    <input id="ic" placeholder="اختر البند..." autocomplete="off" oninput="onCatSearch(this.value)" onclick="toggleCatDD()" class="input-full req-left">
+                    <span class="cat-arr" id="catArr">▾</span>
+                    <div class="cat-dd" id="catDD" style="display:none">
+                      <div class="cat-dd-search"><input id="catSrch" placeholder="🔍 بحث في البنود..." oninput="onCatSearch(this.value)"></div>
+                      <div id="catList"></div>
+                      <div class="cat-add-row" onclick="addNewCat()">➕ إضافة بند جديد</div>
+                    </div>
+                  </div>
+                  <button class="cat-plus-btn" onclick="addNewCat()" title="إضافة بند جديد">+</button>
+                  <datalist id="cl"></datalist>
+                </div>
+                <div class="ig-err" id="err-ic">إلزامي</div>
+              </div>
+              <div class="ig-field" id="mqWrap">
+                <div class="ig-lbl">المقاول</div>
+                <div class="cat-dd-trig pos-rel-flex1">
+                  <input id="iq" class="mq input-full" placeholder="اختياري" autocomplete="off"
+                    oninput="onMqInput(this.value)" onclick="toggleMqDD()">
+                  <div class="cat-dd" id="mqDD" style="display:none">
+                    <div id="mqList"></div>
+                  </div>
                 </div>
               </div>
               <div class="etype-wrap" id="etypeWrap">
