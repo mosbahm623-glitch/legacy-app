@@ -59,9 +59,18 @@ async function ae(){
   const d=document.getElementById('id_').value.trim();
   const dt=fd(document.getElementById('idt').value);
   const m=document.getElementById('iq').value.trim();
-  if(isNaN(a)||a<=0){notify('❌ المبلغ إلزامي','err');document.getElementById('ia').focus();return;}
-  if(cT==='e'&&!c){notify('❌ البند إلزامي','err');document.getElementById('ic').focus();return;}
-  if(!document.getElementById('idt').value.trim()){notify('❌ التاريخ إلزامي','err');document.getElementById('idt').focus();return;}
+  // التحقق من الحقول الإلزامية مع تمييز بصري
+  let _hasErr=false;
+  const _mark=(id,errId,cond)=>{
+    const el=document.getElementById(id);const er=document.getElementById(errId);
+    if(el){el.classList.toggle('input-err',cond);}
+    if(er){er.classList.toggle('show',cond);}
+    if(cond)_hasErr=true;
+  };
+  _mark('ia','err-ia',isNaN(a)||a<=0);
+  _mark('idt','err-idt',!document.getElementById('idt').value.trim());
+  _mark('ic','err-ic',cT==='e'&&!c);
+  if(_hasErr){notify('❌ اكمل الحقول الإلزامية','err');return;}
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
