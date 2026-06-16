@@ -70,6 +70,7 @@ async function ae(){
   _mark('ia','err-ia',isNaN(a)||a<=0);
   _mark('idt','err-idt',!document.getElementById('idt').value.trim());
   _mark('ic','err-ic',cT==='e'&&!c);
+  _mark('id_','err-id_',!d);
   if(_hasErr){notify('❌ اكمل الحقول الإلزامية','err');return;}
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
