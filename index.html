@@ -416,7 +416,7 @@
             </div>
             <div class="ig">
               <div class="ig-field full" id="descWrap">
-                <div class="ig-lbl">البيان</div>
+                <div class="ig-lbl">البيان <span class="ig-req">*</span></div>
                 <div class="cat-dd-trig pos-rel-flex1">
                   <input id="id_" placeholder="وصف العملية..." autocomplete="off"
                     oninput="onDescInput(this.value)" onclick="onDescInput(this.value)"
@@ -425,6 +425,7 @@
                     <div id="descList"></div>
                   </div>
                 </div>
+                <div class="ig-err" id="err-id_">إلزامي</div>
               </div>
               <div class="ig-field">
                 <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
