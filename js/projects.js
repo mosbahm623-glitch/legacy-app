@@ -90,12 +90,14 @@ async function ae(){
   }
   // تحقق من إقفال الفترة المحاسبية
   if(dt){
-    const _p=dt.split('/');
-    if(_p.length===3){
-      const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
-      const _lock=await sb('period_locks?year=eq.'+_yr+'&month=eq.'+_mo+'&limit=1');
-      if(_lock&&_lock.length){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
-    }
+    try{
+      const _p=dt.split('/');
+      if(_p.length===3){
+        const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
+        const _lock=await sb('period_locks?year=eq.'+_yr+'&month=eq.'+_mo+'&limit=1');
+        if(_lock&&_lock.length){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
+      }
+    }catch(e){console.warn('period lock check skipped',e);}
   }
   // تحقق من قيد مكرر (نفس البيان + المبلغ + التاريخ في نفس المشروع)
   const _dup=entries.find(e=>e.description===d&&parseFloat(e.amount)===a&&e.entry_date===dt&&e.type===cT);
@@ -202,11 +204,13 @@ async function de(id){
   const delEntry=allEntries.find(e=>e.id===id);
   // تحقق من إقفال الفترة قبل الحذف
   if(delEntry&&delEntry.entry_date){
-    const _p=delEntry.entry_date.split('-');
-    if(_p.length>=2){
-      const _lck=await sb('period_locks?year=eq.'+_p[0]+'&month=eq.'+parseInt(_p[1])+'&limit=1');
-      if(_lck&&_lck.length){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
-    }
+    try{
+      const _p=delEntry.entry_date.split('/');
+      if(_p.length===3){
+        const _lck=await sb('period_locks?year=eq.'+_p[2]+'&month=eq.'+parseInt(_p[1])+'&limit=1');
+        if(_lck&&_lck.length){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
+      }
+    }catch(e){console.warn('period lock delete check skipped',e);}
   }
   // منع حذف قيد معتمد
   if(delEntry&&delEntry.status==='approved'){
