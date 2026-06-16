@@ -373,6 +373,7 @@ async function lockPeriod(){
   const mo=parseInt(document.getElementById('lockMonth').value);
   try{
     await sb('period_locks','POST',{year:yr,month:mo,locked_by:uid});
+    _clearPeriodLocksCache();
     notify(`✅ تم إقفال ${mo}/${yr}`,'ok');
     loadLockedPeriods();
   }catch(e){notify('❌ الشهر ده مقفول بالفعل','err');}
@@ -381,6 +382,7 @@ async function unlockPeriod(){
   const yr=parseInt(document.getElementById('lockYear').value);
   const mo=parseInt(document.getElementById('lockMonth').value);
   await sb('period_locks?year=eq.'+yr+'&month=eq.'+mo,'DELETE');
+  _clearPeriodLocksCache();
   notify(`✅ تم فتح ${mo}/${yr}`,'ok');
   loadLockedPeriods();
 }
