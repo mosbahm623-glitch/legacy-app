@@ -53,6 +53,12 @@ async function loadProjects(){
 }
 async function loadEntries(){if(!curPid)return;entries=await sbAll('entries?project_id=eq.'+curPid+'&order=created_at');entries.forEach(e=>{if(e.seq&&e.seq>20260000)e.seq=e.seq;});}
 
+function _clearErr(inputId, errId){
+  const el=document.getElementById(inputId);
+  const er=document.getElementById(errId);
+  if(el){el.classList.remove('input-err');if(el.value.trim())el.classList.add('input-ok');else el.classList.remove('input-ok');}
+  if(er)er.classList.remove('show');
+}
 async function ae(){
   const a=parseFloat(document.getElementById('ia').value);
   const c=document.getElementById('ic').value.trim();
@@ -95,6 +101,8 @@ async function ae(){
       notify(`⏳ تم إرسال القيد للموافقة — مشروع: ${savedProjName}`,'warn');
     }
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
+    ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
+    ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
     if(cT==='e'&&!['s','i','j','m'].includes(cTab))cTab=c;
     rp();
   }catch(e){
