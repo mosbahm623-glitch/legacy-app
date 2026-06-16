@@ -1420,7 +1420,7 @@ function re(){
     const tblRows=slice.map((e,i)=>{
       const ii=e.type==='i';
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
-      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:none;border:none;cursor:pointer;font-size:13px">🧾</button></td>`;
+      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500">إيصال</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
@@ -1509,7 +1509,7 @@ function re(){
     ${es.map((e,i)=>{
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
       const no=`<span class="nb" style="font-size:10px">${e.seq||'?'}</span>`;
-      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:none;border:none;cursor:pointer;font-size:13px">🧾</button></td>`;
+      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500">إيصال</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
