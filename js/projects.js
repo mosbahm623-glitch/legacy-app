@@ -206,10 +206,13 @@ function _updateEntryBanner(){
   if(el)el.textContent=allProjectsMap[curPid]?.name||'—';
 }
 async function sw(pid){
-  curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
+  curPid=pid;cTab='s';window._rpPage=0;setSav('⏳ جاري تحميل المشروع...','ng');
   _updateEntryBanner();
+  const addBtn=document.getElementById('addEntryBtn');
+  if(addBtn){addBtn.disabled=true;addBtn.style.opacity='0.5';addBtn.textContent='⏳ جاري التحميل...';}
   cep();
   await loadEntries();setSav('☁️ متصل','ok');
+  if(addBtn){addBtn.disabled=false;addBtn.style.opacity='';addBtn.textContent='+ إضافة القيد';}
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
