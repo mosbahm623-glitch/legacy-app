@@ -73,7 +73,7 @@ async function ae(){
     if(er){er.classList.toggle('show',cond);}
     if(cond)_hasErr=true;
   };
-  _mark('ia','err-ia',isNaN(a)||a<=0);
+  _mark('ia','err-ia',isNaN(a)||a===0);
   _mark('idt','err-idt',!document.getElementById('idt').value.trim());
   _mark('ic','err-ic',cT==='e'&&!c);
   _mark('id_','err-id_',!d);
