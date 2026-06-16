@@ -1432,7 +1432,7 @@ function re(){
         <td class="mob-hide" style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         <td class="mob-hide" style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
-        ${del}
+        ${rcpt}${del}
       </tr>`;
     }).join('');
     el.innerHTML=pager+`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
