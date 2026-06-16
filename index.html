@@ -656,6 +656,21 @@
           </div>
         </div>
         <div class="asec"><h3>👥 المستخدمين</h3><div id="usersList"><div class="emp">⏳...</div></div></div>
+        <div class="asec">
+          <h3>🔒 إقفال الفترة المحاسبية</h3>
+          <div class="nuf" style="align-items:center">
+            <select id="lockYear" style="width:100px"></select>
+            <select id="lockMonth" style="width:120px">
+              <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option>
+              <option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option>
+              <option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option>
+              <option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+            </select>
+            <button class="svb" onclick="lockPeriod()" style="background:#A32D2D">🔒 إقفال الشهر</button>
+            <button class="svb" onclick="unlockPeriod()" style="background:#185FA5">🔓 فتح الشهر</button>
+          </div>
+          <div id="lockedPeriodsList" style="margin-top:8px;font-size:12px;color:var(--text-muted)"></div>
+        </div>
       </div>
 
       <!-- SEARCH SCREEN -->
