@@ -81,11 +81,8 @@ async function ae(){
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
-  // جيب آخر seq من الداتابيز مباشرة — يمنع التكرار حتى لو فيه أكتر من مستخدم
-  const _lastSeqRes=await sb('entries?select=seq&order=seq.desc&limit=1');
-  const _lastSeq=(_lastSeqRes&&_lastSeqRes.length&&_lastSeqRes[0].seq>20260000)?Number(_lastSeqRes[0].seq):20260000;
-  const nextSeq=_lastSeq+1;
-  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,seq:uRole==='admin'?nextSeq:0,created_by:uid};
+  // seq بيتولد تلقائياً من Supabase sequence — مش محتاج نحسبه هنا
+  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
   try{
     if(uRole==='admin'){
