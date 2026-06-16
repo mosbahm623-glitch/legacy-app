@@ -59,8 +59,9 @@ async function ae(){
   const d=document.getElementById('id_').value.trim();
   const dt=fd(document.getElementById('idt').value);
   const m=document.getElementById('iq').value.trim();
-  if(isNaN(a)){notify('ادخل المبلغ','err');return;}
-  if(cT==='e'&&!c){notify('ادخل البند','err');return;}
+  if(isNaN(a)||a<=0){notify('❌ المبلغ إلزامي','err');document.getElementById('ia').focus();return;}
+  if(cT==='e'&&!c){notify('❌ البند إلزامي','err');document.getElementById('ic').focus();return;}
+  if(!document.getElementById('idt').value.trim()){notify('❌ التاريخ إلزامي','err');document.getElementById('idt').focus();return;}
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
@@ -200,8 +201,13 @@ async function sed(){
     }catch(e){setSav('❌ '+friendlyError(e),'er');}
   });
 }
+function _updateEntryBanner(){
+  const el=document.getElementById('entryProjName');
+  if(el)el.textContent=allProjectsMap[curPid]?.name||'—';
+}
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳...','ng');
+  _updateEntryBanner();
   cep();
   await loadEntries();setSav('☁️ متصل','ok');
   const idt=document.getElementById('idt');
