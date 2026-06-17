@@ -388,10 +388,7 @@ ${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contr
   <button onclick="window.print()" style="flex:1;padding:12px;background:#1D3C2A;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">🖨 طباعة</button>
   <button onclick="window.close()" style="padding:12px 20px;background:#f5f5f5;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">✕ إغلاق</button>
 </div>
-<script>
-  // لا تطبع تلقائياً — خلي المستخدم يقرر
-  // window.onload=()=>window.print();
-<\/script>
+<script>window.onload=function(){}<\/script>
 </body></html>`);
   w.document.close();
 }
@@ -1486,9 +1483,9 @@ function re(){
         </td>
         <td class="mob-hide" style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:700;color:${ii?'#27AE60':'#E74C3C'}">
-          ${ii?'+':'-'}${fn(Math.abs(e.amount))} ج
-          <div class="mob-btns-row">
-            <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:5px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button>
+          <div style="display:flex;align-items:center;gap:5px;justify-content:flex-end">
+            <span>${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</span>
+            <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:5px;cursor:pointer;font-size:11px;padding:3px 7px;color:#27500A;font-weight:600">🖨</button>
             ${canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')" style="padding:3px 7px;font-size:12px">🗑</button>`:''}
           </div>
         </td>
