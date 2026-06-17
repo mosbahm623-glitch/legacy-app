@@ -342,6 +342,7 @@ async function loadTimeline(){try{
             <div class="tl-sub">${e.category||''} · ${cleanDate(e.entry_date)}</div>
           </div>
           <div class="tl-amt ${ii?'inc':'exp'}">${ii?'▲':'▼'} ${fn(e.amount)} ج</div>
+          <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-right:6px">إيصال</button>
         </div>`;
       }).join('')}
     </div>`).join('');
