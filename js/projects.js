@@ -353,7 +353,7 @@ async function printReceipt(id){
 </div>
 <div class="rcpt-amount">
   <div class="rcpt-amount-lbl">${isExp?'المبلغ المدفوع':'المبلغ المستلم'}</div>
-  <div class="rcpt-amount-val">${fn2(Math.abs(e.amount))}<span class="rcpt-amount-unit"> ج</span></div>
+  <div class="rcpt-amount-val">${fn(Math.abs(e.amount))}<span class="rcpt-amount-unit"> ج</span></div>
 </div>
 <div class="rcpt-sec-lbl">تفاصيل الإيصال</div>
 <table class="rcpt-table">
@@ -372,13 +372,13 @@ async function printReceipt(id){
 ${(()=>{
   const _pd=allProjectsMap[e.project_id];
   if(isExp||!_pd)return '';
-  const _txt=encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''));
+  const _txt=encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''));
   const _btns=[];
   if(_pd.client_phone)_btns.push(`<a href="https://wa.me/${_pd.client_phone}?text=${_txt}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:500">إرسال 1</a>`);
   if(_pd.client_phone2)_btns.push(`<a href="https://wa.me/${_pd.client_phone2}?text=${_txt}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#128C7E;color:#fff;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:500">إرسال 2</a>`);
   return _btns.length?`<div style="margin:0 24px 16px;display:flex;gap:8px;justify-content:center">${_btns.join('')}</div>`:'';
 })()}
-${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].contractor_phones[e.contractor]}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للمقاول</a></div>`:''}
+${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].contractor_phones[e.contractor]}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للمقاول</a></div>`:''}
 <div class="rcpt-sigs">
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
@@ -1525,8 +1525,8 @@ function re(){
         const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">\u{1F5D1}</button>`:'';
         const rcptBtn=`<button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-left:4px">إيصال</button>`;
         const _ep=(allProjectsMap[e.project_id]?.contractor_phones||{})[e.contractor]||{};
-        const _wa1=_ep.p1?`<a href="https://wa.me/${_ep.p1}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>`:'';
-        const _wa2=_ep.p2?`<a href="https://wa.me/${_ep.p2}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>`:'';
+        const _wa1=_ep.p1?`<a href="https://wa.me/${_ep.p1}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>`:'';
+        const _wa2=_ep.p2?`<a href="https://wa.me/${_ep.p2}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>`:'';
         return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${esc(e.description)||'—'} <span class="nb">${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap">${_wa1}${_wa2}<div class="ra">${fn(e.amount)} ج</div>${rcptBtn}${del}</div></div>`;
       }).join('');
       const kpis=hasTypes?`<div class="mq-kpi-grid"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">${fn(m.pay)}</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">${fn(m.work)}</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">${fn(m.mat)}</div></div><div style="background:${rem>=0?'var(--success-ghost)':'var(--danger-ghost)'};border-radius:8px;padding:8px;text-align:center"><div class="lbl-sm">${rem>=0?'الباقي معاه':'مستحق عليك'}</div><div style="font-weight:900;color:${rem>=0?'var(--primary)':'var(--danger)'};font-size:13px">${fn(Math.abs(rem))}</div></div></div>`:`<div class="mq-total-row"><span style="color:var(--text-soft);font-size:12px">إجمالي المسحوب</span><span style="font-weight:700;color:#1D3C2A">${fn(m.pay+m.work+m.mat+m.other)} ج</span></div>`;
