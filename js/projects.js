@@ -369,6 +369,7 @@ async function printReceipt(id){
 <div class="rcpt-confirm">
   <div class="rcpt-confirm-text">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
 </div>
+${allProjectsMap[e.project_id]?.client_phone&&!isExp?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].client_phone}?text=${encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للعميل</a></div>`:''}
 <div class="rcpt-sigs">
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
@@ -558,6 +559,10 @@ function editArchivedProject(pid){
             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
         </div>
       </div>
+      <label class="lbl-lg">📱 واتساب العميل</label>
+      <input id="epPhone" type="text" value="${(p.client_phone||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
+        class="inp-lg"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
       <div id="epMsg" class="proj-edit-msg"></div>
       <div class="modal-btns">
         <button onclick="saveArchivedProjectEdit('${pid}')" class="btn-primary">💾 حفظ التعديلات</button>
@@ -577,7 +582,8 @@ async function saveArchivedProjectEdit(pid){
   if(!name){msg.style.color='var(--danger)';msg.textContent='❌ الاسم مطلوب';return;}
   msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
   try{
-    const upd={name,start_date:start||null,close_date:close||null};
+    const phone=document.getElementById('epPhone').value.trim();
+    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null};
     await sb('projects?id=eq.'+pid,'PATCH',upd);
     const idx=_archiveData.findIndex(p=>p.id===pid);
     if(idx>=0){_archiveData[idx]={..._archiveData[idx],...upd};}
@@ -630,6 +636,10 @@ function editProject(){
             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
         </div>
       </div>
+      <label class="lbl-lg">📱 واتساب العميل</label>
+      <input id="epPhone" type="text" value="${(p.client_phone||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
+        class="inp-lg"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
       <div id="epMsg" class="proj-edit-msg"></div>
       <div class="modal-btns">
         <button onclick="saveProjectEdit()" class="btn-primary">💾 حفظ التعديلات</button>
@@ -650,7 +660,8 @@ async function saveProjectEdit(){
   if(!name){msg.style.color='var(--danger)';msg.textContent='❌ الاسم مطلوب';return;}
   msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
   try{
-    const upd={name,start_date:start||null,close_date:close||null};
+    const phone=document.getElementById('epPhone').value.trim();
+    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null};
     await sb('projects?id=eq.'+curPid,'PATCH',upd);
     // حدّث الذاكرة
     const idx=allProjects.findIndex(p=>p.id===curPid);
