@@ -2375,3 +2375,12 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   .mob-hide-del td:last-child{display:none !important}
   td .db{display:none !important}
 }
+
+@media(max-width:767px){
+  #ent table td:nth-child(5){
+    max-width:120px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+}
