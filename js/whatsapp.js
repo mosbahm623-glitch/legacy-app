@@ -104,7 +104,7 @@ function renderDaf3ati() {
 
   // لو مفيش بحث — اعرض رسالة ترحيب
   if (!projQ && !mqQ) {
-    el.innerHTML = '<div class="emp" style="padding:40px 0;text-align:center"><div style="font-size:32px;margin-bottom:10px">🔍</div><div style="font-size:14px;color:var(--text-soft)">ابحث بالمشروع أو بالمقاول لعرض الدفعات</div></div>';
+    el.innerHTML = '<div style="padding:50px 16px;text-align:center"><div style="font-size:40px;margin-bottom:14px">🔍</div><div style="font-size:15px;font-weight:600;color:var(--text-body);margin-bottom:8px">ابحث لعرض الدفعات</div><div style="font-size:13px;color:var(--text-soft)">اكتب اسم المشروع أو اسم المقاول في خانة البحث بالأعلى</div></div>';
     return;
   }
 
