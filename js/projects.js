@@ -1511,6 +1511,12 @@ function re(){
       const hasTypes=m.rows.some(e=>e.entry_type);
       const addBtn=canEdit?`<button onclick="event.stopPropagation();mqAddByIdx(${idx})" class="mq-add-btn">+ قيد</button>`:'';
       const printBtn=`<button onclick="event.stopPropagation();mqPrintReport(${idx})" class="mq-print-btn">🖨️ تقرير</button>`;
+      const _mqPhones=(allProjectsMap[curPid]?.contractor_phones||{})[m.n]||{};
+      const _ph1=_mqPhones.p1||'';const _ph2=_mqPhones.p2||'';
+      const phonesBadge=_ph1
+        ?`<span style="font-size:10px;background:var(--success-ghost);color:var(--primary-btn);padding:1px 7px;border-radius:8px;margin-right:4px">📱 رقمان</span>`
+        :`<span style="font-size:10px;background:var(--warning-faint);color:var(--warning-dark);padding:1px 7px;border-radius:8px;margin-right:4px">لا يوجد رقم</span>`;
+      const phoneBtn=canEdit?`<button onclick="event.stopPropagation();mqEditPhones('${m.n.replace(/'/g,"\'")}','${_ph1}','${_ph2}')" class="mq-print-btn">📱 الأرقام</button>`:'';
       const rows=m.rows.sort((a,b)=>pdt(b.entry_date)-pdt(a.entry_date)).map(e=>{
         const etLbl={'payment':'\u{1F4B0} دفعة','work':'\u{1F528} أعمال','material':'\u{1F529} مصنعيات'};
         const etBg={'payment':'var(--success-pale)','work':'var(--info-bg)','material':'var(--warning-pale)'};
@@ -1518,10 +1524,13 @@ function re(){
         const tag=e.entry_type?`<span style="background:${etBg[e.entry_type]};color:${etC[e.entry_type]};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700">${etLbl[e.entry_type]||e.entry_type}</span>`:'';
         const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">\u{1F5D1}</button>`:'';
         const rcptBtn=`<button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-left:4px">إيصال</button>`;
-        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${esc(e.description)||'—'} <span class="nb">${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${rcptBtn}${del}</div></div>`;
+        const _ep=(allProjectsMap[e.project_id]?.contractor_phones||{})[e.contractor]||{};
+        const _wa1=_ep.p1?`<a href="https://wa.me/${_ep.p1}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>`:'';
+        const _wa2=_ep.p2?`<a href="https://wa.me/${_ep.p2}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>`:'';
+        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')"><div class="ri"><div class="rd">${tag} ${esc(e.description)||'—'} <span class="nb">${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap">${_wa1}${_wa2}<div class="ra">${fn(e.amount)} ج</div>${rcptBtn}${del}</div></div>`;
       }).join('');
       const kpis=hasTypes?`<div class="mq-kpi-grid"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">${fn(m.pay)}</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">${fn(m.work)}</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">${fn(m.mat)}</div></div><div style="background:${rem>=0?'var(--success-ghost)':'var(--danger-ghost)'};border-radius:8px;padding:8px;text-align:center"><div class="lbl-sm">${rem>=0?'الباقي معاه':'مستحق عليك'}</div><div style="font-weight:900;color:${rem>=0?'var(--primary)':'var(--danger)'};font-size:13px">${fn(Math.abs(rem))}</div></div></div>`:`<div class="mq-total-row"><span style="color:var(--text-soft);font-size:12px">إجمالي المسحوب</span><span style="font-weight:700;color:#1D3C2A">${fn(m.pay+m.work+m.mat+m.other)} ج</span></div>`;
-      return `<div class="mq-contractor-card"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:14px 16px">${kpis}<div>${rows}</div></div></div>`;
+      return `<div class="mq-contractor-card"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n} ${phonesBadge}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${phoneBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:14px 16px">${kpis}<div>${rows}</div></div></div>`;
     }).join('');
     return;
   }
