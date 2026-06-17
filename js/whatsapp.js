@@ -170,7 +170,7 @@ function renderDaf3ati() {
         </div>
       </div>
       <div style="padding:12px 14px;display:block">
-        ${hasInc ? `<div style="font-size:11px;font-weight:700;color:var(--primary-btn);margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">▲ الوارد — صاحب العمل</div>${incRows}` : ''}
+        ${hasInc ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)"><span style="font-size:11px;font-weight:700;color:var(--primary-btn)">▲ الوارد — صاحب العمل</span>${uRole==='admin'?`<button onclick="editClientPhones('${proj.id}')" style="background:var(--bg-faint);border:0.5px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--text-body)">📱 الأرقام</button>`:''}</div>${incRows}` : ''}
         ${hasMq ? `<div style="font-size:11px;font-weight:700;color:var(--danger);margin:${hasInc ? '10px' : '0'} 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">▼ المقاولين — دفعات صرفت</div>${mqRows}` : ''}
       </div>
     </div>`;
@@ -207,5 +207,35 @@ async function saveMqPhonesForProj(name, projId) {
     msg.style.color = 'var(--primary-btn)'; msg.textContent = '✅ تم الحفظ';
     setSav('✅ تم حفظ أرقام ' + name, 'ok');
     setTimeout(() => { document.getElementById('mqPhonesModal')?.remove(); renderDaf3ati(); }, 600);
+  } catch (e) { msg.style.color = 'var(--danger)'; msg.textContent = '❌ خطأ: ' + e.message; }
+}
+
+// ── modal تعديل أرقام صاحب العمل من دفعاتي ──
+async function editClientPhones(projId) {
+  const p = allProjectsMap[projId];
+  if (!p) return;
+  let ov = document.getElementById('clientPhonesModal'); if (ov) ov.remove();
+  ov = document.createElement('div'); ov.id = 'clientPhonesModal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML = `<div class="modal-box-lg"><div class="modal-hdr"><div class="title-lg">📱 أرقام واتساب صاحب العمل</div><button onclick="document.getElementById('clientPhonesModal').remove()" class="btn-close-sm">✕</button></div><div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:14px">🏗️ ${p.name}</div><label class="lbl-lg">📱 رقم واتساب 1</label><input id="cpPh1" type="text" value="${p.client_phone||''}" placeholder="مثال: 201001234567" class="inp-lg"><label class="lbl-lg">📱 رقم واتساب 2 (اختياري)</label><input id="cpPh2" type="text" value="${p.client_phone2||''}" placeholder="مثال: 201001234567" class="inp-lg"><div id="cpPhMsg" style="min-height:18px;font-size:12px;margin:8px 0"></div><div class="modal-btns"><button onclick="saveClientPhones('${projId}')" class="btn-primary">💾 حفظ</button><button onclick="document.getElementById('clientPhonesModal').remove()" class="btn-cancel">إلغاء</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  document.getElementById('cpPh1').focus();
+}
+
+async function saveClientPhones(projId) {
+  const p1 = document.getElementById('cpPh1').value.trim();
+  const p2 = document.getElementById('cpPh2').value.trim();
+  const msg = document.getElementById('cpPhMsg');
+  msg.style.color = 'var(--warning-text)'; msg.textContent = '⏳ جاري الحفظ...';
+  try {
+    const upd = { client_phone: p1 || null, client_phone2: p2 || null };
+    await sb('projects?id=eq.' + projId, 'PATCH', upd);
+    if (allProjectsMap[projId]) { allProjectsMap[projId].client_phone = p1 || null; allProjectsMap[projId].client_phone2 = p2 || null; }
+    const idx = allProjects.findIndex(p => p.id === projId);
+    if (idx >= 0) { allProjects[idx].client_phone = p1 || null; allProjects[idx].client_phone2 = p2 || null; }
+    msg.style.color = 'var(--primary-btn)'; msg.textContent = '✅ تم الحفظ';
+    setSav('✅ تم حفظ أرقام صاحب العمل', 'ok');
+    setTimeout(() => { document.getElementById('clientPhonesModal')?.remove(); renderDaf3ati(); }, 600);
   } catch (e) { msg.style.color = 'var(--danger)'; msg.textContent = '❌ خطأ: ' + e.message; }
 }
