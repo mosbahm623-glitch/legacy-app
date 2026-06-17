@@ -291,7 +291,11 @@ async function printReceipt(id){
   const isInc=e.type==='i';
   const typeLbl=isExp?'دفعة مقاول':'وارد عميل';
   const fn2=n=>Number(n).toLocaleString('en-EG');
-  const w=window.open('','_blank');
+  const _sw=Math.min(400,window.screen.width-20);
+  const _sh=Math.min(700,window.screen.height-40);
+  const _sl=Math.round((window.screen.width-_sw)/2);
+  const _st=Math.round((window.screen.height-_sh)/2);
+  const w=window.open('','_blank',`width=${_sw},height=${_sh},left=${_sl},top=${_st},scrollbars=yes`);
   const topBg1=isExp?'#1D3C2A':'#5C3A00';
   const topBg2=isExp?'#2D5A3E':'#8B6914';
   const circleBg=isExp?'rgba(212,196,154,.12)':'rgba(245,217,139,.12)';
@@ -380,7 +384,14 @@ ${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contr
   </div>
   <div class="rcpt-footer">LEGACY FINE TOUCH — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
 </div>
-<script>window.onload=()=>window.print();<\/script>
+<div style="display:flex;gap:10px;padding:16px;max-width:400px;margin:0 auto">
+  <button onclick="window.print()" style="flex:1;padding:12px;background:#1D3C2A;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">🖨 طباعة</button>
+  <button onclick="window.close()" style="padding:12px 20px;background:#f5f5f5;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">✕ إغلاق</button>
+</div>
+<script>
+  // لا تطبع تلقائياً — خلي المستخدم يقرر
+  // window.onload=()=>window.print();
+<\/script>
 </body></html>`);
   w.document.close();
 }
