@@ -376,7 +376,8 @@ async function loadDailyLog(){
     return `<div class="daily-entry">
       <div class="daily-type ${isInc?'inc':'exp'}">${isInc?'📤':'📥'}</div>
       <div style="flex:1;min-width:0">
-        <div class="entry-desc">${e.description||'—'} ${e.seq?'<span class="seq-badge">#'+e.seq+'</span>':''}</div>
+        <div class="entry-desc">${e.description||'—'}</div>
+        <div class="daily-proj" style="display:flex;gap:6px;align-items:center">${proj}${e.category?' · '+e.category:''} ${e.seq&&e.seq!==0?'<span style="font-size:10px;background:#1C3A1C;color:#C0DD97;padding:1px 7px;border-radius:4px;font-weight:500">'+e.seq+'</span>':''}</div>
         <div class="daily-proj">${proj}${e.category?' · '+e.category:''}</div>
       </div>
       <div class="daily-amt ${isInc?'inc':'exp'}">${isInc?'+':'-'}${fn(Math.abs(e.amount))} ج</div>
