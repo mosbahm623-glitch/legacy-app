@@ -102,6 +102,12 @@ function renderDaf3ati() {
 
   if (!filteredProjs.length) { el.innerHTML = '<div class="emp">لا توجد نتائج</div>'; return; }
 
+  // لو مفيش بحث — اعرض رسالة ترحيب
+  if (!projQ && !mqQ) {
+    el.innerHTML = '<div class="emp" style="padding:40px 0;text-align:center"><div style="font-size:32px;margin-bottom:10px">🔍</div><div style="font-size:14px;color:var(--text-soft)">ابحث بالمشروع أو بالمقاول لعرض الدفعات</div></div>';
+    return;
+  }
+
   let html = '';
   filteredProjs.forEach(proj => {
     const projEntries = allEntries.filter(e => e.project_id === proj.id);
