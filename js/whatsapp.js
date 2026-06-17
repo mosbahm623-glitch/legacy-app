@@ -79,12 +79,10 @@ function loadDaf3ati() {
   if (!el) return;
   el.innerHTML = `
     <div class="bc"><span onclick="showScreen('dash')" class="bc-l">الرئيسية</span><span class="bc-s">›</span><span>دفعاتي</span></div>
-    <div style="position:sticky;top:0;z-index:10;background:var(--bg-pure);padding:10px 0 12px;border-bottom:0.5px solid var(--border);margin-bottom:14px">
+    <div style="margin-bottom:14px">
       <div style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:10px">💰 دفعاتي</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="daf3ProjSearch" type="text" placeholder="🔍 بحث بالمشروع..." class="inp-lg" style="flex:1;min-width:150px" oninput="renderDaf3ati()">
-        <input id="daf3MqSearch" type="text" placeholder="👷 بحث بالمقاول..." class="inp-lg" style="flex:1;min-width:150px" oninput="renderDaf3ati()">
-      </div>
+      <input id="daf3ProjSearch" type="text" placeholder="🔍 بحث بالمشروع..." class="inp-lg" style="width:100%;margin-bottom:8px" oninput="renderDaf3ati()">
+      <input id="daf3MqSearch" type="text" placeholder="👷 بحث بالمقاول..." class="inp-lg" style="width:100%" oninput="renderDaf3ati()">
     </div>
     <div id="daf3atiList"></div>`;
   renderDaf3ati();
