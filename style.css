@@ -2252,13 +2252,34 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 @media(max-width:767px){
   /* تثبيت الجدول على الموبايل */
   #ent table{table-layout:fixed;width:100% !important;}
-  #ent table th:nth-child(1),
-  #ent table td:nth-child(1){width:30px;}
-  #ent table th:nth-child(2),
-  #ent table td:nth-child(2){display:none;}
-  #ent table th:nth-child(6),
-  #ent table td:nth-child(6){display:none;}
-  #ent table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
+  /* ══ الجدول الرئيسي — card style على الموبايل ══ */
+  #ent table thead{display:none !important;}
+  #ent table,#ent table tbody,#ent table tr,#ent table td{display:block;width:100% !important;}
+  #ent table tr{
+    background:#fff !important;
+    border-radius:12px !important;
+    border:1px solid var(--border-light) !important;
+    margin-bottom:8px !important;
+    padding:10px 12px !important;
+    box-shadow:0 1px 4px rgba(0,0,0,.05);
+    cursor:pointer;
+    position:relative;
+  }
+  body.dark-mode #ent table tr{background:rgba(255,255,255,.04) !important;border-color:rgba(212,196,154,.12) !important;}
+  #ent table td{padding:0 !important;border:none !important;white-space:normal !important;max-width:100% !important;overflow:visible !important;text-overflow:unset !important;}
+  /* عمود البيان — سطر رئيسي */
+  #ent table td:nth-child(5){font-size:13px !important;font-weight:600 !important;color:var(--text-dark) !important;line-height:1.5 !important;margin-bottom:5px !important;}
+  /* عمود التاريخ + البند — سطر ثانوي */
+  #ent table td:nth-child(3),#ent table td:nth-child(4){display:inline-block !important;width:auto !important;font-size:11px !important;color:#999 !important;margin-left:6px !important;}
+  /* المبلغ */
+  #ent table td:nth-child(7){font-size:15px !important;font-weight:700 !important;margin-top:8px !important;padding-top:8px !important;border-top:0.5px solid var(--border-faint) !important;}
+  /* الرصيد */
+  #ent table td:nth-child(8){display:inline-block !important;width:auto !important;font-size:11px !important;color:#999 !important;margin-right:8px !important;}
+  /* إيصال وحذف */
+  #ent table td:nth-child(9),#ent table td:nth-child(10){display:inline-block !important;width:auto !important;margin-top:0 !important;}
+  /* إخفاء أعمدة مش محتاجها */
+  #ent table td:nth-child(1),#ent table td:nth-child(2),#ent table td:nth-child(6){display:none !important;}
+  .mob-hide{display:none !important;}
   .mob-hide{display:none !important;}
   #ent .rw{
     display:block !important;
