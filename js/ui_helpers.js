@@ -352,7 +352,10 @@ async function loadDailyLog(){
   const container=document.getElementById('dailyList');
   let todayEntries=[];
   try{
-    const res=await sb('entries?entry_date=eq.'+targetDate+'&order=seq.desc');
+    // تحويل yyyy-mm-dd لـ dd/mm/yyyy عشان يتطابق مع الداتابيز
+    const _p=targetDate.split('-');
+    const entryDateFmt=_p.length===3?_p[2]+'/'+_p[1]+'/'+_p[0]:targetDate;
+    const res=await sb('entries?entry_date=eq.'+entryDateFmt+'&order=seq.desc');
     todayEntries=res||[];
   }catch(e){todayEntries=[];}
   if(!todayEntries.length){
