@@ -2359,17 +2359,16 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
     font-size:10px !important;
     padding:5px 4px !important;
     white-space:nowrap !important;
-    overflow:visible !important;
-    text-overflow:unset !important;
-    max-width:none !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
   }
-  /* إخفاء عمود الرصيد على الشاشات الضيقة جداً */
-  #ent table td:last-child, #ent table th:last-child{
-    display:none !important;
-  }
-  /* تصغير المبالغ */
+  #ent table td:nth-child(5){max-width:120px !important;}
+  #ent table td:nth-child(7){max-width:85px !important;}
+  /* إخفاء أعمدة غير ضرورية */
+  #ent table td:last-child, #ent table th:last-child{display:none !important;}
+  #ent table td:nth-child(1),#ent table td:nth-child(2),
+  #ent table td:nth-child(6),#ent table td:nth-child(8){display:none !important;}
   .ra{font-size:12px !important}
-  /* كارد الموبايل */
   .rw .ra{font-size:13px !important;white-space:nowrap !important}
   .rw .rd{font-size:12px !important}
   .rw .rm{font-size:10px !important}
