@@ -338,7 +338,7 @@ async function loadTimeline(){try{
         return `<div class="tl-item">
           <div class="tl-dot ${ii?'inc':'exp'}"></div>
           <div class="tl-info">
-            <div class="tl-main"><span class="tl-proj-tag">${proj}</span>${e.description||e.category||'—'}</div>
+            <div class="tl-main"><span class="tl-proj-tag">${proj}</span>${e.description||e.category||'—'} ${e.seq&&e.seq!==0?'<span style="font-size:10px;background:#1C3A1C;color:#C0DD97;padding:1px 7px;border-radius:4px;font-weight:500">'+e.seq+'</span>':''}</div>
             <div class="tl-sub">${e.category||''} · ${cleanDate(e.entry_date)}</div>
           </div>
           <div class="tl-amt ${ii?'inc':'exp'}">${ii?'▲':'▼'} ${fn(e.amount)} ج</div>
