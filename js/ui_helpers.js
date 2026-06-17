@@ -130,14 +130,14 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues','notes','auditlog'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues','notes','auditlog','daf3ati'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
-  ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog'].forEach(x=>{
+  ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog','daf3ati'].forEach(x=>{
     const el=document.getElementById('sbi-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -165,6 +165,7 @@ function showScreen(s){
     },100);
   }
   if(s==='daily')loadDailyLog();
+  if(s==='daf3ati')loadDaf3ati();
   if(s==='dash')loadDashboard();
   if(s==='adv')loadAdvList();
   if(s==='admin')loadAdminPanel();
