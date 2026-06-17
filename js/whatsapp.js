@@ -138,7 +138,9 @@ function renderDaf3ati() {
       const wa1 = _pd?.client_phone ? `<a href="https://wa.me/${_pd.client_phone}?text=${txt}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>` : '';
       const wa2 = _pd?.client_phone2 ? `<a href="https://wa.me/${_pd.client_phone2}?text=${txt}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>` : '';
       const noPhone = !_pd?.client_phone ? `<span style="font-size:10px;color:var(--text-soft)">لا يوجد رقم</span>` : '';
-      return `<div class="rw"><div class="ri"><div class="rd">${esc(e.description)||'دفعة'} <span class="nb">${e.seq||''}</span></div><div class="rm">${e.entry_date||'—'}</div></div><div class="flex-center-gap"><div class="ra pos">+${fn(e.amount)} ج</div>${wa1}${wa2}${noPhone}</div></div>`;
+      const _incMsg=encodeURIComponent('مرحباً،\nنفيدكم باستلام مبلغ '+fn(e.amount)+' ج\nالمشروع: '+proj.name+'\nرقم الإيصال: '+(e.seq||'')+'\nالتاريخ: '+(e.entry_date||''));
+      const msgBtn=`<button onclick="showWaMsg(event,'${_incMsg}')" style="background:var(--bg-faint);border:0.5px solid var(--border);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--text-body)">📋 رسالة</button>`;
+      return `<div class="rw"><div class="ri"><div class="rd">${esc(e.description)||'دفعة'} <span class="nb">${e.seq||''}</span></div><div class="rm">${e.entry_date||'—'}</div></div><div class="flex-center-gap"><div class="ra pos">+${fn(e.amount)} ج</div>${msgBtn}${wa1}${wa2}${noPhone}</div></div>`;
     }).join('');
 
     // بناء صفوف المقاولين
@@ -152,7 +154,9 @@ function renderDaf3ati() {
         const wa1 = ph1 ? `<a href="https://wa.me/${ph1}?text=${txt}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>` : '';
         const wa2 = ph2 ? `<a href="https://wa.me/${ph2}?text=${txt}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>` : '';
         const noPhone = !ph1 ? `<span style="font-size:10px;color:var(--text-soft)">لا يوجد رقم</span>` : '';
-        return `<div class="rw" style="padding-right:12px"><div class="ri"><div class="rd">${esc(e.description)||'—'} <span class="nb">${e.seq||''}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${wa1}${wa2}${noPhone}</div></div>`;
+        const _expMsg=encodeURIComponent('مرحباً '+e.contractor+'،\nنفيدكم بصرف مبلغ '+fn(e.amount)+' ج\nالمشروع: '+proj.name+'\nالبند: '+(e.category||'—')+'\nرقم القيد: '+(e.seq||'')+'\nالتاريخ: '+(e.entry_date||''));
+        const expMsgBtn=`<button onclick="showWaMsg(event,'${_expMsg}')" style="background:var(--bg-faint);border:0.5px solid var(--border);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--text-body)">📋 رسالة</button>`;
+        return `<div class="rw" style="padding-right:12px"><div class="ri"><div class="rd">${esc(e.description)||'—'} <span class="nb">${e.seq||''}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap"><div class="ra">${fn(e.amount)} ج</div>${expMsgBtn}${wa1}${wa2}${noPhone}</div></div>`;
       }).join('');
       return `<div style="margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:var(--bg-faint);border-radius:6px;margin-bottom:4px"><span style="font-size:12px;font-weight:700;color:var(--text-body)">👷 ${esc(mqName)}</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--danger);font-weight:700">${fn(mqTotal)} ج</span>${editBtn}</div></div>${entryRows}</div>`;
     }).join('');
@@ -238,4 +242,23 @@ async function saveClientPhones(projId) {
     setSav('✅ تم حفظ أرقام صاحب العمل', 'ok');
     setTimeout(() => { document.getElementById('clientPhonesModal')?.remove(); renderDaf3ati(); }, 600);
   } catch (e) { msg.style.color = 'var(--danger)'; msg.textContent = '❌ خطأ: ' + e.message; }
+}
+
+// ── عرض الرسالة للنسخ ──
+function showWaMsg(event, encodedMsg) {
+  event.stopPropagation();
+  const msg = decodeURIComponent(encodedMsg);
+  let ov = document.getElementById('waMsgModal'); if (ov) ov.remove();
+  ov = document.createElement('div'); ov.id = 'waMsgModal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML = `<div class="modal-box-lg"><div class="modal-hdr"><div class="title-lg">📋 الرسالة</div><button onclick="document.getElementById('waMsgModal').remove()" class="btn-close-sm">✕</button></div><textarea id="waMsgTxt" style="width:100%;min-height:140px;padding:10px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:none;direction:rtl;background:var(--bg-faint);color:var(--text-body)">${msg.replace(/</g,'&lt;')}</textarea><div class="modal-btns"><button onclick="copyWaMsg()" class="btn-primary">📋 نسخ</button><button onclick="document.getElementById('waMsgModal').remove()" class="btn-cancel">إغلاق</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+}
+
+function copyWaMsg() {
+  const txt = document.getElementById('waMsgTxt');
+  if (!txt) return;
+  navigator.clipboard.writeText(txt.value).then(() => notify('✅ تم نسخ الرسالة', 'ok')).catch(() => { txt.select(); document.execCommand('copy'); notify('✅ تم النسخ', 'ok'); });
+  document.getElementById('waMsgModal')?.remove();
 }
