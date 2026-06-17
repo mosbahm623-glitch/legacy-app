@@ -292,18 +292,20 @@ async function printReceipt(id){
   const typeLbl=isExp?'دفعة مقاول':'وارد عميل';
   const fn2=n=>Number(n).toLocaleString('en-EG');
   const w=window.open('','_blank');
-  const hdrBg=isExp?'#1C3A1C':'#0C447C';
-  const hdrClr=isExp?'#C0DD97':'#B5D4F4';
-  const amtBg=isExp?'#1C3A1C':'#0C447C';
-  const heroBg=isExp?'#EAF3DE':'#E6F1FB';
-  const heroClr=isExp?'#27500A':'#0C447C';
-  const heroSub=isExp?'#3B6D11':'#185FA5';
-  const heroBorder=isExp?'#C0DD97':'#B5D4F4';
-  const confirmBg=isExp?'#EAF3DE':'#E6F1FB';
-  const confirmClr=isExp?'#27500A':'#0C447C';
-  const confirmBorder=isExp?'#C0DD97':'#B5D4F4';
-  const footBg=isExp?'#EAF3DE':'#E6F1FB';
-  const footClr=isExp?'#3B6D11':'#378ADD';
+  const topBg1=isExp?'#1D3C2A':'#5C3A00';
+  const topBg2=isExp?'#2D5A3E':'#8B6914';
+  const circleBg=isExp?'rgba(212,196,154,.12)':'rgba(245,217,139,.12)';
+  const circleBorder=isExp?'rgba(212,196,154,.25)':'rgba(245,217,139,.25)';
+  const circleIcon=isExp?'💸':'💵';
+  const typeBadgeBg=isExp?'#EAF3DE':'#FFF8E7';
+  const typeBadgeClr=isExp?'#3B6D11':'#7A5500';
+  const confirmBg=isExp?'#F5FAF0':'#FFF8E7';
+  const confirmBorder=isExp?'#C0DD97':'#F0C040';
+  const confirmClr=isExp?'#3B6D11':'#7A5500';
+  const divClr=isExp?'#C4B99A':'#C4A84A';
+  const rowBorder=isExp?'#F8F4EE':'#FDF6E3';
+  const sigLine=isExp?'#EDE8E0':'#F0E8C8';
+  const footerBorder=isExp?'#EDE8E0':'#F0E8C8';
   w.document.write(`<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
@@ -311,64 +313,56 @@ async function printReceipt(id){
 <title>إيصال رقم ${e.seq&&e.seq!==0?e.seq:'—'}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Cairo','Segoe UI',sans-serif;background:#fff;color:#111;direction:rtl;max-width:580px;margin:0 auto}
-  .rcpt-head{background:${hdrBg};padding:22px 24px;display:flex;align-items:center;justify-content:space-between}
-  .rcpt-brand{color:${hdrClr};font-size:18px;font-weight:600}
-  .rcpt-badge{font-size:11px;font-weight:600;padding:3px 12px;border-radius:4px;background:rgba(255,255,255,0.12);color:${hdrClr};border:1px solid rgba(255,255,255,0.2)}
-  .rcpt-hero{background:${heroBg};padding:22px 24px;text-align:center;border-bottom:1px solid ${heroBorder}}
-  .rcpt-hero-num{font-size:12px;color:${heroSub};margin-bottom:6px;letter-spacing:.5px}
-  .rcpt-hero-seq{font-size:20px;font-weight:700;color:${heroClr};margin-bottom:2px}
-  .rcpt-hero-date{font-size:11px;color:${heroSub}}
-  .rcpt-amount{margin:20px 24px;background:${amtBg};border-radius:10px;padding:18px;text-align:center}
-  .rcpt-amount-lbl{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:6px}
-  .rcpt-amount-val{font-size:34px;font-weight:700;color:#fff}
-  .rcpt-amount-unit{font-size:15px;color:rgba(255,255,255,0.6);margin-right:4px}
-  .rcpt-sec-lbl{font-size:10px;font-weight:600;color:#999;letter-spacing:.5px;padding:0 24px;margin-bottom:6px;text-transform:uppercase}
-  .rcpt-table{width:calc(100% - 48px);margin:0 24px 16px;border-collapse:collapse}
-  .rcpt-table tr{border-bottom:1px solid #eee}
-  .rcpt-table tr:last-child{border:none}
-  .rcpt-table td{padding:9px 4px;font-size:13px}
-  .rcpt-table td:first-child{color:#888;width:130px}
-  .rcpt-table td:last-child{font-weight:600;color:#111;text-align:left}
-  .rcpt-confirm{margin:0 24px 20px;background:${confirmBg};border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;border:1px solid ${confirmBorder}}
-  .rcpt-confirm-text{font-size:12px;color:${confirmClr};font-weight:500}
-  .rcpt-sigs{display:flex;border-top:1px solid #eee}
-  .rcpt-sig{flex:1;padding:20px 12px 16px;text-align:center;border-right:1px solid #eee}
-  .rcpt-sig:last-child{border:none}
-  .rcpt-sig-line{border-top:1px solid #bbb;margin-bottom:8px;margin-top:36px}
-  .rcpt-sig-lbl{font-size:11px;color:#999}
-  .rcpt-footer{background:${footBg};padding:10px 24px;text-align:center;font-size:10px;color:${footClr};border-top:1px solid ${heroBorder}}
-  @media print{body{max-width:100%}}
+  body{font-family:'Cairo','Segoe UI',sans-serif;background:#f0ede8;color:#111;direction:rtl;max-width:400px;margin:20px auto}
+  .rcpt{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.12)}
+  .rcpt-top{background:linear-gradient(160deg,${topBg1},${topBg2});padding:22px 20px 0;text-align:center}
+  .rcpt-logo{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,.45);margin-bottom:18px}
+  .rcpt-circle{width:66px;height:66px;border-radius:50%;background:${circleBg};border:1.5px solid ${circleBorder};display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;line-height:1}
+  .rcpt-amt{font-size:36px;font-weight:700;color:#fff}
+  .rcpt-cur{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px;margin-bottom:20px}
+  .rcpt-wave{height:28px;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .rcpt-body{padding:6px 20px 18px}
+  .rcpt-num{text-align:center;font-size:10px;color:#B0A898;margin-bottom:8px}
+  .rcpt-type{text-align:center;margin-bottom:14px}
+  .rcpt-type span{display:inline-block;padding:4px 18px;border-radius:20px;font-size:10px;font-weight:700;background:${typeBadgeBg};color:${typeBadgeClr}}
+  .rcpt-div{display:flex;align-items:center;gap:8px;margin:10px 0 8px}
+  .rcpt-div::before,.rcpt-div::after{content:'';flex:1;height:1px;background:${rowBorder}}
+  .rcpt-div span{font-size:9px;color:${divClr};letter-spacing:2px}
+  .rcpt-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid ${rowBorder}}
+  .rcpt-row:last-child{border:none}
+  .rcpt-key{font-size:11px;color:#A09080}
+  .rcpt-val{font-size:12px;font-weight:600;color:#2C2416}
+  .rcpt-confirm{background:${confirmBg};border:1px solid ${confirmBorder};border-radius:8px;padding:9px;text-align:center;font-size:11px;color:${confirmClr};font-weight:700;margin:12px 0}
+  .rcpt-sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .rcpt-sig{text-align:center}
+  .rcpt-sig-line{height:1px;background:${sigLine};margin-bottom:6px}
+  .rcpt-sig-lbl{font-size:9px;color:#B0A898}
+  .rcpt-footer{text-align:center;padding:12px 20px;font-size:9px;color:#C4B99A;border-top:1px dashed ${footerBorder};margin-top:12px}
+  @media print{body{background:#fff;max-width:100%;margin:0}.rcpt{border-radius:0;box-shadow:none}}
 </style>
 </head>
 <body>
-<div class="rcpt-head">
-  <div class="rcpt-brand">Legacy Fine Touch</div>
-  <div class="rcpt-badge">${typeLbl}</div>
+<div class="rcpt">
+<div class="rcpt-top">
+  <div class="rcpt-logo">LEGACY FINE TOUCH</div>
+  <div class="rcpt-circle">${circleIcon}</div>
+  <div class="rcpt-amt">${fn(Math.abs(e.amount))}</div>
+  <div class="rcpt-cur">جنيه مصري</div>
+  <div class="rcpt-wave"></div>
 </div>
-<div class="rcpt-hero">
-  <div class="rcpt-hero-num">إيصال رقم</div>
-  <div class="rcpt-hero-seq">${e.seq&&e.seq!==0?e.seq:'—'}</div>
-  <div class="rcpt-hero-date">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
-</div>
-<div class="rcpt-amount">
-  <div class="rcpt-amount-lbl">${isExp?'المبلغ المدفوع':'المبلغ المستلم'}</div>
-  <div class="rcpt-amount-val">${fn(Math.abs(e.amount))}<span class="rcpt-amount-unit"> ج</span></div>
-</div>
-<div class="rcpt-sec-lbl">تفاصيل الإيصال</div>
-<table class="rcpt-table">
-  <tr><td>المشروع</td><td>${proj}</td></tr>
-  <tr><td>البيان</td><td>${e.description||'—'}</td></tr>
-  <tr><td>التاريخ</td><td>${e.entry_date||'—'}</td></tr>
-  ${isExp&&e.contractor?`<tr><td>المقاول</td><td>${e.contractor}</td></tr>`:''}
-  ${isExp&&e.entry_type?`<tr><td>طريقة الدفع</td><td>${payType}</td></tr>`:''}
-  ${isExp?`<tr><td>البند</td><td>${e.category||'—'}</td></tr>`:''}
-  <tr><td>رقم القيد</td><td>${e.seq&&e.seq!==0?e.seq:'—'}</td></tr>
-  <tr><td>أدخله</td><td>${_creatorName}</td></tr>
-</table>
-<div class="rcpt-confirm">
-  <div class="rcpt-confirm-text">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
-</div>
+<div class="rcpt-body">
+  <div class="rcpt-num">إيصال رقم ${e.seq&&e.seq!==0?e.seq:'—'} · ${new Date().toLocaleDateString('ar-EG')}</div>
+  <div class="rcpt-type"><span>${isExp?'💰 دفعة مقاول':'▲ وارد عميل'}</span></div>
+  <div class="rcpt-div"><span>تفاصيل الإيصال</span></div>
+  <div class="rcpt-row"><span class="rcpt-key">المشروع</span><span class="rcpt-val">${proj}</span></div>
+  <div class="rcpt-row"><span class="rcpt-key">البيان</span><span class="rcpt-val">${e.description||'—'}</span></div>
+  <div class="rcpt-row"><span class="rcpt-key">التاريخ</span><span class="rcpt-val">${e.entry_date||'—'}</span></div>
+  ${isExp&&e.contractor?`<div class="rcpt-row"><span class="rcpt-key">المقاول</span><span class="rcpt-val">${e.contractor}</span></div>`:''}
+  ${isExp&&e.entry_type?`<div class="rcpt-row"><span class="rcpt-key">طريقة الدفع</span><span class="rcpt-val">${payType}</span></div>`:''}
+  ${isExp?`<div class="rcpt-row"><span class="rcpt-key">البند</span><span class="rcpt-val">${e.category||'—'}</span></div>`:''}
+  <div class="rcpt-row"><span class="rcpt-key">رقم القيد</span><span class="rcpt-val">${e.seq&&e.seq!==0?e.seq:'—'}</span></div>
+  <div class="rcpt-row"><span class="rcpt-key">أدخله</span><span class="rcpt-val">${_creatorName}</span></div>
+  <div class="rcpt-confirm">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
 ${(()=>{
   const _pd=allProjectsMap[e.project_id];
   if(isExp||!_pd)return '';
@@ -379,12 +373,13 @@ ${(()=>{
   return _btns.length?`<div style="margin:0 24px 16px;display:flex;gap:8px;justify-content:center">${_btns.join('')}</div>`:'';
 })()}
 ${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].contractor_phones[e.contractor]}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للمقاول</a></div>`:''}
-<div class="rcpt-sigs">
-  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
-  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
-  <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المهندس</div></div>
+  <div class="rcpt-sigs">
+    <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
+    <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
+    <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المهندس</div></div>
+  </div>
+  <div class="rcpt-footer">LEGACY FINE TOUCH — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
 </div>
-<div class="rcpt-footer">Legacy Fine Touch — نظام الإدارة المالية — ${new Date().getFullYear()}</div>
 <script>window.onload=()=>window.print();<\/script>
 </body></html>`);
   w.document.close();
