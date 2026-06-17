@@ -308,7 +308,7 @@ async function printReceipt(id){
 <html dir="rtl" lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>إيصال رقم ${e.seq||'—'}</title>
+<title>إيصال رقم ${e.seq&&e.seq!==0?e.seq:'—'}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Cairo','Segoe UI',sans-serif;background:#fff;color:#111;direction:rtl;max-width:580px;margin:0 auto}
@@ -348,7 +348,7 @@ async function printReceipt(id){
 </div>
 <div class="rcpt-hero">
   <div class="rcpt-hero-num">إيصال رقم</div>
-  <div class="rcpt-hero-seq">${e.seq||'—'}</div>
+  <div class="rcpt-hero-seq">${e.seq&&e.seq!==0?e.seq:'—'}</div>
   <div class="rcpt-hero-date">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
 </div>
 <div class="rcpt-amount">
@@ -363,7 +363,7 @@ async function printReceipt(id){
   ${isExp&&e.contractor?`<tr><td>المقاول</td><td>${e.contractor}</td></tr>`:''}
   ${isExp&&e.entry_type?`<tr><td>طريقة الدفع</td><td>${payType}</td></tr>`:''}
   ${isExp?`<tr><td>البند</td><td>${e.category||'—'}</td></tr>`:''}
-  <tr><td>رقم القيد</td><td>${e.seq||'—'}</td></tr>
+  <tr><td>رقم القيد</td><td>${e.seq&&e.seq!==0?e.seq:'—'}</td></tr>
   <tr><td>أدخله</td><td>${_creatorName}</td></tr>
 </table>
 <div class="rcpt-confirm">
