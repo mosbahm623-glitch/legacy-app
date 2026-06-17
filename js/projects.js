@@ -1468,17 +1468,26 @@ function re(){
     const tblRows=slice.map((e,i)=>{
       const ii=e.type==='i';
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
-      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500">🖨</button></td>`;
+      const catClr=ii?'background:#EAF3DE;color:#3B6D11':'background:#f0f0ec;color:#666';
+      const catLbl=ii?'وارد':esc(e.category)||'—';
+      const mq=e.contractor?` · ${esc(e.contractor)}`:'';
+      const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
         <td class="mob-hide" style="padding:7px 10px;color:#999;font-size:11px">${i+1+start}</td>
         <td class="mob-hide" style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">${e.seq||'?'}</span></td>
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
-        <td style="padding:7px 10px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${ii?'وارد':esc(e.category)||'—'}</span></td>
-        <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
+        <td style="padding:7px 10px;color:#222">
+          <div class="mob-desc">${ab}${esc(e.description)||'—'}</div>
+          <div class="mob-meta"><span style="font-size:9px;background:#f0f0ec;color:#888;padding:1px 6px;border-radius:4px;margin-left:4px">#${e.seq||'?'}</span>${cleanDate(e.entry_date)||'—'}${mq}</div>
+        </td>
         <td class="mob-hide" style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:7px 10px;white-space:nowrap;font-weight:700;color:${ii?'#27AE60':'#E74C3C'}">
+          ${ii?'+':'-'}${fn(Math.abs(e.amount))} ج
+          <div class="mob-btns-row">${rcpt.replace(/<td[^>]*>|<\/td>/g,'')}${del.replace(/<td[^>]*>|<\/td>/g,'')}</div>
+        </td>
         <td class="mob-hide" style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
       </tr>`;
