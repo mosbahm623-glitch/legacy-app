@@ -1480,13 +1480,17 @@ function re(){
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
         <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
         <td style="padding:7px 10px;color:#222">
+          <div class="mob-top"><span class="mob-cat" style="${ii?'background:#EAF3DE;color:#3B6D11':'background:#f0f0ec;color:#666'}">${catLbl}</span><span class="mob-seq">#${e.seq||'?'}</span></div>
           <div class="mob-desc">${ab}${esc(e.description)||'—'}</div>
-          <div class="mob-meta"><span style="font-size:9px;background:#f0f0ec;color:#888;padding:1px 6px;border-radius:4px;margin-left:4px">#${e.seq||'?'}</span>${cleanDate(e.entry_date)||'—'}${mq}</div>
+          <div class="mob-date">${cleanDate(e.entry_date)||'—'}${mq}</div>
         </td>
         <td class="mob-hide" style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:700;color:${ii?'#27AE60':'#E74C3C'}">
           ${ii?'+':'-'}${fn(Math.abs(e.amount))} ج
-          <div class="mob-btns-row">${rcpt.replace(/<td[^>]*>|<\/td>/g,'')}${del.replace(/<td[^>]*>|<\/td>/g,'')}</div>
+          <div class="mob-btns-row">
+            <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:5px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button>
+            ${canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')" style="padding:3px 7px;font-size:12px">🗑</button>`:''}
+          </div>
         </td>
         <td class="mob-hide" style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
