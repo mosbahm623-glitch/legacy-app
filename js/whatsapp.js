@@ -79,10 +79,12 @@ function loadDaf3ati() {
   if (!el) return;
   el.innerHTML = `
     <div class="bc"><span onclick="showScreen('dash')" class="bc-l">الرئيسية</span><span class="bc-s">›</span><span>دفعاتي</span></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="font-size:18px;font-weight:700;color:var(--primary)">💰 دفعاتي</div>
-      <input id="daf3ProjSearch" type="text" placeholder="🔍 بحث بالمشروع..." class="inp-md" style="flex:1;min-width:160px" oninput="renderDaf3ati()">
-      <input id="daf3MqSearch" type="text" placeholder="👷 بحث بالمقاول..." class="inp-md" style="flex:1;min-width:160px" oninput="renderDaf3ati()">
+    <div style="position:sticky;top:0;z-index:10;background:var(--bg-pure);padding:10px 0 12px;border-bottom:0.5px solid var(--border);margin-bottom:14px">
+      <div style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:10px">💰 دفعاتي</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="daf3ProjSearch" type="text" placeholder="🔍 بحث بالمشروع..." class="inp-lg" style="flex:1;min-width:150px" oninput="renderDaf3ati()">
+        <input id="daf3MqSearch" type="text" placeholder="👷 بحث بالمقاول..." class="inp-lg" style="flex:1;min-width:150px" oninput="renderDaf3ati()">
+      </div>
     </div>
     <div id="daf3atiList"></div>`;
   renderDaf3ati();
@@ -137,7 +139,7 @@ function renderDaf3ati() {
     const mqRows = Object.entries(mqMap).map(([mqName, rows]) => {
       const phones = (allProjectsMap[proj.id]?.contractor_phones || {})[mqName] || {};
       const ph1 = phones.p1 || ''; const ph2 = phones.p2 || '';
-      const editBtn = `<button onclick="event.stopPropagation();mqEditPhonesForProj('${mqName.replace(/'/g,"\\'")}','${proj.id}','${ph1}','${ph2}')" style="background:var(--bg-faint);border:0.5px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--text-body)">📱 الأرقام</button>`;
+      const editBtn = uRole==='admin'?`<button onclick="event.stopPropagation();mqEditPhonesForProj('${mqName.replace(/'/g,"\\'")}','${proj.id}','${ph1}','${ph2}')" style="background:var(--bg-faint);border:0.5px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--text-body)">📱 الأرقام</button>`:''
       const mqTotal = rows.reduce((s, e) => s + e.amount, 0);
       const entryRows = rows.sort((a, b) => (b.seq || 0) - (a.seq || 0)).map(e => {
         const txt = encodeURIComponent('مرحباً ' + e.contractor + '، نفيدكم بصرف مبلغ ' + fn(e.amount) + ' ج\nالمشروع: ' + proj.name + '\nرقم القيد: ' + (e.seq || ''));
