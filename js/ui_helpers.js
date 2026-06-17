@@ -343,15 +343,16 @@ function fabAddNote(){toggleFab();showScreen('notes');}
 
 // DAILY LOG
 async function loadDailyLog(){
-  const today=ts();
-  const d=new Date();
+  const filterEl=document.getElementById('dailyDateFilter');
+  const filterVal=filterEl?filterEl.value:'';
+  const targetDate=filterVal||ts();
+  const d=filterVal?new Date(filterVal):new Date();
   const label=d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
   document.getElementById('dailyDateTitle').textContent='📋 Booking Journal — '+label;
   const container=document.getElementById('dailyList');
-  // Filter entries created today from allEntries (by created_at)
   let todayEntries=[];
   try{
-    const res=await sb('entries?created_at=gte.'+today+'T00:00:00&order=created_at.desc');
+    const res=await sb('entries?created_at=gte.'+targetDate+'T00:00:00&created_at=lte.'+targetDate+'T23:59:59&order=created_at.desc');
     todayEntries=res||[];
   }catch(e){todayEntries=[];}
   if(!todayEntries.length){
@@ -374,6 +375,7 @@ async function loadDailyLog(){
         <div class="daily-proj">${proj}${e.category?' · '+e.category:''}</div>
       </div>
       <div class="daily-amt ${isInc?'inc':'exp'}">${isInc?'+':'-'}${fn(Math.abs(e.amount))} ج</div>
+      <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-right:4px;flex-shrink:0">إيصال</button>
     </div>`;
   }).join('');
 }
