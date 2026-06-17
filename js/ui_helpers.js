@@ -345,14 +345,14 @@ function fabAddNote(){toggleFab();showScreen('notes');}
 async function loadDailyLog(){
   const filterEl=document.getElementById('dailyDateFilter');
   const filterVal=filterEl?filterEl.value:'';
-  const targetDate=filterVal||ts();
+  const targetDate=filterVal||new Date().toISOString().split('T')[0];
   const d=filterVal?new Date(filterVal):new Date();
   const label=d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
   document.getElementById('dailyDateTitle').textContent='📋 Booking Journal — '+label;
   const container=document.getElementById('dailyList');
   let todayEntries=[];
   try{
-    const res=await sb('entries?created_at=gte.'+targetDate+'T00:00:00&created_at=lte.'+targetDate+'T23:59:59&order=created_at.desc');
+    const res=await sb('entries?entry_date=eq.'+targetDate+'&order=seq.desc');
     todayEntries=res||[];
   }catch(e){todayEntries=[];}
   if(!todayEntries.length){
