@@ -370,6 +370,7 @@ async function printReceipt(id){
   <div class="rcpt-confirm-text">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
 </div>
 ${allProjectsMap[e.project_id]?.client_phone&&!isExp?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].client_phone}?text=${encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للعميل</a></div>`:''}
+${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].contractor_phones[e.contractor]}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للمقاول</a></div>`:''}
 <div class="rcpt-sigs">
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">المحاسب</div></div>
@@ -1468,6 +1469,7 @@ function re(){
         <th class="mob-hide" style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">المبلغ</th>
         <th class="mob-hide" style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">الرصيد</th>
+        <th></th>
         ${canEdit?'<th></th>':''}
       </tr></thead>
       <tbody>${tblRows}</tbody>
