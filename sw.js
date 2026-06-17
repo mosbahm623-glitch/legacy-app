@@ -1,17 +1,29 @@
 // Legacy Core — Service Worker
 // Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
-const CACHE = 'lft-v34';
+const CACHE = 'lft-v35';
 const SHELL = [
   './',
   './index.html',
-  './app.js',
   './style.css',
   './manifest.json',
+  './js/config.js',
+  './js/auth.js',
+  './js/ui_helpers.js',
+  './js/ui_comps.js',
+  './js/dashboard.js',
+  './js/projects.js',
+  './js/advances.js',
+  './js/reports.js',
+  './js/notifs.js',
+  './js/search.js',
+  './js/admin.js',
+  './js/backup.js',
+  './js/whatsapp.js',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap'
 ];
 
-const APP_FILES = ['index.html', 'app.js', 'style.css'];
+const APP_FILES = ['index.html', 'style.css', '/js/'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -56,7 +68,7 @@ self.addEventListener('fetch', e => {
   }
 
   // ملفات التطبيق الرئيسية — Network First عشان التحديثات تظهر فوراً
-  const isAppFile = APP_FILES.some(f => url.pathname.endsWith(f)) || url.pathname === '/' || url.pathname.endsWith('/');
+  const isAppFile = APP_FILES.some(f => url.pathname.endsWith(f) || url.pathname.includes(f)) || url.pathname === '/' || url.pathname.endsWith('/');
   if (isAppFile) {
     e.respondWith(
       fetch(e.request)
