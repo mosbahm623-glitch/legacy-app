@@ -2370,3 +2370,8 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   .rw .rd{font-size:12px !important}
   .rw .rm{font-size:10px !important}
 }
+
+@media(max-width:767px){
+  .mob-hide-del td:last-child{display:none !important}
+  td .db{display:none !important}
+}
