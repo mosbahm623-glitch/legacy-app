@@ -1071,6 +1071,35 @@ async function summaryExportExcel(){try{
   a.download='ملخص_دوري_'+new Date().toLocaleDateString('en-CA')+'.xlsx';a.click();
 }catch(_e){notify('⚠️ خطأ في تصدير Excel','er');}}
 
+async function mqEditPhones(name,p1,p2){
+  let ov=document.getElementById('mqPhonesModal');if(ov)ov.remove();
+  ov=document.createElement('div');ov.id='mqPhonesModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML=`<div class="modal-box-lg"><div class="modal-hdr"><div class="title-lg">📱 أرقام واتساب المقاول</div><button onclick="document.getElementById('mqPhonesModal').remove()" class="btn-close-sm">✕</button></div><div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:14px">👷 ${name}</div><label class="lbl-lg">📱 رقم واتساب 1</label><input id="mqPh1" type="text" value="${p1}" placeholder="مثال: 201001234567" class="inp-lg"><label class="lbl-lg">📱 رقم واتساب 2 (اختياري)</label><input id="mqPh2" type="text" value="${p2}" placeholder="مثال: 201001234567" class="inp-lg"><div id="mqPhMsg" style="min-height:18px;font-size:12px;margin:8px 0"></div><div class="modal-btns"><button onclick="saveMqPhones('${name.replace(/'/g,"\'")}')" class="btn-primary">💾 حفظ</button><button onclick="document.getElementById('mqPhonesModal').remove()" class="btn-cancel">إلغاء</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.getElementById('mqPh1').focus();
+}
+
+async function saveMqPhones(name){
+  const p1=document.getElementById('mqPh1').value.trim();
+  const p2=document.getElementById('mqPh2').value.trim();
+  const msg=document.getElementById('mqPhMsg');
+  msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
+  try{
+    const cur=allProjectsMap[curPid]?.contractor_phones||{};
+    const updated={...cur,[name]:{p1:p1||null,p2:p2||null}};
+    await sb('projects?id=eq.'+curPid,'PATCH',{contractor_phones:updated});
+    const idx=allProjects.findIndex(p=>p.id===curPid);
+    if(idx>=0)allProjects[idx].contractor_phones=updated;
+    const idx2=projects.findIndex(p=>p.id===curPid);
+    if(idx2>=0)projects[idx2].contractor_phones=updated;
+    msg.style.color='var(--primary-btn)';msg.textContent='✅ تم الحفظ';
+    setSav('✅ تم حفظ أرقام '+name,'ok');
+    setTimeout(()=>{document.getElementById('mqPhonesModal')?.remove();rp();},600);
+  }catch(e){msg.style.color='var(--danger)';msg.textContent='❌ خطأ: '+e.message;}
+}
+
 function mqAddByIdx(idx){
   const m=window._mqList&&window._mqList[idx];
   if(!m)return;
