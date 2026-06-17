@@ -375,6 +375,11 @@
       <div id="dailyScreen" style="display:none">
         <div class="daily-wrap">
           <div class="daily-date" id="dailyDateTitle">📋 Booking Journal</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg-surface);border-bottom:0.5px solid var(--border-faint);direction:rtl">
+            <span style="font-size:12px;color:var(--text-muted)">التاريخ:</span>
+            <input type="date" id="dailyDateFilter" style="padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-pure);color:var(--text-body)" onchange="loadDailyLog()">
+            <button onclick="document.getElementById('dailyDateFilter').value='';loadDailyLog()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer">اليوم</button>
+          </div>
           <div id="dailyList"><div class="emp">⏳ جاري التحميل...</div></div>
         </div>
       </div>
