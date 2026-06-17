@@ -156,14 +156,14 @@ function renderDaf3ati() {
     if (!hasInc && !hasMq) return;
 
     html += `<div class="card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-faint);border-bottom:0.5px solid var(--border);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-faint);border-bottom:0.5px solid var(--border);cursor:pointer" onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
         <div><div style="font-size:13px;font-weight:700;color:var(--primary)">🏗️ ${esc(proj.name)}</div><div style="font-size:11px;color:var(--text-soft);margin-top:2px">${incEntries.length} وارد · ${Object.keys(mqMap).length} مقاول</div></div>
         <div style="display:flex;gap:8px">
           <span style="font-size:11px;background:var(--success-ghost);color:var(--primary-btn);padding:2px 8px;border-radius:8px">+${fn(totalIn)} ج</span>
           <span style="font-size:11px;background:var(--danger-pale);color:var(--danger);padding:2px 8px;border-radius:8px">-${fn(totalOut)} ج</span>
         </div>
       </div>
-      <div style="padding:12px 14px">
+      <div style="padding:12px 14px;display:block">
         ${hasInc ? `<div style="font-size:11px;font-weight:700;color:var(--primary-btn);margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">▲ الوارد — صاحب العمل</div>${incRows}` : ''}
         ${hasMq ? `<div style="font-size:11px;font-weight:700;color:var(--danger);margin:${hasInc ? '10px' : '0'} 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">▼ المقاولين — دفعات صرفت</div>${mqRows}` : ''}
       </div>
