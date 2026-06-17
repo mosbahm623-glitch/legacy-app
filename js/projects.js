@@ -369,7 +369,15 @@ async function printReceipt(id){
 <div class="rcpt-confirm">
   <div class="rcpt-confirm-text">&#10003; ${isExp?'تم صرف المبلغ وقيده في النظام':'تم استلام المبلغ وقيده في النظام'}</div>
 </div>
-${allProjectsMap[e.project_id]?.client_phone&&!isExp?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].client_phone}?text=${encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للعميل</a></div>`:''}
+${(()=>{
+  const _pd=allProjectsMap[e.project_id];
+  if(isExp||!_pd)return '';
+  const _txt=encodeURIComponent('مرحباً، نفيدكم باستلام مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''));
+  const _btns=[];
+  if(_pd.client_phone)_btns.push(`<a href="https://wa.me/${_pd.client_phone}?text=${_txt}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:500">إرسال 1</a>`);
+  if(_pd.client_phone2)_btns.push(`<a href="https://wa.me/${_pd.client_phone2}?text=${_txt}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#128C7E;color:#fff;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:500">إرسال 2</a>`);
+  return _btns.length?`<div style="margin:0 24px 16px;display:flex;gap:8px;justify-content:center">${_btns.join('')}</div>`:'';
+})()}
 ${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]?`<div style="margin:0 24px 16px;text-align:center"><a href="https://wa.me/${allProjectsMap[e.project_id].contractor_phones[e.contractor]}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn2(Math.abs(e.amount))+' ج'+String.fromCharCode(10)+'المشروع: '+proj+String.fromCharCode(10)+'رقم الإيصال: '+(e.seq||''))}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">إرسال واتساب للمقاول</a></div>`:''}
 <div class="rcpt-sigs">
   <div class="rcpt-sig"><div class="rcpt-sig-line"></div><div class="rcpt-sig-lbl">${isExp?'المقاول / المستلم':'العميل / الدافع'}</div></div>
@@ -560,8 +568,12 @@ function editArchivedProject(pid){
             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
         </div>
       </div>
-      <label class="lbl-lg">📱 واتساب العميل</label>
+      <label class="lbl-lg">📱 واتساب العميل (رقم 1)</label>
       <input id="epPhone" type="text" value="${(p.client_phone||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
+        class="inp-lg"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+      <label class="lbl-lg">📱 واتساب العميل (رقم 2)</label>
+      <input id="epPhone2" type="text" value="${(p.client_phone2||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
         class="inp-lg"
         onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
       <div id="epMsg" class="proj-edit-msg"></div>
@@ -584,7 +596,8 @@ async function saveArchivedProjectEdit(pid){
   msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
   try{
     const phone=document.getElementById('epPhone').value.trim();
-    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null};
+    const phone2=document.getElementById('epPhone2').value.trim();
+    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null,client_phone2:phone2||null};
     await sb('projects?id=eq.'+pid,'PATCH',upd);
     const idx=_archiveData.findIndex(p=>p.id===pid);
     if(idx>=0){_archiveData[idx]={..._archiveData[idx],...upd};}
@@ -637,8 +650,12 @@ function editProject(){
             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
         </div>
       </div>
-      <label class="lbl-lg">📱 واتساب العميل</label>
+      <label class="lbl-lg">📱 واتساب العميل (رقم 1)</label>
       <input id="epPhone" type="text" value="${(p.client_phone||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
+        class="inp-lg"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+      <label class="lbl-lg">📱 واتساب العميل (رقم 2)</label>
+      <input id="epPhone2" type="text" value="${(p.client_phone2||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
         class="inp-lg"
         onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
       <div id="epMsg" class="proj-edit-msg"></div>
@@ -662,7 +679,8 @@ async function saveProjectEdit(){
   msg.style.color='var(--warning-text)';msg.textContent='⏳ جاري الحفظ...';
   try{
     const phone=document.getElementById('epPhone').value.trim();
-    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null};
+    const phone2=document.getElementById('epPhone2').value.trim();
+    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null,client_phone2:phone2||null};
     await sb('projects?id=eq.'+curPid,'PATCH',upd);
     // حدّث الذاكرة
     const idx=allProjects.findIndex(p=>p.id===curPid);
