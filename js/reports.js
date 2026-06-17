@@ -1094,6 +1094,7 @@ async function saveMqPhones(name){
     if(idx>=0)allProjects[idx].contractor_phones=updated;
     const idx2=projects.findIndex(p=>p.id===curPid);
     if(idx2>=0)projects[idx2].contractor_phones=updated;
+    if(allProjectsMap[curPid])allProjectsMap[curPid].contractor_phones=updated;
     msg.style.color='var(--primary-btn)';msg.textContent='✅ تم الحفظ';
     setSav('✅ تم حفظ أرقام '+name,'ok');
     setTimeout(()=>{document.getElementById('mqPhonesModal')?.remove();rp();},600);
