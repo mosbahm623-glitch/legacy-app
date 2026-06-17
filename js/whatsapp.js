@@ -77,6 +77,12 @@ function copyInvReq() {
 function loadDaf3ati() {
   const el = document.getElementById('daf3atiScreen');
   if (!el) return;
+  // لو البيانات لسه بتتحمل
+  if (!allProjects || !allProjects.length) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-soft)">⏳ جاري التحميل...</div>';
+    setTimeout(loadDaf3ati, 800);
+    return;
+  }
   el.innerHTML = `
     <div class="bc"><span onclick="showScreen('dash')" class="bc-l">الرئيسية</span><span class="bc-s">›</span><span>دفعاتي</span></div>
     <div style="margin-bottom:14px">
