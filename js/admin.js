@@ -49,6 +49,7 @@ async function pdfClient(){
     <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
     <td>${cleanDate(e.entry_date)||'—'}</td>
     <td>${e.description||'دفعة'}</td>
+    <td>${e.contractor||'—'}</td>
     <td class="amt pos">▲ ${fn(e.amount)} ج</td>
   </tr>`).join('');
 
@@ -57,12 +58,13 @@ async function pdfClient(){
     const total=cat.r.reduce((s,e)=>s+e.amount,0);
     bndRows+=`<div class="sec-ttl">📋 ${cat.n}</div>
     <table>
-      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المقاول</th><th>المبلغ</th></tr></thead>
       <tbody>${cat.r.map((e,i)=>`<tr>
         <td class="rep-table-num">${i+1}</td>
         <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
         <td>${cleanDate(e.entry_date)||'—'}</td>
         <td>${e.description||'—'}</td>
+        <td>${e.contractor||'—'}</td>
         <td class="amt neg">▼ ${fn(e.amount)} ج</td>
       </tr>`).join('')}</tbody>
       <tfoot><tr><td colspan="4">إجمالي ${cat.n}</td><td class="amt neg">▼ ${fn(total)} ج</td></tr></tfoot>
@@ -84,9 +86,9 @@ async function pdfClient(){
     </table>
     <div class="sec-ttl">📥 حركة الوارد</div>
     <table>
-      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المقاول</th><th>المبلغ</th></tr></thead>
       <tbody>${incRows}</tbody>
-      <tfoot><tr><td colspan="4">إجمالي الوارد</td><td class="amt pos">▲ ${fn(inc)} ج</td></tr></tfoot>
+      <tfoot><tr><td colspan="5">إجمالي الوارد</td><td class="amt pos">▲ ${fn(inc)} ج</td></tr></tfoot>
     </table>
     ${bndRows}`+
     _pdfFooter()+_pdfClose();
