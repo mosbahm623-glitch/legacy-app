@@ -285,12 +285,47 @@ function selectCat(name){
 }
 
 async function addNewCat(){
-  let name=document.getElementById('ic').value.trim();
-  if(!name)name=prompt('اسم البند الجديد:');
-  if(!name||!name.trim())return;
-  name=name.trim();
+  const typed=(document.getElementById('ic')?.value||'').trim();
+  // ERP modal بدل prompt
+  const existing=document.getElementById('newCatModal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='newCatModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML=`
+    <div style="background:var(--bg-pure,#fff);border-radius:14px;padding:28px 24px;width:340px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.25);direction:rtl;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <span style="font-size:22px;">📂</span>
+        <h3 style="margin:0;font-size:16px;font-weight:700;color:var(--primary-dark,#1D3C2A);">إضافة بند جديد</h3>
+      </div>
+      <label style="font-size:12px;color:#666;display:block;margin-bottom:6px;">اسم البند</label>
+      <input id="newCatInput" type="text" value="${typed}" placeholder="مثال: تكييفات، كهرباء..." 
+        style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #ccc;border-radius:8px;font-size:15px;font-family:inherit;direction:rtl;outline:none;"
+        onfocus="this.style.borderColor='var(--primary,#2D5A27)'"
+        onblur="this.style.borderColor='#ccc'"
+        onkeydown="if(event.key==='Enter')confirmAddCat()"
+      />
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button onclick="confirmAddCat()" 
+          style="flex:1;padding:10px;background:var(--primary,#2D5A27);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">
+          ✅ إضافة
+        </button>
+        <button onclick="document.getElementById('newCatModal').remove()"
+          style="flex:1;padding:10px;background:#f0f0f0;color:#333;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">
+          إلغاء
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(()=>{const i=document.getElementById('newCatInput');if(i){i.focus();i.select();}},50);
+}
+
+async function confirmAddCat(){
+  const modal=document.getElementById('newCatModal');
+  const name=(document.getElementById('newCatInput')?.value||'').trim();
+  if(!name){document.getElementById('newCatInput')?.focus();return;}
+  if(modal)modal.remove();
   try{
-    // upsert - لو موجود مش يطلع error
     const res=await fetch(SB_URL+'/rest/v1/categories',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({name})});
     if(!res.ok&&res.status!==409){const e=await res.json();throw new Error(e.message||'error');}
   }catch(ex){notify('❌ فشل حفظ البند: '+friendlyError(ex),'err');console.error(ex);return;}
