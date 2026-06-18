@@ -394,3 +394,24 @@ async function loadDailyLog(){
 }
 
 // BACKUP
+
+function toggleEntFullscreen(){
+  const ent=document.getElementById('ent');
+  const btn=document.getElementById('entExpandBtn');
+  if(!ent)return;
+  const isFs=ent.classList.contains('ent-fullscreen');
+  if(isFs){
+    ent.classList.remove('ent-fullscreen');
+    document.body.classList.remove('ent-fs');
+    if(btn)btn.innerHTML='⛶';
+    if(btn)btn.title='تكبير الجدول';
+  }else{
+    ent.classList.add('ent-fullscreen');
+    document.body.classList.add('ent-fs');
+    if(btn)btn.innerHTML='✕';
+    if(btn)btn.title='إغلاق التكبير';
+    // ESC to close
+    const esc=e=>{if(e.key==='Escape'){ent.classList.remove('ent-fullscreen');document.body.classList.remove('ent-fs');if(btn){btn.innerHTML='⛶';btn.title='تكبير الجدول';}document.removeEventListener('keydown',esc);}};
+    document.addEventListener('keydown',esc);
+  }
+}

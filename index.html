@@ -532,7 +532,10 @@
           <button onclick="clearEntryFilter()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text-muted);font-family:inherit;font-size:12px;cursor:pointer">✕ مسح</button>
         </div>
         <div class="tbs" id="tbs"></div>
-        <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
+        <div style="position:relative">
+          <button id="entExpandBtn" onclick="toggleEntFullscreen()" title="تكبير الجدول" style="position:absolute;left:8px;top:6px;z-index:10;background:var(--bg-pure);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:13px;color:var(--text-muted);">⛶</button>
+          <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
+        </div>
         <div class="im" id="im" style="display:none"></div>
         <div class="eb">
           <div style="background:var(--bg-pure);border-top:1px solid var(--border-color);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">

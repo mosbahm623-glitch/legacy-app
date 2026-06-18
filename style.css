@@ -2332,3 +2332,27 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
     white-space:nowrap;
   }
 }
+
+/* ══ TABLE FULLSCREEN ══════════════════════════════════ */
+#ent.ent-fullscreen{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:9999 !important;
+  max-height:100vh !important;
+  height:100vh !important;
+  border-radius:0 !important;
+  overflow:auto !important;
+  background:var(--bg-pure) !important;
+  padding:48px 16px 16px !important;
+}
+#entExpandBtn{transition:all .2s;}
+body.ent-fs #entExpandBtn{
+  position:fixed !important;
+  left:12px !important;
+  top:10px !important;
+  z-index:10000 !important;
+  background:var(--primary) !important;
+  color:#fff !important;
+  border-color:transparent !important;
+  font-size:15px !important;
+}
