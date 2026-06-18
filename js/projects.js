@@ -1554,17 +1554,15 @@ function re(){
   }
   html+=`<div style="overflow-x:hidden;width:100%"><table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">
     <colgroup>
-      <col style="width:30px">
-      <col style="width:80px">
-      <col style="width:72px">
+      <col style="width:28px">
+      <col style="width:76px">
       <col style="width:auto">
-      <col style="width:80px">
-      ${canEdit?'<col style="width:36px">':''}
+      <col style="width:82px">
+      ${canEdit?'<col style="width:34px">':''}
     </colgroup>
     <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
       <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">#</th>
       <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">رقم القيد</th>
-      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">البند</th>
       <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">البيان</th>
       <th style="color:#D4C49A;padding:8px 6px;text-align:left;font-weight:500;font-size:11px">المبلغ</th>
       ${canEdit?'<th style="color:#D4C49A;padding:8px 4px;text-align:center;font-weight:500;font-size:11px"></th>':''}
@@ -1578,11 +1576,10 @@ function re(){
       const rowBg=i%2===0?'#fff':'#f7f7f5';
       const amtColor=e.type==='i'?'#1D6A3E':'#C0392B';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
-        <td style="padding:6px 4px;color:#aaa;font-size:11px;text-align:right">${i+1}</td>
-        <td style="padding:6px 4px">${no}</td>
-        <td style="padding:6px 4px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 6px;border-radius:10px;color:#666;white-space:nowrap;overflow:hidden;display:block;text-overflow:ellipsis">${esc(e.category)||'—'}</span></td>
-        <td style="padding:6px 4px;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
-        <td style="padding:6px 4px;font-weight:600;color:${amtColor};text-align:left;white-space:nowrap">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))}</td>
+        <td style="padding:7px 4px;color:#aaa;font-size:11px;text-align:right">${i+1}</td>
+        <td style="padding:7px 4px">${no}</td>
+        <td style="padding:7px 6px;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 4px;font-weight:600;color:${amtColor};text-align:left;white-space:nowrap">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         ${rcpt}${del}
       </tr>`;
     }).join('')}
