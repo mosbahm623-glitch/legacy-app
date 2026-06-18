@@ -1477,7 +1477,6 @@ function re(){
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
         <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
         <td style="padding:7px 10px;color:#222;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
-        <td style="padding:7px 10px;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
@@ -1560,7 +1559,6 @@ function re(){
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">التاريخ</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">البند</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px">البيان</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المقاول</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المبلغ</th>
       ${canEdit?'<th style="color:#D4C49A;padding:8px 10px;text-align:center;font-weight:500;font-size:11px"></th>':''}
     </tr></thead>
