@@ -48,7 +48,7 @@ function openReport(type){
   _curReport=type;
   document.getElementById('repHub').style.display='none';
   document.getElementById('repView').style.display='block';
-  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'🤝 تقرير العميل',compare:'⚖️ مقارنة المشاريع'};
+  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'📋 تقرير المشروع',compare:'⚖️ مقارنة المشاريع'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
   ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
@@ -898,8 +898,8 @@ function clientExportPDF(){
     <td>${e.description||'—'}</td>
     <td class="amt pos">▲ ${fn(e.amount)} ج</td>
   </tr>`).join('');
-  const html=_pdfOpen('تقرير العميل — '+d.projName)+
-    _pdfHeader('🤝 تقرير العميل','المشروع: '+d.projName+' · الفترة: '+d.period)+
+  const html=_pdfOpen('تقرير مشروع — '+d.projName)+
+    _pdfHeader('📋 تقرير مشروع','المشروع: '+d.projName+' · الفترة: '+d.period)+
     `<div class="kpis kpis-2">
       <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(d.total)} ج</div></div>
       <div class="kpi kpi-neutral"><div class="kpi-lbl">عدد الدفعات</div><div class="kpi-val">${d.filtered.length}</div></div>
