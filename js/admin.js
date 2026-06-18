@@ -71,8 +71,8 @@ async function pdfClient(){
     </table>`;
   });
 
-  const html=_pdfOpen('نسخة العميل — '+p.name)+
-    _pdfHeader('👤 نسخة العميل — '+p.name,'Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
+  const html=_pdfOpen('تقرير مشروع — '+p.name)+
+    _pdfHeader('📋 تقرير مشروع — '+p.name,'Legacy Fine Touch · '+new Date().toLocaleDateString('ar-EG'))+
     `<div class="kpis kpis-3">
       <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(inc)} ج</div></div>
       <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصروف</div><div class="kpi-val">▼ ${fn(exp)} ج</div></div>
