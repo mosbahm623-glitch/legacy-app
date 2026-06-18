@@ -4,6 +4,12 @@
 async function loadOwnerScreen(){
   const el=document.getElementById('ownerScreen');
   if(!el)return;
+  // انتظر لو البيانات لسه بتتحمل
+  if(!projects||!projects.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:#888">⏳ جاري التحميل...</div>';
+    setTimeout(loadOwnerScreen,800);
+    return;
+  }
   const projs=[...projects].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
   const projOpts=projs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   const catOpts=allCategories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
