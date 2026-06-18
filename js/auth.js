@@ -111,11 +111,13 @@ async function initApp(){
     showScreen('adv');
     // افتح عهدته تلقائي لو عنده عهدة واحدة
     await autoOpenViewerAdv();
+  } else if(uRole==='owner'){
+    showScreen('owner');
   } else {
     showScreen('dash');
     // تنبيه الـ backup اليومي
-    if(uRole==='admin') checkBackupReminder();
-    if(uRole==='admin') checkNotesReminder();
+    if(uRole==='admin'||uRole==='super_admin') checkBackupReminder();
+    if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
   }
 }
 
