@@ -2343,7 +2343,12 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   border-radius:0 !important;
   overflow:auto !important;
   background:var(--bg-pure) !important;
-  padding:48px 16px 16px !important;
+  padding:0 !important;
+}
+#ent.ent-fullscreen table thead th{
+  position:sticky !important;
+  top:0 !important;
+  z-index:2 !important;
 }
 #entExpandBtn{transition:all .2s;}
 body.ent-fs #entExpandBtn{
