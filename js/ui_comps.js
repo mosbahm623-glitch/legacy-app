@@ -689,13 +689,37 @@ function _xlAddTitle(ws,title,cols,summary){_xlHeader(ws,title,summary,cols);}
 function _xlAddFooter(ws,cols){_xlFooter(ws,cols);}
 
 function openPrintWindow(html){
+  // inject html2pdf script + download button into the html
+  const withPdf=html.replace('</head>',
+    `<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script></head>`
+  ).replace('<body',
+    `<body`
+  ).replace(
+    /(<button[^>]*onclick="window\.close[^"]*"[^>]*>.*?<\/button>)/,
+    `$1 <button onclick="downloadAsPdf()" style="padding:8px 18px;background:#1D3C2A;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700;">⬇ تحميل PDF</button>`
+  );
   const w=window.open('','_blank');
   if(w){
     w.document.open();
-    w.document.write(html);
+    w.document.write(withPdf);
+    w.document.write(`<script>
+      function downloadAsPdf(){
+        const btn=document.querySelector('[onclick="downloadAsPdf()"]');
+        if(btn)btn.style.display='none';
+        const title=document.title||'تقرير';
+        html2pdf().set({
+          margin:8,
+          filename:title+'.pdf',
+          image:{type:'jpeg',quality:0.98},
+          html2canvas:{scale:2,useCORS:true,direction:'rtl'},
+          jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+        }).from(document.body).save().then(()=>{
+          if(btn)btn.style.display='';
+        });
+      }
+    <\/script>`);
     w.document.close();
   } else {
-    // لو اتبلوك popup — حمّل كـ HTML file
     const blob=new Blob([html],{type:'text/html;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
