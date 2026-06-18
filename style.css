@@ -260,7 +260,7 @@
 </style>
 *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
 input,select,textarea{font-size:16px !important}
-body{font-family:'Cairo','IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;background:var(--primary);min-height:100vh;direction:rtl;margin:0;padding:0;font-feature-settings:'kern' 1,'liga' 1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{overflow:hidden;height:100%}body{font-family:'Cairo','IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;background:var(--primary);min-height:100vh;height:100%;direction:rtl;margin:0;padding:0;overscroll-behavior:none;touch-action:pan-y;font-feature-settings:'kern' 1,'liga' 1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
 /* ══ PREMIUM TYPOGRAPHY SYSTEM ══ */
 /* Headlines — Bold Luxury */
