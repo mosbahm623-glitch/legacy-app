@@ -120,7 +120,7 @@ async function ae(){
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
   try{
-    if(uRole==='admin'){
+    if(uRole==='admin'||uRole==='super_admin'){
       await sb('entries','POST',entry);
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
@@ -224,7 +224,7 @@ async function de(id){
     notify('❌ القيد معتمد — لا يمكن حذفه','err');return;
   }
   // منع حذف قيد أقدم من 7 أيام — إلا الأدمن
-  if(uRole!=='admin'&&delEntry){
+  if(uRole!=='admin'&&uRole!=='super_admin'&&delEntry){
     const entryDate=new Date(delEntry.created_at||delEntry.entry_date);
     const diffDays=Math.floor((Date.now()-entryDate.getTime())/(1000*60*60*24));
     if(diffDays>7){notify('❌ لا يمكن حذف قيد أقدم من 7 أيام — تواصل مع الأدمن','err');return;}
@@ -800,7 +800,9 @@ async function loadDuesTab(el){
 }
 
 function renderDuesTab(el){
-  const canEdit=uRole!=='viewer'&&uRole!=='owner';
+  const isSuper=uRole==='super_admin'||uRole==='admin';
+  const canEdit=isSuper||uRole==='editor';
+  const canAdd=canEdit||uRole==='owner'||uRole==='viewer';
   const total=_duesList.reduce((s,d)=>s+d.amount,0);
   const unpaid=_duesList.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
   const paid=_duesList.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
@@ -1316,7 +1318,7 @@ async function confirmImport(){
   closeImportPreview();
   setSav('💾 جاري الاستيراد ('+ents.length+' قيد)...','ng');
   try{
-    if(uRole==='admin'){
+    if(uRole==='admin'||uRole==='super_admin'){
       const last=await sb('entries?select=seq&order=seq.desc&limit=1');
       let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
       if(nextSeq<20260000)nextSeq=20260000;
@@ -1417,7 +1419,9 @@ function rp(){
 }
 function re(){
   const el=document.getElementById('ent');
-  const canEdit=uRole!=='viewer'&&uRole!=='owner';
+  const isSuper=uRole==='super_admin'||uRole==='admin';
+  const canEdit=isSuper||uRole==='editor';
+  const canAdd=canEdit||uRole==='owner'||uRole==='viewer';
   if(cTab==='s'){
     const cs={};pExp().forEach(e=>{const cat=e.category||'بدون بند';cs[cat]=(cs[cat]||0)+e.amount;});
     const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
