@@ -89,11 +89,10 @@ async function initApp(){
     document.getElementById('fab').style.display='none';
   }
 
-  // تحميل parallel — loadAllProjects و loadCategories في نفس الوقت
-  await loadAllProjects();
+  // تحميل parallel — كل حاجة في نفس الوقت
   await Promise.all([
-    loadCategories(),
-    uRole!=='viewer' ? loadProjects() : Promise.resolve()
+    loadAllProjects(),
+    loadCategories()
   ]);
   if(uRole!=='viewer') buildSidebarProjects();
   if(uRole!=='viewer') _updateEntryBanner();
