@@ -130,7 +130,7 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','projStatus','timeline','archive','dues','notes','auditlog','daf3ati'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
@@ -141,10 +141,9 @@ function showScreen(s){
     const el=document.getElementById('sbi-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
-  const projActive=s==='proj'||s==='projStatus'||s==='timeline';
+  const projActive=s==='proj'||s==='timeline';
   document.getElementById('sbi-proj-hdr').classList.toggle('on',projActive);
   if(projActive){const sub=document.getElementById('sbs-proj');if(sub)sub.classList.add('open');const arr=document.getElementById('sba-proj');if(arr)arr.classList.add('open');}
-  const psi=document.getElementById('sbi-proj-status');if(psi)psi.classList.toggle('on',s==='projStatus');
   const tli=document.getElementById('sbi-timeline');if(tli)tli.classList.toggle('on',s==='timeline');
   if(s==='search'){
     const sel=document.getElementById('srch-proj-filter');
@@ -176,7 +175,6 @@ function showScreen(s){
   }else{
     if(_approvalsInterval){clearInterval(_approvalsInterval);_approvalsInterval=null;}
   }
-  if(s==='projStatus')loadProjStatus();
   if(s==='timeline')loadTimeline();
   if(s==='archive')loadArchivedProjects();
   if(s==='dues')loadDuesScreen();
@@ -197,7 +195,6 @@ function renderBreadcrumb(s){
     notes:['الرئيسية','ملاحظاتي'],
     dues:['الرئيسية','مستحقات المقاولين'],
     archive:['الرئيسية','الأرشيف'],
-    projStatus:['الرئيسية','حالة المشاريع'],
     timeline:['الرئيسية','آخر التحركات'],
     daily:['الرئيسية','اليومية'],
   };
@@ -284,24 +281,33 @@ function buildProjListScreen(){
   const grid=document.getElementById('projCardsGrid');
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
+  const projColors=['var(--success-soft)','var(--info-sky)','var(--accent-gold)','var(--purple-soft)','var(--danger-peach)','var(--danger-blush)','var(--info-soft)','var(--danger-warm)'];
+  grid.className='d-proj-grid';
   grid.innerHTML=[...projects].sort((a,b)=>{
     const sa=projSummaries[a.id]||{bal:0};
-    const sb=projSummaries[b.id]||{bal:0};
-    return (sa.bal||0)-(sb.bal||0); // عجز أول (سالب أصغر)
-  }).map(p=>{
-    const s=projSummaries[p.id]||{bal:0,inc:0,exp:0};
-    const bal=s.bal||0;
-    const inc=s.inc||0;
-    const exp=s.exp||0;
-    const balClass=bal<0?'neg':bal>0?'pos':'';
-    const balLabel=bal<0?'⚠ عجز':'✅ رصيد';
-    const cardClass='proj-card'+(bal<0?' deficit':'');
-    return `<div class="${cardClass}" onclick="goToProject('${p.id}')">
-      <div class="proj-card-name">${p.name}</div>
-      <div class="proj-card-row"><span class="proj-card-lbl">الوارد</span><span class="proj-card-val pos">+${fn(inc)}</span></div>
-      <div class="proj-card-row"><span class="proj-card-lbl">المصروف</span><span class="proj-card-val neg">-${fn(exp)}</span></div>
-      <div class="proj-card-divider"></div>
-      <div class="proj-card-row"><span class="proj-card-lbl">${balLabel}</span><span class="proj-card-val ${balClass}">${fn(Math.abs(bal))}</span></div>
+    const sb_=projSummaries[b.id]||{bal:0};
+    return (sa.bal||0)-(sb_.bal||0);
+  }).map((p,idx)=>{
+    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0,count:0,cats:[]};
+    const pI=s.inc,pE=s.exp,pB=s.bal;
+    const balCls=pB>0?'pos':pB<0?'neg':'zero';
+    const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):0;
+    const badgeTxt=pB>0?'✦ مستقر':pB<0?'⚠ عجز':'◌ صفر';
+    const color=projColors[idx%projColors.length];
+    return `<div class="d-pcard" onclick="goToProject('${p.id}')" style="animation-delay:${idx*0.04}s">
+      <div class="d-pcard-head">
+        <div class="d-pcard-name">${p.name}</div>
+        <span class="d-pcard-badge ${balCls}">${badgeTxt}</span>
+      </div>
+      <div class="d-pcard-stats">
+        <div class="d-pcard-stat"><div class="d-pcard-stat-lbl">وارد</div><div class="d-pcard-stat-val inc">+${fn(pI)}</div></div>
+        <div class="d-pcard-stat"><div class="d-pcard-stat-lbl">مصروف</div><div class="d-pcard-stat-val exp">-${fn(pE)}</div></div>
+      </div>
+      <div class="d-pcard-progress">
+        <div class="d-pcard-progress-info"><span class="d-pcard-meta">${s.count} قيد · ${s.cats.length} بند</span><span class="d-pcard-pct">${pct}%</span></div>
+        <div class="d-pcard-progress-bar"><div class="d-pcard-progress-fill" style="width:${pct}%;background:${pct>90?'var(--danger)':pct>70?'var(--warning)':color}"></div></div>
+      </div>
+      <div class="d-pcard-footer"><div class="d-pcard-bal ${balCls}">${pB>=0?'+':''}${fn(pB)} ج</div></div>
     </div>`;
   }).join('');
 }
