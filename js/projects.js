@@ -1462,12 +1462,43 @@ function re(){
     const pager=totalPages>1?`<div class="pg-bar">${cp>0?`<button class="pg-btn" onclick="window._rpPage=${cp-1};re()">‹ السابق</button>`:''}
       <span class="pg-info">صفحة ${cp+1} / ${totalPages} (${j.length} قيد)</span>
       ${cp<totalPages-1?`<button class="pg-btn" onclick="window._rpPage=${cp+1};re()">التالي ›</button>`:''}</div>`:'';
+    const isMob=window.innerWidth<=767;
     const tblRows=slice.map((e,i)=>{
       const ii=e.type==='i';
       const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
       const catClr=ii?'background:#EAF3DE;color:#3B6D11':'background:#f0f0ec;color:#666';
       const catLbl=ii?'وارد':esc(e.category)||'—';
-      const mq=e.contractor?` · ${esc(e.contractor)}`:'';
+      const amtClr=ii?'#1D6A3E':'#C0392B';
+      const balClr=e.bal<0?'#C0392B':e.bal>0?'#1D6A3E':'#888';
+      // WhatsApp buttons
+      const _ep=allProjectsMap[e.project_id]?.contractor_phones?.[e.contractor]||{};
+      const wa1=_ep.p1?`<a href="https://wa.me/${_ep.p1}?text=${encodeURIComponent('مرحباً '+e.contractor+'، رقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>`:'';
+      if(isMob){
+        // MOBILE: card layout
+        const delBtn=canEdit?`<button class="card-action card-del" onclick="event.stopPropagation();de('${e.id}')">🗑</button>`:'';
+        return `<div class="entry-card" onclick="oe('${e.id}')">
+          <div class="card-top">
+            <span class="seq-badge">${e.seq||'?'}</span>
+            <span class="card-date">${cleanDate(e.entry_date)||'—'}</span>
+            <span class="card-amt" style="color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</span>
+          </div>
+          <div class="card-body">
+            <span class="cat-pill" style="${catClr}">${catLbl}</span>
+            ${e.advance_id?'<span class="adv-dot" title="عهدة"></span>':''}
+            <span class="card-desc">${esc(e.description)||'—'}</span>
+          </div>
+          <div class="bal-row">
+            <span style="font-size:11px;color:#aaa">رصيد</span>
+            <span style="font-size:12px;font-weight:700;color:${balClr}">${fn(e.bal)} ج</span>
+          </div>
+          <div class="card-footer">
+            <button class="card-action" onclick="event.stopPropagation();printReceipt('${e.id}')">🖨 إيصال</button>
+            ${wa1?`<button class="card-action card-wa" onclick="event.stopPropagation();window.open('${wa1.match(/href="([^"]+)"/)?.[1]||''}','_blank')">📲 واتساب</button>`:''}
+            ${delBtn}
+          </div>
+        </div>`;
+      }
+      // DESKTOP: table row
       const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const rowBg=i%2===0?'#fff':'#f7f7f5';
@@ -1477,11 +1508,16 @@ function re(){
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
         <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
         <td style="padding:7px 10px;color:#222;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${ii?'#27AE60':'#E74C3C'}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        <td style="padding:7px 10px;white-space:nowrap;color:${e.bal<0?'#E74C3C':e.bal>0?'#27AE60':'#888'};font-size:11px">${fn(e.bal)} ج</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:${balClr};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
       </tr>`;
     }).join('');
+    if(isMob){
+      el.innerHTML=pager+`<div class="card-list">${tblRows}</div>`+pager;
+      return;
+    }
     el.innerHTML=pager+`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
