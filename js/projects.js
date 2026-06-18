@@ -821,7 +821,7 @@ function renderDuesTab(el){
   if(!_duesList.length){
     html+='<div class="emp">لا توجد مستحقات</div>';
   } else {
-    html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
+    html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table;table-layout:fixed">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
@@ -1552,14 +1552,14 @@ function re(){
       <button onclick="setCatView('mq',this)" class="cat-view-mq-btn" id="cvMq">👷 المقاولين</button>
     </div><div id="catListView">`;
   }
-  html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
+  html+=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table;table-layout:fixed">
     <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">#</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">رقم القيد</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">البند</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px">البيان</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المبلغ</th>
-      ${canEdit?'<th style="color:#D4C49A;padding:8px 10px;text-align:center;font-weight:500;font-size:11px"></th>':''}
+      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px;width:28px">#</th>
+      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px;width:72px">رقم القيد</th>
+      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px;width:70px">البند</th>
+      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">البيان</th>
+      <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px;width:75px">المبلغ</th>
+      ${canEdit?'<th style="color:#D4C49A;padding:8px 4px;text-align:center;font-weight:500;font-size:11px;width:32px"></th>':''}
     </tr></thead>
     <tbody>
     ${es.map((e,i)=>{
@@ -1572,7 +1572,7 @@ function re(){
         <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
         <td style="padding:7px 10px;white-space:nowrap">${no}</td>
         <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${esc(e.category)||'—'}</span></td>
-        <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 6px;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'#27AE60':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         ${rcpt}${del}
       </tr>`;
