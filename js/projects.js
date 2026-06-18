@@ -1556,7 +1556,6 @@ function re(){
     <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">#</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">رقم القيد</th>
-      <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">التاريخ</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">البند</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px">البيان</th>
       <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-weight:500;font-size:11px;white-space:nowrap">المبلغ</th>
@@ -1572,7 +1571,6 @@ function re(){
       return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
         <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
         <td style="padding:7px 10px;white-space:nowrap">${no}</td>
-        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${esc(e.category)||'—'}</span></td>
         <td style="padding:7px 10px;color:#222">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${e.type==='i'?'#27AE60':'#E74C3C'}">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
