@@ -135,6 +135,7 @@ function showScreen(s){
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
+  if(s==='owner'){loadOwnerScreen();}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
   ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog','daf3ati'].forEach(x=>{
@@ -187,6 +188,7 @@ function showScreen(s){
 function renderBreadcrumb(s){
   const map={
     projList:['الرئيسية','المشاريع'],
+    owner:['الرئيسية','قيد جديد'],
     proj:['الرئيسية','المشاريع',null],
     adv:['الرئيسية','العهد'],
     rep:['الرئيسية','التقارير'],

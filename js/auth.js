@@ -52,6 +52,7 @@ async function initApp(){
   document.getElementById('sbi-approvals').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-backup').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-rep').style.display=(uRole==='viewer')?'none':'flex';
+  const ownerBtn=document.getElementById('sbi-owner');if(ownerBtn)ownerBtn.style.display=uRole==='owner'?'flex':'none';
   const saveProj=document.getElementById('sbi-save-proj');
   if(saveProj)saveProj.style.display=uRole==='admin'?'flex':'none';
   const mobNav=document.getElementById('mobBottomNav');
