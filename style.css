@@ -2313,12 +2313,6 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
     overflow:hidden !important;
     text-overflow:ellipsis !important;
   }
-  #ent table td:nth-child(5){max-width:120px !important;}
-  #ent table td:nth-child(7){max-width:85px !important;}
-  /* إخفاء أعمدة غير ضرورية */
-  #ent table td:last-child, #ent table th:last-child{display:none !important;}
-  #ent table td:nth-child(1),#ent table td:nth-child(2),
-  #ent table td:nth-child(6),#ent table td:nth-child(8){display:none !important;}
   .ra{font-size:12px !important}
   .rw .ra{font-size:13px !important;white-space:nowrap !important}
   .rw .rd{font-size:12px !important}
