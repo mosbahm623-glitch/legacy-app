@@ -2251,15 +2251,13 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 
 /* ══ MOBILE ENTRY CARDS ══ */
 @media(max-width:767px){
-  /* الجدول على الموبايل — horizontal scroll زي اللاب توب */
+  /* اليومية — horizontal scroll كامل زي الديسكتوب */
   .main-content{overflow-x:visible !important;}
-  #ent{overflow-x:auto !important;-webkit-overflow-scrolling:touch;}
-  #ent table{table-layout:auto;width:max-content;min-width:100%;}
-  #ent table td,#ent table th{white-space:nowrap;}
+  #ent{overflow-x:auto !important;-webkit-overflow-scrolling:touch;width:100%;}
+  #ent table{table-layout:auto !important;width:max-content !important;min-width:100%;}
+  #ent table td,#ent table th{white-space:nowrap !important;}
   .mob-hide{display:table-cell !important;}
   .mob-top,.mob-cat,.mob-seq,.mob-date{display:none !important;}
-  .mob-desc{white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:160px !important;display:block !important;}
-  /* card styles removed - table with scroll used instead */
 }
 
 /* ══ MOBILE FIXES ══════════════════════════════════════ */
