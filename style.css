@@ -740,8 +740,9 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ig input{padding:10px 12px;font-size:13px}
   .ig input.fl{grid-column:1/-1}
   .ig input.mq{grid-column:1/-1}
-  .tbs{padding:10px 24px;gap:6px}
-  .tab{padding:6px 16px;font-size:12px}
+  .tbs{padding:6px 8px;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tbs::-webkit-scrollbar{display:none}
+  .tab{padding:6px 12px;font-size:11px;white-space:nowrap;flex-shrink:0}
   .ent{max-height:calc(100vh - 400px)}
   .rw{padding:12px 24px}
   .rd{font-size:13px;white-space:normal !important;overflow:visible !important;text-overflow:unset !important}
@@ -2264,27 +2265,34 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 /* ══ MOBILE FIXES ══════════════════════════════════════ */
 @media(max-width:767px){
   /* KPI cards — عمودين بدل تلاتة */
-  .kp{grid-template-columns:1fr 1fr !important;gap:6px !important;padding:8px !important}
+  .kp{grid-template-columns:1fr 1fr 1fr !important;gap:5px !important;padding:6px 8px !important}
   .kc{padding:8px 10px !important}
   .kv{font-size:15px !important}
   /* آخر card يبقى ممتد */
   .kp .kc:last-child{grid-column:1/-1}
 
-  /* فورم الإدخال — عمود واحد */
-  .ig{grid-template-columns:1fr 1fr !important;gap:6px !important}
+  /* فورم الإدخال — عمود واحد على الموبايل */
+  .ig{grid-template-columns:1fr !important;gap:8px !important}
   .ig-field.full{grid-column:1/-1 !important}
-  .ig-field{grid-column:span 1}
+  .ig-field{grid-column:1/-1 !important}
+
+  /* المبلغ والتاريخ في صف واحد */
+  #amtWrap,#dateWrap,
+  .ig-field:has(#ia),
+  .ig-field:has(#idt){grid-column:span 1 !important}
+  .ig{grid-template-columns:1fr 1fr !important}
+  #descWrap,#catWrap,#mqWrap,#importWrap,#addBtnWrap{grid-column:1/-1 !important}
 
   /* حقول الفورم أكبر للإصبع */
   .ig input,.finp,.field-input{
-    padding:10px 12px !important;
-    font-size:14px !important;
-    min-height:44px;
+    padding:11px 12px !important;
+    font-size:15px !important;
+    min-height:46px;
   }
 
   /* زرار الإضافة أكبر */
-  .ab{padding:12px !important;font-size:14px !important;min-height:48px}
-  .ib{padding:12px !important;font-size:12px !important;min-height:48px}
+  .ab{padding:13px !important;font-size:15px !important;min-height:50px}
+  .ib{padding:10px !important;font-size:13px !important;min-height:46px}
 
   /* بانر المشروع */
   #entryProjBanner{font-size:13px !important;padding:6px 10px !important}
