@@ -135,7 +135,7 @@ function showScreen(s){
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
-  if(s==='owner'){try{loadOwnerScreen();}catch(ex){console.error('ownerScreen error:',ex);notify('خطأ في شاشة الأونر: '+ex.message,'err');}}
+  if(s==='owner'){loadOwnerScreen().catch(ex=>{console.error('ownerScreen error:',ex);notify('خطأ: '+ex.message,'err');});}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
   ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog','daf3ati'].forEach(x=>{
