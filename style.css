@@ -625,7 +625,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .tab.jr{background:var(--accent-sand);color:var(--accent-dark)}.tab.jr.on{background:var(--accent-dark);color:#fff}
 .tab.mq{background:var(--accent-cream);color:var(--accent-brown)}.tab.mq.on{background:var(--accent-brown);color:#fff}
 .tab.ad{background:var(--purple-tint);color:var(--purple-dark)}.tab.ad.on{background:var(--purple-dark);color:#fff}
-.ent{max-height:280px;overflow-y:auto;overflow-x:hidden;background:#fff}
+.ent{max-height:280px;overflow-y:auto;overflow-x:auto;background:#fff}
 .rw{padding:9px 12px;border-bottom:1px solid var(--bg-neutral);display:flex;justify-content:space-between;align-items:center;gap:7px}
 .rw.clk{cursor:pointer}.rw.clk:hover{background:var(--bg-soft)}
 .ri{flex:1;min-width:0}
