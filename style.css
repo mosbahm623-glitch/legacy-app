@@ -2271,17 +2271,10 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
   /* آخر card يبقى ممتد */
   .kp .kc:last-child{grid-column:1/-1}
 
-  /* فورم الإدخال — عمود واحد على الموبايل */
+  /* فورم الإدخال — عمود واحد كامل على الموبايل */
   .ig{grid-template-columns:1fr !important;gap:8px !important}
-  .ig-field.full{grid-column:1/-1 !important}
   .ig-field{grid-column:1/-1 !important}
-
-  /* المبلغ والتاريخ في صف واحد */
-  #amtWrap,#dateWrap,
-  .ig-field:has(#ia),
-  .ig-field:has(#idt){grid-column:span 1 !important}
-  .ig{grid-template-columns:1fr 1fr !important}
-  #descWrap,#catWrap,#mqWrap,#importWrap,#addBtnWrap{grid-column:1/-1 !important}
+  .ig-field.full{grid-column:1/-1 !important}
 
   /* حقول الفورم أكبر للإصبع */
   .ig input,.finp,.field-input{
