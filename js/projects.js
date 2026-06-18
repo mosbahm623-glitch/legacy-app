@@ -1501,8 +1501,10 @@ function re(){
       // DESKTOP: table row
       const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
-      const rowBg=i%2===0?'#fff':'#f7f7f5';
-      return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+      const isDk=document.body.classList.contains('dark-mode');
+      const rowBg=isDk?(i%2===0?'var(--dark-alt)':'var(--dark-mid)'):(i%2===0?'#fff':'#f7f7f5');
+      const hoverBg=isDk?'rgba(255,255,255,.06)':'#eef4ee';
+      return `<tr style="background:${rowBg};border-bottom:0.5px solid ${isDk?'rgba(212,196,154,.08)':'#e8e8e4'};cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='${hoverBg}'" onmouseout="this.style.background='${rowBg}'">
         <td style="padding:7px 10px;color:#999;font-size:11px">${i+1+start}</td>
         <td style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">${e.seq||'?'}</span></td>
         <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>

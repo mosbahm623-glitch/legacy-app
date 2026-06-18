@@ -2382,3 +2382,18 @@ body.ent-fs #entExpandBtn{
   .card-action.card-wa{color:#25D366}
   .card-action.card-del{color:#E74C3C}
 }
+
+/* ══ DARK MODE — MOBILE CARDS ══════════════════════════ */
+@media(max-width:767px){
+  body.dark-mode .entry-card{background:var(--dark-alt);border-color:rgba(212,196,154,.1)}
+  body.dark-mode .card-desc{color:#e0e0d8}
+  body.dark-mode .card-date{color:#888}
+  body.dark-mode .cat-pill{background:rgba(255,255,255,.07);border-color:rgba(212,196,154,.15);color:#aaa}
+  body.dark-mode .bal-row{background:rgba(255,255,255,.03);border-color:rgba(212,196,154,.08)}
+  body.dark-mode .card-footer{border-color:rgba(212,196,154,.08)}
+  body.dark-mode .card-action{color:#9DB898}
+  body.dark-mode .card-action:not(:last-child){border-color:rgba(212,196,154,.08)}
+  body.dark-mode .card-action:active{background:rgba(255,255,255,.04)}
+  body.dark-mode .card-action.card-del{color:#F1948A}
+  body.dark-mode .card-list{background:transparent}
+}
