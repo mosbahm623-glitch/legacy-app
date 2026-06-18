@@ -120,7 +120,7 @@ async function ae(){
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
   try{
-    if(uRole==='admin'||uRole==='super_admin'){
+    if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
       await sb('entries','POST',entry);
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
@@ -1318,7 +1318,7 @@ async function confirmImport(){
   closeImportPreview();
   setSav('💾 جاري الاستيراد ('+ents.length+' قيد)...','ng');
   try{
-    if(uRole==='admin'||uRole==='super_admin'){
+    if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
       const last=await sb('entries?select=seq&order=seq.desc&limit=1');
       let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
       if(nextSeq<20260000)nextSeq=20260000;
