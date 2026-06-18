@@ -1,11 +1,12 @@
 // Legacy Core — Service Worker
 // Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
-const CACHE = 'lft-v45';
+const CACHE = 'lft-v46';
 const SHELL = [
   './',
   './index.html',
   './style.css',
+  './dark.css',
   './manifest.json',
   './js/config.js',
   './js/auth.js',
