@@ -312,10 +312,10 @@ function buildProjListScreen(){
   }).join('');
 }
 function filterProjCards(q){
-  const cards=document.querySelectorAll('#projCardsGrid .proj-card, #projCardsGrid .deficit');
+  const cards=document.querySelectorAll('#projCardsGrid .d-pcard');
   const term=q.trim().toLowerCase();
   cards.forEach(card=>{
-    const name=card.querySelector('.proj-card-name')?.textContent?.toLowerCase()||'';
+    const name=card.querySelector('.d-pcard-name')?.textContent?.toLowerCase()||'';
     card.style.display=(!term||name.includes(term))?'':'none';
   });
 }
