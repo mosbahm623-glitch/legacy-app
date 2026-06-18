@@ -290,7 +290,9 @@ async function addNewCat(){
   if(!name||!name.trim())return;
   name=name.trim();
   try{
-    await sb('categories','POST',{name});
+    // upsert - لو موجود مش يطلع error
+    const res=await fetch(SB_URL+'/rest/v1/categories',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({name})});
+    if(!res.ok&&res.status!==409){const e=await res.json();throw new Error(e.message||'error');}
   }catch(ex){notify('❌ فشل حفظ البند: '+friendlyError(ex),'err');console.error(ex);return;}
   if(!allCategories.includes(name)){allCategories.push(name);allCategories.sort();}
   selectCat(name);
