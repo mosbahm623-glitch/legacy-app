@@ -2250,64 +2250,14 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 
 /* ══ MOBILE ENTRY CARDS ══ */
 @media(max-width:767px){
-  /* تثبيت الجدول على الموبايل */
-  #ent table{table-layout:fixed;width:100% !important;}
-  /* ══ الجدول الرئيسي — نفس الكمبيوتر + اختصار البيان ══ */
-  #ent table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
-  #ent table td:nth-child(1),#ent table td:nth-child(2),#ent table td:nth-child(6),#ent table td:nth-child(8){display:none !important;}
-  #ent table td:nth-child(3){max-width:80px;font-size:11px;}
-  #ent table td:nth-child(4){max-width:70px;}
-  #ent table td:nth-child(5){max-width:140px;}
-  #ent table td:nth-child(7){max-width:90px;font-size:12px;}
-  #ent table td:nth-child(9),#ent table td:nth-child(10){max-width:40px;width:40px;}
-  .mob-hide{display:none !important;}
+  /* الجدول على الموبايل — horizontal scroll زي اللاب توب */
+  #ent{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #ent table{table-layout:auto;width:max-content;min-width:100%;}
+  #ent table td,#ent table th{white-space:nowrap;}
+  .mob-hide{display:table-cell !important;}
   .mob-top,.mob-cat,.mob-seq,.mob-date{display:none !important;}
-  .mob-desc{white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:130px !important;display:block !important;}
-  .mob-hide{display:none !important;}
-  #ent .rw{
-    display:block !important;
-    padding:12px 14px !important;
-    border:1px solid var(--border-light) !important;
-    border-radius:12px !important;
-    margin-bottom:8px !important;
-    background:var(--bg-pure);
-    box-shadow:0 1px 4px rgba(0,0,0,.05);
-  }
-  body.dark-mode #ent .rw{
-    background:rgba(255,255,255,.04) !important;
-    border-color:rgba(212,196,154,.12) !important;
-  }
-  #ent .rw .ri{display:block !important;margin-bottom:0}
-  #ent .rw .rd{
-    font-size:13px !important;
-    white-space:normal !important;
-    overflow:visible !important;
-    text-overflow:unset !important;
-    font-weight:600 !important;
-    line-height:1.5 !important;
-  }
-  #ent .rw .rm{font-size:11px !important;margin-top:3px !important;margin-bottom:8px !important}
-  /* السطر السفلي — بالـ class الجديد */
-  .mob-card-foot{
-    display:flex !important;
-    align-items:center !important;
-    justify-content:space-between !important;
-    border-top:1px solid var(--border-faint);
-    padding-top:8px !important;
-    margin-top:4px !important;
-  }
-  body.dark-mode .mob-card-foot{border-color:rgba(212,196,154,.08) !important}
-  .mob-card-nums{display:flex !important;align-items:center !important;gap:10px !important}
-  .mob-card-nums .ra{font-size:15px !important;font-weight:800 !important}
-  .mob-card-nums .jb{
-    font-size:11px !important;
-    background:var(--bg-gray) !important;
-    padding:2px 8px !important;
-    border-radius:6px !important;
-    margin-top:0 !important;
-  }
-  body.dark-mode .mob-card-nums .jb{background:rgba(255,255,255,.07) !important}
-  #ent .rw .db{font-size:18px !important;padding:6px 10px !important;min-width:38px !important;min-height:38px !important;border-radius:8px !important}
+  .mob-desc{white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:160px !important;display:block !important;}
+  /* card styles removed - table with scroll used instead */
 }
 
 /* ══ MOBILE FIXES ══════════════════════════════════════ */
