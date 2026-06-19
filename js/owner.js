@@ -1,4 +1,4 @@
-// ══ OWNER SCREEN — Quick Entry ════════════════════════
+// ══ OWNER SCREEN — Modern Quick Entry ═════════════════
 
 async function loadOwnerScreen(){
   const el=document.getElementById('ownerScreen');
@@ -12,100 +12,92 @@ async function loadOwnerScreen(){
 
   const projs=[...allProjects].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
   const cats=(allCategories||[]);
-  const today=(()=>{const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();})();
+  const today=(function(){var d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();})();
 
-  let projOpts='<option value="">اختر المشروع...</option>';
-  projs.forEach(p=>{projOpts+='<option value="'+p.id+'">'+p.name+'</option>';});
-
-  let catOpts='<option value="">اختر البند...</option>';
-  cats.forEach(c=>{catOpts+='<option value="'+c+'">'+c+'</option>';});
+  var catOpts='<option value="">اختر البند...</option>';
+  cats.forEach(function(c){catOpts+='<option value="'+c+'">'+c+'</option>';});
 
   el.innerHTML=
+    '<div style="padding:16px;padding-bottom:40px;background:#F0F2F0;min-height:100vh">'+
+
+    // Header
+    '<div style="background:linear-gradient(135deg,#1D3C2A 0%,#2D5A3D 100%);border-radius:16px;padding:20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(29,60,42,.3)">'+
+      '<div>'+
+        '<div style="color:#fff;font-size:16px;font-weight:700">'+uName+'</div>'+
+        '<div style="color:#9DB898;font-size:11px;margin-top:2px">إضافة قيد جديد</div>'+
+      '</div>'+
+      '<div style="background:rgba(212,196,154,.15);border:1px solid rgba(212,196,154,.3);color:#D4C49A;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px">🏢 أونر</div>'+
+    '</div>'+
+
     // Notice
-    '<div style="background:#FAEEDA;border-bottom:1px solid #EF9F27;padding:9px 16px;font-size:12px;color:#633806;display:flex;align-items:center;gap:6px">'+
+    '<div style="background:#FFF8EC;border:1px solid #F0C060;border-radius:12px;padding:10px 14px;font-size:12px;color:#7A5500;margin-bottom:16px;display:flex;align-items:center;gap:8px">'+
       '<span>⏳</span><span>القيود بتروح للموافقة قبل ما تتسجل في المشروع</span>'+
     '</div>'+
 
-    // Form wrapper
-    '<div style="padding:16px 14px">'+
+    // Type toggle
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">'+
+      '<button id="ow-exp-btn" onclick="owSetType(\'e\')" style="padding:14px;border-radius:12px;border:2px solid #C0392B;background:#FFF5F5;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#C0392B">📤 مصروف</button>'+
+      '<button id="ow-inc-btn" onclick="owSetType(\'i\')" style="padding:14px;border-radius:12px;border:2px solid #E8EAE8;background:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#888">📥 وارد</button>'+
+    '</div>'+
 
-      // Type toggle
-      '<div class="tt" style="margin-bottom:16px">'+
-        '<button class="tb on" id="ow-exp-btn" onclick="owSetType(\'e\')">📤 مصروف</button>'+
-        '<button class="tb" id="ow-inc-btn" onclick="owSetType(\'i\')">📥 وارد</button>'+
+    // Main fields card
+    '<div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px">'+
+      '<div style="font-size:11px;font-weight:700;color:#1D3C2A;margin-bottom:14px;opacity:.6;letter-spacing:.5px">البيانات الأساسية</div>'+
+
+      '<div style="margin-bottom:14px">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">البيان <span style="color:#C0392B">*</span></div>'+
+        '<input id="ow-desc" type="text" placeholder="وصف العملية..." style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
       '</div>'+
 
-      // البيان
-      '<div class="ig-field full" style="margin-bottom:10px">'+
-        '<div class="ig-lbl">البيان <span style="color:#C0392B">*</span></div>'+
-        '<input id="ow-desc" type="text" placeholder="وصف العملية..." class="finp" style="width:100%">'+
-      '</div>'+
-
-      // المبلغ + التاريخ
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'+
-        '<div class="ig-field">'+
-          '<div class="ig-lbl">المبلغ (ج) <span style="color:#C0392B">*</span></div>'+
-          '<input id="ow-amt" type="number" placeholder="0.00" step="any" class="finp req-left" style="width:100%">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'+
+        '<div>'+
+          '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">المبلغ <span style="color:#C0392B">*</span></div>'+
+          '<div style="position:relative">'+
+            '<input id="ow-amt" type="number" placeholder="0.00" step="any" style="width:100%;padding:12px 14px;padding-left:36px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;background:#FAFBFA;outline:none;color:#1D3C2A">'+
+            '<span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#888;font-weight:600">ج</span>'+
+          '</div>'+
         '</div>'+
-        '<div class="ig-field">'+
-          '<div class="ig-lbl">التاريخ <span style="color:#C0392B">*</span></div>'+
-          '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="finp" style="width:100%" value="'+today+'" oninput="owFmtDate(this)">'+
+        '<div>'+
+          '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">التاريخ <span style="color:#C0392B">*</span></div>'+
+          '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" value="'+today+'" oninput="owFmtDate(this)" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
         '</div>'+
       '</div>'+
 
-      // البند (مصروف فقط)
-      '<div class="ig-field full" id="ow-cat-wrap" style="margin-bottom:10px">'+
-        '<div class="ig-lbl">البند <span style="color:#C0392B">*</span></div>'+
-        '<select id="ow-cat" class="finp" style="width:100%">'+catOpts+'</select>'+
+      '<div id="ow-cat-wrap" style="margin-bottom:0">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">البند <span style="color:#C0392B">*</span></div>'+
+        '<select id="ow-cat" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+catOpts+'</select>'+
       '</div>'+
+    '</div>'+
 
-      // المشروع - autocomplete
-      '<div class="ig-field full" style="margin-bottom:10px;position:relative">'+
-        '<div class="ig-lbl">المشروع <span style="color:#C0392B">*</span></div>'+
-        '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." class="finp" style="width:100%" autocomplete="off" oninput="owFilterProj(this.value)" onblur="owHideProjDD()">'+
+    // Project card
+    '<div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px">'+
+      '<div style="font-size:11px;font-weight:700;color:#1D3C2A;margin-bottom:14px;opacity:.6;letter-spacing:.5px">المشروع والمقاول</div>'+
+
+      '<div style="margin-bottom:14px;position:relative">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">المشروع <span style="color:#C0392B">*</span></div>'+
+        '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." autocomplete="off" oninput="owFilterProj(this.value)" onblur="owHideProjDD()" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
         '<input type="hidden" id="ow-proj">'+
-        '<div id="ow-proj-dd" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #e0e0dc;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:2px"></div>'+
+        '<div id="ow-proj-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:#fff;border:1.5px solid #E8EAE8;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto"></div>'+
       '</div>'+
 
-      // المقاول (مصروف فقط)
-      '<div class="ig-field full" id="ow-mq-wrap" style="margin-bottom:10px">'+
-        '<div class="ig-lbl">المقاول</div>'+
-        '<input id="ow-mq" type="text" placeholder="اختياري" class="finp" style="width:100%">'+
+      '<div id="ow-mq-wrap">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">المقاول</div>'+
+        '<input id="ow-mq" type="text" placeholder="اختياري" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
       '</div>'+
+    '</div>'+
 
-      // Submit
-      '<button onclick="owSubmit()" class="ab" style="width:100%;margin-top:6px">⏳ إرسال للموافقة</button>'+
+    // Submit
+    '<button onclick="owSubmit()" style="width:100%;padding:16px;background:linear-gradient(135deg,#1D3C2A,#2D5A3D);color:#D4C49A;border:none;border-radius:14px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(29,60,42,.3)">⏳ إرسال للموافقة</button>'+
+
     '</div>';
 
   window._owType='e';
 }
 
-function owHideProjDD(){setTimeout(function(){const d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200);}
-
-function owFilterProj(q){
-  const dd=document.getElementById('ow-proj-dd');
-  const hiddenInp=document.getElementById('ow-proj');
-  if(!dd)return;
-  if(!q.trim()){dd.style.display='none';hiddenInp.value='';return;}
-  const matches=allProjects.filter(p=>p.name.includes(q)||p.name.toLowerCase().includes(q.toLowerCase()));
-  if(!matches.length){dd.style.display='none';return;}
-  dd.innerHTML=matches.map(function(p){
-    return '<div onclick="owSelectProj(this)" data-id="'+p.id+'" data-name="'+p.name+'" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:0.5px solid #f0f0ec">'+p.name+'</div>';
-  }).join('');
-  dd.style.display='block';
-}
-
-function owSelectProj(el){
-  const id=el.getAttribute('data-id');
-  const name=el.getAttribute('data-name');
-  document.getElementById('ow-proj').value=id;
-  document.getElementById('ow-proj-inp').value=name;
-  const dd=document.getElementById('ow-proj-dd');
-  if(dd)dd.style.display='none';
-}
+function owHideProjDD(){setTimeout(function(){var d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200);}
 
 function owFmtDate(inp){
-  let v=inp.value.replace(/\D/g,'');
+  var v=inp.value.replace(/\D/g,'');
   if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
   if(v.length>5)v=v.slice(0,5)+'/'+v.slice(5);
   inp.value=v;
@@ -113,43 +105,67 @@ function owFmtDate(inp){
 
 function owSetType(t){
   window._owType=t;
-  const expBtn=document.getElementById('ow-exp-btn');
-  const incBtn=document.getElementById('ow-inc-btn');
-  const catWrap=document.getElementById('ow-cat-wrap');
-  const mqWrap=document.getElementById('ow-mq-wrap');
+  var expBtn=document.getElementById('ow-exp-btn');
+  var incBtn=document.getElementById('ow-inc-btn');
+  var catWrap=document.getElementById('ow-cat-wrap');
+  var mqWrap=document.getElementById('ow-mq-wrap');
   if(!expBtn||!incBtn)return;
   if(t==='e'){
-    expBtn.className='tb on';
-    incBtn.className='tb';
+    expBtn.style.cssText='padding:14px;border-radius:12px;border:2px solid #C0392B;background:#FFF5F5;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#C0392B';
+    incBtn.style.cssText='padding:14px;border-radius:12px;border:2px solid #E8EAE8;background:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#888';
     if(catWrap)catWrap.style.display='block';
     if(mqWrap)mqWrap.style.display='block';
   }else{
-    incBtn.className='tb on';
-    expBtn.className='tb';
+    incBtn.style.cssText='padding:14px;border-radius:12px;border:2px solid #1D6A3E;background:#F0FFF5;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#1D6A3E';
+    expBtn.style.cssText='padding:14px;border-radius:12px;border:2px solid #E8EAE8;background:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#888';
     if(catWrap)catWrap.style.display='none';
     if(mqWrap)mqWrap.style.display='none';
   }
 }
 
+function owFilterProj(q){
+  var dd=document.getElementById('ow-proj-dd');
+  var hiddenInp=document.getElementById('ow-proj');
+  if(!dd)return;
+  if(!q.trim()){dd.style.display='none';if(hiddenInp)hiddenInp.value='';return;}
+  var matches=allProjects.filter(function(p){return p.name.indexOf(q)!==-1||p.name.toLowerCase().indexOf(q.toLowerCase())!==-1;});
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML=matches.map(function(p){
+    return '<div onclick="owSelectProj(this)" data-id="'+p.id+'" data-name="'+p.name+'" style="padding:10px 14px;cursor:pointer;font-size:13px;color:#333;border-bottom:1px solid #f5f5f5;transition:background .1s" onmouseover="this.style.background=\'#F0F7F2\';this.style.color=\'#1D3C2A\';this.style.fontWeight=\'600\'" onmouseout="this.style.background=\'\';this.style.color=\'#333\';this.style.fontWeight=\'400\'">'+p.name+'</div>';
+  }).join('');
+  dd.style.display='block';
+}
+
+function owSelectProj(el){
+  var id=el.getAttribute('data-id');
+  var name=el.getAttribute('data-name');
+  var inp=document.getElementById('ow-proj-inp');
+  var hidden=document.getElementById('ow-proj');
+  if(inp)inp.value=name;
+  if(hidden)hidden.value=id;
+  var dd=document.getElementById('ow-proj-dd');
+  if(dd)dd.style.display='none';
+}
+
 async function owSubmit(){
-  const t=window._owType||'e';
-  const amt=parseFloat(document.getElementById('ow-amt').value);
-  const desc=(document.getElementById('ow-desc').value||'').trim();
-  const projId=document.getElementById('ow-proj').value;
-  const date=document.getElementById('ow-date').value;
-  const cat=t==='e'?(document.getElementById('ow-cat').value||''):'وارد';
-  const mq=t==='e'?((document.getElementById('ow-mq').value||'').trim()):'';
+  var t=window._owType||'e';
+  var amt=parseFloat(document.getElementById('ow-amt').value);
+  var desc=(document.getElementById('ow-desc').value||'').trim();
+  var projId=document.getElementById('ow-proj').value;
+  var date=document.getElementById('ow-date').value;
+  var cat=t==='e'?(document.getElementById('ow-cat').value||''):'وارد';
+  var mq=t==='e'?((document.getElementById('ow-mq').value||'').trim()):'';
 
   if(!amt||amt<=0){notify('❌ ادخل المبلغ','err');return;}
   if(!desc){notify('❌ ادخل البيان','err');return;}
   if(!projId){notify('❌ اختر المشروع','err');return;}
   if(t==='e'&&!cat){notify('❌ اختر البند','err');return;}
 
-  const btn=document.querySelector('#ownerScreen .ab');
-  if(btn){btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';}
+  var btn=document.querySelector('#ownerScreen button[onclick="owSubmit()"]');
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ جاري الإرسال...';}
 
   try{
-    const entry={
+    var entry={
       id:crypto.randomUUID(),
       project_id:projId,
       type:t,
@@ -165,16 +181,15 @@ async function owSubmit(){
     };
     await sb('pending_entries','POST',entry);
     notify('✅ تم الإرسال — في انتظار موافقة الأدمن','ok');
-    // Reset
     document.getElementById('ow-amt').value='';
     document.getElementById('ow-desc').value='';
     if(document.getElementById('ow-cat'))document.getElementById('ow-cat').value='';
     if(document.getElementById('ow-mq'))document.getElementById('ow-mq').value='';
+    document.getElementById('ow-proj-inp').value='';
     document.getElementById('ow-proj').value='';
-    updatePendingBadge();
   }catch(ex){
     notify('❌ فشل الإرسال: '+friendlyError(ex),'err');
   }finally{
-    if(btn){btn.disabled=false;btn.textContent='⏳ إرسال للموافقة';}
+    if(btn){btn.disabled=false;btn.innerHTML='⏳ إرسال للموافقة';}
   }
 }
