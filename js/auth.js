@@ -112,6 +112,7 @@ async function initApp(){
     // افتح عهدته تلقائي لو عنده عهدة واحدة
     await autoOpenViewerAdv();
   } else if(uRole==='owner'){
+    await loadAllProjects();
     showScreen('owner');
   } else {
     showScreen('dash');
