@@ -219,8 +219,8 @@ async function de(id){
       if(_locked){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
     }
   }
-  // منع حذف قيد معتمد
-  if(delEntry&&delEntry.status==='approved'){
+  // منع حذف قيد معتمد — إلا السوبر أدمن
+  if(delEntry&&delEntry.status==='approved'&&uRole!=='super_admin'&&uRole!=='admin'){
     notify('❌ القيد معتمد — لا يمكن حذفه','err');return;
   }
   // منع حذف قيد أقدم من 7 أيام — إلا الأدمن
