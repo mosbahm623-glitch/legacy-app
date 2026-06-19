@@ -35,7 +35,7 @@ async function loadOwnerScreen(){
     '</div>'+
     '<div id="ow-add" style="padding:14px">'+
       '<div style="background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:9px 12px;font-size:12px;color:#633806;margin-bottom:12px">⏳ القيود بتروح للموافقة أولاً</div>'+
-      '<div style="display:flex;border-radius:8px;overflow:hidden;border:1px solid #e8e8e4;margin-bottom:12px">'+
+      '<div style="display:flex;border-radius:8px;overflow:hidden;border:1px solid #e8e8e4;margin-bottom:12px;direction:ltr">'+
         '<button id="ow-exp-btn" onclick="owSetType(\'e\')" style="flex:1;padding:10px;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:#C0392B;color:#fff">📤 مصروف</button>'+
         '<button id="ow-inc-btn" onclick="owSetType(\'i\')" style="flex:1;padding:10px;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#999">📥 وارد</button>'+
       '</div>'+
