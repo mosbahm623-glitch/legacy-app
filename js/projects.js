@@ -44,7 +44,7 @@ function populateAdvProjSel(){
 async function loadProjects(){
   setSav('⏳ جاري التحميل...','ng');
   try{
-    if(uRole==='admin'||uRole==='viewer'){projects=allProjects;}
+    if(uRole==='admin'||uRole==='super_admin'||uRole==='viewer'){projects=allProjects;}
     else{const acc=await sb('project_access?user_id=eq.'+uid);if(!acc.length){projects=[];}else{const ids=acc.map(a=>a.project_id);projects=allProjects.filter(p=>ids.includes(p.id));}}
     if(!projects.length&&uRole==='admin'){const p=await sb('projects','POST',{name:'مشروع جديد',start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects=allProjects;}
     if(projects.length){curPid=projects[0].id;await loadEntries();}
