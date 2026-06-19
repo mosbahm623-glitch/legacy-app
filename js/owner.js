@@ -89,13 +89,15 @@ function owFilterProj(q){
   if(!q.trim()){dd.style.display='none';hiddenInp.value='';return;}
   const matches=allProjects.filter(p=>p.name.includes(q)||p.name.toLowerCase().includes(q.toLowerCase()));
   if(!matches.length){dd.style.display='none';return;}
-  dd.innerHTML=matches.map(p=>
-    '<div onclick="owSelectProj(''+p.id+'',''+p.name+'')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:0.5px solid #f0f0ec" onmouseover="this.style.background='#f5f5f3'" onmouseout="this.style.background='#fff'">'+p.name+'</div>'
-  ).join('');
+  dd.innerHTML=matches.map(function(p){
+    return '<div onclick="owSelectProj(this)" data-id="'+p.id+'" data-name="'+p.name+'" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:0.5px solid #f0f0ec">'+p.name+'</div>';
+  }).join('');
   dd.style.display='block';
 }
 
-function owSelectProj(id, name){
+function owSelectProj(el){
+  const id=el.getAttribute('data-id');
+  const name=el.getAttribute('data-name');
   document.getElementById('ow-proj').value=id;
   document.getElementById('ow-proj-inp').value=name;
   const dd=document.getElementById('ow-proj-dd');
