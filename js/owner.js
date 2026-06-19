@@ -49,18 +49,13 @@ async function loadOwnerScreen(){
         '<input id="ow-desc" type="text" placeholder="وصف العملية..." style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
       '</div>'+
 
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;max-width:100%">'+
-        '<div>'+
-          '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">المبلغ <span style="color:#C0392B">*</span></div>'+
-          '<div style="position:relative">'+
-            '<input id="ow-amt" type="number" placeholder="0.00" step="any" style="width:100%;padding:12px 14px;padding-left:36px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;background:#FAFBFA;outline:none;color:#1D3C2A;min-width:0">'+
-            '<span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#888;font-weight:600">ج</span>'+
-          '</div>'+
-        '</div>'+
-        '<div>'+
-          '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">التاريخ <span style="color:#C0392B">*</span></div>'+
-          '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" value="'+today+'" oninput="owFmtDate(this)" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
-        '</div>'+
+      '<div style="margin-bottom:14px">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">المبلغ (ج) <span style="color:#C0392B">*</span></div>'+
+        '<input id="ow-amt" type="number" placeholder="0.00" step="any" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;background:#FAFBFA;outline:none;color:#1D3C2A">'+
+      '</div>'+
+      '<div style="margin-bottom:14px">'+
+        '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">التاريخ <span style="color:#C0392B">*</span></div>'+
+        '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" value="'+today+'" oninput="owFmtDate(this)" style="width:100%;padding:12px 14px;border:1.5px solid #E8EAE8;border-radius:10px;font-family:inherit;font-size:14px;background:#FAFBFA;outline:none">'+
       '</div>'+
 
       '<div id="ow-cat-wrap" style="margin-bottom:0">'+
