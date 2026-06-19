@@ -111,9 +111,6 @@ async function initApp(){
     showScreen('adv');
     // افتح عهدته تلقائي لو عنده عهدة واحدة
     await autoOpenViewerAdv();
-  } else if(uRole==='owner'){
-    await loadAllProjects();
-    showScreen('owner');
   } else {
     showScreen('dash');
     // تنبيه الـ backup اليومي
