@@ -130,11 +130,12 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
   if(uRole==='viewer'&&s!=='adv')return;
   curScreen=s;
-  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati'].forEach(x=>{
+  ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati','owner'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
   });
   if(s==='projList'){buildProjListScreen();}
+  if(s==='owner'){loadOwnerScreen().catch(ex=>{console.error('ownerScreen error:',ex);notify('خطأ: '+ex.message,'err');});}
   document.getElementById('advDetail').style.display='none';
   // Sidebar active state
   ['dash','adv','daily','admin','rep','search','approvals','archive','auditlog','daf3ati'].forEach(x=>{
@@ -187,6 +188,7 @@ function showScreen(s){
 function renderBreadcrumb(s){
   const map={
     projList:['الرئيسية','المشاريع'],
+    owner:['الرئيسية','قيد جديد'],
     proj:['الرئيسية','المشاريع',null],
     adv:['الرئيسية','العهد'],
     rep:['الرئيسية','التقارير'],
