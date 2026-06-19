@@ -341,6 +341,7 @@ function goToProject(pid){
 let fabOpen=false;
 // ██ FAB — FLOATING ACTION BUTTON ══════════════════
 function toggleFab(){
+  if(uRole==='owner'){showScreen('owner');return;}
   fabOpen=!fabOpen;
   document.getElementById('fabMain').classList.toggle('open',fabOpen);
   document.getElementById('fabOpts').classList.toggle('open',fabOpen);
