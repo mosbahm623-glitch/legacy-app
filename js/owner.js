@@ -59,10 +59,12 @@ async function loadOwnerScreen(){
         '<select id="ow-cat" class="finp" style="width:100%">'+catOpts+'</select>'+
       '</div>'+
 
-      // المشروع
-      '<div class="ig-field full" style="margin-bottom:10px">'+
+      // المشروع - autocomplete
+      '<div class="ig-field full" style="margin-bottom:10px;position:relative">'+
         '<div class="ig-lbl">المشروع <span style="color:#C0392B">*</span></div>'+
-        '<select id="ow-proj" class="finp" style="width:100%">'+projOpts+'</select>'+
+        '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." class="finp" style="width:100%" autocomplete="off" oninput="owFilterProj(this.value)" onblur="setTimeout(()=>{const d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200)">'+
+        '<input type="hidden" id="ow-proj">'+
+        '<div id="ow-proj-dd" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #e0e0dc;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:2px"></div>'+
       '</div>'+
 
       // المقاول (مصروف فقط)
@@ -76,6 +78,26 @@ async function loadOwnerScreen(){
     '</div>';
 
   window._owType='e';
+}
+
+function owFilterProj(q){
+  const dd=document.getElementById('ow-proj-dd');
+  const hiddenInp=document.getElementById('ow-proj');
+  if(!dd)return;
+  if(!q.trim()){dd.style.display='none';hiddenInp.value='';return;}
+  const matches=allProjects.filter(p=>p.name.includes(q)||p.name.toLowerCase().includes(q.toLowerCase()));
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML=matches.map(p=>
+    '<div onclick="owSelectProj(''+p.id+'',''+p.name+'')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:0.5px solid #f0f0ec" onmouseover="this.style.background='#f5f5f3'" onmouseout="this.style.background='#fff'">'+p.name+'</div>'
+  ).join('');
+  dd.style.display='block';
+}
+
+function owSelectProj(id, name){
+  document.getElementById('ow-proj').value=id;
+  document.getElementById('ow-proj-inp').value=name;
+  const dd=document.getElementById('ow-proj-dd');
+  if(dd)dd.style.display='none';
 }
 
 function owFmtDate(inp){
