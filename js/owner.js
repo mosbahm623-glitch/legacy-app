@@ -62,6 +62,7 @@ async function loadOwnerScreen(){
     '</div>';
 
   window._owType='e';
+  setTimeout(()=>owSetType('e'),50);
   owLoadPending();
 }
 
