@@ -42,17 +42,21 @@ async function initApp(){
   document.getElementById('loginScreen').style.display='none';
   applyUserTheme();
   document.getElementById('uname').textContent=uName;
-  document.getElementById('urole').textContent={'super_admin':'⚡ سوبر أدمن','admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 أونر'}[uRole]||uRole;
+  document.getElementById('urole').textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 أونر'}[uRole]||uRole;
   // Mobile header
   const _mhName=document.getElementById('uname-hdr');if(_mhName)_mhName.textContent=uName;
   const _mhAName=document.getElementById('ahdr-uname');if(_mhAName)_mhAName.textContent=uName;
-  const _mhARole=document.getElementById('ahdr-urole');if(_mhARole)_mhARole.textContent={'super_admin':'⚡ سوبر أدمن','admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 أونر'}[uRole]||uRole;
+  const _mhARole=document.getElementById('ahdr-urole');if(_mhARole)_mhARole.textContent={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 أونر'}[uRole]||uRole;
   const isAdmin=uRole==='admin'||uRole==='super_admin';
   document.getElementById('sbi-admin').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-approvals').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-backup').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-rep').style.display=(uRole==='viewer')?'none':'flex';
   const ownerBtn=document.getElementById('sbi-owner');if(ownerBtn)ownerBtn.style.display=uRole==='owner'?'flex':'none';
+  // FAB — الأونر يشوف إضافة قيد بس
+  document.querySelectorAll('.fab-admin-only').forEach(btn=>{
+    btn.style.display=(uRole==='owner'||uRole==='viewer')?'none':'flex';
+  });
   const saveProj=document.getElementById('sbi-save-proj');
   if(saveProj)saveProj.style.display=uRole==='admin'?'flex':'none';
   const mobNav=document.getElementById('mobBottomNav');
