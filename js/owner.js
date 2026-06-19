@@ -62,7 +62,7 @@ async function loadOwnerScreen(){
       // المشروع - autocomplete
       '<div class="ig-field full" style="margin-bottom:10px;position:relative">'+
         '<div class="ig-lbl">المشروع <span style="color:#C0392B">*</span></div>'+
-        '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." class="finp" style="width:100%" autocomplete="off" oninput="owFilterProj(this.value)" onblur="setTimeout(()=>{const d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200)">'+
+        '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." class="finp" style="width:100%" autocomplete="off" oninput="owFilterProj(this.value)" onblur="owHideProjDD()">'+
         '<input type="hidden" id="ow-proj">'+
         '<div id="ow-proj-dd" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #e0e0dc;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:2px"></div>'+
       '</div>'+
@@ -79,6 +79,8 @@ async function loadOwnerScreen(){
 
   window._owType='e';
 }
+
+function owHideProjDD(){setTimeout(function(){const d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200);}
 
 function owFilterProj(q){
   const dd=document.getElementById('ow-proj-dd');
