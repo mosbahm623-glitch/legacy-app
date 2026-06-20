@@ -1577,20 +1577,61 @@ function re(){
         ?`<span style="font-size:10px;background:var(--success-ghost);color:var(--primary-btn);padding:1px 7px;border-radius:8px;margin-right:4px">📱 رقمان</span>`
         :`<span style="font-size:10px;background:var(--warning-faint);color:var(--warning-dark);padding:1px 7px;border-radius:8px;margin-right:4px">لا يوجد رقم</span>`;
       const phoneBtn=canEdit?`<button onclick="event.stopPropagation();mqEditPhones('${m.n.replace(/'/g,"\'")}','${_ph1}','${_ph2}')" class="mq-print-btn">📱 الأرقام</button>`:'';
-      const rows=m.rows.sort((a,b)=>pdt(b.entry_date)-pdt(a.entry_date)).map(e=>{
-        const etLbl={'payment':'\u{1F4B0} دفعة','work':'\u{1F528} أعمال','material':'\u{1F529} مصنعيات'};
-        const etBg={'payment':'var(--success-pale)','work':'var(--info-bg)','material':'var(--warning-pale)'};
-        const etC={'payment':'var(--primary-btn)','work':'var(--info)','material':'var(--warning-dark)'};
-        const tag=e.entry_type?`<span style="background:${etBg[e.entry_type]};color:${etC[e.entry_type]};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700">${etLbl[e.entry_type]||e.entry_type}</span>`:'';
-        const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">\u{1F5D1}</button>`:'';
-        const rcptBtn=`<button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-left:4px">إيصال</button>`;
+      const _isDk=document.body.classList.contains('dark-mode');
+      const _r0=_isDk?'var(--dark-card,#1A2A1A)':'#fff';
+      const _r1=_isDk?'rgba(212,196,154,.04)':'#f7f7f5';
+      const _brd=_isDk?'rgba(212,196,154,.08)':'#e8e8e4';
+      const _hov=_isDk?'rgba(212,196,154,.07)':'#eef4ee';
+      const _txt=_isDk?'var(--accent,#D4C49A)':'#1D2A1D';
+      const _sub=_isDk?'rgba(212,196,154,.4)':'#999';
+      const rows=m.rows.sort((a,b)=>pdt(b.entry_date)-pdt(a.entry_date)).map((e,_ri)=>{
+        const etLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
+        const etBg={'payment':'#EAF3DE','work':'#E6F1FB','material':'#FAEEDA'};
+        const etC={'payment':'#27500A','work':'#0C447C','material':'#633806'};
+        const tag=e.entry_type?`<span style="background:${etBg[e.entry_type]};color:${etC[e.entry_type]};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600">${etLbl[e.entry_type]||e.entry_type}</span>`:'';
+        const del=canEdit?`<button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button>`:'';
+        const rcptBtn=`<button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500">إيصال</button>`;
         const _ep=(allProjectsMap[e.project_id]?.contractor_phones||{})[e.contractor]||{};
         const _wa1=_ep.p1?`<a href="https://wa.me/${_ep.p1}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 1</a>`:'';
         const _wa2=_ep.p2?`<a href="https://wa.me/${_ep.p2}?text=${encodeURIComponent('مرحباً '+e.contractor+'، نفيدكم بصرف مبلغ '+fn(Math.abs(e.amount))+' ج\nالمشروع: '+(allProjectsMap[e.project_id]?.name||'')+'\nرقم القيد: '+(e.seq||''))}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:3px;background:#128C7E;color:#fff;padding:3px 8px;border-radius:5px;text-decoration:none;font-size:10px;font-weight:500">📲 2</a>`:'';
-        return `<div class="rw${canEdit?' clk':''}" onclick="oe('${e.id}')" style="flex-wrap:wrap;gap:6px"><div class="ri" style="flex:1;min-width:0"><div class="rd">${tag} ${esc(e.description)||'—'} <span class="nb">${e.seq||'?'}</span></div><div class="rm">${e.entry_date||'—'} · ${esc(e.category)||'—'}</div></div><div class="flex-center-gap" style="flex-shrink:0;flex-wrap:wrap;gap:4px">${_wa1}${_wa2}<div class="ra">${fn(e.amount)} ج</div>${rcptBtn}${del}</div></div>`;
+        const _rb=_ri%2===0?_r0:_r1;
+        return `<tr style="background:${_rb};border-bottom:0.5px solid ${_brd};cursor:pointer;transition:background .1s" onclick="oe('${e.id}')" onmouseover="this.style.background='${_hov}'" onmouseout="this.style.background='${_rb}'">
+          <td style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">${e.seq||'?'}</span></td>
+          <td style="padding:7px 10px">
+            <div style="font-size:12px;color:${_txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px">${esc(e.description)||'—'}</div>
+            <div style="font-size:10px;color:${_sub};margin-top:2px">${cleanDate(e.entry_date)||'—'}</div>
+          </td>
+          <td style="padding:7px 8px;white-space:nowrap">${tag}</td>
+          <td style="padding:7px 10px;font-weight:600;color:var(--danger,#C0392B);white-space:nowrap;text-align:center">${fn(e.amount)} ج</td>
+          <td style="padding:7px 6px;white-space:nowrap;text-align:center">${_wa1}${_wa2}</td>
+          <td style="padding:7px 6px;white-space:nowrap;text-align:center">${rcptBtn}</td>
+          ${canEdit?`<td style="padding:7px 4px;text-align:center">${del}</td>`:''}
+        </tr>`;
       }).join('');
       const kpis=hasTypes?`<div class="mq-kpi-grid"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">${fn(m.pay)}</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">${fn(m.work)}</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">${fn(m.mat)}</div></div><div style="background:${rem>=0?'var(--success-ghost)':'var(--danger-ghost)'};border-radius:8px;padding:8px;text-align:center"><div class="lbl-sm">${rem>=0?'الباقي معاه':'مستحق عليك'}</div><div style="font-weight:900;color:${rem>=0?'var(--primary)':'var(--danger)'};font-size:13px">${fn(Math.abs(rem))}</div></div></div>`:`<div class="mq-total-row"><span style="color:var(--text-soft);font-size:12px">إجمالي المسحوب</span><span style="font-weight:700;color:var(--primary-btn,#1D3C2A)">${fn(m.pay+m.work+m.mat+m.other)} ج</span></div>`;
-      return `<div class="mq-contractor-card"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n} ${phonesBadge}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${phoneBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:14px 16px">${kpis}<div>${rows}</div></div></div>`;
+      const _isDkW=document.body.classList.contains('dark-mode');
+      const _cardBg=_isDkW?'var(--dark-card,#1A2A1A)':'#fff';
+      const _brdW=_isDkW?'rgba(212,196,154,.12)':'#e8e8e4';
+      const _ftBg=_isDkW?'rgba(212,196,154,.05)':'#f9f9f7';
+      const _ftTxt=_isDkW?'var(--accent,#D4C49A)':'#1D3C2A';
+      const _totAmt=m.pay+m.work+m.mat+m.other;
+      return `<div class="mq-contractor-card" style="background:${_cardBg};border:0.5px solid ${_brdW}"><div class="mq-card-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"><div class="mq-card-header-inner"><span class="mq-card-name">👷 ${m.n} ${phonesBadge}</span><div style="display:flex;gap:6px;align-items:center">${printBtn}${phoneBtn}${addBtn}<span class="mq-card-count">${m.rows.length} قيد ▼</span></div></div></div><div style="padding:12px 14px">${kpis}<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;direction:rtl">
+        <thead><tr style="background:#1D3C2A">
+          <th style="color:#D4C49A;padding:7px 10px;font-size:11px;font-weight:500;text-align:right;white-space:nowrap">رقم القيد</th>
+          <th style="color:#D4C49A;padding:7px 10px;font-size:11px;font-weight:500;text-align:right">البيان</th>
+          <th style="color:#D4C49A;padding:7px 8px;font-size:11px;font-weight:500;text-align:right;white-space:nowrap">النوع</th>
+          <th style="color:#D4C49A;padding:7px 10px;font-size:11px;font-weight:500;text-align:center;white-space:nowrap">المبلغ</th>
+          <th style="color:#D4C49A;padding:7px 6px;font-size:11px;font-weight:500;text-align:center">واتساب</th>
+          <th style="color:#D4C49A;padding:7px 6px;font-size:11px;font-weight:500;text-align:center">إيصال</th>
+          ${canEdit?'<th style="color:#D4C49A;padding:7px 4px"></th>':''}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr style="background:${_ftBg}">
+          <td colspan="3" style="padding:8px 10px;font-size:11px;font-weight:600;color:${_ftTxt}">إجمالي المسحوب — ${m.rows.length} قيود</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--danger,#C0392B);text-align:center">${fn(_totAmt)} ج</td>
+          <td colspan="${canEdit?3:2}"></td>
+        </tr></tfoot>
+      </table></div></div></div>`;
     }).join('');
     return;
   }
