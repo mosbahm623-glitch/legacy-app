@@ -5,14 +5,7 @@ async function backupAll(){
   setSav('⏳ جاري تحميل المكتبة...','ng');
   try{
     // تحميل ExcelJS لو مش محملة
-    if(!xOK){
-      await new Promise((res,rej)=>{
-        const s=document.createElement('script');
-        s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';
-        s.onload=()=>{xOK=true;res();};s.onerror=rej;
-        document.head.appendChild(s);
-      });
-    }
+    // ExcelJS loaded in index.html
     setSav('⏳ جاري جلب البيانات...','ng');
     // جيب كل البيانات
     const [prjs,ents,advs,insts,profs]=await Promise.all([
@@ -112,7 +105,7 @@ async function exportAllProjects(){
     if(!xOK){
       await new Promise((res,rej)=>{
         const s=document.createElement('script');
-        s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';
+        s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
         s.onload=()=>{xOK=true;res();};s.onerror=rej;
         document.head.appendChild(s);
       });
