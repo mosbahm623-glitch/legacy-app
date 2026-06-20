@@ -80,9 +80,11 @@ async function loadOwnerScreen(){
 
       '</div>'+
 
-      // Submit
-      '<button onclick="owSubmit()" style="width:100%;padding:14px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;box-shadow:0 4px 16px rgba(29,60,42,.3)">⏳ إرسال للموافقة</button>'+
-
+      // Submit - fixed at bottom above nav
+      '<div style="height:70px"></div>'+
+    '</div>'+
+    '<div style="position:fixed;bottom:60px;right:0;left:0;padding:8px 16px;background:#1D3C2A;z-index:50">'+
+      '<button onclick="owSubmit()" style="width:100%;padding:13px;background:linear-gradient(135deg,#2D5A3D,#1D3C2A);color:#D4C49A;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(29,60,42,.4)">⏳ إرسال للموافقة</button>'+
     '</div>';
 
   window._owType='e';
