@@ -2412,3 +2412,66 @@ body.ent-fs #entExpandBtn{
   border:0.5px solid #D4C49A44;
   letter-spacing:.3px;
 }
+
+/* ══ MOBILE APP FIXES — COMPREHENSIVE ══════════════════ */
+@media(max-width:767px){
+
+  /* ── Layout ── */
+  html,body{height:100%;overflow:hidden}
+  #mainApp{height:100%;overflow:hidden;display:flex;flex-direction:column}
+  .main-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+
+  /* ── Header ── */
+  .ahdr{padding:8px 12px !important;min-height:44px}
+  .ahdr h2{font-size:13px !important}
+
+  /* ── Entry form compact ── */
+  .ef{padding:10px 12px !important}
+  .ig{gap:6px !important}
+  .ig-field label,.ig-lbl{font-size:11px !important}
+  .finp,.field-input,input.finp{padding:9px 10px !important;font-size:13px !important;min-height:40px !important}
+  select.finp{padding:9px 10px !important;font-size:13px !important;min-height:40px !important}
+  .ab{padding:11px !important;font-size:13px !important;min-height:44px !important}
+  .ib{padding:9px !important;font-size:12px !important}
+
+  /* ── Tabs ── */
+  .tbs{padding:5px 8px !important;gap:4px !important}
+  .tab{padding:5px 10px !important;font-size:11px !important}
+
+  /* ── KPI cards ── */
+  .kp{grid-template-columns:repeat(3,1fr) !important;gap:5px !important;padding:6px 8px !important}
+  .kc{padding:7px 8px !important;border-radius:8px !important}
+  .kv{font-size:14px !important}
+  .kl{font-size:9px !important}
+
+  /* ── Project cards ── */
+  .d-proj-grid{grid-template-columns:1fr 1fr !important;gap:8px !important;padding:8px !important}
+  .d-pcard{border-radius:10px !important;padding:0 !important}
+  .d-pcard-head{padding:10px 10px 4px !important}
+  .d-pcard-name{font-size:13px !important}
+  .d-pcard-stats{padding:0 10px 6px !important;gap:8px !important}
+  .d-pcard-stat-val{font-size:12px !important}
+  .d-pcard-footer{padding:6px 10px !important}
+  .d-pcard-bal{font-size:13px !important}
+
+  /* ── Bottom nav ── */
+  .mob-bottom-nav{padding-bottom:max(env(safe-area-inset-bottom),8px)}
+  .mob-nav-it{min-height:48px}
+
+  /* ── Tables ── */
+  #ent{overflow-x:auto !important;-webkit-overflow-scrolling:touch}
+  #ent table{min-width:600px}
+
+  /* ── Modals ── */
+  .modal-box{width:calc(100vw - 24px) !important;max-width:100% !important;max-height:85vh;overflow-y:auto}
+
+  /* ── Filters ── */
+  .filter-bar{flex-wrap:wrap;gap:6px !important}
+
+  /* ── FAB ── */
+  #fab{bottom:calc(60px + env(safe-area-inset-bottom,8px)) !important}
+
+  /* ── Breadcrumb ── */
+  .breadcrumb{font-size:11px !important;padding:4px 12px !important}
+
+}
