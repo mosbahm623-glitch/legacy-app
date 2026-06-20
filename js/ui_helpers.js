@@ -336,8 +336,18 @@ function buildProjListScreen(){
   </div>`;
 }
 function filterProjCards(q){
-  const cards=document.querySelectorAll('#projCardsGrid > div');
   const term=q.trim().toLowerCase();
+  // table structure: filter tbody rows
+  const rows=document.querySelectorAll('#projCardsGrid tbody tr');
+  if(rows.length){
+    rows.forEach(row=>{
+      const name=row.querySelector('td')?.textContent?.toLowerCase()||'';
+      row.style.display=(!term||name.includes(term))?'':'none';
+    });
+    return;
+  }
+  // fallback: old card structure
+  const cards=document.querySelectorAll('#projCardsGrid > div');
   cards.forEach(card=>{
     const name=card.querySelector('div')?.textContent?.toLowerCase()||'';
     card.style.display=(!term||name.includes(term))?'':'none';
