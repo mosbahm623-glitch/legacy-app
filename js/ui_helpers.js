@@ -284,6 +284,14 @@ function buildProjListScreen(){
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.style.cssText='display:block;padding:10px 12px';
+  const dk=document.body.classList.contains('dark-mode');
+  const cardBg=dk?'var(--dark-card,#1e2a1e)':'var(--bg-pure,#fff)';
+  const borderClr=dk?'rgba(212,196,154,.12)':'#f0f0ec';
+  const textPrimary=dk?'var(--accent,#D4C49A)':'#1D2A1D';
+  const textMuted=dk?'rgba(212,196,154,.4)':'#bbb';
+  const footBg=dk?'rgba(212,196,154,.05)':'#f9f9f7';
+  const footTxt=dk?'var(--accent,#D4C49A)':'#1D3C2A';
+  const hoverBg=dk?'rgba(212,196,154,.06)':'rgba(29,60,42,.06)';
   const sorted=[...projects].sort((a,b)=>{
     const sa=projSummaries[a.id]||{bal:0};
     const sb_=projSummaries[b.id]||{bal:0};
@@ -292,20 +300,20 @@ function buildProjListScreen(){
   const totI=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.inc||0);},0);
   const totE=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.exp||0);},0);
   const totB=totI-totE;
-  const totBClr=totB>=0?'#1D6A3E':'#C0392B';
+  const totBClr=totB>=0?'var(--primary-btn,#1D6A3E)':'var(--danger,#C0392B)';
   const rows=sorted.map(p=>{
     const s=projSummaries[p.id]||{inc:0,exp:0,bal:0,count:0};
     const pI=s.inc,pE=s.exp,pB=s.bal;
-    const balClr=pB>0?'#1D6A3E':pB<0?'#C0392B':'#888';
-    const rowBg=pB<0?'rgba(231,76,60,.04)':'transparent';
-    return `<tr onclick="goToProject('${p.id}')" style="cursor:pointer;background:${rowBg};transition:background .1s" onmouseenter="this.style.background='rgba(29,60,42,.06)'" onmouseleave="this.style.background='${rowBg}'">
-      <td style="padding:9px 12px;font-size:12px;font-weight:600;color:#1D2A1D;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${esc(p.name)}<span style="font-size:9px;color:#bbb;font-weight:400;margin-right:4px">${s.count} ق</span></td>
-      <td style="padding:9px 8px;font-size:12px;color:#185FA5;text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${fn(pI)}</td>
-      <td style="padding:9px 8px;font-size:12px;color:#C0392B;text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${fn(pE)}</td>
-      <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${balClr};text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${pB>=0?'+':''}${fn(pB)}</td>
+    const balClr=pB>0?'var(--primary-btn,#1D6A3E)':pB<0?'var(--danger,#C0392B)':'var(--text-soft,#888)';
+    const rowBg=pB<0?(dk?'rgba(231,76,60,.07)':'rgba(231,76,60,.04)'):'transparent';
+    return `<tr onclick="goToProject('${p.id}')" style="cursor:pointer;background:${rowBg};transition:background .1s" onmouseenter="this.style.background='${hoverBg}'" onmouseleave="this.style.background='${rowBg}'">
+      <td style="padding:9px 12px;font-size:12px;font-weight:600;color:${textPrimary};border-bottom:0.5px solid ${borderClr};white-space:nowrap">${esc(p.name)}<span style="font-size:9px;color:${textMuted};font-weight:400;margin-right:4px">${s.count} ق</span></td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--info,#185FA5);text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${fn(pI)}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--danger,#C0392B);text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${fn(pE)}</td>
+      <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${balClr};text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${pB>=0?'+':''}${fn(pB)}</td>
     </tr>`;
   }).join('');
-  grid.innerHTML=`<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+  grid.innerHTML=`<div style="background:${cardBg};border-radius:14px;overflow:hidden;border:0.5px solid ${borderClr}">
     <table style="width:100%;border-collapse:collapse;direction:rtl">
       <thead>
         <tr style="background:#1D3C2A">
@@ -317,10 +325,10 @@ function buildProjListScreen(){
       </thead>
       <tbody>${rows}</tbody>
       <tfoot>
-        <tr style="background:#f9f9f7">
-          <td style="padding:9px 12px;font-size:11px;font-weight:700;color:#1D3C2A">الإجمالي</td>
-          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:#185FA5;text-align:center">${fn(totI)}</td>
-          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:#C0392B;text-align:center">${fn(totE)}</td>
+        <tr style="background:${footBg}">
+          <td style="padding:9px 12px;font-size:11px;font-weight:700;color:${footTxt}">الإجمالي</td>
+          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--info,#185FA5);text-align:center">${fn(totI)}</td>
+          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--danger,#C0392B);text-align:center">${fn(totE)}</td>
           <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${totBClr};text-align:center">${totB>=0?'+':''}${fn(totB)}</td>
         </tr>
       </tfoot>
