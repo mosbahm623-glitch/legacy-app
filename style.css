@@ -171,7 +171,7 @@
   .sidebar.mini{width:260px !important;transform:translateX(100%) !important}
   .sidebar.mini.sb-open{transform:translateX(0) !important}
   .main-content{width:100% !important;min-width:0 !important}
-  .ahdr{padding:8px 10px !important}.ahdr h2{font-size:12px !important}.ahdr p{display:none !important}
+  .ahdr{padding:8px 10px !important;padding-top:max(8px,env(safe-area-inset-top)) !important}.ahdr h2{font-size:12px !important}.ahdr p{display:none !important}
   .dark-toggle{display:none !important}
   .ubadge{font-size:9px !important;padding:2px 7px !important;max-width:100px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important}
   .sb-hamburger{display:flex !important}
