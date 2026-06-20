@@ -1628,12 +1628,16 @@ function re(){
       const no=`<span class="nb" style="font-size:10px">${e.seq||'?'}</span>`;
       const rcpt=`<td style="padding:4px 4px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 5px;color:#27500A;font-weight:500">🖨</button></td>`;
       const del=canEdit?`<td style="padding:4px 4px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
-      const rowBg=i%2===0?'#fff':'#f7f7f5';
-      const amtColor=e.type==='i'?'#1D6A3E':'#C0392B';
-      return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+      const _dk2=document.body.classList.contains('dark-mode');
+      const rowBg=_dk2?(i%2===0?'var(--dark-card,#1e2a1e)':'rgba(212,196,154,.04)'):(i%2===0?'#fff':'#f7f7f5');
+      const _brd2=_dk2?'rgba(212,196,154,.08)':'#e8e8e4';
+      const _hov2=_dk2?'rgba(212,196,154,.06)':'#eef4ee';
+      const _txt2=_dk2?'var(--accent,#D4C49A)':'#222';
+      const amtColor=e.type==='i'?'var(--primary-btn,#1D6A3E)':'var(--danger,#C0392B)';
+      return `<tr style="background:${rowBg};border-bottom:0.5px solid ${_brd2};cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='${_hov2}'" onmouseout="this.style.background='${rowBg}'">
         <td style="padding:4px 4px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:13px;padding:3px 5px;color:#27500A;">🖨</button></td>
         <td style="padding:7px 4px">${no}</td>
-        <td style="padding:7px 6px;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 6px;color:${_txt2};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 4px;font-weight:600;color:${amtColor};text-align:left;white-space:nowrap">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         ${del}
       </tr>`;
@@ -1656,7 +1660,10 @@ function re(){
         const et=etypeLbl[e.entry_type]||'—';
         const etC=e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':'var(--warning-dark)';
         const etBg=e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':'var(--warning-pale)';
-        return '<div class="mq-entry-row"><span class="mq-entry-type">'+et+'</span><span style="flex:1;color:#444">'+(e.description||'—')+'</span><span style="font-weight:700;color:#555">'+fn(e.amount)+' ج</span></div>';
+        const _dkMq=document.body.classList.contains('dark-mode');
+        const _mqTxt=_dkMq?'var(--accent,#D4C49A)':'#444';
+        const _mqAmt=_dkMq?'rgba(212,196,154,.8)':'#555';
+        return '<div class="mq-entry-row"><span class="mq-entry-type">'+et+'</span><span style="flex:1;color:'+_mqTxt+'">'+(e.description||'—')+'</span><span style="font-weight:700;color:'+_mqAmt+'">'+fn(e.amount)+' ج</span></div>';
       }).join('');
       return '<div class="mq-grouped-card"><div class="mq-grouped-header"><span class="mq-grouped-name">👷 '+name+'</span></div><div style="padding:12px 14px"><div class="mq-grouped-kpis"><div class="kpi-inc"><div class="lbl-sm">💰 دفعات</div><div class="kpi-val-inc">'+fn(d.pay)+'</div></div><div class="kpi-work"><div class="lbl-sm">🔨 أعمال</div><div class="kpi-val-work">'+fn(d.work)+'</div></div><div class="kpi-mat"><div class="lbl-sm">🔩 مصنعيات</div><div class="kpi-val-mat">'+fn(d.mat)+'</div></div></div><div class="mq-grouped-balance"><span style="font-size:12px;color:#666">الباقي معاه</span><span class="mq-grouped-balance-val">'+fn(rem)+' ج</span></div>'+rows+'</div></div>';
     }).join('');
