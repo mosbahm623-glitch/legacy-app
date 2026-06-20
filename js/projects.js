@@ -1427,6 +1427,15 @@ function re(){
     const ls=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
     const tt=ls.reduce((s,c)=>s+c[1],0);
     if(!ls.length){el.innerHTML='<div class="emp">لا توجد بيانات</div>';return;}
+    const _dk=document.body.classList.contains('dark-mode');
+    const _r0=_dk?'var(--dark-card,#1e2a1e)':'#fff';
+    const _r1=_dk?'rgba(212,196,154,.04)':'#f7f7f5';
+    const _brd=_dk?'rgba(212,196,154,.08)':'#e8e8e4';
+    const _hov=_dk?'rgba(29,60,42,.3)':'#eef4ee';
+    const _num=_dk?'rgba(212,196,154,.4)':'#999';
+    const _txt=_dk?'var(--accent,#D4C49A)':'#222';
+    const _bar=_dk?'rgba(212,196,154,.15)':'#eee';
+    const _pct=_dk?'rgba(212,196,154,.5)':'#888';
     el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
       <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">#</th>
@@ -1437,19 +1446,19 @@ function re(){
       <tbody>
       ${ls.map(([c,a],i)=>{
         const pct=tt?((a/tt)*100).toFixed(1):0;
-        const rowBg=i%2===0?'#fff':'#f7f7f5';
-        return `<tr style="background:${rowBg};border-bottom:0.5px solid #e8e8e4;cursor:pointer" onclick="setCTab('${c.replace(/'/g,"\\'")}');re()" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'" title="اضغط لعرض قيود ${c}">
-          <td style="padding:7px 10px;color:#999;font-size:11px">${i+1}</td>
-          <td style="padding:7px 10px;font-weight:500;color:#222">${c}</td>
+        const rowBg=i%2===0?_r0:_r1;
+        return `<tr style="background:${rowBg};border-bottom:0.5px solid ${_brd};cursor:pointer" onclick="setCTab('${c.replace(/'/g,"\\'")}');re()" onmouseover="this.style.background='${_hov}'" onmouseout="this.style.background='${rowBg}'" title="اضغط لعرض قيود ${c}">
+          <td style="padding:7px 10px;color:${_num};font-size:11px">${i+1}</td>
+          <td style="padding:7px 10px;font-weight:500;color:${_txt}">${c}</td>
           <td style="padding:7px 10px">
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="flex:1;background:#eee;border-radius:4px;height:6px">
+              <div style="flex:1;background:${_bar};border-radius:4px;height:6px">
                 <div style="width:${pct}%;background:#1D3C2A;border-radius:4px;height:6px"></div>
               </div>
-              <span style="color:#888;font-size:11px;min-width:35px">${pct}%</span>
+              <span style="color:${_pct};font-size:11px;min-width:35px">${pct}%</span>
             </div>
           </td>
-          <td style="padding:7px 10px;font-weight:500;color:#E74C3C;white-space:nowrap">▼ ${fn(a)} ج</td>
+          <td style="padding:7px 10px;font-weight:500;color:var(--danger,#E74C3C);white-space:nowrap">▼ ${fn(a)} ج</td>
         </tr>`;
       }).join('')}
       <tr style="background:#1D3C2A">
@@ -1508,13 +1517,17 @@ function re(){
       const isDk=document.body.classList.contains('dark-mode');
       const rowBg=isDk?(i%2===0?'var(--dark-alt)':'var(--dark-mid)'):(i%2===0?'#fff':'#f7f7f5');
       const hoverBg=isDk?'rgba(255,255,255,.06)':'#eef4ee';
+      const _numClr=isDk?'rgba(212,196,154,.4)':'#999';
+      const _softClr=isDk?'rgba(212,196,154,.5)':'#888';
+      const _bodyClr=isDk?'var(--accent,#D4C49A)':'#222';
+      const _pillBrd=isDk?'rgba(212,196,154,.2)':'#ddd';
       return `<tr style="background:${rowBg};border-bottom:0.5px solid ${isDk?'rgba(212,196,154,.08)':'#e8e8e4'};cursor:pointer" onclick="oe('${e.id}')" onmouseover="this.style.background='${hoverBg}'" onmouseout="this.style.background='${rowBg}'">
-        <td style="padding:7px 10px;color:#999;font-size:11px">${i+1+start}</td>
+        <td style="padding:7px 10px;color:${_numClr};font-size:11px">${i+1+start}</td>
         <td style="padding:7px 10px;white-space:nowrap"><span class="nb" style="font-size:10px">${e.seq||'?'}</span></td>
-        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
-        <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
-        <td style="padding:7px 10px;color:#222;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
-        <td style="padding:7px 10px;white-space:nowrap;color:#888;font-size:11px">${esc(e.contractor)||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
+        <td style="padding:7px 10px"><span style="font-size:10px;border:0.5px solid ${_pillBrd};padding:2px 7px;border-radius:10px;${catClr}">${catLbl}</span></td>
+        <td style="padding:7px 10px;color:${_bodyClr};max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
+        <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${balClr};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
