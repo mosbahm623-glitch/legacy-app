@@ -117,6 +117,11 @@ function saveDarkPref(val){
   localStorage.setItem(key,val);
 }
 function updateDarkBtn(mode){
+  const ico=document.getElementById('sb-dark-icon');
+  const lbl=document.getElementById('sb-dark-lbl');
+  if(ico)ico.textContent=mode==='dark'?'☀️':'🌙';
+  if(lbl)lbl.textContent=mode==='dark'?'الوضع النهاري':'الوضع الليلي';
+
   const b=document.getElementById('darkBtn');
   if(!b)return;
   if(mode==='day'){b.innerHTML='☀️ نهار';}
