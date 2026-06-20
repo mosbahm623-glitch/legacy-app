@@ -19,7 +19,7 @@ async function loadOwnerScreen(){
 
   var inpStyle='width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:14px;background:#FAFBF9;outline:none;color:#222';
 
-  el.style.cssText='background:#1D3C2A;min-height:100vh;display:flex;flex-direction:column';
+  el.style.cssText='background:#1D3C2A;height:100%;display:flex;flex-direction:column;position:absolute;inset:0;z-index:1';
 
   el.innerHTML=
     // Topbar
