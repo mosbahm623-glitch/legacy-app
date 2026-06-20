@@ -29,7 +29,7 @@ async function loadOwnerScreen(){
     '</div>'+
 
     // Main card
-    '<div style="background:#fff;border-radius:20px 20px 0 0;flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;padding-bottom:100px">'+
+    '<div style="background:#fff;border-radius:20px 20px 0 0;flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;padding-bottom:70px">'+
 
       // Notice
       '<div style="background:#FFF8EC;border:1px solid #F0C060;border-radius:8px;padding:8px 12px;font-size:11px;color:#7A5500;display:flex;align-items:center;gap:6px;flex-shrink:0">'+
@@ -83,7 +83,7 @@ async function loadOwnerScreen(){
       // Submit - fixed at bottom above nav
       '<div style="height:70px"></div>'+
     '</div>'+
-    '<div style="position:fixed;bottom:0;right:0;left:0;padding:8px 16px 64px;background:#1D3C2A;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.2)">'+
+    '<div style="position:fixed;bottom:58px;right:0;left:0;padding:8px 16px;background:#1D3C2A;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.2)">'+
       '<button onclick="owSubmit()" style="width:100%;padding:13px;background:linear-gradient(135deg,#2D5A3D,#1D3C2A);color:#D4C49A;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(29,60,42,.4)">⏳ إرسال للموافقة</button>'+
     '</div>';
 
