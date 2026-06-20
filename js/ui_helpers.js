@@ -283,8 +283,7 @@ function buildProjListScreen(){
   const grid=document.getElementById('projCardsGrid');
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
-  const projColors=['var(--success-soft)','var(--info-sky)','var(--accent-gold)','var(--purple-soft)','var(--danger-peach)','var(--danger-blush)','var(--info-soft)','var(--danger-warm)'];
-  grid.className='d-proj-grid';
+  grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px';
   grid.innerHTML=[...projects].sort((a,b)=>{
     const sa=projSummaries[a.id]||{bal:0};
     const sb_=projSummaries[b.id]||{bal:0};
@@ -292,32 +291,45 @@ function buildProjListScreen(){
   }).map((p,idx)=>{
     const s=projSummaries[p.id]||{inc:0,exp:0,bal:0,count:0,cats:[]};
     const pI=s.inc,pE=s.exp,pB=s.bal;
-    const balCls=pB>0?'pos':pB<0?'neg':'zero';
+    const balCls=pB>0?'#1D6A3E':pB<0?'#C0392B':'#888';
     const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):0;
-    const badgeTxt=pB>0?'✦ مستقر':pB<0?'⚠ عجز':'◌ صفر';
-    const color=projColors[idx%projColors.length];
-    return `<div class="d-pcard" onclick="goToProject('${p.id}')" style="animation-delay:${idx*0.04}s">
-      <div class="d-pcard-head">
-        <div class="d-pcard-name">${p.name}</div>
-        <span class="d-pcard-badge ${balCls}">${badgeTxt}</span>
+    const pctColor=pct>90?'#E74C3C':pct>70?'#F39C12':'#27AE60';
+    const badgeTxt=pB>0?'مستقر':pB<0?'عجز':'صفر';
+    const badgeBg=pB>0?'#EAF7EE':pB<0?'#FFEBEE':'#F5F5F5';
+    const badgeClr=pB>0?'#1D6A3E':pB<0?'#C62828':'#888';
+    return `<div onclick="goToProject('${p.id}')" style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
+      <div style="padding:12px 12px 6px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="font-size:14px;font-weight:800;color:#1D2A1D;line-height:1.2">${esc(p.name)}</div>
+        <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:${badgeBg};color:${badgeClr};white-space:nowrap">${badgeTxt}</span>
       </div>
-      <div class="d-pcard-stats">
-        <div class="d-pcard-stat"><div class="d-pcard-stat-lbl">وارد</div><div class="d-pcard-stat-val inc">+${fn(pI)}</div></div>
-        <div class="d-pcard-stat"><div class="d-pcard-stat-lbl">مصروف</div><div class="d-pcard-stat-val exp">-${fn(pE)}</div></div>
+      <div style="padding:4px 12px 8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:9px;color:#bbb;font-weight:600">وارد</span>
+          <span style="font-size:12px;font-weight:800;color:#1D6A3E">+${fn(pI)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:9px;color:#bbb;font-weight:600">مصروف</span>
+          <span style="font-size:12px;font-weight:800;color:#C0392B">-${fn(pE)}</span>
+        </div>
       </div>
-      <div class="d-pcard-progress">
-        <div class="d-pcard-progress-info"><span class="d-pcard-meta">${s.count} قيد · ${s.cats.length} بند</span><span class="d-pcard-pct">${pct}%</span></div>
-        <div class="d-pcard-progress-bar"><div class="d-pcard-progress-fill" style="width:${pct}%;background:${pct>90?'var(--danger)':pct>70?'var(--warning)':color}"></div></div>
+      <div style="height:0.5px;background:#f5f5f3;margin:0 12px"></div>
+      <div style="padding:8px 12px 10px">
+        <div style="font-size:14px;font-weight:900;color:${balCls};margin-bottom:4px">${pB>=0?'+':''}${fn(pB)} ج</div>
+        <div style="height:4px;background:#f0f0ec;border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:2px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:#ccc;margin-top:3px">
+          <span>${s.count} قيد</span><span>${pct}%</span>
+        </div>
       </div>
-      <div class="d-pcard-footer"><div class="d-pcard-bal ${balCls}">${pB>=0?'+':''}${fn(pB)} ج</div></div>
     </div>`;
   }).join('');
 }
 function filterProjCards(q){
-  const cards=document.querySelectorAll('#projCardsGrid .d-pcard');
+  const cards=document.querySelectorAll('#projCardsGrid > div');
   const term=q.trim().toLowerCase();
   cards.forEach(card=>{
-    const name=card.querySelector('.d-pcard-name')?.textContent?.toLowerCase()||'';
+    const name=card.querySelector('div')?.textContent?.toLowerCase()||'';
     card.style.display=(!term||name.includes(term))?'':'none';
   });
 }
