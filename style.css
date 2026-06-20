@@ -133,6 +133,7 @@
   --bg-ivory: #F9F5EE;
   --bg-warm2: #F9F7F2;
   --bg-pure: #F9F9F9;
+  --bg-card: #FFFFFF;
   --bg-warm: #FAF5EC;
   --bg-linen: #FAFAF8;
   --bg-faint: #FAFAFA;
@@ -868,6 +869,7 @@ body.day-mode .ap{background:var(--bg-green)}
 body.day-mode input,body.day-mode select,body.day-mode textarea{background:#fff;color:var(--text-deep);border-color:var(--border)}
 
 /* DARK MODE = deep dark */
+body.dark-mode{--bg-pure:var(--dark-card,#1A2A1A);--bg-card:var(--dark-card,#1A2A1A)}
 body.dark-mode #mainApp{background:var(--dark-deep)}
 body.dark-mode .main-content{background:var(--dark-night)}
 body.dark-mode .app-body{background:var(--dark-night)}
