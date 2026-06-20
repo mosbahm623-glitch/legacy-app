@@ -189,6 +189,17 @@
         <div class="sb-sec-div"></div>
         <div class="sb-sec-lbl">الأدوات</div>
 
+        <button class="sb-item" id="sbi-save-proj" onclick="exportAllProjects()" style="display:none">
+          <span class="sb-icon">📥</span><span class="sb-label">حفظ المشاريع</span>
+        </button>
+
+        <button class="sb-item" id="sbi-backup" onclick="backupAll()" style="display:none">
+          <span class="sb-icon">💾</span>
+          <span class="sb-label-col">
+            <span class="sb-label">نسخة احتياطية</span>
+            <span class="sb-backup-date" id="sbBackupDate"></span>
+          </span>
+        </button>
 
         <button class="sb-item" id="sbi-archive" style="display:none" onclick="showScreen('archive')">
           <span class="sb-icon">📦</span><span class="sb-label">الأرشيف</span>
