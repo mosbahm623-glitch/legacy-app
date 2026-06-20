@@ -117,8 +117,8 @@ async function exportAllProjects(){
       setSav('⏳ جاري تصدير ('+(i+1)+'/'+total+'): '+p.name,'ng');
       curPid=p.id;
       entries=allEntries.filter(e=>e.project_id===curPid);
-      await bld();
-      await new Promise(r=>setTimeout(r,600));
+      await xl();
+      await new Promise(r=>setTimeout(r,800));
     }
     curPid=savedPid;
     entries=allEntries.filter(e=>e.project_id===curPid);
