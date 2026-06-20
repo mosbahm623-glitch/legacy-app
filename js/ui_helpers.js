@@ -283,47 +283,49 @@ function buildProjListScreen(){
   const grid=document.getElementById('projCardsGrid');
   if(!grid)return;
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
-  grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px';
-  grid.innerHTML=[...projects].sort((a,b)=>{
+  grid.style.cssText='display:block;padding:10px 12px';
+  const sorted=[...projects].sort((a,b)=>{
     const sa=projSummaries[a.id]||{bal:0};
     const sb_=projSummaries[b.id]||{bal:0};
     return (sa.bal||0)-(sb_.bal||0);
-  }).map((p,idx)=>{
-    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0,count:0,cats:[]};
+  });
+  const totI=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.inc||0);},0);
+  const totE=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.exp||0);},0);
+  const totB=totI-totE;
+  const totBClr=totB>=0?'#1D6A3E':'#C0392B';
+  const rows=sorted.map(p=>{
+    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0,count:0};
     const pI=s.inc,pE=s.exp,pB=s.bal;
-    const balCls=pB>0?'#1D6A3E':pB<0?'#C0392B':'#888';
-    const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):0;
-    const pctColor=pct>90?'#E74C3C':pct>70?'#F39C12':'#27AE60';
-    const badgeTxt=pB>0?'مستقر':pB<0?'عجز':'صفر';
-    const badgeBg=pB>0?'#EAF7EE':pB<0?'#FFEBEE':'#F5F5F5';
-    const badgeClr=pB>0?'#1D6A3E':pB<0?'#C62828':'#888';
-    return `<div onclick="goToProject('${p.id}')" style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <div style="padding:12px 12px 6px;display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="font-size:14px;font-weight:800;color:#1D2A1D;line-height:1.2">${esc(p.name)}</div>
-        <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:${badgeBg};color:${badgeClr};white-space:nowrap">${badgeTxt}</span>
-      </div>
-      <div style="padding:4px 12px 8px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-          <span style="font-size:9px;color:#bbb;font-weight:600">وارد</span>
-          <span style="font-size:12px;font-weight:800;color:#1D6A3E">+${fn(pI)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between">
-          <span style="font-size:9px;color:#bbb;font-weight:600">مصروف</span>
-          <span style="font-size:12px;font-weight:800;color:#C0392B">-${fn(pE)}</span>
-        </div>
-      </div>
-      <div style="height:0.5px;background:#f5f5f3;margin:0 12px"></div>
-      <div style="padding:8px 12px 10px">
-        <div style="font-size:14px;font-weight:900;color:${balCls};margin-bottom:4px">${pB>=0?'+':''}${fn(pB)} ج</div>
-        <div style="height:4px;background:#f0f0ec;border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:2px"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:#ccc;margin-top:3px">
-          <span>${s.count} قيد</span><span>${pct}%</span>
-        </div>
-      </div>
-    </div>`;
+    const balClr=pB>0?'#1D6A3E':pB<0?'#C0392B':'#888';
+    const rowBg=pB<0?'rgba(231,76,60,.04)':'transparent';
+    return `<tr onclick="goToProject('${p.id}')" style="cursor:pointer;background:${rowBg};transition:background .1s" onmouseenter="this.style.background='rgba(29,60,42,.06)'" onmouseleave="this.style.background='${rowBg}'">
+      <td style="padding:9px 12px;font-size:12px;font-weight:600;color:#1D2A1D;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${esc(p.name)}<span style="font-size:9px;color:#bbb;font-weight:400;margin-right:4px">${s.count} ق</span></td>
+      <td style="padding:9px 8px;font-size:12px;color:#185FA5;text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${fn(pI)}</td>
+      <td style="padding:9px 8px;font-size:12px;color:#C0392B;text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${fn(pE)}</td>
+      <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${balClr};text-align:center;border-bottom:0.5px solid #f0f0ec;white-space:nowrap">${pB>=0?'+':''}${fn(pB)}</td>
+    </tr>`;
   }).join('');
+  grid.innerHTML=`<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+    <table style="width:100%;border-collapse:collapse;direction:rtl">
+      <thead>
+        <tr style="background:#1D3C2A">
+          <th style="padding:9px 12px;font-size:11px;font-weight:600;color:#D4C49A;text-align:right">المشروع</th>
+          <th style="padding:9px 8px;font-size:11px;font-weight:600;color:#D4C49A;text-align:center">وارد</th>
+          <th style="padding:9px 8px;font-size:11px;font-weight:600;color:#D4C49A;text-align:center">مصروف</th>
+          <th style="padding:9px 12px;font-size:11px;font-weight:600;color:#D4C49A;text-align:center">الرصيد</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr style="background:#f9f9f7">
+          <td style="padding:9px 12px;font-size:11px;font-weight:700;color:#1D3C2A">الإجمالي</td>
+          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:#185FA5;text-align:center">${fn(totI)}</td>
+          <td style="padding:9px 8px;font-size:12px;font-weight:700;color:#C0392B;text-align:center">${fn(totE)}</td>
+          <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${totBClr};text-align:center">${totB>=0?'+':''}${fn(totB)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>`;
 }
 function filterProjCards(q){
   const cards=document.querySelectorAll('#projCardsGrid > div');
