@@ -307,7 +307,7 @@ function buildProjListScreen(){
     const balClr=pB>0?'var(--primary-btn,#1D6A3E)':pB<0?'var(--danger,#C0392B)':'var(--text-soft,#888)';
     const rowBg=pB<0?(dk?'rgba(231,76,60,.07)':'rgba(231,76,60,.04)'):'transparent';
     return `<tr onclick="goToProject('${p.id}')" style="cursor:pointer;background:${rowBg};transition:background .1s" onmouseenter="this.style.background='${hoverBg}'" onmouseleave="this.style.background='${rowBg}'">
-      <td style="padding:9px 12px;font-size:12px;font-weight:600;color:${textPrimary};border-bottom:0.5px solid ${borderClr};white-space:nowrap">${esc(p.name)}<span style="font-size:9px;color:${textMuted};font-weight:400;margin-right:4px">${s.count} ق</span></td>
+      <td style="padding:9px 12px;font-size:12px;font-weight:600;color:${textPrimary};border-bottom:0.5px solid ${borderClr};white-space:nowrap">${esc(p.name)}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--info,#185FA5);text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${fn(pI)}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--danger,#C0392B);text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${fn(pE)}</td>
       <td style="padding:9px 12px;font-size:12px;font-weight:700;color:${balClr};text-align:center;border-bottom:0.5px solid ${borderClr};white-space:nowrap">${pB>=0?'+':''}${fn(pB)}</td>
