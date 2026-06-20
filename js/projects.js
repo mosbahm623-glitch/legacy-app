@@ -1113,7 +1113,7 @@ async function duesExportExcel(){try{
     _allDues=await sb('contractor_dues?order=created_at.desc');
     if(!_allDues||!_allDues.length){notify('لا توجد بيانات','warn');return;}
   }
-  if(!window.ExcelJS){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';document.head.appendChild(s);await new Promise(r=>s.onload=r);}
+  // ExcelJS loaded in index.html
   const unpaid=_allDues.filter(d=>d.status==='unpaid').reduce((s,d)=>s+d.amount,0);
   const paid=_allDues.filter(d=>d.status==='paid').reduce((s,d)=>s+d.amount,0);
   const total=unpaid+paid;

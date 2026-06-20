@@ -100,7 +100,7 @@ async function xlClient(){
   const msg=document.getElementById('emsg');
   msg.textContent='جاري تحميل المكتبة...';
   try{
-    if(!xOK){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>{xOK=true;res();};s.onerror=rej;document.head.appendChild(s);});}
+    // ExcelJS loaded in index.html
     msg.textContent='جاري بناء الملف...';
     await bldClient();
     msg.textContent='✓ تم التحميل';
