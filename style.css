@@ -183,7 +183,7 @@
   #navBackupBtn,#navExportBtn{display:none !important}
   /* تصليح الـ KPI grid على موبايل */
   .dash-kpi{grid-template-columns:1fr 1fr !important}
-  #mainApp{overflow-x:visible}
+  #mainApp{overflow-x:visible;padding-top:env(safe-area-inset-top,0px)}
   .dash-inner{padding:10px !important}
   .dash-hero-val{font-size:28px !important}
   /* notifications mobile */
