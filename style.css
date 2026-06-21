@@ -1129,13 +1129,16 @@ body.dark-mode .mq-contractor-card{background:var(--dark-card,#1A2A1A);border-co
 .appr-advances-hdr{background:#FFF8E1;color:#E65100;border-right:4px solid #F57C00}
 .appr-sec-arrow{font-size:13px;color:#888;transition:transform .25s}
 .appr-section-hdr.collapsed .appr-sec-arrow{transform:rotate(-90deg)}
-.appr-section-body{overflow:hidden;max-height:5000px;transition:max-height .35s ease,opacity .25s ease;opacity:1}
-.appr-section-body.collapsed{max-height:0;opacity:0}
+.appr-section-body{overflow:hidden;max-height:0;transition:max-height .35s ease,opacity .25s ease;opacity:0}
+.appr-section-body.open{max-height:5000px;opacity:1}
+.appr-section-hdr .appr-sec-arrow{transform:rotate(-90deg)}
+.appr-section-hdr.open .appr-sec-arrow{transform:rotate(0deg)}
 .appr-person-hdr{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--primary,#1B5E20);padding:9px 14px;background:var(--card-bg,#fff);border-radius:10px;margin-top:10px;border:1.5px solid #C8E6C9;cursor:pointer;user-select:none;transition:background .15s}
 .appr-person-hdr:hover{background:#F1F8E9}
-.appr-person-hdr.collapsed .appr-sec-arrow{transform:rotate(-90deg)}
-.appr-person-body{overflow:hidden;max-height:3000px;transition:max-height .3s ease,opacity .25s ease;opacity:1}
-.appr-person-body.collapsed{max-height:0;opacity:0}
+.appr-person-hdr .appr-sec-arrow{transform:rotate(-90deg)}
+.appr-person-hdr.open .appr-sec-arrow{transform:rotate(0deg)}
+.appr-person-body{overflow:hidden;max-height:0;transition:max-height .3s ease,opacity .25s ease;opacity:0}
+.appr-person-body.open{max-height:3000px;opacity:1}
 .appr-person-count{font-size:11px;color:var(--text-soft);font-weight:400}
 .appr-income-badge{background:var(--success-bg);color:var(--primary-btn);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-expense-badge{background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
