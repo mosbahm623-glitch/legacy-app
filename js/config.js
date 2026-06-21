@@ -384,6 +384,32 @@ function toggleLpass(){
   if(inp.type==='password'){inp.type='text';if(ico){ico.className='ti ti-eye-off';}}
   else{inp.type='password';if(ico){ico.className='ti ti-eye';}}
 }
+// ── showPromptModal — بديل prompt() ──────────────────
+function showPromptModal({title='',label='',placeholder='',defaultVal='',okLabel='حفظ',inputType='text',onOk=()=>{}}){
+  const ex=document.getElementById('_promptModal');if(ex)ex.remove();
+  const ov=document.createElement('div');
+  ov.id='_promptModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease';
+  ov.innerHTML=`<div style="background:var(--primary,#1D3C2A);border:1px solid rgba(212,196,154,.2);border-radius:20px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:slideUp .25s cubic-bezier(.16,1,.3,1);direction:rtl">
+    <div style="font-size:16px;font-weight:800;color:var(--accent,#D4C49A);margin-bottom:16px">${title}</div>
+    ${label?`<div style="font-size:12px;color:rgba(212,196,154,.6);margin-bottom:8px">${label}</div>`:''}
+    <input id="_promptInput" type="${inputType}" value="${defaultVal.replace(/"/g,'&quot;')}" placeholder="${placeholder}" style="width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(212,196,154,.25);background:rgba(0,0,0,.25);color:var(--accent,#D4C49A);font-family:inherit;font-size:14px;outline:none;direction:rtl;box-sizing:border-box;margin-bottom:20px">
+    <div style="display:flex;gap:10px">
+      <button id="_promptCancel" style="flex:1;padding:12px;background:rgba(212,196,154,.08);border:1px solid rgba(212,196,154,.15);border-radius:12px;color:rgba(212,196,154,.7);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">إلغاء</button>
+      <button id="_promptOk" style="flex:1;padding:12px;background:var(--primary-btn,#27ae60);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">${okLabel}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const inp=document.getElementById('_promptInput');
+  const close=()=>ov.remove();
+  inp.focus();inp.select();
+  ov.addEventListener('click',e=>{if(e.target===ov)close();});
+  document.getElementById('_promptCancel').addEventListener('click',close);
+  const submit=()=>{const v=inp.value.trim();if(!v)return;close();onOk(v);};
+  document.getElementById('_promptOk').addEventListener('click',submit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')close();});
+}
+
 function friendlyError(e){
   if(!navigator.onLine)return'لا يوجد اتصال بالإنترنت';
   let msg=e?.message||e?.error||String(e)||'';

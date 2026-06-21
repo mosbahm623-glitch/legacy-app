@@ -318,13 +318,13 @@ async function saveDueEdit(){
 }
 
 async function editDueDate(id,currentDate){
-  const newDate=prompt('التاريخ الجديد (dd/mm/yyyy):',currentDate||'');
-  if(newDate===null)return;
-  try{
-    await sb('contractor_dues?id=eq.'+id,'PATCH',{due_date:newDate.trim()||null});
-    _duesList=_duesList.map(d=>d.id===id?{...d,due_date:newDate.trim()||null}:d);
-    renderDuesTab(document.getElementById('ent'));
-    notify('✅ تم التعديل','ok');
-  }catch(e){notify('❌ '+friendlyError(e),'er');}
+  showPromptModal({title:'📅 تعديل تاريخ الاستحقاق',label:'التاريخ الجديد',defaultVal:currentDate||'',placeholder:'dd/mm/yyyy',okLabel:'حفظ',onOk:async(newDate)=>{
+    try{
+      await sb('contractor_dues?id=eq.'+id,'PATCH',{due_date:newDate||null});
+      _duesList=_duesList.map(d=>d.id===id?{...d,due_date:newDate||null}:d);
+      renderDuesTab(document.getElementById('ent'));
+      notify('✅ تم التعديل','ok');
+    }catch(e){notify('❌ '+friendlyError(e),'err');}
+  }});
 }
 

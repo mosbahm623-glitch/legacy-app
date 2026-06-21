@@ -409,7 +409,7 @@ async function sw(pid){
   if(idt&&!idt.value)idt.value=ts();
   rp();
 }
-async function np(){const n=prompt('اسم المشروع الجديد:');if(!n||!n.trim())return;try{const p=await sb('projects','POST',{name:n.trim(),start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}
+async function np(){showPromptModal({title:'➕ مشروع جديد',label:'اسم المشروع',placeholder:'مثال: فيلا المعادي',okLabel:'إضافة',onOk:async(n)=>{try{const p=await sb('projects','POST',{name:n,start_date:fd(ts()),close_date:fd(ts())});allProjects.push(p[0]);projects.push(p[0]);curPid=p[0].id;entries=[];cTab='s';populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}});}
 async function dp(){if(projects.length<=1){notify('لا يمكن حذف المشروع الوحيد','warn');return;}showConfirm({icon:'🗑️',title:'حذف المشروع',msg:'هيتحذف مشروع "'+curP().name+'" بالكامل مع كل قيوده. متأكد؟',okLabel:'حذف',okType:'danger',onOk:async()=>{try{await sb('projects?id=eq.'+curPid,'DELETE');allProjects=allProjects.filter(p=>p.id!==curPid);projects=projects.filter(p=>p.id!==curPid);curPid=projects[0].id;cTab='s';await loadEntries();populateAdvProjSel();setSav('✅ تم','ok');rp();}catch(e){setSav('❌ '+friendlyError(e),'er');}}});}
 
 function editProject(){

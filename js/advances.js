@@ -472,19 +472,20 @@ async function editAdv(){
     showConfirm({icon:'🔒',title:'العهدة مقفولة',msg:'العهدة اتوافق عليها ومش ممكن تتعدل. تواصل مع الأدمن لو محتاج تعديل.',okLabel:'حسناً',okType:'primary',onOk:()=>{}});
     return;
   }
-  const newName=prompt('اسم الشخص:',curAdv.person_name);
-  if(!newName||!newName.trim())return;
-  const newNotes=prompt('ملاحظات:',curAdv.notes||'');
-  setSav('💾 جاري الحفظ...','ng');
-  try{
-    await sb('advances?id=eq.'+curAdv.id,'PATCH',{person_name:newName.trim(),notes:newNotes||''});
-    curAdv.person_name=newName.trim();curAdv.notes=newNotes||'';
-    document.getElementById('advDetName').textContent='👤 '+curAdv.person_name;
-    document.getElementById('advDetNotes').textContent=curAdv.notes||'';
-    setSav('✅ تم التعديل','ok');
-    const idx=advances.findIndex(a=>a.id===curAdv.id);
-    if(idx>-1){advances[idx].person_name=curAdv.person_name;advances[idx].notes=curAdv.notes;}
-  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+  showPromptModal({title:'✏️ تعديل العهدة',label:'اسم الشخص',defaultVal:curAdv.person_name,okLabel:'التالي',onOk:(newName)=>{
+    showPromptModal({title:'✏️ تعديل العهدة',label:'ملاحظات (اختياري)',defaultVal:curAdv.notes||'',placeholder:'أي ملاحظات...',okLabel:'حفظ',onOk:async(newNotes)=>{
+      setSav('💾 جاري الحفظ...','ng');
+      try{
+        await sb('advances?id=eq.'+curAdv.id,'PATCH',{person_name:newName.trim(),notes:newNotes||''});
+        curAdv.person_name=newName.trim();curAdv.notes=newNotes||'';
+        document.getElementById('advDetName').textContent='👤 '+curAdv.person_name;
+        document.getElementById('advDetNotes').textContent=curAdv.notes||'';
+        setSav('✅ تم التعديل','ok');
+        const idx=advances.findIndex(a=>a.id===curAdv.id);
+        if(idx>-1){advances[idx].person_name=curAdv.person_name;advances[idx].notes=curAdv.notes;}
+      }catch(e){setSav('❌ '+friendlyError(e),'er');}
+    }});
+  }});
 }
 
 async function deleteAdv(){

@@ -22,21 +22,22 @@ function renderMqManager(q){
   }).join('');
 }
 async function renameMq(oldName){
-  const newName=prompt('الاسم الجديد للمقاول:',oldName);
-  if(!newName||newName===oldName)return;
-  const toUpdate=allEntries.filter(e=>e.contractor===oldName);
-  if(!toUpdate.length)return;
-  notify('⏳ جاري التحديث على '+toUpdate.length+' قيد...','info');
-  let done=0;
-  for(const e of toUpdate){
-    try{
-      await sb('entries?id=eq.'+e.id,'PATCH',{contractor:newName});
-      e.contractor=newName;
-      done++;
-    }catch(err){console.error(err);notify('❌ فشل تحديث قيد: '+friendlyError(err),'err');}
-  }
-  notify('✅ تم تحديث '+done+' قيد','ok');
-  renderMqManager(document.getElementById('mqMgrSearch')?.value||'');
+  showPromptModal({title:'✏️ تعديل اسم المقاول',label:'الاسم الجديد',defaultVal:oldName,okLabel:'حفظ',onOk:async(newName)=>{
+    if(newName===oldName)return;
+    const toUpdate=allEntries.filter(e=>e.contractor===oldName);
+    if(!toUpdate.length)return;
+    notify('⏳ جاري التحديث على '+toUpdate.length+' قيد...','info');
+    let done=0;
+    for(const e of toUpdate){
+      try{
+        await sb('entries?id=eq.'+e.id,'PATCH',{contractor:newName});
+        e.contractor=newName;
+        done++;
+      }catch(err){console.error(err);notify('❌ فشل تحديث قيد: '+friendlyError(err),'err');}
+    }
+    notify('✅ تم تحديث '+done+' قيد','ok');
+    renderMqManager(document.getElementById('mqMgrSearch')?.value||'');
+  });
 }
 
 async function loadDashboard(){
