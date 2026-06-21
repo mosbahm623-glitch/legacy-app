@@ -31,8 +31,9 @@ async function loadOwnerScreen(){
 
       // Tabs
       '<div style="display:flex;background:#fff;border-bottom:1px solid #f0f0ec;flex-shrink:0">'+
-        '<div id="ow-tab-add" onclick="owShowTab(\'add\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#1D3C2A;border-bottom:2px solid #1D3C2A;cursor:pointer">➕ قيد جديد</div>'+
-        '<div id="ow-tab-pend" onclick="owShowTab(\'pend\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#bbb;border-bottom:2px solid transparent;cursor:pointer">⏳ انتظار <span id="ow-pend-cnt" style="background:#EF9F27;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-right:2px">0</span></div>'+
+        '<div id="ow-tab-add" onclick="owShowTab(\'add\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#1D3C2A;border-bottom:2px solid #1D3C2A;cursor:pointer">➕ قيد</div>'+
+        '<div id="ow-tab-adv" onclick="owShowTab(\'adv\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#bbb;border-bottom:2px solid transparent;cursor:pointer">💼 عهدة</div>'+
+        '<div id="ow-tab-pend" onclick="owShowTab(\'pend\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#bbb;border-bottom:2px solid transparent;cursor:pointer">⏳ <span id="ow-pend-cnt" style="background:#EF9F27;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px">0</span></div>'+
         '<div id="ow-tab-done" onclick="owShowTab(\'done\')" style="flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:700;color:#bbb;border-bottom:2px solid transparent;cursor:pointer">✅ موافق</div>'+
       '</div>'+
 
@@ -67,6 +68,18 @@ async function loadOwnerScreen(){
         '<div id="ow-pend-list"><div style="text-align:center;padding:40px;color:#ccc">⏳ جاري التحميل...</div></div>'+
       '</div>'+
 
+      // ADVANCE screen
+      '<div id="ow-screen-adv" style="display:none;flex:1;overflow-y:auto;padding:12px">'+
+        '<div style="background:#EEF2FF;border:1px solid #C5CFE8;border-radius:8px;padding:8px 12px;font-size:11px;color:#3A4A8A;margin-bottom:12px">💡 اختر الشخص اللي هتدي له دفعة عهدة — هتروح للأدمن للموافقة</div>'+
+        '<div style="margin-bottom:10px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:6px">اختر الشخص <span style=\"color:#E74C3C\">*</span></label>'+
+        '<div id="ow-viewers-list">⏳ جاري التحميل...</div></div>'+
+        '<div style="margin-bottom:8px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المبلغ <span style=\"color:#E74C3C\">*</span></label>'+
+        '<input id="ow-adv-amt" type="number" placeholder="0.00" step="any" style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:16px;font-weight:800;color:#1D3C2A;background:#fff;outline:none\"></div>'+
+        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">ملاحظة</label>'+
+        '<input id="ow-adv-note" type="text" placeholder="سبب الدفعة..." style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none\"></div>'+
+        '<button onclick="owSubmitAdv()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">💼 إرسال طلب العهدة</button>'+
+      '</div>'+
+
       // APPROVED screen
       '<div id="ow-screen-done" style="display:none;flex:1;overflow-y:auto;padding:12px">'+
         '<div id="ow-done-list"><div style="text-align:center;padding:40px;color:#ccc">⏳ جاري التحميل...</div></div>'+
@@ -80,12 +93,13 @@ async function loadOwnerScreen(){
 }
 
 function owShowTab(t){
-  ['add','pend','done'].forEach(function(x){
+  ['add','adv','pend','done'].forEach(function(x){
     var tab=document.getElementById('ow-tab-'+x);
     var scr=document.getElementById('ow-screen-'+x);
     if(tab){tab.style.color=x===t?'#1D3C2A':'#bbb';tab.style.borderBottom=x===t?'2px solid #1D3C2A':'2px solid transparent';}
     if(scr)scr.style.display=x===t?'block':'none';
   });
+  if(t==='adv')owLoadViewers();
 }
 
 function owHideProjDD(){setTimeout(function(){var d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200);}
@@ -222,5 +236,97 @@ async function owSubmit(){
     notify('❌ فشل الإرسال: '+friendlyError(ex),'err');
   }finally{
     if(btn){btn.disabled=false;btn.textContent='⏳ إرسال للموافقة';}
+  }
+}
+
+// ══ OWNER ADVANCE — طلب دفعة عهدة ════════════════════
+var _owViewers=[];
+var _owSelectedViewer=null;
+
+async function owLoadViewers(){
+  var el=document.getElementById('ow-viewers-list');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:20px;color:#aaa;font-size:12px">⏳ جاري التحميل...</div>';
+  try{
+    var viewers=await sb('profiles?role=eq.viewer&order=name');
+    var advs=await sb('advances?status=eq.open');
+    var insts=await sb('advance_installments?select=advance_id,amount');
+    _owViewers=viewers||[];
+    _owSelectedViewer=null;
+    var inp='width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none';
+    if(!_owViewers.length){
+      el.innerHTML='<div style="text-align:center;padding:20px;color:#aaa;font-size:12px">لا يوجد مستخدمين من نوع viewer</div>';
+      return;
+    }
+    el.innerHTML=_owViewers.map(function(v){
+      var adv=(advs||[]).find(function(a){return a.user_id===v.id;});
+      var spent=adv?(insts||[]).filter(function(i){return i.advance_id===adv.id;}).reduce(function(s,i){return s+i.amount;},0):0;
+      var remaining=adv?Math.max(0,adv.amount-spent):0;
+      var advInfo=adv?('متبقي العهدة: '+fn(remaining)+' ج'):'لا توجد عهدة مفتوحة';
+      var advClr=adv?'#1D6A3E':'#aaa';
+      return '<div id="ow-viewer-'+v.id+'" onclick="owSelectViewer(\''+v.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid #EAEEE8;background:#fff;margin-bottom:8px;cursor:pointer;transition:all .15s">'+
+        '<div style="width:36px;height:36px;border-radius:50%;background:#1D3C2A;color:#D4C49A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0">'+(v.name||'?')[0]+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:13px;font-weight:700;color:#1a2e1f">'+v.name+'</div>'+
+          '<div style="font-size:10px;color:'+advClr+';margin-top:1px">'+advInfo+'</div>'+
+        '</div>'+
+        '<div id="ow-viewer-chk-'+v.id+'" style="font-size:16px"></div>'+
+      '</div>';
+    }).join('');
+  }catch(ex){
+    if(el)el.innerHTML='<div style="color:#c0392b;font-size:12px;padding:10px">❌ '+ex.message+'</div>';
+  }
+}
+
+function owSelectViewer(id){
+  _owSelectedViewer=id;
+  _owViewers.forEach(function(v){
+    var card=document.getElementById('ow-viewer-'+v.id);
+    var chk=document.getElementById('ow-viewer-chk-'+v.id);
+    if(card){card.style.borderColor=v.id===id?'#1D3C2A':'#EAEEE8';card.style.background=v.id===id?'#EBF5EF':'#fff';}
+    if(chk){chk.textContent=v.id===id?'✅':'';}
+  });
+}
+
+async function owSubmitAdv(){
+  if(!_owSelectedViewer){notify('❌ اختر الشخص أولاً','err');return;}
+  var amt=parseFloat(document.getElementById('ow-adv-amt').value);
+  var note=(document.getElementById('ow-adv-note').value||'').trim();
+  if(!amt||amt<=0){notify('❌ ادخل المبلغ','err');return;}
+
+  // نجيب العهدة المفتوحة للشخص ده
+  var advRows=[];
+  try{advRows=await sb('advances?user_id=eq.'+_owSelectedViewer+'&status=eq.open');}catch(ex){}
+  if(!advRows||!advRows.length){notify('❌ الشخص ده مش عنده عهدة مفتوحة — الأدمن لازم يفتح عهدة الأول','warn');return;}
+  var adv=advRows[0];
+
+  var btn=document.querySelector('#ow-screen-adv button[onclick="owSubmitAdv()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';}
+
+  try{
+    var viewer=_owViewers.find(function(v){return v.id===_owSelectedViewer;});
+    var today=(function(){var d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();})();
+    await sb('pending_advances','POST',{
+      type:'installment',
+      advance_id:adv.id,
+      amount:amt,
+      inst_date:today,
+      inst_note:note||'دفعة من الأونر',
+      adv_user_id:_owSelectedViewer,
+      submitted_by:uid,
+      submitted_at:new Date().toISOString(),
+      status:'pending'
+    });
+    notify('✅ تم إرسال طلب الدفعة لـ '+(viewer?viewer.name:'—')+' — في انتظار موافقة الأدمن','ok');
+    document.getElementById('ow-adv-amt').value='';
+    document.getElementById('ow-adv-note').value='';
+    _owSelectedViewer=null;
+    owLoadViewers();
+    owLoadPending();
+    owShowTab('pend');
+  }catch(ex){
+    notify('❌ فشل الإرسال: '+friendlyError(ex),'err');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='💼 إرسال طلب العهدة';}
   }
 }
