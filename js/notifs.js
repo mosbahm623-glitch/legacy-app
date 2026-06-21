@@ -84,12 +84,10 @@ async function loadApprovals(silent=false){
               '<span class="appr-meta-text">📅 '+(cleanDate(r.entry_date)||'—')+'</span>'+
             '</div>'+
             '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-              '<button onclick="approveEntry(''+r.id+'')" class="appr-approve-btn">✅ موافقة</button>'+
-              '<button onclick="editAndApproveEntry(''+r.id+'')" class="appr-edit-approve-btn">✏️ تعديل</button>'+
-              '<button onclick="rejectEntry(''+r.id+'')" class="appr-reject-btn">❌ رفض</button>'+
-              '<button onclick="requestInvoice(''+r.id+'',''+((r.description||'').replace(/'/g,"\'"))+'',''+((r.category||'').replace(/'/g,"\'"))+'',''+((r.entry_date||'').replace(/'/g,"\'"))+'','+r.amount+',''+(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\'")+'',''+((r.contractor||'').replace(/'/g,"\'")+'')'))+'">📋 فاتورة</button>'+
-            '</div>'+
-          '</div>';
+              '<button onclick="approveEntry(\"'+r.id+'\")" class="appr-approve-btn">✅ موافقة</button>'+
+              '<button onclick="editAndApproveEntry(\"'+r.id+'\")" class="appr-edit-approve-btn">✏️ تعديل</button>'+
+              '<button onclick="rejectEntry(\"'+r.id+'\")" class="appr-reject-btn">❌ رفض</button>'+
+              '<button class="appr-invoice-btn" data-id="'+r.id+'" onclick="apprInvoiceById(this)">📋 فاتورة</button>'+
         });
         html+='</div>';
       });
@@ -212,6 +210,19 @@ async function confirmEditApprove(id){
     updatePendingBadge();
     loadApprovals();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function apprInvoiceById(btn){
+  const id=btn.getAttribute('data-id');
+  const row=document.getElementById('appr-e-'+id);
+  if(!row)return;
+  // نجيب البيانات من الـ pending_entries عن طريق الـ id المحفوظ
+  sb('pending_entries?id=eq.'+id).then(function(rows){
+    if(!rows||!rows.length)return;
+    const r=rows[0];
+    const proj=(allProjects.find(function(p){return p.id===r.project_id;})||{}).name||'—';
+    requestInvoice(r.id,r.description,r.category,r.entry_date,r.amount,proj,r.contractor);
+  }).catch(function(e){notify('❌ '+e.message,'err');});
 }
 
 function requestInvoice(id,desc,cat,date,amount,proj,contractor){
