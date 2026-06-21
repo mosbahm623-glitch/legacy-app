@@ -52,8 +52,10 @@ async function loadOwnerScreen(){
           '<div><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">التاريخ <span style="color:#E74C3C">*</span></label>'+
           '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" value="'+today+'" oninput="owFmtDate(this)" style="'+inp+'"></div>'+
         '</div>'+
-        '<div id="ow-cat-wrap" style="margin-bottom:8px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
-        '<select id="ow-cat" style="'+inp+'">'+catOpts+'</select></div>'+
+        '<div id="ow-cat-wrap" style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
+        '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
+        '<input type="hidden" id="ow-cat">'+
+        '<div id="ow-cat-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:#fff;border:1.5px solid #EAEEE8;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
         '<div style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المشروع <span style="color:#E74C3C">*</span></label>'+
         '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." autocomplete="off" oninput="owFilterProj(this.value)" onblur="owHideProjDD()" style="'+inp+'">'+
         '<input type="hidden" id="ow-proj">'+
@@ -87,6 +89,7 @@ async function loadOwnerScreen(){
 
     '</div>';
 
+  window._owAllCats=allCats||[];
   window._owType='e';
   owLoadPending();
   owLoadApproved();
@@ -103,6 +106,31 @@ function owShowTab(t){
 }
 
 function owHideProjDD(){setTimeout(function(){var d=document.getElementById('ow-proj-dd');if(d)d.style.display='none';},200);}
+
+function owHideCatDD(){setTimeout(function(){var d=document.getElementById('ow-cat-dd');if(d)d.style.display='none';},200);}
+
+function owFilterCat(val){
+  var dd=document.getElementById('ow-cat-dd');
+  var hidden=document.getElementById('ow-cat');
+  if(!dd)return;
+  hidden.value='';
+  var cats=window._owAllCats||[];
+  var filtered=val?cats.filter(function(c){return c.includes(val);}):cats;
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(function(c){
+    return '<div onclick="owSelectCat(''+c+'')" style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee" onmouseover="this.style.background='#f5faf5'" onmouseout="this.style.background='#fff'">'+c+'</div>';
+  }).join('');
+}
+
+function owSelectCat(val){
+  var inp=document.getElementById('ow-cat-inp');
+  var hidden=document.getElementById('ow-cat');
+  var dd=document.getElementById('ow-cat-dd');
+  if(inp)inp.value=val;
+  if(hidden)hidden.value=val;
+  if(dd)dd.style.display='none';
+}
 
 function owFmtDate(inp){
   var v=inp.value.replace(/\D/g,'');
@@ -208,7 +236,9 @@ async function owSubmit(){
   var desc=(document.getElementById('ow-desc').value||'').trim();
   var projId=document.getElementById('ow-proj').value;
   var date=document.getElementById('ow-date').value;
-  var cat=t==='e'?(document.getElementById('ow-cat').value||''):'وارد';
+  var catHidden=document.getElementById('ow-cat');
+  var catInp=document.getElementById('ow-cat-inp');
+  var cat=t==='e'?(catHidden&&catHidden.value?catHidden.value:(catInp?catInp.value:'')):'وارد';
   var mq=t==='e'?((document.getElementById('ow-mq')?document.getElementById('ow-mq').value:'')||'').trim():'';
 
   if(!amt||amt<=0){notify('❌ ادخل المبلغ','err');return;}
@@ -226,6 +256,7 @@ async function owSubmit(){
     document.getElementById('ow-amt').value='';
     document.getElementById('ow-desc').value='';
     if(document.getElementById('ow-cat'))document.getElementById('ow-cat').value='';
+    if(document.getElementById('ow-cat-inp'))document.getElementById('ow-cat-inp').value='';
     if(document.getElementById('ow-mq'))document.getElementById('ow-mq').value='';
     document.getElementById('ow-proj-inp').value='';
     document.getElementById('ow-proj').value='';
