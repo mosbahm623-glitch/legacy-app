@@ -2284,45 +2284,51 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 
 /* ══ MOBILE FIXES ══════════════════════════════════════ */
 @media(max-width:767px){
-  /* KPI cards — عمودين بدل تلاتة */
-  .kp{grid-template-columns:1fr 1fr 1fr !important;gap:5px !important;padding:6px 8px !important}
-  .kc{padding:8px 10px !important}
-  .kv{font-size:15px !important}
-  /* آخر card يبقى ممتد */
+  /* KPI cards */
+  .kp{grid-template-columns:1fr 1fr 1fr !important;gap:6px !important;padding:10px 12px !important}
+  .kc{padding:10px 12px !important}
+  .kv{font-size:17px !important}
+  .kl{font-size:11px !important}
   .kp .kc:last-child{grid-column:1/-1}
 
-  /* فورم الإدخال — عمود واحد كامل على الموبايل */
-  .ig{grid-template-columns:1fr !important;gap:8px !important}
+  /* فورم الإدخال */
+  .ig{grid-template-columns:1fr !important;gap:10px !important}
   .ig-field{grid-column:1/-1 !important}
   .ig-field.full{grid-column:1/-1 !important}
 
   /* حقول الفورم أكبر للإصبع */
   .ig input,.finp,.field-input{
-    padding:11px 12px !important;
-    font-size:15px !important;
-    min-height:46px;
+    padding:13px 14px !important;
+    font-size:16px !important;
+    min-height:50px !important;
   }
 
-  /* زرار الإضافة أكبر */
-  .ab{padding:13px !important;font-size:15px !important;min-height:50px}
-  .ib{padding:10px !important;font-size:13px !important;min-height:46px}
+  /* زرار الإضافة */
+  .ab{padding:15px !important;font-size:16px !important;min-height:54px !important}
+  .ib{padding:12px !important;font-size:14px !important;min-height:48px !important}
 
   /* بانر المشروع */
-  #entryProjBanner{font-size:13px !important;padding:6px 10px !important}
+  #entryProjBanner{font-size:14px !important;padding:8px 12px !important}
 
   /* أزرار مصروف/وارد */
-  .tb{padding:10px !important;font-size:13px !important;min-height:44px}
+  .tb{padding:12px !important;font-size:14px !important;min-height:48px !important}
 
-  /* filter tabs — scroll أفقي */
+  /* تابات الفلتر */
   .cat-tabs{flex-wrap:nowrap !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch}
-  .cat-tab{flex-shrink:0 !important}
+  .cat-tab{flex-shrink:0 !important;font-size:13px !important;padding:8px 14px !important;min-height:40px !important}
 
   /* نموذج التعديل */
   .ep-grid{grid-template-columns:1fr !important}
 
   /* search bar */
-  .srch-bar{flex-direction:column !important;gap:6px !important}
-  .srch-bar input{width:100% !important}
+  .srch-bar{flex-direction:column !important;gap:8px !important}
+  .srch-bar input{width:100% !important;font-size:15px !important;min-height:46px !important}
+
+  /* select dropdown */
+  select{font-size:15px !important;min-height:46px !important}
+
+  /* أزرار عامة على الموبايل */
+  .gsm,.rep-back-btn{min-height:44px !important;font-size:14px !important;padding:10px 16px !important}
 }
 
 @media(max-width:480px){
@@ -2385,20 +2391,22 @@ body.ent-fs #entExpandBtn{
 
 /* ══ MOBILE JOURNAL CARDS ══════════════════════════════ */
 @media(max-width:767px){
-  .card-list{padding:8px 10px;display:flex;flex-direction:column;gap:6px}
-  .entry-card{background:#fff;border-radius:10px;border:0.5px solid #e8e8e4;overflow:hidden;cursor:pointer}
-  .entry-card:active{opacity:.95}
-  .card-top{display:flex;align-items:center;gap:8px;padding:9px 12px 5px}
-  .seq-badge{background:#1D3C2A;color:#D4C49A;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0}
-  .card-date{font-size:11px;color:#aaa;white-space:nowrap;flex-shrink:0}
-  .card-amt{font-size:15px;font-weight:800;white-space:nowrap;margin-right:auto}
-  .card-body{display:flex;align-items:center;gap:6px;padding:2px 12px 8px}
-  .cat-pill{font-size:10px;border:0.5px solid #ddd;border-radius:10px;padding:2px 8px;white-space:nowrap;flex-shrink:0}
-  .adv-dot{width:7px;height:7px;border-radius:50%;background:#7B5EA7;flex-shrink:0}
-  .card-desc{font-size:12px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-  .bal-row{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:#f9f9f7;border-top:0.5px solid #f0f0ec}
+  .card-list{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+  .entry-card{background:#fff;border-radius:12px;border:0.5px solid #e8e8e4;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .entry-card:active{opacity:.92;transform:scale(.99)}
+  .card-top{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
+  .seq-badge{background:#1D3C2A;color:#D4C49A;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+  .card-date{font-size:13px;color:#aaa;white-space:nowrap;flex-shrink:0}
+  .card-amt{font-size:17px;font-weight:800;white-space:nowrap;margin-right:auto}
+  .card-body{display:flex;align-items:center;gap:8px;padding:2px 14px 10px}
+  .cat-pill{font-size:12px;border:0.5px solid #ddd;border-radius:10px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
+  .adv-dot{width:8px;height:8px;border-radius:50%;background:#7B5EA7;flex-shrink:0}
+  .card-desc{font-size:13px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .bal-row{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:#f9f9f7;border-top:0.5px solid #f0f0ec}
+  .bal-row span:first-child{font-size:12px;color:#aaa}
+  .bal-row span:last-child{font-size:14px}
   .card-footer{display:flex;border-top:0.5px solid #f0f0ec}
-  .card-action{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 4px;font-size:12px;background:none;border:none;cursor:pointer;color:#666;font-family:inherit;font-weight:500}
+  .card-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 4px;font-size:13px;background:none;border:none;cursor:pointer;color:#666;font-family:inherit;font-weight:600;min-height:46px}
   .card-action:not(:last-child){border-left:0.5px solid #f0f0ec}
   .card-action:active{background:#f5f5f3}
   .card-action.card-wa{color:#25D366}
@@ -2407,13 +2415,14 @@ body.ent-fs #entExpandBtn{
 
 /* ══ DARK MODE — MOBILE CARDS ══════════════════════════ */
 @media(max-width:767px){
-  body.dark-mode .entry-card{background:var(--dark-alt);border-color:rgba(212,196,154,.1)}
-  body.dark-mode .card-desc{color:#e0e0d8}
-  body.dark-mode .card-date{color:#888}
-  body.dark-mode .cat-pill{background:rgba(255,255,255,.07);border-color:rgba(212,196,154,.15);color:#aaa}
+  body.dark-mode .entry-card{background:var(--dark-alt);border-color:rgba(212,196,154,.12);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  body.dark-mode .card-desc{color:#e0e0d8;font-size:13px}
+  body.dark-mode .card-date{color:#888;font-size:13px}
+  body.dark-mode .seq-badge{background:rgba(212,196,154,.15);color:#D4C49A}
+  body.dark-mode .cat-pill{background:rgba(255,255,255,.07);border-color:rgba(212,196,154,.15);color:#bbb;font-size:12px}
   body.dark-mode .bal-row{background:rgba(255,255,255,.03);border-color:rgba(212,196,154,.08)}
   body.dark-mode .card-footer{border-color:rgba(212,196,154,.08)}
-  body.dark-mode .card-action{color:#9DB898}
+  body.dark-mode .card-action{color:#9DB898;font-size:13px}
   body.dark-mode .card-action:not(:last-child){border-color:rgba(212,196,154,.08)}
   body.dark-mode .card-action:active{background:rgba(255,255,255,.04)}
   body.dark-mode .card-action.card-del{color:#F1948A}
