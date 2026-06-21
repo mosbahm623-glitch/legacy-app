@@ -1503,6 +1503,7 @@ body.dark-mode .adv-det-notes{color:rgba(212,196,154,.5)}
 .appr-h2{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:3px}
 .appr-sub{font-size:11px;color:var(--text-soft)}
 .appr-refresh-btn{background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;cursor:pointer}
+.pg-refresh-btn{background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:13px;cursor:pointer;margin-bottom:10px;font-weight:600}
 .appr-loading{text-align:center;padding:40px;color:var(--text-faint)}
 
 /* ── Search ── */

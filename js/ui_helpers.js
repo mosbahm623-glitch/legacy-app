@@ -240,8 +240,32 @@ function renderBreadcrumb(s){
     }
   });
   targetEl.insertBefore(bc,targetEl.firstChild);
+  // ── زرار التحديث ──
+  const refreshMap={
+    dash:()=>loadDashboard(),
+    adv:()=>loadAdvList(),
+    rep:()=>loadRepScreen(),
+    approvals:()=>loadApprovals(),
+    archive:()=>loadArchivedProjects(),
+    daily:()=>loadDailyLog(),
+    daf3ati:()=>loadDaf3ati(),
+    notes:()=>loadNotesScreen(),
+    dues:()=>loadDuesScreen(),
+    auditlog:()=>loadAuditLog(),
+    timeline:()=>loadTimeline(),
+    projList:()=>buildProjListScreen(),
+    admin:()=>loadAdminPanel(),
+  };
+  const existingRefresh=targetEl.querySelector('.pg-refresh-btn');
+  if(existingRefresh)existingRefresh.remove();
+  if(refreshMap[s]){
+    const rb=document.createElement('button');
+    rb.className='pg-refresh-btn';
+    rb.innerHTML='🔄 تحديث';
+    rb.onclick=()=>{rb.disabled=true;rb.style.opacity='.6';Promise.resolve(refreshMap[s]()).finally(()=>{rb.disabled=false;rb.style.opacity='1';});};
+    targetEl.insertBefore(rb,targetEl.firstChild);
+  }
 }
-
 // SIDEBAR FUNCTIONS
 function mobNavActive(id){
   document.querySelectorAll('.mob-nav-it').forEach(b=>b.classList.remove('active'));
