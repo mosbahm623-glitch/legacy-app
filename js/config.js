@@ -336,7 +336,7 @@ function gJ(){const all=entries.map(e=>({...e}));all.sort((a,b)=>pdt(a.entry_dat
 function gM(){const map={};pExp().forEach(e=>{if(!e.contractor)return;if(!map[e.contractor])map[e.contractor]={n:e.contractor,t:0,cnt:0,cats:new Set(),last:''};const m=map[e.contractor];m.t+=e.amount;m.cnt++;if(e.category)m.cats.add(e.category);if(pdt(e.entry_date)>pdt(m.last))m.last=e.entry_date;});return Object.values(map).sort((a,b)=>b.t-a.t).map(m=>({...m,ca:[...m.cats]}));}
 
 // ██ UI HELPERS ► CONFIRM MODAL + NOTIFY + ERRORS ══
-function showConfirm({icon='⚠️',title='تأكيد',msg='',okLabel='تأكيد',okType='danger',onOk=()=>{}}){
+function showConfirm({icon='⚠️',title='تأكيد',msg='',okLabel='تأكيد',okType='danger',onOk=()=>{},onCancel=()=>{}}){
   const ex=document.getElementById('_confirmModal');if(ex)ex.remove();
   const ov=document.createElement('div');
   ov.id='_confirmModal';
@@ -357,6 +357,7 @@ function showConfirm({icon='⚠️',title='تأكيد',msg='',okLabel='تأكي�
   ov.addEventListener('click',e=>{if(e.target===ov)close();});
   document.getElementById('_confirmCancel').addEventListener('click',close);
   document.getElementById('_confirmOk').addEventListener('click',()=>{close();onOk();});
+  document.getElementById('_confirmCancel').addEventListener('click',()=>{close();onCancel();});
 }
 
 // ── notify() ──────────────────────────────────────
