@@ -101,9 +101,11 @@ function apprRenderAdv(el){
           '<span style="font-size:10px;color:var(--text-hint);margin-right:auto">'+(r.submitted_at?r.submitted_at.substring(0,10):'—')+'</span>'+
         '</div>'+
         (r.inst_note||r.notes?'<div style="font-size:12px;color:var(--text-body);margin-bottom:6px">'+(r.inst_note||r.notes)+'</div>':'')+
-        '<div style="display:flex;gap:8px">'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
           '<button onclick="approveAdv(\"'+r.id+'\")" class="appr-adv-approve-btn">✅ موافقة</button>'+
+          '<button onclick="editAndApproveAdv(\"'+r.id+'\")" class="appr-edit-approve-btn">✏️ تعديل</button>'+
           '<button onclick="rejectAdv(\"'+r.id+'\")" class="appr-adv-reject-btn">❌ رفض</button>'+
+          '<button onclick="sendAdvWhatsApp(\"'+r.id+'\",\"'+person+'\",'+Number(r.amount||0)+',\"'+(r.inst_note||r.notes||'دفعة')+'\")" class="appr-invoice-btn">💬 رسالة</button>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -146,6 +148,37 @@ async function loadApprovals(silent=false){
     apprRender();
     apprRender();
   }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ خطأ: '+e.message+'</div>';}
+}
+
+async function editAndApproveAdv(id){
+  try{
+    const rows=await sb('pending_advances?id=eq.'+id);
+    if(!rows||!rows.length)return;
+    const r=rows[0];
+    const isAdv=r.type==='advance';
+    if(isAdv){
+      // تعديل عهدة جديدة — مش منطقي نعدلها
+      await approveAdv(id,true);
+      setSav('✅ تمت الموافقة على العهدة','ok');
+      loadApprovals(true);
+      return;
+    }
+    // تعديل دفعة
+    const newAmt=prompt('المبلغ الحالي: '+fn(r.amount)+' ج\nادخل المبلغ الجديد:',r.amount);
+    if(!newAmt||isNaN(newAmt))return;
+    const newNote=prompt('الملاحظة:',r.inst_note||'دفعة');
+    await sb('pending_advances?id=eq.'+id,'PATCH',{amount:parseFloat(newAmt),inst_note:newNote||r.inst_note||'دفعة'});
+    await approveAdv(id,true);
+    setSav('✅ تم التعديل والموافقة','ok');
+    updatePendingBadge();
+    loadApprovals(true);
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function sendAdvWhatsApp(id,person,amount,note){
+  const msg='السلام عليكم '+person+'،\nتم إرسال دفعة عهدة بمبلغ '+fn(amount)+' ج'+(note&&note!=='دفعة'?'\nملاحظة: '+note:'')+'\nبرجاء المراجعة والتوقيع.';
+  const url='https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
 }
 
 function apprToggleAdv(header){
