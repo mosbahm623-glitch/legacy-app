@@ -97,21 +97,21 @@ async function loadApprovals(silent=false){
             '</div>'+
             (r.inst_note||r.notes?'<div style="font-size:12px;color:var(--text-body);margin-bottom:6px">'+(r.inst_note||r.notes)+'</div>':'')+
             '<div style="display:flex;gap:8px">'+
-              '<button onclick="approveAdv(''+r.id+'')" class="appr-adv-approve-btn">✅ موافقة</button>'+
-              '<button onclick="rejectAdv(''+r.id+'')" class="appr-adv-reject-btn">❌ رفض</button>'+
+            '<button onclick="approveAdv(\"'+r.id+'\")" class="appr-adv-approve-btn">✅ موافقة</button>'+
+            '<button onclick="rejectAdv(\"'+r.id+'\")" class="appr-adv-reject-btn">❌ رفض</button>'+
             '</div>'+
           '</div>';
         }).join('');
         return '<div class="appr-item" style="padding:0;overflow:hidden">'+
           // Header الشخص
-          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-faint,#eef2ee);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">'+
+          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-faint,#eef2ee);cursor:pointer" onclick="apprToggleAdv(this)">'+
             '<div style="width:34px;height:34px;border-radius:50%;background:#3A4A8A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">'+avatar+'</div>'+
             '<div style="flex:1">'+
               '<div style="font-size:13px;font-weight:700;color:var(--text-dark)">'+person+'</div>'+
               '<div style="font-size:10px;color:var(--text-hint)">'+g.items.length+' طلب في الانتظار</div>'+
             '</div>'+
             '<div style="font-size:13px;font-weight:800;color:#3A4A8A">'+fn(g.total)+' ج</div>'+
-            '<div style="font-size:12px;color:var(--text-hint);margin-right:8px">▼</div>'+
+            '<div class="adv-arrow" style="font-size:12px;color:var(--text-hint);margin-right:8px">▼</div>'+
           '</div>'+
           // القيود — مخفية بالأساس
           '<div style="display:none">'+itemsHtml+'</div>'+
@@ -120,6 +120,15 @@ async function loadApprovals(silent=false){
     }
     el.innerHTML=html;
   }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ خطأ: '+e.message+'</div>';}
+}
+
+function apprToggleAdv(header){
+  const body=header.nextElementSibling;
+  if(!body)return;
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  const arrow=header.querySelector('.adv-arrow');
+  if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 
 async function editAndApproveEntry(id){
