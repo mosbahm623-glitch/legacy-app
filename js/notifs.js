@@ -67,30 +67,55 @@ async function loadApprovals(silent=false){
       }).join('');
     }
 
-    // ── العهد ──
+    // ── العهد — drill-down حسب الشخص ──
     if(hasAdv){
-      html+=`<div class="appr-advances-title">💼 العهد والدفعات (${advRows.length})</div>`;
-      html+=advRows.map(r=>{
+      html+='<div class="appr-advances-title">💼 العهد والدفعات ('+advRows.length+')</div>';
+      // تجميع حسب الشخص المستقبل
+      const advGroups={};
+      advRows.forEach(r=>{
         const isAdv=r.type==='advance';
-        const label=isAdv
-          ?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>'
-          :'<span class="appr-adv-inst-badge">💰 دفعة</span>';
-        const detail=isAdv
-          ?`<span class="title-sm">${r.person_name||'—'}</span>${r.notes?` <span class="appr-meta-text">· ${r.notes}</span>`:''}`
-          :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||viewerMap[r.adv_user_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
-        return `<div class="appr-item" id="appr-a-${r.id}">
-          <div class="appr-item-header">
-            <div style="display:flex;align-items:center;gap:8px">
-              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="adv" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
-              <div class="appr-item-title-row">${label} ${detail}</div>
-            </div>
-            <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button onclick="approveAdv('${r.id}')" class="appr-adv-approve-btn">✅ موافقة</button>
-            <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
-          </div>
-        </div>`;
+        const receiverName=isAdv?(r.person_name||'جديد'):(viewerMap[r.adv_user_id]||advMap[r.advance_id]||'—');
+        const receiverId=r.adv_user_id||r.advance_id||r.id;
+        if(!advGroups[receiverName])advGroups[receiverName]={id:receiverId,items:[],total:0};
+        advGroups[receiverName].items.push(r);
+        if(r.amount)advGroups[receiverName].total+=Number(r.amount);
+      });
+      // عرض كارت لكل شخص
+      html+=Object.entries(advGroups).map(([person,g])=>{
+        const avatar=(person||'?')[0];
+        const itemsHtml=g.items.map(r=>{
+          const isAdv=r.type==='advance';
+          const sender=viewerMap[r.submitted_by]||'—';
+          const timeStr=r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—';
+          return '<div style="padding:10px 14px;border-top:1px solid var(--border-faint,#f0f0ee)">'+
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'+
+              '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="adv" style="width:15px;height:15px;cursor:pointer" onchange="updateBulkBar()">'+
+              (isAdv?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>':'<span class="appr-adv-inst-badge">💰 دفعة</span>')+
+              (r.amount?'<span style="font-size:14px;font-weight:800;color:var(--danger)">'+fn(r.amount)+' ج</span>':'')+
+              '<span style="font-size:10px;color:var(--text-hint)">من: '+sender+'</span>'+
+              '<span style="font-size:10px;color:var(--text-hint);margin-right:auto">'+timeStr+'</span>'+
+            '</div>'+
+            (r.inst_note||r.notes?'<div style="font-size:12px;color:var(--text-body);margin-bottom:6px">'+(r.inst_note||r.notes)+'</div>':'')+
+            '<div style="display:flex;gap:8px">'+
+              '<button onclick="approveAdv(''+r.id+'')" class="appr-adv-approve-btn">✅ موافقة</button>'+
+              '<button onclick="rejectAdv(''+r.id+'')" class="appr-adv-reject-btn">❌ رفض</button>'+
+            '</div>'+
+          '</div>';
+        }).join('');
+        return '<div class="appr-item" style="padding:0;overflow:hidden">'+
+          // Header الشخص
+          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-faint,#eef2ee);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">'+
+            '<div style="width:34px;height:34px;border-radius:50%;background:#3A4A8A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">'+avatar+'</div>'+
+            '<div style="flex:1">'+
+              '<div style="font-size:13px;font-weight:700;color:var(--text-dark)">'+person+'</div>'+
+              '<div style="font-size:10px;color:var(--text-hint)">'+g.items.length+' طلب في الانتظار</div>'+
+            '</div>'+
+            '<div style="font-size:13px;font-weight:800;color:#3A4A8A">'+fn(g.total)+' ج</div>'+
+            '<div style="font-size:12px;color:var(--text-hint);margin-right:8px">▼</div>'+
+          '</div>'+
+          // القيود — مخفية بالأساس
+          '<div style="display:none">'+itemsHtml+'</div>'+
+        '</div>';
       }).join('');
     }
     el.innerHTML=html;
