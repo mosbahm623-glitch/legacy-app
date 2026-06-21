@@ -657,26 +657,15 @@
 
       <!-- ADMIN -->
       <!-- APPROVALS SCREEN -->
-      <div id="approvalsScreen" style="display:none">
-        <div class="appr-header" style="padding:16px;max-width:780px;margin:0 auto">
+      <div id="approvalsScreen" style="display:none;padding:16px;max-width:780px;margin:0 auto">
+        <div class="appr-header">
           <div>
             <h2 class="appr-h2">✅ الموافقات</h2>
             <p class="appr-sub">القيود التي تنتظر موافقتك</p>
           </div>
           <button onclick="loadApprovals()" class="appr-refresh-btn">🔄 تحديث</button>
         </div>
-        <!-- Tabs -->
-        <div id="apprTabs" style="display:flex;background:var(--bg-card);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:50">
-          <button id="apprTab-entries" onclick="apprSwitchTab('entries')" style="flex:1;padding:11px 8px;text-align:center;font-family:inherit;font-size:12px;font-weight:700;color:var(--primary);border:none;border-bottom:3px solid var(--primary);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-            📋 قيود المشاريع <span id="apprCnt-entries" style="background:#EF9F27;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px">0</span>
-          </button>
-          <button id="apprTab-adv" onclick="apprSwitchTab('adv')" style="flex:1;padding:11px 8px;text-align:center;font-family:inherit;font-size:12px;font-weight:700;color:var(--text-hint);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-            💼 العهد والدفعات <span id="apprCnt-adv" style="background:#4caf7d;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px">0</span>
-          </button>
-        </div>
-        <div style="padding:16px;max-width:780px;margin:0 auto">
-          <div id="approvalsList"><div class="appr-loading">⏳ جاري التحميل...</div></div>
-        </div>
+        <div id="approvalsList"><div class="appr-loading">⏳ جاري التحميل...</div></div>
       </div>
 
       <div id="adminScreen" class="ap" style="display:none">
