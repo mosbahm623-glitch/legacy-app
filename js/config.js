@@ -355,9 +355,8 @@ function showConfirm({icon='⚠️',title='تأكيد',msg='',okLabel='تأكي�
   document.body.appendChild(ov);
   const close=()=>ov.remove();
   ov.addEventListener('click',e=>{if(e.target===ov)close();});
-  document.getElementById('_confirmCancel').addEventListener('click',close);
-  document.getElementById('_confirmOk').addEventListener('click',()=>{close();onOk();});
   document.getElementById('_confirmCancel').addEventListener('click',()=>{close();onCancel();});
+  document.getElementById('_confirmOk').addEventListener('click',()=>{close();onOk();});
 }
 
 // ── notify() ──────────────────────────────────────
