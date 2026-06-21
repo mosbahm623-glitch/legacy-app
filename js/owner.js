@@ -119,7 +119,7 @@ function owFilterCat(val){
   if(!filtered.length){dd.style.display='none';return;}
   dd.style.display='block';
   dd.innerHTML=filtered.map(function(c){
-    return '<div onclick="owSelectCat(''+c+'')" style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee" onmouseover="this.style.background='#f5faf5'" onmouseout="this.style.background='#fff'">'+c+'</div>';
+    return '<div onclick="owSelectCat(\"'+c+'\")'  + ' style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee">'+c+'</div>';
   }).join('');
 }
 
