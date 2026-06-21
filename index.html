@@ -580,7 +580,10 @@
 
       <!-- ADVANCE DETAIL -->
       <div id="advDetail" class="adv-detail" style="display:none">
-        <button class="back-btn" onclick="backToAdvList()">→ العودة للعهد</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <button class="back-btn" onclick="backToAdvList()" style="margin-bottom:0">→ العودة للعهد</button>
+          <button onclick="loadAdvDetail()" class="pg-refresh-btn" style="margin-bottom:0">🔄 تحديث</button>
+        </div>
         <div class="adv-det-header">
           <div>
             <div class="adv-det-name" id="advDetName"></div>
