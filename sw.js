@@ -1,7 +1,7 @@
 // Legacy Core — Service Worker
 // Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
-const CACHE = 'lft-v92';
+const CACHE = 'lft-v93';
 const SHELL = [
   './',
   './index.html',
@@ -24,7 +24,7 @@ const SHELL = [
   'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap'
 ];
 
-const APP_FILES = ['index.html', 'style.css', '/js/'];
+const APP_FILES = ['index.html', 'style.css', '/js/', '.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
