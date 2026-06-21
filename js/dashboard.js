@@ -11,14 +11,15 @@ function renderMqManager(q){
   if(!mqs.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-hint)">لا يوجد مقاولين</div>';return;}
   list.innerHTML=mqs.map(([name,data])=>{
     const projNames=data.projects.size+' مشروع';
-    return `<div class="mq-mgr-item">
-      <span class="mq-mgr-ico">👷</span>
-      <div style="flex:1;min-width:0">
-        <div class="mq-mgr-name">${name}</div>
-        <div class="mq-mgr-meta">${data.count} قيد · ${projNames}</div>
-      </div>
-      <button class="mq-mgr-btn" onclick="renameMq('${name.replace(/'/g,"\\'")}')">✏️ تعديل الاسم</button>
-    </div>`;
+    const safeName=esc(name);
+    return '<div class="mq-mgr-item">'+
+      '<span class="mq-mgr-ico">👷</span>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="mq-mgr-name">'+safeName+'</div>'+
+        '<div class="mq-mgr-meta">'+data.count+' قيد · '+projNames+'</div>'+
+      '</div>'+
+      '<button class="mq-mgr-btn" data-mq="'+safeName+'" onclick="renameMq(this.dataset.mq)">✏️ تعديل الاسم</button>'+
+    '</div>';
   }).join('');
 }
 async function renameMq(oldName){
