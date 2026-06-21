@@ -243,7 +243,6 @@ function renderBreadcrumb(s){
   // ── زرار التحديث ──
   const refreshMap={
     dash:()=>loadDashboard(),
-    adv:()=>loadAdvList(),
     rep:()=>loadRepScreen(),
     approvals:()=>loadApprovals(),
     archive:()=>loadArchivedProjects(),
