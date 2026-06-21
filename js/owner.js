@@ -316,7 +316,7 @@ async function owLoadViewers(){
       var remaining=adv?Math.max(0,adv.amount-spent):0;
       var advInfo=adv?('متبقي العهدة: '+fn(remaining)+' ج'):'لا توجد عهدة مفتوحة';
       var advClr=adv?'#1D6A3E':'#aaa';
-      return '<div id="ow-viewer-'+v.id+'" onclick="owSelectViewer(\''+v.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid #EAEEE8;background:#fff;margin-bottom:8px;cursor:pointer;transition:all .15s">'+
+      return '<div id="ow-viewer-'+v.id+'" data-vid="'+v.id+'" onclick="owSelectViewer(this.dataset.vid)" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid #EAEEE8;background:#fff;margin-bottom:8px;cursor:pointer;transition:all .15s">'+
         '<div style="width:36px;height:36px;border-radius:50%;background:#1D3C2A;color:#D4C49A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0">'+(v.name||'?')[0]+'</div>'+
         '<div style="flex:1">'+
           '<div style="font-size:13px;font-weight:700;color:#1a2e1f">'+v.name+'</div>'+
