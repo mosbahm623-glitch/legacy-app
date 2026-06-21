@@ -90,7 +90,7 @@ async function loadOwnerScreen(){
 
     '</div>';
 
-  window._owAllCats=allCats||[];
+  window._owAllCats=allCategories||[];
   window._owType='e';
   owLoadPending();
   owLoadApproved();
