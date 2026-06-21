@@ -16,110 +16,80 @@ async function loadApprovals(silent=false){
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
     const profMap=await getProfileMap();
-    const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     let html='';
 
     // ── شريط التحكم الجماعي ──
-    html+='<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">'+
-      '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">'+
-        '<input type="checkbox" id="selectAllChk" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer">'+
-        ' تحديد الكل ('+totalCount+')'+
-      '</label>'+
-      '<button onclick="bulkApprove()" style="background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">✅ موافقة المحدد</button>'+
-      '<button onclick="bulkReject()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">❌ رفض المحدد</button>'+
-    '</div>';
+    const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
+    html+=`<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">
+        <input type="checkbox" id="selectAllChk" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer">
+        تحديد الكل (${totalCount})
+      </label>
+      <button onclick="bulkApprove()" style="background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">✅ موافقة المحدد</button>
+      <button onclick="bulkReject()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">❌ رفض المحدد</button>
+    </div>`;
 
-    // ── قيود المشاريع — مجمّعة حسب الشخص ──
+    // ── قيود المشاريع ──
     if(hasEntries){
-      html+='<div class="appr-entries-title">📋 قيود المشاريع ('+entRows.length+')</div>';
-      // تجميع حسب submitted_by
-      const groups={};
-      entRows.forEach(r=>{
-        const person=profMap[r.submitted_by]||'غير معروف';
-        if(!groups[person])groups[person]=[];
-        groups[person].push(r);
-      });
-      Object.entries(groups).forEach(([person,items])=>{
-        const avatar=person.trim()[0]||'?';
-        const totExp=items.filter(i=>i.type==='e').reduce((s,i)=>s+Number(i.amount||0),0);
-        const totInc=items.filter(i=>i.type==='i').reduce((s,i)=>s+Number(i.amount||0),0);
-        const totHtml=(totInc>0?'<span style="color:#1D6A3E;font-weight:800">+'+fn(totInc)+'</span> ':'')+(totExp>0?'<span style="color:#C0392B;font-weight:800">-'+fn(totExp)+'</span>':'');
-        html+='<div style="margin-bottom:14px">'+
-          '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-faint,#eef2ee);border-radius:10px 10px 0 0;border:1px solid var(--border-light,#dde8dd);border-bottom:none">'+
-            '<div style="width:32px;height:32px;border-radius:50%;background:#1D3C2A;color:#D4C49A;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">'+avatar+'</div>'+
-            '<div style="font-size:13px;font-weight:700;color:var(--text-dark,#1a2e1f);flex:1">'+person+'</div>'+
-            '<div style="font-size:11px;color:var(--text-muted,#888)">'+items.length+' قيد</div>'+
-            '<div style="font-size:12px">'+totHtml+'</div>'+
-          '</div>';
-        items.forEach((r,idx)=>{
-          const proj=projMap[r.project_id]||'—';
-          const isInc=r.type==='i';
-          const typeLabel=isInc
-            ?'<span class="appr-income-badge">📥 وارد</span>'
-            :'<span class="appr-expense-badge">📤 مصروف</span>';
-          const timeAgo=(function(){
-            if(!r.submitted_at)return'—';
-            const diff=Math.floor((Date.now()-new Date(r.submitted_at))/60000);
-            if(diff<1)return'الآن';if(diff<60)return diff+' د';
-            if(diff<1440)return Math.floor(diff/60)+' س';
-            return Math.floor(diff/1440)+' يوم';
-          })();
-          const borderTop=idx>0?'border-top:1px solid var(--border-faint,#f0f0ee);':'';
-          html+='<div class="appr-item" id="appr-e-'+r.id+'" style="border-radius:'+(idx===items.length-1?'0 0 10px 10px':'0')+';border-top:none;'+borderTop+'">'+
-            '<div class="appr-item-header">'+
-              '<div style="display:flex;align-items:center;gap:8px">'+
-                '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">'+
-                '<div class="appr-item-title-row">'+
-                  typeLabel+
-                  '<span class="title-sm">'+fn(r.amount)+' ج</span>'+
-                  (r.category?'<span class="appr-item-cat">'+r.category+'</span>':'')+
-                '</div>'+
-              '</div>'+
-              '<span class="appr-meta-sm">'+timeAgo+'</span>'+
-            '</div>'+
-            '<div class="appr-item-meta">'+
-              (r.description?'<span>📝 '+r.description+'</span> &nbsp;':'')+
-              (r.contractor?'<span>👷 '+r.contractor+'</span> &nbsp;':'')+
-              '<span class="appr-meta-text">🏗️ '+proj+'</span> &nbsp;'+
-              '<span class="appr-meta-text">📅 '+(cleanDate(r.entry_date)||'—')+'</span>'+
-            '</div>'+
-            '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-              '<button onclick="approveEntry(\"'+r.id+'\")" class="appr-approve-btn">✅ موافقة</button>'+
-              '<button onclick="editAndApproveEntry(\"'+r.id+'\")" class="appr-edit-approve-btn">✏️ تعديل</button>'+
-              '<button onclick="rejectEntry(\"'+r.id+'\")" class="appr-reject-btn">❌ رفض</button>'+
-              '<button class="appr-invoice-btn" data-id="'+r.id+'" onclick="apprInvoiceById(this)">📋 فاتورة</button>'+
-            '</div>'+
-          '</div>';
-        });
-        html+='</div>';
-      });
+      html+=`<div class="appr-entries-title">📋 قيود المشاريع (${entRows.length})</div>`;
+      html+=entRows.map(r=>{
+        const proj=projMap[r.project_id]||'—';
+        const typeLabel=r.type==='i'
+          ?'<span class="appr-income-badge">📤 وارد</span>'
+          :'<span class="appr-expense-badge">📥 مصروف</span>';
+        return `<div class="appr-item" id="appr-e-${r.id}">
+          <div class="appr-item-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+              <div class="appr-item-title-row">
+                ${typeLabel}
+                <span class="title-sm">${fn(r.amount)} ج</span>
+                ${r.category?`<span class="appr-item-cat">${r.category}</span>`:''}
+              </div>
+            </div>
+            <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
+          </div>
+          <div class="appr-item-meta">
+            ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
+            ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
+            <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
+            <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span> &nbsp;
+            <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
+            <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
+            <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
+            <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">📋 طلب فاتورة</button>
+          </div>
+        </div>`;
+      }).join('');
     }
 
     // ── العهد ──
     if(hasAdv){
-      html+='<div class="appr-advances-title">💼 العهد والدفعات ('+advRows.length+')</div>';
+      html+=`<div class="appr-advances-title">💼 العهد والدفعات (${advRows.length})</div>`;
       html+=advRows.map(r=>{
         const isAdv=r.type==='advance';
         const label=isAdv
           ?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>'
           :'<span class="appr-adv-inst-badge">💰 دفعة</span>';
         const detail=isAdv
-          ?'<span class="title-sm">'+(r.person_name||'—')+'</span>'+(r.notes?' <span class="appr-meta-text">· '+r.notes+'</span>':'')
-          :'<span class="title-sm">'+fn(r.amount)+' ج</span> <span class="appr-meta-text">لـ '+(advMap[r.advance_id]||'—')+'</span> <span class="appr-meta-sm">· '+(r.inst_note||'دفعة')+'</span>';
-        const submitter=profMap[r.submitted_by]||'—';
-        return '<div class="appr-item" id="appr-a-'+r.id+'">'+
-          '<div class="appr-item-header">'+
-            '<div style="display:flex;align-items:center;gap:8px">'+
-              '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="adv" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">'+
-              '<div class="appr-item-title-row">'+label+' '+detail+'</div>'+
-            '</div>'+
-            '<span class="appr-meta-sm">👤 '+submitter+'</span>'+
-          '</div>'+
-          '<div style="display:flex;gap:8px">'+
-            '<button onclick="approveAdv("'+r.id+'")" class="appr-adv-approve-btn">✅ موافقة</button>'+
-            '<button onclick="rejectAdv("'+r.id+'")" class="appr-adv-reject-btn">❌ رفض</button>'+
-          '</div>'+
-        '</div>';
+          ?`<span class="title-sm">${r.person_name||'—'}</span>${r.notes?` <span class="appr-meta-text">· ${r.notes}</span>`:''}`
+          :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
+        return `<div class="appr-item" id="appr-a-${r.id}">
+          <div class="appr-item-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="adv" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+              <div class="appr-item-title-row">${label} ${detail}</div>
+            </div>
+            <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="approveAdv('${r.id}')" class="appr-adv-approve-btn">✅ موافقة</button>
+            <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
+          </div>
+        </div>`;
       }).join('');
     }
     el.innerHTML=html;
@@ -214,19 +184,6 @@ async function confirmEditApprove(id){
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
-function apprInvoiceById(btn){
-  const id=btn.getAttribute('data-id');
-  const row=document.getElementById('appr-e-'+id);
-  if(!row)return;
-  // نجيب البيانات من الـ pending_entries عن طريق الـ id المحفوظ
-  sb('pending_entries?id=eq.'+id).then(function(rows){
-    if(!rows||!rows.length)return;
-    const r=rows[0];
-    const proj=(allProjects.find(function(p){return p.id===r.project_id;})||{}).name||'—';
-    requestInvoice(r.id,r.description,r.category,r.entry_date,r.amount,proj,r.contractor);
-  }).catch(function(e){notify('❌ '+e.message,'err');});
-}
-
 function requestInvoice(id,desc,cat,date,amount,proj,contractor){
   const msg=`السلام عليكم،\nبرجاء إرسال فاتورة للبند التالي:\n\n📋 البيان: ${desc||'—'}\n🏷️ البند: ${cat||'—'}\n🏗️ المشروع: ${proj||'—'}\n💰 المبلغ: ${fn(amount)} ج\n📅 التاريخ: ${cleanDate(date)||'—'}${contractor?'\n👷 المقاول: '+contractor:''}\n\nشكراً`;
   // عرض modal مع الرسالة
@@ -260,6 +217,7 @@ function copyInvReq(){
 }
 
 async function approveEntry(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على القيد',msg:'هيتحفظ القيد في المشروع.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
@@ -278,6 +236,7 @@ async function approveEntry(id,silent=false){
 }
 
 async function rejectEntry(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
     auditLog('رفض قيد','pending_entries',id,{});
@@ -287,6 +246,7 @@ async function rejectEntry(id,silent=false){
 // ══════════════════════════════════════
 
 async function approveAdv(id,silent=false){
+  if(!silent)await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:res}));
   try{
     const rows=await sb('pending_advances?id=eq.'+id);
     if(!rows||!rows.length)return;
