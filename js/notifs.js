@@ -41,8 +41,8 @@ async function loadApprovals(silent=false){
       });
       Object.entries(groups).forEach(([person,items])=>{
         const avatar=person.trim()[0]||'?';
-        const totExp=items.filter(i=>i.type==='e').reduce((s,i)=>s+i.amount,0);
-        const totInc=items.filter(i=>i.type==='i').reduce((s,i)=>s+i.amount,0);
+        const totExp=items.filter(i=>i.type==='e').reduce((s,i)=>s+Number(i.amount||0),0);
+        const totInc=items.filter(i=>i.type==='i').reduce((s,i)=>s+Number(i.amount||0),0);
         const totHtml=(totInc>0?'<span style="color:#1D6A3E;font-weight:800">+'+fn(totInc)+'</span> ':'')+(totExp>0?'<span style="color:#C0392B;font-weight:800">-'+fn(totExp)+'</span>':'');
         html+='<div style="margin-bottom:14px">'+
           '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-faint,#eef2ee);border-radius:10px 10px 0 0;border:1px solid var(--border-light,#dde8dd);border-bottom:none">'+
