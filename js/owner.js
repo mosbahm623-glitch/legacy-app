@@ -16,6 +16,7 @@ async function loadOwnerScreen(){
   cats.forEach(function(c){catOpts+='<option value="'+c+'">'+c+'</option>';});
 
   var inp='width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none';
+  var _d=new Date();var todayISO=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
 
   el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column';
 
@@ -50,7 +51,7 @@ async function loadOwnerScreen(){
           '<div><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المبلغ <span style="color:#E74C3C">*</span></label>'+
           '<input id="ow-amt" type="number" placeholder="0.00" step="any" style="'+inp+';font-size:16px;font-weight:800;color:#1D3C2A"></div>'+
           '<div><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">التاريخ <span style="color:#E74C3C">*</span></label>'+
-          '<input id="ow-date" type="text" placeholder="dd/mm/yyyy" maxlength="10" value="'+today+'" oninput="owFmtDate(this)" style="'+inp+'"></div>'+
+          '<input id="ow-date" type="date" style="'+inp+'" value="'+todayISO+'"></div>'+
         '</div>'+
         '<div id="ow-cat-wrap" style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
         '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
@@ -235,7 +236,8 @@ async function owSubmit(){
   var amt=parseFloat(document.getElementById('ow-amt').value);
   var desc=(document.getElementById('ow-desc').value||'').trim();
   var projId=document.getElementById('ow-proj').value;
-  var date=document.getElementById('ow-date').value;
+  var _rawDate=document.getElementById('ow-date').value;
+  var date=_rawDate&&_rawDate.includes('-')?(function(s){var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}(_rawDate)):_rawDate;
   var catHidden=document.getElementById('ow-cat');
   var catInp=document.getElementById('ow-cat-inp');
   var cat=t==='e'?(catHidden&&catHidden.value?catHidden.value:(catInp?catInp.value:'')):'وارد';
@@ -346,7 +348,6 @@ async function owSubmitAdv(){
       adv_user_id:_owSelectedViewer,
       submitted_by:uid,
       submitted_at:new Date().toISOString(),
-      status:'pending'
     });
     notify('✅ تم إرسال طلب الدفعة لـ '+(viewer?viewer.name:'—')+' — في انتظار موافقة الأدمن','ok');
     document.getElementById('ow-adv-amt').value='';
