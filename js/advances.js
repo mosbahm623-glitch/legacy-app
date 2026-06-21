@@ -42,7 +42,8 @@ async function loadAdvList(){
       const remColor=rem<0?'var(--danger)':rem===0?'var(--primary-btn)':'var(--warning-text)';
       return '<div class="adv-card" onclick="openAdv(\''+a.id+'\')"><div class="adv-card-h"><div class="adv-name">👤 '+a.person_name+ownerBadge+'</div><span class="adv-status '+(a.status==='open'?'open':'closed')+'">'+(a.status==='open'?'⏳ مفتوحة':'✅ مغلقة')+'</span></div>'+(a.notes?'<div class="adv-notes-text">'+a.notes+'</div>':'')+'<div class="adv-nums"><div class="adv-num"><div class="adv-num-l">العهدة</div><div class="adv-num-v" style="color:#185FA5">'+fn(totalGiven)+'</div></div><div class="adv-num"><div class="adv-num-l">صرف</div><div class="adv-num-v" style="color:#922B21">'+fn(spent)+'</div></div><div class="adv-num"><div class="adv-num-l">الباقي</div><div class="adv-num-v" style="color:'+remColor+'">'+fn(rem)+'</div></div></div><div class="adv-progress-wrap"><div class="adv-progress-bar-inner"></div></div></div>';
     }).join('');
-  }catch(e){document.getElementById('advList').innerHTML='<div class="emp">❌ خطأ في التحميل</div>';}
+    setSav('☁️ متصل — بياناتك محفوظة','ok');
+  }catch(e){document.getElementById('advList').innerHTML='<div class="emp">❌ خطأ في التحميل</div>';setSav('❌ خطأ في التحميل','er');}
 }
 
 async function createAdv(){
@@ -193,8 +194,11 @@ async function loadAdvDetail(silent=false){
             const isAdvLocked=uRole!=='admin'&&installs.length>0;
             const canEditAdv=!isAdvLocked&&(uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid));
             const btns=isAdvLocked&&uRole!=='admin'?`<button class="db" onclick="notify('العهدة مقفولة','warn')" style="opacity:.5">🔒</button>`:canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';
-            const rowBg=i%2===0?'#fff':'#f7f7f5';
-            return `<tr style="background:${rowBg};border-bottom:0.5px solid #eee" onmouseover="this.style.background='#eef4ee'" onmouseout="this.style.background='${rowBg}'">
+            const _dk=document.body.classList.contains('dark-mode');
+            const rowBg=i%2===0?(_dk?'var(--bg-card,#1e2a1e)':'#fff'):(_dk?'rgba(212,196,154,.04)':'#f7f7f5');
+            const rowHov=_dk?'rgba(29,60,42,.4)':'#eef4ee';
+            const rowBrd=_dk?'rgba(212,196,154,.08)':'#eee';
+            return `<tr style="background:${rowBg};border-bottom:0.5px solid ${rowBrd}" onmouseover="this.style.background='${rowHov}'" onmouseout="this.style.background='${rowBg}'">
               <td style="padding:7px 10px;color:#aaa;font-size:11px">${i+1}</td>
               <td style="padding:7px 10px">${e2.seq?`<span class="nb">#${e2.seq}</span>`:'—'}</td>
               <td style="padding:7px 10px;color:#888;font-size:11px;white-space:nowrap">${cleanDate(e2.entry_date)||'—'}</td>
