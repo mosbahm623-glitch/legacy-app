@@ -2,9 +2,11 @@ async function loadAdminPanel(){
   setSav('⏳ جاري تحميل لوحة الإدارة...','ng');
   initLockYears();
   try{
-    const allP=await sb('profiles?order=created_at');
-    const allA=await sb('project_access');
-    const allPr=await sb('projects?order=created_at');
+    const [allP,allA,allPr]=await Promise.all([
+      sb('profiles?order=created_at'),
+      sb('project_access'),
+      sb('projects?order=created_at')
+    ]);
     const ul=document.getElementById('usersList');
     if(!allP.length){ul.innerHTML='<div class="emp">لا يوجد مستخدمين بعد</div>';return;}
     ul.innerHTML=allP.map(u=>{
