@@ -311,6 +311,18 @@ async function downloadAdvTemplate(){
 }
 
 // ██ APPROVALS — الموافقات ══════════════════════════
+function toggleApprSection(hdr){
+  const body=hdr.nextElementSibling;
+  const c=body.classList.contains('collapsed');
+  body.classList.toggle('collapsed',!c);
+  hdr.classList.toggle('collapsed',!c);
+}
+function toggleApprPerson(hdr){
+  const body=hdr.nextElementSibling;
+  const c=body.classList.contains('collapsed');
+  body.classList.toggle('collapsed',!c);
+  hdr.classList.toggle('collapsed',!c);
+}
 function toggleSelectAll(checked){
   document.querySelectorAll('.appr-chk').forEach(c=>c.checked=checked);
 }

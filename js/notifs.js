@@ -32,53 +32,80 @@ async function loadApprovals(silent=false){
 
     // ── قيود المشاريع ──
     if(hasEntries){
-      html+=`<div class="appr-entries-title">📋 قيود المشاريع (${entRows.length})</div>`;
-      html+=entRows.map(r=>{
-        const proj=projMap[r.project_id]||'—';
-        const typeLabel=r.type==='i'
-          ?'<span class="appr-income-badge">📤 وارد</span>'
-          :'<span class="appr-expense-badge">📥 مصروف</span>';
-        return `<div class="appr-item" id="appr-e-${r.id}">
-          <div class="appr-item-header">
-            <div style="display:flex;align-items:center;gap:8px">
-              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
-              <div class="appr-item-title-row">
-                ${typeLabel}
-                <span class="title-sm">${fn(r.amount)} ج</span>
-                ${r.category?`<span class="appr-item-cat">${r.category}</span>`:''}
+      // تجميع القيود حسب الشخص
+      const byPerson={};
+      entRows.forEach(r=>{
+        const name=profMap[r.submitted_by]||'—';
+        if(!byPerson[name])byPerson[name]=[];
+        byPerson[name].push(r);
+      });
+      const secId='sec-entries-'+Date.now();
+      html+=`<div class="appr-section-hdr appr-entries-hdr" onclick="toggleApprSection(this)">
+        <span>📋 قيود المشاريع (${entRows.length})</span>
+        <span class="appr-sec-arrow">▾</span>
+      </div>
+      <div class="appr-section-body" id="${secId}">`;
+      Object.entries(byPerson).forEach(([personName,rows])=>{
+        const pid='person-'+personName.replace(/\s/g,'_')+'-'+Date.now();
+        html+=`<div class="appr-person-hdr" onclick="toggleApprPerson(this)">
+          <div style="display:flex;align-items:center;gap:8px">👤 ${personName} <span class="appr-person-count">(${rows.length} قيود)</span></div>
+          <span class="appr-sec-arrow">▾</span>
+        </div>
+        <div class="appr-person-body" id="${pid}">`;
+        rows.forEach(r=>{
+          const proj=projMap[r.project_id]||'—';
+          const typeLabel=r.type==='i'
+            ?'<span class="appr-income-badge">📤 وارد</span>'
+            :'<span class="appr-expense-badge">📥 مصروف</span>';
+          html+=`<div class="appr-item" id="appr-e-${r.id}">
+            <div class="appr-item-header">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+                <div class="appr-item-title-row">
+                  ${typeLabel}
+                  <span class="title-sm">${fn(r.amount)} ج</span>
+                  ${r.category?'<span class="appr-item-cat">'+r.category+'</span>':''}
+                </div>
               </div>
+              <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
             </div>
-            <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
-          </div>
-          <div class="appr-item-meta">
-            ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
-            ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
-            <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
-            <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span> &nbsp;
-            <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
-            <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
-            <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
-            <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">📋 طلب فاتورة</button>
-          </div>
-        </div>`;
-      }).join('');
+            <div class="appr-item-meta">
+              ${r.description?'<span>📝 '+r.description+'</span> &nbsp;':''}
+              ${r.contractor?'<span>👷 '+r.contractor+'</span> &nbsp;':''}
+              <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
+              <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
+              <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
+              <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
+              <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">📋 طلب فاتورة</button>
+            </div>
+          </div>`;
+        });
+        html+=`</div>`;// end person-body
+      });
+      html+=`</div>`;// end section-body
     }
 
-    // ── العهد ──
+    // ── العهد والدفعات ──
     if(hasAdv){
-      html+=`<div class="appr-advances-title">💼 العهد والدفعات (${advRows.length})</div>`;
-      html+=advRows.map(r=>{
+      const secId2='sec-adv-'+Date.now();
+      html+=`<div class="appr-section-hdr appr-advances-hdr" onclick="toggleApprSection(this)">
+        <span>💼 العهود والدفعات (${advRows.length})</span>
+        <span class="appr-sec-arrow">▾</span>
+      </div>
+      <div class="appr-section-body" id="${secId2}">`;
+      advRows.forEach(r=>{
         const isAdv=r.type==='advance';
         const label=isAdv
           ?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>'
           :'<span class="appr-adv-inst-badge">💰 دفعة</span>';
+        const personName=isAdv?(r.person_name||'—'):(advMap[r.advance_id]||viewerMap[r.adv_user_id]||'—');
         const detail=isAdv
-          ?`<span class="title-sm">${r.person_name||'—'}</span>${r.notes?` <span class="appr-meta-text">· ${r.notes}</span>`:''}`
-          :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||viewerMap[r.adv_user_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
-        return `<div class="appr-item" id="appr-a-${r.id}">
+          ?'<span class="title-sm">'+personName+'</span>'+(r.notes?' <span class="appr-meta-text">· '+r.notes+'</span>':'')
+          :'<span class="title-sm">'+fn(r.amount)+' ج</span> <span class="appr-meta-text">لـ '+personName+'</span>'+(r.inst_note?' <span class="appr-meta-sm">· '+r.inst_note+'</span>':'');
+        html+=`<div class="appr-item" id="appr-a-${r.id}">
           <div class="appr-item-header">
             <div style="display:flex;align-items:center;gap:8px">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="adv" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
@@ -91,7 +118,8 @@ async function loadApprovals(silent=false){
             <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
           </div>
         </div>`;
-      }).join('');
+      });
+      html+=`</div>`;// end section-body
     }
     el.innerHTML=html;
   }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ خطأ: '+e.message+'</div>';}

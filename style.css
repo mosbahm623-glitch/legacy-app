@@ -1123,6 +1123,20 @@ body.dark-mode .mq-contractor-card{background:var(--dark-card,#1A2A1A);border-co
 .appr-loading{text-align:center;padding:40px;color:var(--text-hint)}
 .appr-empty{text-align:center;padding:60px;color:var(--text-faint);font-size:14px}
 .appr-entries-title{font-size:11px;font-weight:700;color:var(--text-soft);letter-spacing:1px;margin-bottom:8px;margin-top:4px}
+.appr-section-hdr{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700;padding:10px 14px;border-radius:10px;margin:16px 0 0;cursor:pointer;user-select:none;transition:opacity .15s}
+.appr-section-hdr:hover{opacity:.85}
+.appr-entries-hdr{background:#E8F5E9;color:#1B5E20;border-right:4px solid #2D5016}
+.appr-advances-hdr{background:#FFF8E1;color:#E65100;border-right:4px solid #F57C00}
+.appr-sec-arrow{font-size:13px;color:#888;transition:transform .25s}
+.appr-section-hdr.collapsed .appr-sec-arrow{transform:rotate(-90deg)}
+.appr-section-body{overflow:hidden;max-height:5000px;transition:max-height .35s ease,opacity .25s ease;opacity:1}
+.appr-section-body.collapsed{max-height:0;opacity:0}
+.appr-person-hdr{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--primary,#1B5E20);padding:9px 14px;background:var(--card-bg,#fff);border-radius:10px;margin-top:10px;border:1.5px solid #C8E6C9;cursor:pointer;user-select:none;transition:background .15s}
+.appr-person-hdr:hover{background:#F1F8E9}
+.appr-person-hdr.collapsed .appr-sec-arrow{transform:rotate(-90deg)}
+.appr-person-body{overflow:hidden;max-height:3000px;transition:max-height .3s ease,opacity .25s ease;opacity:1}
+.appr-person-body.collapsed{max-height:0;opacity:0}
+.appr-person-count{font-size:11px;color:var(--text-soft);font-weight:400}
 .appr-income-badge{background:var(--success-bg);color:var(--primary-btn);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-expense-badge{background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--border-faint)}
@@ -1133,7 +1147,7 @@ body.dark-mode .mq-contractor-card{background:var(--dark-card,#1A2A1A);border-co
 .appr-approve-btn{flex:1;min-width:80px;background:var(--primary);color:var(--accent);border:none;padding:9px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .appr-edit-approve-btn{flex:1;min-width:80px;background:var(--info-ghost);color:var(--info-dark);border:1px solid var(--info-pale);padding:9px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .appr-reject-btn{flex:1;min-width:80px;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-mist);padding:9px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
-.appr-advances-title{font-size:11px;font-weight:700;color:var(--text-soft);letter-spacing:1px;margin-bottom:8px;margin-top:16px}
+
 .appr-adv-new-badge{background:var(--purple-bg);color:var(--purple-dark);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-adv-inst-badge{background:var(--info-ghost);color:var(--info-dark);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
 .appr-adv-approve-btn{flex:1;background:var(--primary);color:var(--accent);border:none;padding:9px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
