@@ -208,14 +208,33 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
 async function owLoadPending(){
   try{
     var pend=await sb('pending_entries?submitted_by=eq.'+uid+'&status=eq.pending&order=submitted_at.desc');
+    var advPend=[];
+    try{advPend=await sb('pending_advances?submitted_by=eq.'+uid+'&order=submitted_at.desc');}catch(_){}
+    var total=pend.length+advPend.length;
     var cnt=document.getElementById('ow-pend-cnt');
-    if(cnt)cnt.textContent=pend.length;
+    if(cnt)cnt.textContent=total;
     var listEl=document.getElementById('ow-pend-list');
     if(!listEl)return;
-    if(!pend.length){listEl.innerHTML='<div style="text-align:center;padding:40px;color:#ccc"><div style="font-size:32px;margin-bottom:8px">✅</div>مفيش قيود في الانتظار</div>';return;}
+    if(!total){listEl.innerHTML='<div style="text-align:center;padding:40px;color:#ccc"><div style="font-size:32px;margin-bottom:8px">✅</div>مفيش طلبات في الانتظار</div>';return;}
     var projMap={};
     allProjects.forEach(function(p){projMap[p.id]=p.name;});
-    listEl.innerHTML=pend.map(function(e){return owEntryCard(e,projMap,'⏳ في انتظار الموافقة','#E67E22');}).join('');
+    var advMap={};advances.forEach(function(a){advMap[a.id]=a.person_name;});
+    var html=pend.map(function(e){return owEntryCard(e,projMap,'⏳ في انتظار الموافقة','#E67E22');}).join('');
+    html+=advPend.map(function(r){
+      var name=r.adv_user_id?(advances.find(function(a){return a.user_id===r.adv_user_id;})||{}).person_name||'—':'—';
+      var bg=r.status==='approved'?'#EAF7EE':r.status==='rejected'?'#FFF0EE':'#FFF8EC';
+      var statusTxt=r.status==='approved'?'✅ تمت الموافقة':r.status==='rejected'?'❌ مرفوض':'⏳ في انتظار الموافقة';
+      var statusClr=r.status==='approved'?'#1D6A3E':r.status==='rejected'?'#C0392B':'#E67E22';
+      return '<div style="background:'+bg+';border:1px solid #EAEEE8;border-radius:12px;padding:12px 14px;margin-bottom:8px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<span style="font-size:11px;font-weight:700;background:#EEF2FF;color:#3A4A8A;padding:2px 8px;border-radius:8px">💼 دفعة عهدة</span>'+
+          '<span style="font-size:12px;font-weight:800;color:#C0392B">-'+fn(r.amount)+' ج</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:#444;margin-bottom:4px">لـ '+name+(r.inst_note?' · '+r.inst_note:'')+'</div>'+
+        '<div style="display:flex;justify-content:space-between"><span style="font-size:10px;color:#aaa">'+(r.inst_date||'')+'</span><span style="font-size:11px;font-weight:700;color:'+statusClr+'">'+statusTxt+'</span></div>'+
+      '</div>';
+    }).join('');
+    listEl.innerHTML=html;
   }catch(ex){console.error(ex);}
 }
 
