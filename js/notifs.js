@@ -260,10 +260,6 @@ function copyInvReq(){
 }
 
 async function approveEntry(id,silent=false){
-  if(!silent){
-    const confirmed=await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على القيد',msg:'هيتحفظ القيد في المشروع.',okLabel:'موافقة',okType:'success',onOk:()=>res(true),onCancel:()=>res(false)}));
-    if(!confirmed)return;
-  }
   try{
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
@@ -282,10 +278,6 @@ async function approveEntry(id,silent=false){
 }
 
 async function rejectEntry(id,silent=false){
-  if(!silent){
-    const confirmed=await new Promise(res=>showConfirm({icon:'❌',title:'رفض القيد',msg:'هيتحذف القيد نهائياً.',okLabel:'رفض',okType:'danger',onOk:()=>res(true),onCancel:()=>res(false)}));
-    if(!confirmed)return;
-  }
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
     auditLog('رفض قيد','pending_entries',id,{});
@@ -295,10 +287,6 @@ async function rejectEntry(id,silent=false){
 // ══════════════════════════════════════
 
 async function approveAdv(id,silent=false){
-  if(!silent){
-    const confirmed=await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:()=>res(true),onCancel:()=>res(false)}));
-    if(!confirmed)return;
-  }
   try{
     const rows=await sb('pending_advances?id=eq.'+id);
     if(!rows||!rows.length)return;
