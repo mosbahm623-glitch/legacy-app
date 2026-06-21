@@ -16,6 +16,7 @@ async function loadApprovals(silent=false){
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
     const profMap=await getProfileMap();
+    const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
     let html='';
 
     // ── شريط التحكم الجماعي ──
@@ -76,7 +77,7 @@ async function loadApprovals(silent=false){
           :'<span class="appr-adv-inst-badge">💰 دفعة</span>';
         const detail=isAdv
           ?`<span class="title-sm">${r.person_name||'—'}</span>${r.notes?` <span class="appr-meta-text">· ${r.notes}</span>`:''}`
-          :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
+          :`<span class="title-sm">${fn(r.amount)} ج</span> <span class="appr-meta-text">لـ ${advMap[r.advance_id]||viewerMap[r.adv_user_id]||'—'}</span> <span class="appr-meta-sm">· ${r.inst_note||'دفعة'}</span>`;
         return `<div class="appr-item" id="appr-a-${r.id}">
           <div class="appr-item-header">
             <div style="display:flex;align-items:center;gap:8px">
