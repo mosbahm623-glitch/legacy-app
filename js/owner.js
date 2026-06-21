@@ -18,7 +18,7 @@ async function loadOwnerScreen(){
   var inp='width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none';
   var _d=new Date();var todayISO=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
 
-  el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column';
+  el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;display:flex;flex-direction:column';
 
   el.innerHTML=
     // Topbar
