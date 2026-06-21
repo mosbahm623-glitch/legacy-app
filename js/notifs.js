@@ -88,6 +88,8 @@ async function loadApprovals(silent=false){
               '<button onclick="editAndApproveEntry(\"'+r.id+'\")" class="appr-edit-approve-btn">✏️ تعديل</button>'+
               '<button onclick="rejectEntry(\"'+r.id+'\")" class="appr-reject-btn">❌ رفض</button>'+
               '<button class="appr-invoice-btn" data-id="'+r.id+'" onclick="apprInvoiceById(this)">📋 فاتورة</button>'+
+            '</div>'+
+          '</div>';
         });
         html+='</div>';
       });
@@ -114,8 +116,8 @@ async function loadApprovals(silent=false){
             '<span class="appr-meta-sm">👤 '+submitter+'</span>'+
           '</div>'+
           '<div style="display:flex;gap:8px">'+
-            '<button onclick="approveAdv(''+r.id+'')" class="appr-adv-approve-btn">✅ موافقة</button>'+
-            '<button onclick="rejectAdv(''+r.id+'')" class="appr-adv-reject-btn">❌ رفض</button>'+
+            '<button onclick="approveAdv("'+r.id+'")" class="appr-adv-approve-btn">✅ موافقة</button>'+
+            '<button onclick="rejectAdv("'+r.id+'")" class="appr-adv-reject-btn">❌ رفض</button>'+
           '</div>'+
         '</div>';
       }).join('');
