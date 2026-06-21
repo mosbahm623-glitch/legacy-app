@@ -1,3 +1,127 @@
+// ── Tab state ──
+var _apprTab='entries';
+var _apprEntRows=[];
+var _apprAdvRows=[];
+var _apprProjMap={};
+var _apprProfMap={};
+var _apprAdvMap={};
+var _apprViewerMap={};
+
+function apprSwitchTab(t){
+  _apprTab=t;
+  ['entries','adv'].forEach(function(x){
+    var btn=document.getElementById('apprTab-'+x);
+    if(!btn)return;
+    btn.style.color=x===t?'var(--primary)':'var(--text-hint)';
+    btn.style.borderBottomColor=x===t?'var(--primary)':'transparent';
+  });
+  apprRender();
+}
+
+function apprRender(){
+  const el=document.getElementById('approvalsList');
+  if(!el)return;
+  if(_apprTab==='entries'){
+    apprRenderEntries(el);
+  }else{
+    apprRenderAdv(el);
+  }
+}
+
+function apprRenderEntries(el){
+  if(!_apprEntRows.length){el.innerHTML='<div class="appr-empty">🎉 لا يوجد قيود في الانتظار</div>';return;}
+  const totalCount=_apprEntRows.length+_apprAdvRows.length;
+  let html='<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">'+
+    '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">'+
+      '<input type="checkbox" id="selectAllChk" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer">'+
+      ' تحديد الكل ('+totalCount+')'+
+    '</label>'+
+    '<button onclick="bulkApprove()" style="background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">✅ موافقة المحدد</button>'+
+    '<button onclick="bulkReject()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">❌ رفض المحدد</button>'+
+  '</div>';
+  html+='<div class="appr-entries-title">📋 قيود المشاريع ('+_apprEntRows.length+')</div>';
+  html+=_apprEntRows.map(r=>{
+    const proj=_apprProjMap[r.project_id]||'—';
+    const typeLabel=r.type==='i'
+      ?'<span class="appr-income-badge">📥 وارد</span>'
+      :'<span class="appr-expense-badge">📤 مصروف</span>';
+    return '<div class="appr-item" id="appr-e-'+r.id+'">'+
+      '<div class="appr-item-header">'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">'+
+          '<div class="appr-item-title-row">'+
+            typeLabel+
+            '<span class="title-sm">'+fn(r.amount)+' ج</span>'+
+            (r.category?'<span class="appr-item-cat">'+r.category+'</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<span class="appr-meta-sm">'+(r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—')+'</span>'+
+      '</div>'+
+      '<div class="appr-item-meta">'+
+        (r.description?'<span>📝 '+r.description+'</span> &nbsp;':'')+
+        (r.contractor?'<span>👷 '+r.contractor+'</span> &nbsp;':'')+
+        '<span class="appr-meta-text">🏗️ '+proj+'</span> &nbsp;'+
+        '<span class="appr-meta-text">📅 '+(cleanDate(r.entry_date)||'—')+'</span> &nbsp;'+
+        '<span class="appr-meta-text">👤 '+(_apprProfMap[r.submitted_by]||'—')+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button onclick="approveEntry(\"'+r.id+'\")" class="appr-approve-btn">✅ موافقة</button>'+
+        '<button onclick="editAndApproveEntry(\"'+r.id+'\")" class="appr-edit-approve-btn">✏️ تعديل</button>'+
+        '<button onclick="rejectEntry(\"'+r.id+'\")" class="appr-reject-btn">❌ رفض</button>'+
+        '<button class="appr-invoice-btn" data-id="'+r.id+'" onclick="apprInvoiceById(this)">📋 فاتورة</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  el.innerHTML=html;
+}
+
+function apprRenderAdv(el){
+  if(!_apprAdvRows.length){el.innerHTML='<div class="appr-empty">💼 لا توجد طلبات عهد في الانتظار</div>';return;}
+  // تجميع حسب الشخص المستقبل
+  const groups={};
+  _apprAdvRows.forEach(function(r){
+    const isAdv=r.type==='advance';
+    const name=isAdv?(r.person_name||'جديد'):(_apprViewerMap[r.adv_user_id]||_apprAdvMap[r.advance_id]||'—');
+    if(!groups[name])groups[name]={items:[],total:0};
+    groups[name].items.push(r);
+    if(r.amount)groups[name].total+=Number(r.amount);
+  });
+  let html='';
+  Object.entries(groups).forEach(function([person,g]){
+    const avatar=(person||'?')[0];
+    const itemsHtml=g.items.map(function(r){
+      const isAdv=r.type==='advance';
+      const sender=_apprProfMap[r.submitted_by]||'—';
+      return '<div style="padding:12px 14px;border-top:1px solid var(--border-faint,#f0f0ee)">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'+
+          '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="adv" style="width:15px;height:15px;cursor:pointer" onchange="updateBulkBar()">'+
+          (isAdv?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>':'<span class="appr-adv-inst-badge">💰 دفعة</span>')+
+          (r.amount?'<span style="font-size:14px;font-weight:800;color:var(--danger)">'+fn(r.amount)+' ج</span>':'')+
+          '<span style="font-size:10px;color:var(--text-hint)">من: '+sender+'</span>'+
+          '<span style="font-size:10px;color:var(--text-hint);margin-right:auto">'+(r.submitted_at?r.submitted_at.substring(0,10):'—')+'</span>'+
+        '</div>'+
+        (r.inst_note||r.notes?'<div style="font-size:12px;color:var(--text-body);margin-bottom:6px">'+(r.inst_note||r.notes)+'</div>':'')+
+        '<div style="display:flex;gap:8px">'+
+          '<button onclick="approveAdv(\"'+r.id+'\")" class="appr-adv-approve-btn">✅ موافقة</button>'+
+          '<button onclick="rejectAdv(\"'+r.id+'\")" class="appr-adv-reject-btn">❌ رفض</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    html+='<div class="appr-item" style="padding:0;overflow:hidden;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-faint,#eef2ee);cursor:pointer" onclick="apprToggleAdv(this)">'+
+        '<div style="width:34px;height:34px;border-radius:50%;background:#3A4A8A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">'+avatar+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:13px;font-weight:700;color:var(--text-dark)">'+person+'</div>'+
+          '<div style="font-size:10px;color:var(--text-hint)">'+g.items.length+' طلب · '+fn(g.total)+' ج</div>'+
+        '</div>'+
+        '<div class="adv-arrow" style="font-size:12px;color:var(--text-hint)">▼</div>'+
+      '</div>'+
+      '<div style="display:none">'+itemsHtml+'</div>'+
+    '</div>';
+  });
+  el.innerHTML=html;
+}
+
 async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
@@ -7,118 +131,20 @@ async function loadApprovals(silent=false){
       sb('pending_entries?status=eq.pending&order=submitted_at.asc'),
       sb('pending_advances?status=eq.pending&order=submitted_at.asc')
     ]);
-    const hasEntries=entRows&&entRows.length;
-    const hasAdv=advRows&&advRows.length;
-    if(!hasEntries&&!hasAdv){
-      el.innerHTML='<div class="appr-empty">🎉 لا يوجد قيود في الانتظار</div>';
-      return;
-    }
-    const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
-    const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
+    _apprEntRows=entRows||[];
+    _apprAdvRows=advRows||[];
+    _apprProjMap={};allProjects.forEach(p=>_apprProjMap[p.id]=p.name);
+    _apprAdvMap={};advances.forEach(a=>_apprAdvMap[a.id]=a.person_name);
     const profMap=await getProfileMap();
-    const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
-    let html='';
-
-    // ── شريط التحكم الجماعي ──
-    const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
-    html+=`<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">
-        <input type="checkbox" id="selectAllChk" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer">
-        تحديد الكل (${totalCount})
-      </label>
-      <button onclick="bulkApprove()" style="background:var(--primary);color:var(--accent);border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">✅ موافقة المحدد</button>
-      <button onclick="bulkReject()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;cursor:pointer;font-weight:600">❌ رفض المحدد</button>
-    </div>`;
-
-    // ── قيود المشاريع ──
-    if(hasEntries){
-      html+=`<div class="appr-entries-title">📋 قيود المشاريع (${entRows.length})</div>`;
-      html+=entRows.map(r=>{
-        const proj=projMap[r.project_id]||'—';
-        const typeLabel=r.type==='i'
-          ?'<span class="appr-income-badge">📤 وارد</span>'
-          :'<span class="appr-expense-badge">📥 مصروف</span>';
-        return `<div class="appr-item" id="appr-e-${r.id}">
-          <div class="appr-item-header">
-            <div style="display:flex;align-items:center;gap:8px">
-              <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
-              <div class="appr-item-title-row">
-                ${typeLabel}
-                <span class="title-sm">${fn(r.amount)} ج</span>
-                ${r.category?`<span class="appr-item-cat">${r.category}</span>`:''}
-              </div>
-            </div>
-            <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
-          </div>
-          <div class="appr-item-meta">
-            ${r.description?`<span>📝 ${r.description}</span> &nbsp;`:''}
-            ${r.contractor?`<span>👷 ${r.contractor}</span> &nbsp;`:''}
-            <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
-            <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span> &nbsp;
-            <span class="appr-meta-text">👤 ${profMap[r.submitted_by]||'—'}</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
-            <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
-            <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
-            <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">📋 طلب فاتورة</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── العهد — drill-down حسب الشخص ──
-    if(hasAdv){
-      html+='<div class="appr-advances-title">💼 العهد والدفعات ('+advRows.length+')</div>';
-      // تجميع حسب الشخص المستقبل
-      const advGroups={};
-      advRows.forEach(r=>{
-        const isAdv=r.type==='advance';
-        const receiverName=isAdv?(r.person_name||'جديد'):(viewerMap[r.adv_user_id]||advMap[r.advance_id]||'—');
-        const receiverId=r.adv_user_id||r.advance_id||r.id;
-        if(!advGroups[receiverName])advGroups[receiverName]={id:receiverId,items:[],total:0};
-        advGroups[receiverName].items.push(r);
-        if(r.amount)advGroups[receiverName].total+=Number(r.amount);
-      });
-      // عرض كارت لكل شخص
-      html+=Object.entries(advGroups).map(([person,g])=>{
-        const avatar=(person||'?')[0];
-        const itemsHtml=g.items.map(r=>{
-          const isAdv=r.type==='advance';
-          const sender=viewerMap[r.submitted_by]||'—';
-          const timeStr=r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—';
-          return '<div style="padding:10px 14px;border-top:1px solid var(--border-faint,#f0f0ee)">'+
-            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'+
-              '<input type="checkbox" class="appr-chk" data-id="'+r.id+'" data-type="adv" style="width:15px;height:15px;cursor:pointer" onchange="updateBulkBar()">'+
-              (isAdv?'<span class="appr-adv-new-badge">💼 عهدة جديدة</span>':'<span class="appr-adv-inst-badge">💰 دفعة</span>')+
-              (r.amount?'<span style="font-size:14px;font-weight:800;color:var(--danger)">'+fn(r.amount)+' ج</span>':'')+
-              '<span style="font-size:10px;color:var(--text-hint)">من: '+sender+'</span>'+
-              '<span style="font-size:10px;color:var(--text-hint);margin-right:auto">'+timeStr+'</span>'+
-            '</div>'+
-            (r.inst_note||r.notes?'<div style="font-size:12px;color:var(--text-body);margin-bottom:6px">'+(r.inst_note||r.notes)+'</div>':'')+
-            '<div style="display:flex;gap:8px">'+
-            '<button onclick="approveAdv(\"'+r.id+'\")" class="appr-adv-approve-btn">✅ موافقة</button>'+
-            '<button onclick="rejectAdv(\"'+r.id+'\")" class="appr-adv-reject-btn">❌ رفض</button>'+
-            '</div>'+
-          '</div>';
-        }).join('');
-        return '<div class="appr-item" style="padding:0;overflow:hidden">'+
-          // Header الشخص
-          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-faint,#eef2ee);cursor:pointer" onclick="apprToggleAdv(this)">'+
-            '<div style="width:34px;height:34px;border-radius:50%;background:#3A4A8A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">'+avatar+'</div>'+
-            '<div style="flex:1">'+
-              '<div style="font-size:13px;font-weight:700;color:var(--text-dark)">'+person+'</div>'+
-              '<div style="font-size:10px;color:var(--text-hint)">'+g.items.length+' طلب في الانتظار</div>'+
-            '</div>'+
-            '<div style="font-size:13px;font-weight:800;color:#3A4A8A">'+fn(g.total)+' ج</div>'+
-            '<div class="adv-arrow" style="font-size:12px;color:var(--text-hint);margin-right:8px">▼</div>'+
-          '</div>'+
-          // القيود — مخفية بالأساس
-          '<div style="display:none">'+itemsHtml+'</div>'+
-        '</div>';
-      }).join('');
-    }
-    el.innerHTML=html;
+    _apprProfMap=profMap;
+    _apprViewerMap={};Object.entries(profMap).forEach(([id,name])=>_apprViewerMap[id]=name);
+    // تحديث badges
+    const entCnt=document.getElementById('apprCnt-entries');
+    const advCnt=document.getElementById('apprCnt-adv');
+    if(entCnt)entCnt.textContent=_apprEntRows.length;
+    if(advCnt)advCnt.textContent=_apprAdvRows.length;
+    apprRender();
+    apprRender();
   }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ خطأ: '+e.message+'</div>';}
 }
 
