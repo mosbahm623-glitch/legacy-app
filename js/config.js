@@ -131,7 +131,7 @@ function setSav(m,c){
 }
 function setLS(m,c){const el=document.getElementById('lst');el.textContent=m;el.className='lst '+c;}
 function fn(n){return Number(n||0).toLocaleString('en-US');}
-function uid_(){return Date.now()+'-'+Math.random().toString(36).substr(2,5);}
+function uid_(){return crypto.randomUUID();}
 function ts(){const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
 function fd(d){
   if(!d)return'';
