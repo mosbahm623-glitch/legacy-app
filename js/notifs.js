@@ -1,6 +1,24 @@
 async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
+  // حفظ حالة الـ sections المفتوحة قبل الـ reload
+  const _openSecs=new Set();
+  const _openPersons=new Set();
+  if(silent){
+    el.querySelectorAll('.appr-section-hdr').forEach(h=>{
+      const body=h.nextElementSibling;
+      if(body&&body.style.display!=='none'){
+        // نحفظ بالـ text مش الـ id لأن الـ id بيتغير
+        _openSecs.add(h.querySelector('span')?.textContent?.trim()||'');
+      }
+    });
+    el.querySelectorAll('.appr-person-hdr').forEach(h=>{
+      const body=h.nextElementSibling;
+      if(body&&body.style.display!=='none'){
+        _openPersons.add(h.querySelector('div')?.textContent?.trim()||'');
+      }
+    });
+  }
   if(!silent)el.innerHTML='<div class="appr-loading">⏳ جاري التحميل...</div>';
   try{
     const [entRows,advRows]=await Promise.all([
@@ -122,6 +140,36 @@ async function loadApprovals(silent=false){
       html+=`</div>`;// end section-body
     }
     el.innerHTML=html;
+    // استعادة حالة الـ sections المفتوحة
+    if(silent&&(_openSecs.size||_openPersons.size)){
+      el.querySelectorAll('.appr-section-hdr').forEach(h=>{
+        const txt=h.querySelector('span')?.textContent?.trim()||'';
+        // مطابقة جزئية عشان العدد بيتغير
+        const matched=[..._openSecs].some(s=>s.split('(')[0].trim()===txt.split('(')[0].trim());
+        if(matched){
+          const body=h.nextElementSibling;
+          if(body)body.style.display='block';
+          const arrow=h.querySelector('.appr-sec-arrow');
+          if(arrow)arrow.textContent='▴';
+        } else {
+          const body=h.nextElementSibling;
+          if(body)body.style.display='none';
+        }
+      });
+      el.querySelectorAll('.appr-person-hdr').forEach(h=>{
+        const txt=h.querySelector('div')?.textContent?.trim()||'';
+        const matched=[..._openPersons].some(s=>s.split('(')[0].trim()===txt.split('(')[0].trim());
+        if(matched){
+          const body=h.nextElementSibling;
+          if(body)body.style.display='block';
+          const arrow=h.querySelector('.appr-sec-arrow');
+          if(arrow)arrow.textContent='▴';
+        } else {
+          const body=h.nextElementSibling;
+          if(body)body.style.display='none';
+        }
+      });
+    }
   }catch(e){el.innerHTML='<div style="color:var(--danger);padding:20px">❌ خطأ: '+e.message+'</div>';}
 }
 
