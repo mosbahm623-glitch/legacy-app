@@ -1,8 +1,8 @@
 async function loadAllProjects(){
   // نجيب المشاريع + الملخصات من الـ View مرة واحدة
   [allProjects,allEntries]=await Promise.all([
-    sb('projects?order=created_at'),
-    sb('entries?select=id,seq,project_id,type,amount,category,description,contractor,entry_date,advance_id&order=entry_date.desc&limit=5000')
+    sbAll('projects?order=created_at'),
+    sbAll('entries?select=id,seq,project_id,type,amount,category,description,contractor,entry_date,advance_id&order=entry_date.desc')
   ]);
   // استخدم seq كـ entry_no لو seq أكبر من 20260000
   allEntries.forEach(e=>{if(e.seq&&e.seq>20260000)e.seq=e.seq;});
