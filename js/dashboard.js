@@ -58,17 +58,18 @@ async function loadDashboard(){
       dateEl.textContent=`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
     }
 
-    const [allAdvances,_allInstallments]=await Promise.all([
+    const [allAdvances,_allInstallments,_liveSummaries]=await Promise.all([
       sb('advances?status=eq.open'),
-      sb('advance_installments?order=created_at')
+      sb('advance_installments?order=created_at'),
+      sb('project_summaries?select=project_id,total_inc,total_exp')
     ]);
     allInstallments=_allInstallments;
 
-    // حساب الإجماليات — totalExp = كل مصاريف المشاريع (مباشرة + عهد)
+    // حساب الإجماليات — من Supabase مباشرة لضمان الدقة اللحظية
     let totalInc=0,totalExp=0;
-    allProjects.forEach(p=>{
-      const s=projSummaries[p.id]||{inc:0,exp:0};
-      totalInc+=s.inc; totalExp+=s.exp;
+    _liveSummaries.forEach(s=>{
+      totalInc+=(s.total_inc||0);
+      totalExp+=(s.total_exp||0);
     });
     let totalAdv=0;
     allAdvances.forEach(a=>{
