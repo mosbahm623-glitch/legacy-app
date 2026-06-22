@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير المشروع — Legacy Core</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Cairo',sans-serif;background:#f5f5f0;color:#1a2e1a;direction:rtl;min-height:100vh}
+  .header{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:24px 20px;text-align:center}
+  .header-logo{font-size:13px;opacity:.6;margin-bottom:4px;letter-spacing:2px}
+  .header-title{font-size:22px;font-weight:800;margin-bottom:2px}
+  .header-sub{font-size:12px;opacity:.5}
+  .container{max-width:700px;margin:0 auto;padding:20px 16px}
+  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #ede8df}
+  .card-title{font-size:13px;font-weight:700;color:#5a7a5a;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+  .kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .kpi{background:#f8f6f0;border-radius:12px;padding:14px;text-align:center;border:1px solid #ede8df}
+  .kpi-lbl{font-size:11px;color:#888;margin-bottom:4px}
+  .kpi-val{font-size:18px;font-weight:800}
+  .kpi-val.inc{color:#1D9E75}
+  .kpi-val.exp{color:#e74c3c}
+  .kpi-val.bal.pos{color:#1D9E75}
+  .kpi-val.bal.neg{color:#e74c3c}
+  .info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0ede6;font-size:13px}
+  .info-row:last-child{border-bottom:none}
+  .info-lbl{color:#888}
+  .info-val{font-weight:700;color:#1a2e1a}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead th{background:#f0ede6;padding:8px 10px;text-align:right;font-weight:700;color:#5a7a5a;font-size:11px}
+  tbody td{padding:9px 10px;border-bottom:1px solid #f5f2ec;color:#333}
+  tbody tr:last-child td{border-bottom:none}
+  .amt{font-weight:700;color:#1D9E75;white-space:nowrap}
+  .seq-badge{background:#e8f4ee;color:#1D9E75;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700}
+  .pdf-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:16px}
+  .pdf-btn:hover{opacity:.9}
+  .share-btn{display:block;width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:16px;text-decoration:none}
+  .loading{text-align:center;padding:60px 20px;color:#888;font-size:15px}
+  .error{text-align:center;padding:40px 20px;color:#e74c3c;font-size:14px}
+  .footer{text-align:center;padding:20px;font-size:11px;color:#aaa}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+  .badge-pos{background:#e8f4ee;color:#1D9E75}
+  .badge-neg{background:#fef0f0;color:#e74c3c}
+  .empty{text-align:center;padding:30px;color:#aaa;font-size:13px}
+  @media print{.pdf-btn,.share-btn{display:none}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">LEGACY CORE</div>
+  <div class="header-title" id="projName">⏳ جاري التحميل...</div>
+  <div class="header-sub" id="reportDate"></div>
+</div>
+
+<div class="container">
+  <div id="content"><div class="loading">⏳ جاري تحميل بيانات المشروع...</div></div>
+</div>
+
+<div class="footer">تقرير صادر من Legacy Core · للاستفسار تواصل مع مكتب المشروع</div>
+
+<script>
+const SB = 'https://ctcoqgluaytwelnutrox.supabase.co';
+const AK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+
+function fn(n){return Number(n||0).toLocaleString('en-US');}
+function cleanDate(s){
+  if(!s)return'—';
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s.trim()))return s.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s.trim())){const p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  return s;
+}
+
+async function sbGet(path){
+  const r=await fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+async function load(){
+  const params=new URLSearchParams(location.search);
+  const pid=params.get('pid');
+  if(!pid){
+    document.getElementById('content').innerHTML='<div class="error">❌ لينك غير صحيح — مفيش كود مشروع</div>';
+    return;
+  }
+  try{
+    const [projects,entries]=await Promise.all([
+      sbGet('projects?id=eq.'+pid+'&select=id,name,start_date,close_date'),
+      sbGet('entries?project_id=eq.'+pid+'&type=eq.i&select=id,seq,amount,description,entry_date,category&order=entry_date.desc&limit=1000')
+    ]);
+    if(!projects||!projects.length){
+      document.getElementById('content').innerHTML='<div class="error">❌ المشروع غير موجود</div>';
+      return;
+    }
+    const proj=projects[0];
+    document.getElementById('projName').textContent='📋 '+proj.name;
+    document.getElementById('reportDate').textContent='تاريخ التقرير: '+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+
+    const total=entries.reduce((s,e)=>s+e.amount,0);
+    const count=entries.length;
+
+    // بناء HTML
+    const rows=entries.map((e,i)=>`<tr>
+      <td>${i+1}</td>
+      <td>${e.seq?'<span class="seq-badge">'+e.seq+'</span>':'—'}</td>
+      <td>${cleanDate(e.entry_date)}</td>
+      <td>${e.description||e.category||'—'}</td>
+      <td class="amt">▲ ${fn(e.amount)} ج</td>
+    </tr>`).join('');
+
+    const bal=total;
+    const balClass=bal>=0?'pos':'neg';
+
+    document.getElementById('content').innerHTML=`
+      <button class="pdf-btn" onclick="window.print()">📕 تحميل / طباعة PDF</button>
+      <a class="share-btn" href="https://wa.me/?text=${encodeURIComponent('تقرير مشروع '+proj.name+'\n'+location.href)}" target="_blank">📤 مشاركة عبر واتساب</a>
+
+      <div class="card">
+        <div class="card-title">📊 ملخص المشروع</div>
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-lbl">إجمالي الوارد</div>
+            <div class="kpi-val inc">▲ ${fn(total)} ج</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-lbl">عدد الدفعات</div>
+            <div class="kpi-val" style="color:#5a7a5a">${count}</div>
+          </div>
+        </div>
+        <div class="info-row"><span class="info-lbl">اسم المشروع</span><span class="info-val">${proj.name}</span></div>
+        ${proj.start_date?`<div class="info-row"><span class="info-lbl">تاريخ البداية</span><span class="info-val">${cleanDate(proj.start_date)}</span></div>`:''}
+        ${proj.close_date?`<div class="info-row"><span class="info-lbl">تاريخ الإغلاق</span><span class="info-val">${cleanDate(proj.close_date)}</span></div>`:''}
+      </div>
+
+      <div class="card">
+        <div class="card-title">📒 تفاصيل الدفعات الواردة</div>
+        ${entries.length?`
+        <table>
+          <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot style="background:#f0ede6">
+            <tr><td colspan="4" style="padding:10px;font-weight:700;color:#5a7a5a">الإجمالي</td>
+            <td class="amt" style="padding:10px">▲ ${fn(total)} ج</td></tr>
+          </tfoot>
+        </table>`:'<div class="empty">لا توجد دفعات مسجلة</div>'}
+      </div>
+    `;
+  }catch(e){
+    document.getElementById('content').innerHTML='<div class="error">❌ خطأ في تحميل البيانات: '+e.message+'</div>';
+  }
+}
+
+load();
+</script>
+</body>
+</html>
