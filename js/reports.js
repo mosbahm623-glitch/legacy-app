@@ -24,6 +24,7 @@ function renderCompareReport(){
       <div class="kc"><div class="kl">إجمالي المصروف</div><div class="kv" style="color:var(--danger)">${fn(totalExp)} ج</div></div>
       <div class="kc"><div class="kl">${totalBal>=0?'✅ الرصيد':'⚠️ عجز'}</div><div class="kv" style="color:${totalBal>=0?'var(--primary-btn)':'var(--danger)'}">${fn(totalBal)} ج</div></div>
     </div>
+    ${data.length>1?`<div class="rep-chart-wrap" style="margin-bottom:14px"><canvas id="cmpBarChart"></canvas></div>`:''}
     ${data.map(d=>{
       const balClr=d.bal>=0?'var(--primary-btn)':'var(--danger)';
       const incPct=d.inc?Math.round(d.inc/maxInc*100):0;
@@ -43,6 +44,14 @@ function renderCompareReport(){
         </div>
       </div>`;
     }).join('')}`;
+  // Bar chart — كل المشاريع مقارنة
+  if(data.length>1)_renderBarChart('cmpBarChart',
+    data.map(d=>d.name),
+    [
+      {label:'وارد',data:data.map(d=>d.inc),backgroundColor:'rgba(111,207,151,.7)'},
+      {label:'مصروف',data:data.map(d=>d.exp),backgroundColor:'rgba(235,87,87,.7)'}
+    ]
+  );
 }
 function openReport(type){
   _curReport=type;
@@ -137,6 +146,37 @@ function _loadChartJs(cb){
   s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
   s.onload=cb;
   document.head.appendChild(s);
+}
+
+// ── DONUT CHART HELPER ──
+function _renderDonutChart(canvasId,legendId,dataObj,colors){
+  _loadChartJs(()=>{
+    const ctx=document.getElementById(canvasId);
+    if(!ctx||!window.Chart)return;
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    const labels=Object.keys(dataObj);
+    const values=Object.values(dataObj);
+    const total=values.reduce((s,v)=>s+v,0);
+    if(!total)return;
+    ctx._chartInst=new Chart(ctx,{
+      type:'doughnut',
+      data:{labels,datasets:[{data:values,backgroundColor:colors||['#EB5757','#F2994A','#E2A02A','#9B51E0','#2D9CDB','#6FCF97','#27AE60'],borderWidth:2,borderColor:'var(--bg-card,#1a2f1a)'}]},
+      options:{responsive:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${fn(c.parsed)} ج (${Math.round(c.parsed/total*100)}%)`}}}}
+    });
+    if(!legendId)return;
+    const leg=document.getElementById(legendId);
+    if(!leg)return;
+    const CLRS=colors||['#EB5757','#F2994A','#E2A02A','#9B51E0','#2D9CDB','#6FCF97','#27AE60'];
+    leg.innerHTML=labels.map((l,i)=>{
+      const pct=Math.round(values[i]/total*100);
+      return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:11px">
+        <div style="width:9px;height:9px;border-radius:50%;background:${CLRS[i]};flex-shrink:0"></div>
+        <div style="flex:1;color:var(--text-soft)">${l}</div>
+        <div style="font-weight:700;color:var(--accent);font-size:11px">${fn(values[i])}</div>
+        <div style="color:var(--text-hint);font-size:10px">${pct}%</div>
+      </div>`;
+    }).join('');
+  });
 }
 
 function _populateRepProjSel(selId){
@@ -416,6 +456,7 @@ function runRepFilter(){
       <div class="cf-kpi"><div class="cf-kpi-lbl">الرصيد</div><div class="cf-kpi-val" style="color:${bal>=0?'var(--info-sky)':'var(--danger-soft)'}">${bal>=0?'+':''}${fn(bal)} ج</div></div>
     </div>
     ${bRows.length>1?`<div class="rep-chart-wrap"><canvas id="projRepChart"></canvas></div>`:''}
+    ${(()=>{const _c={};sorted.filter(e=>e.type==='e').forEach(e=>{const k=e.category||'متنوع';_c[k]=(_c[k]||0)+e.amount;});return Object.keys(_c).length>1;})()? `<div style="display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px"><canvas id="projDonutChart" width="140" height="140" style="flex-shrink:0"></canvas><div id="projDonutLegend" style="flex:1;min-width:0"></div></div>`:''}
     <div class="cf-bars">
       ${bRows.map(r=>{
         const iw=Math.round(r.inc/maxAmt*100);
@@ -441,6 +482,10 @@ function runRepFilter(){
       {label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}
     ]
   );
+  // Donut — توزيع المصروفات بالتصنيفات
+  const _expCats={};
+  sorted.filter(e=>e.type==='e').forEach(e=>{const k=e.category||'متنوع';_expCats[k]=(_expCats[k]||0)+e.amount;});
+  if(Object.keys(_expCats).length>1)_renderDonutChart('projDonutChart','projDonutLegend',_expCats,['#EB5757','#F2994A','#E2A02A','#9B51E0','#2D9CDB','#27AE60','#6FCF97']);
 }
 
 function clearRepFilter(){
