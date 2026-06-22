@@ -869,14 +869,28 @@ function runClientReport(){
           </div></div>`;
       }).join('')}
     </div>
-    <div class="rep-entries-list">
+    <div class="rep-entries-list" style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="filter-btn is46" onclick="clientExportPDF()">📕 PDF</button>
+      <button class="filter-btn" style="background:#25D366;color:#fff;border-color:#25D366" onclick="shareClientReport()">📤 شارك مع العميل</button>
     </div>`;
-  _repClientData={projName,period,filtered,total};
+  _repClientData={projName,period,filtered,total,projId};
   if(bRows.length>1)_renderBarChart('clientRepChart',
     bRows.map(r=>_monthLabel(r.y,r.m)),
     [{label:'وارد',data:bRows.map(r=>r.inc),backgroundColor:'rgba(111,207,151,.7)'}]
   );
+}
+
+function shareClientReport(){
+  const d=_repClientData;
+  if(!d||!d.projId||d.projId==='all'){notify('اختار مشروع محدد عشان تشارك','err');return;}
+  const link='https://mosbahm623-glitch.github.io/legacy-app/report.html?pid='+d.projId;
+  const msg='📋 تقرير مشروع: '+d.projName+'\n'+link;
+  // نسخ اللينك
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link).then(()=>notify('✅ تم نسخ اللينك','ok')).catch(()=>{});
+  }
+  // فتح واتساب
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 function clearClientReport(){
   document.getElementById('rClientProj').value='all';
