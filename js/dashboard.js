@@ -61,15 +61,15 @@ async function loadDashboard(){
     const [allAdvances,_allInstallments,_liveSummaries]=await Promise.all([
       sb('advances?status=eq.open'),
       sb('advance_installments?order=created_at'),
-      sb('project_summaries?select=project_id,total_inc,total_exp')
+      sb('project_summaries?select=project_id,inc,exp')
     ]);
     allInstallments=_allInstallments;
 
     // حساب الإجماليات — من Supabase مباشرة لضمان الدقة اللحظية
     let totalInc=0,totalExp=0;
     _liveSummaries.forEach(s=>{
-      totalInc+=(s.total_inc||0);
-      totalExp+=(s.total_exp||0);
+      totalInc+=parseFloat(s.inc)||0;
+      totalExp+=parseFloat(s.exp)||0;
     });
     let totalAdv=0;
     allAdvances.forEach(a=>{
