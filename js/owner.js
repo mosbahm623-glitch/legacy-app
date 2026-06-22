@@ -269,6 +269,7 @@ async function owSubmit(){
 
   if(!amt||amt<=0){notify('❌ ادخل المبلغ','err');return;}
   if(!desc){notify('❌ ادخل البيان','err');return;}
+  if(!date){notify('❌ ادخل التاريخ','err');return;}
   if(!projId){notify('❌ اختر المشروع','err');return;}
   if(t==='e'&&!cat){notify('❌ اختر البند','err');return;}
 

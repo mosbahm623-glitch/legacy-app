@@ -360,7 +360,9 @@ async function doAdvIm(){
     const ps=l.split('\t').map(x=>x.trim());
     if(ps.length<4){sk++;return;}
     const pName=ps[0].toLowerCase();const cat=ps[1];const desc=ps[2];const amt=parseFloat(ps[3].replace(/,/g,''));
-    if(isNaN(amt)){sk++;return;}
+    if(isNaN(amt)||amt<=0){sk++;return;}
+    if(!cat){sk++;return;}
+    if(!desc){sk++;return;}
     const pid=projMap[pName];
     if(!pid){sk++;return;}
     if(!projSeqs[pid])projSeqs[pid]=0;

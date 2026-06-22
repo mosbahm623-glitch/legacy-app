@@ -86,7 +86,8 @@ async function ae(){
   _mark('idt','err-idt',!document.getElementById('idt').value.trim());
   _mark('ic','err-ic',cT==='e'&&!c);
   _mark('id_','err-id_',!d);
-  if(_hasErr){notify('❌ اكمل الحقول الإلزامية','err');return;}
+  _mark('idt','err-idt',!dt);
+  if(_hasErr){notify('❌ اكمل الحقول الإلزامية — البيان والبند والتاريخ مطلوبين','err');return;}
   // تحويل التاريخ dd/mm/yyyy لـ Date object
   function _parseDate(s){if(!s)return null;const p=s.split('/');if(p.length===3)return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));return null;}
   // تحذير لو التاريخ في المستقبل

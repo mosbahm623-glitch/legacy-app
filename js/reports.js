@@ -1357,7 +1357,9 @@ async function readAdvXls(input){
       const cat=String(v[1]||'').trim();
       if(!cat)return;
       const desc=String(v[2]||'').trim();
+      if(!desc)return;
       const dt=String(v[3]||'').trim();
+      if(!dt)return;
       const mq=String(v[4]||'').trim();
       const projName=String(v[5]||'').trim();
       const matched=allProjects.find(p=>p.name.trim().toLowerCase()===projName.toLowerCase());
