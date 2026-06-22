@@ -502,16 +502,23 @@ function initRealtime() {
   console.log('✅ Realtime مفعّل');
 }
 
-// بيحدث الشاشة اللي أنت واقف عليها بس
+// Debounce timer — يمنع تكرار التحديث لو جه أكتر من event في نفس الوقت
+let _rtDebounceTimer = null;
+
+// بيحدث الشاشة اللي أنت واقف عليها بس — مع debounce 800ms
 function _rtRefreshVisible() {
-  const s = curScreen || '';
-  if (s === 'dash') {
-    loadDashboard();
-  } else if (s === 'proj' && curPid) {
-    if (typeof loadEntries === 'function') loadEntries();
-  } else if (s === 'tl') {
-    if (typeof loadTimeline === 'function') loadTimeline();
-  }
+  if (_rtDebounceTimer) clearTimeout(_rtDebounceTimer);
+  _rtDebounceTimer = setTimeout(() => {
+    _rtDebounceTimer = null;
+    const s = curScreen || '';
+    if (s === 'dash') {
+      if (typeof loadDashboard === 'function') loadDashboard();
+    } else if (s === 'proj' && curPid) {
+      if (typeof loadEntries === 'function') loadEntries();
+    } else if (s === 'tl') {
+      if (typeof loadTimeline === 'function') loadTimeline();
+    }
+  }, 800);
 }
 
 // إيقاف الـ Realtime لما المستخدم يسجل خروج
