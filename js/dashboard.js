@@ -178,7 +178,7 @@ async function loadDashboard(){
     // آخر الحركات
     const txnList=document.getElementById('dTxnList');
     if(txnList){
-      const recent=[...allEntries].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,8);
+      const recent=[...allEntries].sort((a,b)=>(b.seq||0)-(a.seq||0)).slice(0,8);
       txnList.innerHTML=recent.map(e=>{
         const proj=allProjectsMap[e.project_id];
         const ii=e.type==='i';
