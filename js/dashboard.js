@@ -64,11 +64,11 @@ async function loadDashboard(){
     ]);
     allInstallments=_allInstallments;
 
-    // حساب الإجماليات — totalExp = مصاريف مباشرة فقط (بدون مصاريف العهد)
+    // حساب الإجماليات — totalExp = كل مصاريف المشاريع (مباشرة + عهد)
     let totalInc=0,totalExp=0;
     allProjects.forEach(p=>{
-      const s=projSummaries[p.id]||{inc:0,exp:0,expDirect:0};
-      totalInc+=s.inc; totalExp+=s.expDirect||s.exp;
+      const s=projSummaries[p.id]||{inc:0,exp:0};
+      totalInc+=s.inc; totalExp+=s.exp;
     });
     let totalAdv=0;
     allAdvances.forEach(a=>{
