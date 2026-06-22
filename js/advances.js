@@ -247,7 +247,7 @@ function showAdvEntryModal(){
   </div>`;
   document.body.appendChild(ov);
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-  setTimeout(()=>{const el=document.getElementById('advEntDate');if(el)initDateInput(el);},100);
+  setTimeout(()=>{const el=document.getElementById('advEntDate');if(el){initDateInput(el);if(!el.value)el.value=ts();}},100);
   setTimeout(()=>document.getElementById('advCat')?.focus(),150);
 }
 
