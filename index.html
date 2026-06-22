@@ -871,6 +871,12 @@
               <div class="rhc-sub">ملخص احترافي PDF للمشروع بدون تفاصيل داخلية</div>
               <div class="rhc-arrow">←</div>
             </div>
+            <div class="rep-hub-card" onclick="openReport('seqrange')">
+              <div class="rhc-icon rhc-icon-blue">🔢</div>
+              <div class="rhc-title">تقرير نطاق القيود</div>
+              <div class="rhc-sub">وارد ومصروف من رقم قيد لرقم قيد</div>
+              <div class="rhc-arrow">←</div>
+            </div>
             <div class="rep-hub-card" onclick="openMqManager()">
               <div class="rhc-icon rhc-icon-gold">🔧</div>
               <div class="rhc-title">إدارة أسماء المقاولين</div>
@@ -1029,6 +1035,32 @@
               </select>
             </div>
             <div id="repCompareResult"></div>
+          </div>
+
+          <!-- SEQ RANGE PANEL -->
+          <div id="repSeqRangePanel" style="display:none">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end">
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">من رقم قيد</div>
+                <input id="rSeqFrom" type="number" placeholder="مثال: 20260001" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+              </div>
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">لرقم قيد</div>
+                <input id="rSeqTo" type="number" placeholder="مثال: 20260100" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+              </div>
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">المشروع</div>
+                <select id="rSeqProj" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                  <option value="all">كل المشاريع</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+              <button class="filter-btn is46" onclick="runSeqRangeReport()">🔍 عرض التقرير</button>
+              <button class="filter-btn" onclick="seqRangeExportPDF()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border-color:var(--danger)">📕 PDF</button>
+              <button class="filter-btn" onclick="clearSeqRangeReport()" style="opacity:.6">✕ مسح</button>
+            </div>
+            <div id="repSeqRangeResult"></div>
           </div>
 
         </div><!-- end repView -->
