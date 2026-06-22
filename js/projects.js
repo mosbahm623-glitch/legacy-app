@@ -104,7 +104,7 @@ async function ae(){
       const _yr=parseInt(_p[2]);const _mo=parseInt(_p[1]);
       const _locks=await _getPeriodLocks();
       const _locked=_locks.find(l=>l.year===_yr&&l.month===_mo);
-      if(_locked){notify('❌ هذا الشهر ('+_mo+'/'+_yr+') مقفول — لا يمكن إضافة قيود فيه','err');return;}
+      if(_locked){notify('⚠️ هذا الشهر ('+_mo+'/'+_yr+') مقفول — تم الإضافة مع التنبيه','warn');}
     }
   }
   // تحقق من قيد مكرر (نفس البيان + المبلغ + التاريخ في نفس المشروع)
@@ -216,7 +216,7 @@ async function de(id){
     if(_p.length===3){
       const _locks=await _getPeriodLocks();
       const _locked=_locks.find(l=>l.year===parseInt(_p[2])&&l.month===parseInt(_p[1]));
-      if(_locked){notify('❌ هذا الشهر مقفول — لا يمكن حذف قيود فيه','err');return;}
+      if(_locked){notify('⚠️ هذا الشهر مقفول — تم الحذف مع التنبيه','warn');}
     }
   }
   // منع حذف قيد معتمد — إلا السوبر أدمن
