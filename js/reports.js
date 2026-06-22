@@ -673,6 +673,7 @@ async function repExportPDF(){
       <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصروف</div><div class="kpi-val">▼ ${fn(d.exp)} ج</div></div>
       <div class="kpi ${d.bal>=0?'kpi-net-pos':'kpi-net-neg'}"><div class="kpi-lbl">صافي الرصيد</div><div class="kpi-val">${d.bal>=0?'▲':'▼'} ${fn(Math.abs(d.bal))} ج</div></div>
     </div>
+    ${(()=>{const b=document.getElementById('projRepChart');const dnt=document.getElementById('projDonutChart');if(!b&&!dnt)return '';return '<div style="display:grid;grid-template-columns:'+(b&&dnt?'1fr 1fr':'1fr')+';gap:12px;margin-bottom:16px">'+(b?'<div class="chart-wrap"><img src="'+b.toDataURL('image/png')+'"></div>':'')+(dnt?'<div class="chart-wrap"><img src="'+dnt.toDataURL('image/png')+'"></div>':'')+'</div>';})()}
     <div class="sec-ttl">📒 تفاصيل القيود <span style="font-size:11px;font-weight:400;color:#888">(${d.filtered.length} قيد)</span></div>
     <table>
       <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>النوع</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المقاول</th><th>مدخل البيانات</th><th>المبلغ</th></tr></thead>
