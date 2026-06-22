@@ -531,7 +531,10 @@
                 <button class="etype-btn msn" id="eEt-material" onclick="setEditEtype('material',this)">🔩 مصنعيات</button>
               </div>
             </div>
-            <button class="svb" onclick="sed()">💾 حفظ التعديلات</button>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="svb" onclick="sed()" style="flex:1">💾 حفظ التعديلات</button>
+              <button onclick="de(edId);cep();" style="background:var(--danger);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">🗑 حذف</button>
+            </div>
           </div>
         </div>
         <div id="vnotice" class="vnotice" style="display:none">👁 وضع المشاهدة فقط</div>
