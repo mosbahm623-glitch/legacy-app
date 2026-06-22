@@ -48,9 +48,9 @@ function openReport(type){
   _curReport=type;
   document.getElementById('repHub').style.display='none';
   document.getElementById('repView').style.display='block';
-  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'📋 تقرير المشروع',compare:'⚖️ مقارنة المشاريع'};
+  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'📋 تقرير المشروع',compare:'⚖️ مقارنة المشاريع',seqrange:'🔢 تقرير نطاق القيود'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
-  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel'].forEach(id=>{
+  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel','repSeqRangePanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
   });
   if(type==='cash'){
@@ -81,6 +81,9 @@ function openReport(type){
       const f=document.getElementById('rClientFrom');const t=document.getElementById('rClientTo');
       if(f)initDateInput(f);if(t)initDateInput(t);
     },0);
+  } else if(type==='seqrange'){
+    document.getElementById('repSeqRangePanel').style.display='block';
+    _populateRepProjSel('rSeqProj');
   } else if(type==='compare'){
     document.getElementById('repComparePanel').style.display='block';
     renderCompareReport();
@@ -1417,3 +1420,111 @@ async function confirmAdvImport(){
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
+
+// ── SEQ RANGE REPORT ──────────────────────────────
+let _seqRangeData = null;
+
+function runSeqRangeReport(){
+  const fromSeq = parseInt(document.getElementById('rSeqFrom').value)||0;
+  const toSeq   = parseInt(document.getElementById('rSeqTo').value)||999999999;
+  const projId  = document.getElementById('rSeqProj').value;
+  const el      = document.getElementById('repSeqRangeResult');
+
+  if(!fromSeq){el.innerHTML='<div class="rep-empty">ادخل رقم القيد الأول</div>';return;}
+
+  let filtered = allEntries.filter(e => {
+    const s = e.seq||0;
+    return s >= fromSeq && s <= toSeq;
+  });
+  if(projId !== 'all') filtered = filtered.filter(e => e.project_id === projId);
+  filtered.sort((a,b) => (a.seq||0)-(b.seq||0));
+
+  if(!filtered.length){el.innerHTML='<div class="rep-empty">لا توجد قيود في هذا النطاق</div>';return;}
+
+  const inc = filtered.filter(e=>e.type==='i');
+  const exp = filtered.filter(e=>e.type==='e');
+  const totalInc = inc.reduce((s,e)=>s+e.amount,0);
+  const totalExp = exp.reduce((s,e)=>s+e.amount,0);
+  const bal = totalInc - totalExp;
+  const projName = projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
+
+  const mkRows = (arr) => arr.map((e,i) => `<tr>
+    <td>${i+1}</td>
+    <td><span style="background:var(--bg-faint);color:var(--primary-btn);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">#${e.seq||'—'}</span></td>
+    <td>${cleanDate(e.entry_date)||'—'}</td>
+    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
+    <td>${e.category||'—'}</td>
+    <td>${e.description||'—'}</td>
+    <td style="font-weight:700;color:${e.type==='i'?'var(--success)':'var(--danger)'};white-space:nowrap">${e.type==='i'?'▲':'▼'} ${fn(e.amount)} ج</td>
+  </tr>`).join('');
+
+  el.innerHTML = `
+    <div class="cf-kpi-row" style="margin-bottom:16px">
+      <div class="cf-kpi"><div class="cf-kpi-lbl">إجمالي الوارد</div><div class="cf-kpi-val" style="color:var(--success)">▲ ${fn(totalInc)} ج</div></div>
+      <div class="cf-kpi"><div class="cf-kpi-lbl">إجمالي المصروف</div><div class="cf-kpi-val" style="color:var(--danger)">▼ ${fn(totalExp)} ج</div></div>
+      <div class="cf-kpi"><div class="cf-kpi-lbl">الرصيد</div><div class="cf-kpi-val" style="color:${bal>=0?'var(--success)':'var(--danger)'}">${bal>=0?'+':''}${fn(bal)} ج</div></div>
+      <div class="cf-kpi"><div class="cf-kpi-lbl">عدد القيود</div><div class="cf-kpi-val" style="color:var(--info)">${filtered.length}</div></div>
+    </div>
+
+    ${inc.length ? `<div style="margin-bottom:20px">
+      <div class="rep-sec-title" style="margin-bottom:8px;font-weight:700;color:var(--success)">⬆ الوارد (${inc.length} قيد)</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--bg-faint)"><th style="padding:8px;text-align:right">#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+        <tbody>${mkRows(inc)}</tbody>
+        <tfoot><tr style="background:var(--bg-faint);font-weight:700"><td colspan="6" style="padding:8px">الإجمالي</td><td style="padding:8px;color:var(--success)">▲ ${fn(totalInc)} ج</td></tr></tfoot>
+      </table></div>
+    </div>` : ''}
+
+    ${exp.length ? `<div>
+      <div class="rep-sec-title" style="margin-bottom:8px;font-weight:700;color:var(--danger)">⬇ المصروف (${exp.length} قيد)</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--bg-faint)"><th style="padding:8px;text-align:right">#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+        <tbody>${mkRows(exp)}</tbody>
+        <tfoot><tr style="background:var(--bg-faint);font-weight:700"><td colspan="6" style="padding:8px">الإجمالي</td><td style="padding:8px;color:var(--danger)">▼ ${fn(totalExp)} ج</td></tr></tfoot>
+      </table></div>
+    </div>` : ''}`;
+
+  _seqRangeData = {filtered, inc, exp, totalInc, totalExp, bal, projName, fromSeq, toSeq};
+}
+
+function clearSeqRangeReport(){
+  document.getElementById('rSeqFrom').value='';
+  document.getElementById('rSeqTo').value='';
+  document.getElementById('rSeqProj').value='all';
+  document.getElementById('repSeqRangeResult').innerHTML='';
+  _seqRangeData=null;
+}
+
+function seqRangeExportPDF(){
+  if(!_seqRangeData){runSeqRangeReport();if(!_seqRangeData)return;}
+  const d=_seqRangeData;
+  const mkRows=(arr)=>arr.map((e,i)=>`<tr>
+    <td class="rep-table-num">${i+1}</td>
+    <td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td>
+    <td>${cleanDate(e.entry_date)||'—'}</td>
+    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
+    <td>${e.category||'—'}</td>
+    <td>${e.description||'—'}</td>
+    <td class="amt ${e.type==='i'?'pos':'neg'}">${e.type==='i'?'▲':'▼'} ${fn(e.amount)} ج</td>
+  </tr>`).join('');
+
+  const html=_pdfOpen('تقرير نطاق القيود')+
+    _pdfHeader('🔢 تقرير نطاق القيود','المشروع: '+d.projName+' · القيود: #'+d.fromSeq+' → #'+d.toSeq)+
+    `<div class="kpis kpis-3">
+      <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(d.totalInc)} ج</div></div>
+      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصروف</div><div class="kpi-val">▼ ${fn(d.totalExp)} ج</div></div>
+      <div class="kpi kpi-${d.bal>=0?'inc':'exp'}"><div class="kpi-lbl">الرصيد</div><div class="kpi-val">${fn(d.bal)} ج</div></div>
+    </div>
+    ${d.inc.length?`<div class="sec-ttl">⬆ الوارد (${d.inc.length} قيد)</div>
+    <table><thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+    <tbody>${mkRows(d.inc)}</tbody>
+    <tfoot><tr><td colspan="6">الإجمالي</td><td class="amt pos">▲ ${fn(d.totalInc)} ج</td></tr></tfoot></table>`:''}
+    ${d.exp.length?`<div class="sec-ttl" style="margin-top:20px">⬇ المصروف (${d.exp.length} قيد)</div>
+    <table><thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+    <tbody>${mkRows(d.exp)}</tbody>
+    <tfoot><tr><td colspan="6">الإجمالي</td><td class="amt neg">▼ ${fn(d.totalExp)} ج</td></tr></tfoot></table>`:''}
+    `+_pdfFooter()+_pdfClose();
+  openPrintWindow(html);
+}
