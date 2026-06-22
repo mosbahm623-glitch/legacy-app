@@ -8,6 +8,7 @@ async function login(){
     const d=await sbAuth('token?grant_type=password','POST',{email,password:pass});
     token=d.access_token;uid=d.user.id;uEmail=email;
     localStorage.setItem('lg_tk',token);localStorage.setItem('lg_uid',uid);localStorage.setItem('lg_em',email);
+    if(d.refresh_token)localStorage.setItem('lg_rt',d.refresh_token);
     await initApp();
   }catch(e){setLS('❌ '+friendlyError(e),'er');}
 }
@@ -103,6 +104,24 @@ async function initApp(){
   initAllDateInputs();
   checkAdvNotifications();
   setInterval(checkAdvNotifications, 15000);
+  // auto-refresh token كل 45 دقيقة عشان الجلسة ما تنتهيش
+  setInterval(async()=>{
+    try{
+      const r=await fetch(SB+'/auth/v1/token?grant_type=refresh_token',{
+        method:'POST',
+        headers:{'apikey':AK,'Content-Type':'application/json'},
+        body:JSON.stringify({refresh_token:localStorage.getItem('lg_rt')||''})
+      });
+      if(r.ok){
+        const d=await r.json();
+        if(d.access_token){
+          token=d.access_token;
+          localStorage.setItem('lg_tk',token);
+          if(d.refresh_token)localStorage.setItem('lg_rt',d.refresh_token);
+        }
+      }
+    }catch(e){console.warn('token refresh failed:',e);}
+  }, 45*60*1000);
   initNetworkStatus();
   setTimeout(()=>{initRealtime();setTimeout(()=>initNotifSystem(),1500);},1000);
 
