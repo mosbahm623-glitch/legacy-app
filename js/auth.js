@@ -12,6 +12,7 @@ async function login(){
   }catch(e){setLS('❌ '+friendlyError(e),'er');}
 }
 async function logout(){
+  stopRealtime();
   try{await sbAuth('logout','POST');}catch(e){console.warn('logout failed:',e);} // صامت متعمد
   token=null;uid=null;uRole=null;
   localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');
