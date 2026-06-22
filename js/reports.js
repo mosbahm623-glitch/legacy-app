@@ -433,7 +433,9 @@ function runRepFilter(){
       <button class="filter-btn" onclick="repExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
       <button class="filter-btn is46" onclick="repExportPDF()">📕 PDF</button>
       <span class="filter-count-badge">${sorted.length} قيد</span>
-    </div>`;
+    </div>
+    <div id="repProjPag_pag"></div>`;
+  _pagInit('repProjPag', sorted, projId==='all');
   if(bRows.length>1)_renderBarChart('projRepChart',
     bRows.map(r=>_monthLabel(r.y,r.m)),
     [
@@ -507,7 +509,9 @@ async function runRepAdvFilter(){
       <div class="rep-entries-list">
         <button class="filter-btn" onclick="repAdvExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
         <button class="filter-btn is46" onclick="repAdvExportPDF()">📕 PDF</button>
-      </div>`;
+      </div>
+      <div id="repAdvPag_pag"></div>`;
+    _pagInit('repAdvPag', sorted, false);
     if(bRows.length>1)_renderBarChart('advRepChart',
       bRows.map(r=>_monthLabel(r.y,r.m)),
       [{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}]
@@ -727,8 +731,10 @@ function runContractorReport(){
     <div class="rep-entries-list">
       <button class="filter-btn" onclick="contractorExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
       <button class="filter-btn is46" onclick="contractorExportPDF()">📕 PDF</button>
-    </div>`;
+    </div>
+    <div id="repContrPag_pag"></div>`;
   _repContrData={mq,period,filtered,total};
+  _pagInit('repContrPag', filtered, true);
   if(bRows.length>1)_renderBarChart('contrRepChart',
     bRows.map(r=>_monthLabel(r.y,r.m)),
     [{label:'مصروف',data:bRows.map(r=>r.exp),backgroundColor:'rgba(235,87,87,.7)'}]
@@ -1450,15 +1456,8 @@ function runSeqRangeReport(){
   const bal = totalInc - totalExp;
   const projName = projId==='all'?'كل المشاريع':allProjectsMap[projId]?.name||'—';
 
-  const mkRows = (arr) => arr.map((e,i) => `<tr>
-    <td>${i+1}</td>
-    <td><span style="background:var(--bg-faint);color:var(--primary-btn);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">#${e.seq||'—'}</span></td>
-    <td>${cleanDate(e.entry_date)||'—'}</td>
-    <td>${allProjectsMap[e.project_id]?.name||'—'}</td>
-    <td>${e.category||'—'}</td>
-    <td>${e.description||'—'}</td>
-    <td style="font-weight:700;color:${e.type==='i'?'var(--success)':'var(--danger)'};white-space:nowrap">${e.type==='i'?'▲':'▼'} ${fn(e.amount)} ج</td>
-  </tr>`).join('');
+  // pagination handles rendering — no inline mkRows needed
+  const mkRows = () => '';
 
   el.innerHTML = `
     <div class="cf-kpi-row" style="margin-bottom:16px">
@@ -1470,25 +1469,16 @@ function runSeqRangeReport(){
 
     ${inc.length ? `<div style="margin-bottom:20px">
       <div class="rep-sec-title" style="margin-bottom:8px;font-weight:700;color:var(--success)">⬆ الوارد (${inc.length} قيد)</div>
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr style="background:var(--bg-faint)"><th style="padding:8px;text-align:right">#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
-        <tbody>${mkRows(inc)}</tbody>
-        <tfoot><tr style="background:var(--bg-faint);font-weight:700"><td colspan="6" style="padding:8px">الإجمالي</td><td style="padding:8px;color:var(--success)">▲ ${fn(totalInc)} ج</td></tr></tfoot>
-      </table></div>
+      <div id="repSeqInc_pag"></div>
     </div>` : ''}
-
     ${exp.length ? `<div>
       <div class="rep-sec-title" style="margin-bottom:8px;font-weight:700;color:var(--danger)">⬇ المصروف (${exp.length} قيد)</div>
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr style="background:var(--bg-faint)"><th style="padding:8px;text-align:right">#</th><th>رقم القيد</th><th>التاريخ</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
-        <tbody>${mkRows(exp)}</tbody>
-        <tfoot><tr style="background:var(--bg-faint);font-weight:700"><td colspan="6" style="padding:8px">الإجمالي</td><td style="padding:8px;color:var(--danger)">▼ ${fn(totalExp)} ج</td></tr></tfoot>
-      </table></div>
+      <div id="repSeqExp_pag"></div>
     </div>` : ''}`;
 
   _seqRangeData = {filtered, inc, exp, totalInc, totalExp, bal, projName, fromSeq, toSeq};
+  if(inc.length) _pagInit('repSeqInc', inc, projId!=='all');
+  if(exp.length) _pagInit('repSeqExp', exp, projId!=='all');
 }
 
 function clearSeqRangeReport(){
@@ -1530,3 +1520,93 @@ function seqRangeExportPDF(){
     `+_pdfFooter()+_pdfClose();
   openPrintWindow(html);
 }
+
+// ██ PAGINATION ENGINE ══════════════════════════════
+const _PAG={};
+
+function _pagPerPage(){return window.innerWidth<768?25:50;}
+
+function _pagRowHtml(e,i,showProj){
+  const isI=e.type==='i';
+  const c=isI?'var(--success)':'var(--danger)';
+  const proj=allProjectsMap[e.project_id];
+  const projCell=showProj?`<td style="font-size:11px;color:var(--text-sub)">${proj?.name||'—'}</td>`:'';
+  return `<tr>
+    <td style="color:var(--text-sub);font-size:11px">${i+1}</td>
+    <td><span style="background:var(--bg-faint);color:var(--primary-btn);padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700">#${e.seq||'—'}</span></td>
+    <td style="font-size:11px">${cleanDate(e.entry_date)||'—'}</td>
+    ${projCell}
+    <td style="font-size:11px;font-weight:600">${e.category||'—'}</td>
+    <td style="font-size:11px;color:var(--text-sub)">${e.description||'—'}</td>
+    <td style="font-weight:700;color:${c};white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td>
+  </tr>`;
+}
+
+function _pagRender(id){
+  const s=_PAG[id];if(!s)return;
+  const pp=_pagPerPage();
+  const total=s.rows.length;
+  const totalPages=Math.max(1,Math.ceil(total/pp));
+  if(s.page>totalPages)s.page=totalPages;
+  const start=( s.page-1)*pp;
+  const slice=s.rows.slice(start,start+pp);
+  const showProj=s.showProj!==false;
+  const projTh=showProj?`<th style="padding:6px 8px">المشروع</th>`:'';
+
+  // أزرار الصفحات
+  let pagBtns='';
+  const maxBtns=5;
+  let pFrom=Math.max(1,s.page-2);
+  let pTo=Math.min(totalPages,pFrom+maxBtns-1);
+  if(pTo-pFrom<maxBtns-1)pFrom=Math.max(1,pTo-maxBtns+1);
+  if(pFrom>1)pagBtns+=`<button onclick="_pagGo('${id}',1)" style="${_pagBtnStyle(false)}">1</button><span style="padding:0 4px;color:var(--text-sub)">…</span>`;
+  for(let p=pFrom;p<=pTo;p++){
+    pagBtns+=`<button onclick="_pagGo('${id}',${p})" style="${_pagBtnStyle(p===s.page)}">${p}</button>`;
+  }
+  if(pTo<totalPages)pagBtns+=`<span style="padding:0 4px;color:var(--text-sub)">…</span><button onclick="_pagGo('${id}',${totalPages})" style="${_pagBtnStyle(false)}">${totalPages}</button>`;
+
+  const el=document.getElementById(id+'_pag');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:12px;color:var(--text-sub)">عرض ${start+1}–${Math.min(start+pp,total)} من ${total} قيد</span>
+        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">${pagBtns}</div>
+      </div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--bg-faint)">
+          <th style="padding:6px 8px;text-align:right">#</th>
+          <th style="padding:6px 8px">رقم القيد</th>
+          <th style="padding:6px 8px">التاريخ</th>
+          ${projTh}
+          <th style="padding:6px 8px">البند</th>
+          <th style="padding:6px 8px">البيان</th>
+          <th style="padding:6px 8px">المبلغ</th>
+        </tr></thead>
+        <tbody>${slice.map((e,i)=>_pagRowHtml(e,start+i,showProj)).join('')}</tbody>
+      </table></div>
+      ${totalPages>1?`<div style="display:flex;gap:4px;align-items:center;justify-content:center;margin-top:8px;flex-wrap:wrap">${pagBtns}</div>`:''}
+    </div>`;
+}
+
+function _pagBtnStyle(active){
+  return active
+    ?'background:var(--primary);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700'
+    :'background:var(--bg-faint);color:var(--text-main);border:1px solid var(--border-faint);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px';
+}
+
+function _pagGo(id,page){
+  if(!_PAG[id])return;
+  _PAG[id].page=page;
+  _pagRender(id);
+  // scroll لأول الجدول
+  const el=document.getElementById(id+'_pag');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function _pagInit(id,rows,showProj){
+  _PAG[id]={rows,page:1,showProj};
+  _pagRender(id);
+}
+// ══════════════════════════════════════════════════════
