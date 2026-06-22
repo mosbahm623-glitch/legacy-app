@@ -8,7 +8,7 @@ async function loadAllProjects(){
   allEntries.forEach(e=>{if(e.seq&&e.seq>20260000)e.seq=e.seq;});
   // نجيب الملخصات الجاهزة من الـ View
   let summariesData=[];
-  try{ summariesData=await sb('project_summaries'); }catch(_){}
+  try{ summariesData=await sb('project_summaries'); }catch(e){console.warn('project_summaries failed:',e);}
   // نبني الـ map بكل المشاريع (نشطة + مؤرشفة) قبل الفلتر
   allProjectsMap={};
   allProjects.forEach(p=>{allProjectsMap[p.id]=p;});
@@ -285,7 +285,7 @@ async function printReceipt(id){
       const _prof=await sb('profiles?id=eq.'+e.created_by+'&select=name');
       if(_prof&&_prof.length)_creatorName=_prof[0].name||'Legacy';
     }
-  }catch(err){}
+  }catch(err){console.warn('creator lookup failed:',err);}
   const payType=e.entry_type==='payment'?'دفعة نقدية/تحويل':e.entry_type==='work'?'أعمال':e.entry_type==='material'?'مصنعيات':'—';
   const isExp=e.type==='e';
   const isInc=e.type==='i';
