@@ -260,6 +260,7 @@ async function addAdvEntry(){
   const mq=document.getElementById('advMq').value.trim();
   if(!pid){notify('اختار المشروع','warn');return;}
   if(!cat){notify('ادخل البند','err');return;}
+  if(!dt){notify('❌ ادخل التاريخ','err');return;}
   if(isNaN(amt)||amt<=0){notify('ادخل مبلغ صحيح','err');return;}
   // ── تحذير تجاوز العهدة ──
   try{
