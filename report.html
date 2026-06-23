@@ -127,9 +127,18 @@ function fn(n){return Number(n||0).toLocaleString('en-US');}
 
 function cleanDate(s){
   if(!s)return'—';
-  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s.trim()))return s.trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s.trim())){const p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-  return s;
+  const str=String(s).trim();
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str))return str;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)){const p=str.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  try{
+    const d=new Date(str);
+    if(!isNaN(d.getTime())){
+      const dd=String(d.getDate()).padStart(2,'0');
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      return dd+'/'+mm+'/'+d.getFullYear();
+    }
+  }catch(_){}
+  return str;
 }
 
 function parseDate(s){
