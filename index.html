@@ -562,6 +562,7 @@
             <button onclick="xl()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#1D6A3E;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📊 مكتب Excel</button>
             <button onclick="xlClient()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#854F0B;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📋 تقرير Excel</button>
             <button onclick="pdfClient()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#A32D2D;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📄 تقرير PDF</button>
+            <button onclick="openMeetingView()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">🎯 عرض الاجتماع</button>
           </div>
           <div class="emsg" id="emsg"></div>
         </div>
@@ -1385,5 +1386,22 @@
 <script src="js/search.js" defer></script>
 <script src="js/notifs.js"></script>
 <script src="js/owner.js"></script>
+<script src="js/meeting.js"></script>
+
+<!-- MEETING VIEW MODAL -->
+<div id="meetingModal" style="display:none;position:fixed;inset:0;z-index:99999;background:#f0ede6;overflow-y:auto;font-family:Cairo,sans-serif;direction:rtl">
+  <div style="background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:20px 16px 16px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;opacity:.5;letter-spacing:2px">LEGACY CORE</div>
+        <div style="font-size:18px;font-weight:800" id="mvProjName">—</div>
+        <div style="font-size:11px;opacity:.6" id="mvDate"></div>
+      </div>
+      <button onclick="closeMeetingView()" style="background:rgba(255,255,255,.15);border:none;color:#D4C49A;border-radius:10px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">✕ إغلاق</button>
+    </div>
+  </div>
+  <div style="max-width:480px;margin:0 auto;padding:16px 14px 40px" id="mvBody">
+  </div>
+</div>
 </body>
 </html>
