@@ -257,6 +257,8 @@ function showAdvEntryModal(){
 }
 
 
+let _lastAdvProjId='', _lastAdvProjName='';
+
 function advProjSearch(q){
   const dd=document.getElementById('advProjDD');
   const inp=document.getElementById('advProjInput');
@@ -280,6 +282,8 @@ function advProjSearch(q){
 }
 
 function advProjSelect(id, name){
+  _lastAdvProjId=id;
+  _lastAdvProjName=name;
   document.getElementById('advProjSel').value=id;
   document.getElementById('advProjInput').value=name;
   document.getElementById('advProjDD').style.display='none';
@@ -346,6 +350,11 @@ async function addAdvEntry(){
     document.getElementById('advDesc').value='';
     document.getElementById('advEntAmt').value='';
     document.getElementById('advMq').value='';
+    // أعد المشروع المختار
+    if(_lastAdvProjId){
+      document.getElementById('advProjSel').value=_lastAdvProjId;
+      document.getElementById('advProjInput').value=_lastAdvProjName;
+    }
     // الفورم يفضل مفتوح — بس امسح الحقول
     await loadAdvDetail();
     if(curPid===pid)await loadEntries();
