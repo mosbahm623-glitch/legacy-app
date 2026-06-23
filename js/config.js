@@ -70,6 +70,13 @@ window.addEventListener('unhandledrejection',function(e){
 });
 
 // ██ AUDIT LOG ══════════════════════════════════
+/**
+ * يسجل عملية في الـ Audit Log
+ * @param {string} action - اسم العملية مثل 'ADD_ENTRY'
+ * @param {string} tableName - اسم الجدول
+ * @param {string} recordId - ID السجل
+ * @param {object} details - تفاصيل إضافية
+ */
 async function auditLog(action,tableName,recordId,details){
   try{
     await sb('audit_log','POST',{
@@ -100,6 +107,13 @@ let _rtEntCh=null,_rtAdvCh=null;
 // ══════════════════════════════════════════
 // ██ SUPABASE HELPERS — sb / sbAll / sbAuth
 // ══════════════════════════════════════════
+/**
+ * طلب HTTP لـ Supabase REST API
+ * @param {string} path - المسار مثل 'entries?project_id=eq.123'
+ * @param {string} [method='GET'] - GET | POST | PATCH | DELETE
+ * @param {object} [body] - البيانات المرسلة (POST/PATCH)
+ * @returns {Promise<any>} البيانات المرجعة من Supabase
+ */
 async function sb(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
   if(method==='POST'||method==='PATCH')h['Prefer']='return=representation';
@@ -109,6 +123,11 @@ async function sb(path,method,body){
   return r.json();
 }
 // يجيب كل الصفوف على دفعات 1000 — يتخطى حد Supabase الافتراضي
+/**
+ * يجيب كل الصفوف بالـ pagination — يتخطى حد الـ 1000 صف
+ * @param {string} path - المسار مثل 'entries?project_id=eq.123'
+ * @returns {Promise<Array>} كل الصفوف
+ */
 async function sbAll(path){
   const all=[];let from=0;const step=1000;
   while(true){
@@ -142,6 +161,7 @@ function setSav(m,c){
   if(dot){dot.style.background=c==='ok'?'#1D9E75':c==='er'?'var(--danger)':'var(--warning)';}
 }
 function setLS(m,c){const el=document.getElementById('lst');el.textContent=m;el.className='lst '+c;}
+/** تنسيق الأرقام بالفواصل — مثال: 1000 → 1,000 */
 function fn(n){return Number(n||0).toLocaleString('en-US');}
 function uid_(){return crypto.randomUUID();}
 function ts(){const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
@@ -422,6 +442,11 @@ function showPromptModal({title='',label='',placeholder='',defaultVal='',okLabel
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')close();});
 }
 
+/**
+ * يحول الـ error التقني لرسالة مفهومة للمستخدم
+ * @param {Error|object} e - الخطأ
+ * @returns {string} رسالة بالعربي
+ */
 function friendlyError(e){
   if(!navigator.onLine)return'لا يوجد اتصال بالإنترنت';
   let msg=e?.message||e?.error||String(e)||'';
