@@ -91,6 +91,8 @@ async function ae(){
       auditLog('إضافة قيد','entries',entry.id,{project:savedProjName,amount:entry.amount,category:entry.category,type:entry.type});
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
+      window._blockRtRefresh=true;
+      setTimeout(()=>{window._blockRtRefresh=false;},2000);
       await sb('pending_entries','POST',pending);
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       notify(`⏳ تم إرسال القيد للموافقة — مشروع: ${savedProjName}`,'warn');
@@ -99,14 +101,11 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
-    // يفضل في فورم الإضافة — مش يتنقل لشاشة القيود
+    // حدث الـ KPI فقط بدون أي scroll أو تغيير شاشة
     const _savedTab=cTab;
-    const _savedScroll=window.scrollY||document.documentElement.scrollTop;
     rp();
     cTab=_savedTab;
     re();
-    // ارجع لنفس مكان الـ scroll عشان الفورم يفضل ظاهر
-    setTimeout(()=>window.scrollTo({top:_savedScroll,behavior:'instant'}),50);
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
