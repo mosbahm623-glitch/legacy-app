@@ -99,8 +99,12 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
-    if(cT==='e'&&!['s','i','j','m'].includes(cTab))cTab=c;
+    // يفضل في فورم الإضافة — مش يتنقل لشاشة القيود
+    // بس نحدث الـ KPI cards والـ sidebar بدون تغيير الـ tab
+    const _savedTab=cTab;
     rp();
+    cTab=_savedTab;
+    re();
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
