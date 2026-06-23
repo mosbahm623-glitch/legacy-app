@@ -6,99 +6,102 @@
 <title>تقرير المشروع — Legacy Core</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Cairo',sans-serif;background:#f5f5f0;color:#1a2e1a;direction:rtl;min-height:100vh}
-  .header{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:24px 20px;text-align:center}
-  .header-logo{font-size:13px;opacity:.6;margin-bottom:4px;letter-spacing:2px}
-  .header-title{font-size:22px;font-weight:800;margin-bottom:2px}
-  .header-sub{font-size:12px;opacity:.6}
-  .container{max-width:720px;margin:0 auto;padding:20px 16px}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #ede8df}
-  .card-title{font-size:13px;font-weight:700;color:#5a7a5a;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:#f0ede6;color:#1a2e1a;direction:rtl;min-height:100vh}
 
-  /* فلتر الفترة */
-  .filter-card{background:linear-gradient(135deg,#f8f6f0,#fff);border-radius:16px;padding:18px 20px;margin-bottom:16px;border:1px solid #ede8df}
-  .filter-title{font-size:13px;font-weight:700;color:#5a7a5a;margin-bottom:12px}
-  .filter-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-  .filter-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
-  .filter-label{font-size:11px;color:#888;font-weight:600}
-  .filter-input{padding:9px 12px;border:1px solid #ddd;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;background:#fff;color:#1a2e1a;outline:none}
-  .filter-input:focus{border-color:#2D5A3E}
-  .filter-btn{padding:9px 20px;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
-  .filter-btn:hover{opacity:.9}
-  .filter-reset{padding:9px 14px;background:#f0ede6;color:#5a7a5a;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+/* HEADER */
+.header{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:28px 20px 20px;text-align:center}
+.header-logo{font-size:11px;opacity:.5;letter-spacing:3px;margin-bottom:6px}
+.header-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.header-sub{font-size:11px;opacity:.6;margin-bottom:8px}
+.period-badge{display:inline-block;background:rgba(255,255,255,.15);color:#D4C49A;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
 
-  /* KPI */
-  .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-  .kpi-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-  .kpi{border-radius:14px;padding:16px;text-align:center;border:1px solid #ede8df}
-  .kpi.inc{background:#f0faf5;border-color:#b8e8d4}
-  .kpi.exp{background:#fff5f5;border-color:#f5c6c6}
-  .kpi.bal{background:#f8f6f0;border-color:#e0d8c8}
-  .kpi.neu{background:#f8f6f0;border-color:#ede8df}
-  .kpi-lbl{font-size:11px;color:#888;margin-bottom:6px;font-weight:600}
-  .kpi-val{font-size:17px;font-weight:800}
-  .kpi-val.inc{color:#1D9E75}
-  .kpi-val.exp{color:#e74c3c}
-  .kpi-val.bal-pos{color:#1D9E75}
-  .kpi-val.bal-neg{color:#e74c3c}
-  .kpi-val.neu{color:#5a7a5a}
+/* CONTAINER */
+.wrap{max-width:480px;margin:0 auto;padding:16px 14px 40px}
 
-  /* Progress bar */
-  .progress-wrap{margin-top:10px;background:#f0ede6;border-radius:20px;height:8px;overflow:hidden}
-  .progress-bar{height:100%;border-radius:20px;transition:width .5s}
-  .progress-bar.good{background:linear-gradient(90deg,#1D9E75,#27ae60)}
-  .progress-bar.warn{background:linear-gradient(90deg,#f39c12,#e67e22)}
-  .progress-bar.danger{background:linear-gradient(90deg,#e74c3c,#c0392b)}
-  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px}
+/* ACTION BUTTONS */
+.btns{display:flex;gap:10px;margin-bottom:14px}
+.btn-pdf{flex:1;padding:12px;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-wa{flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
 
-  /* جدول */
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  thead th{background:#f0ede6;padding:9px 10px;text-align:right;font-weight:700;color:#5a7a5a;font-size:11px}
-  tbody td{padding:9px 10px;border-bottom:1px solid #f5f2ec;color:#333;vertical-align:middle}
-  tbody tr:last-child td{border-bottom:none}
-  tbody tr:hover{background:#fafaf8}
-  tfoot td{padding:10px;font-weight:700;background:#f0ede6}
-  .amt-inc{font-weight:700;color:#1D9E75;white-space:nowrap}
-  .amt-exp{font-weight:700;color:#e74c3c;white-space:nowrap}
-  .seq-badge{background:#e8f4ee;color:#1D9E75;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700}
-  .seq-badge.exp{background:#fef0f0;color:#e74c3c}
-  .cat-badge{background:#f0ede6;color:#5a7a5a;padding:2px 7px;border-radius:5px;font-size:10px}
+/* FILTER */
+.filter{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1px solid #e8e3da}
+.filter-title{font-size:12px;font-weight:700;color:#5a7a5a;margin-bottom:10px}
+.filter-row{display:flex;gap:8px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px;flex:1}
+.fg label{font-size:10px;color:#999;font-weight:600}
+.fg input{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;outline:none;width:100%}
+.fg input:focus{border-color:#2D5A3E}
+.btn-go{padding:8px 14px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-all{padding:8px 10px;background:#f0ede6;color:#5a7a5a;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 
-  /* tabs */
-  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-  .tab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#f8f6f0;color:#888;font-family:'Cairo',sans-serif}
-  .tab.on{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border-color:transparent}
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.kpi{border-radius:14px;padding:14px 12px;text-align:center}
+.kpi.inc{background:#e8f7f0;border:1.5px solid #a8dcc2}
+.kpi.exp{background:#fef0f0;border:1.5px solid #f5c0c0}
+.kpi.bal{background:#fff;border:1.5px solid #e0d8c8;grid-column:1/-1}
+.kpi.bal .kv{font-size:22px}
+.kpi-lbl{font-size:10px;color:#888;font-weight:600;margin-bottom:5px}
+.kpi .kv{font-size:16px;font-weight:800}
+.kv.inc{color:#1D9E75}
+.kv.exp{color:#e74c3c}
+.kv.pos{color:#1D9E75}
+.kv.neg{color:#e74c3c}
 
-  /* info rows */
-  .info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0ede6;font-size:13px}
-  .info-row:last-child{border-bottom:none}
-  .info-lbl{color:#888}
-  .info-val{font-weight:700;color:#1a2e1a}
+/* PROGRESS */
+.prog-wrap{background:#f0ede6;border-radius:20px;height:10px;overflow:hidden;margin:12px 0 6px}
+.prog-bar{height:100%;border-radius:20px}
+.prog-bar.g{background:linear-gradient(90deg,#1D9E75,#27ae60)}
+.prog-bar.w{background:linear-gradient(90deg,#f39c12,#e67e22)}
+.prog-bar.d{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.prog-meta{display:flex;justify-content:space-between;font-size:10px;color:#999}
 
-  /* action buttons */
-  .action-row{display:flex;gap:10px;margin-bottom:16px}
-  .pdf-btn{flex:1;padding:13px;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
-  .pdf-btn:hover{opacity:.9}
-  .wa-btn{flex:1;padding:13px;background:#25D366;color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center}
-  .wa-btn:hover{opacity:.9}
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:9px 4px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#888;font-family:'Cairo',sans-serif;text-align:center}
+.tab.on{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border-color:transparent}
 
-  .loading{text-align:center;padding:60px 20px;color:#888;font-size:15px}
-  .error{text-align:center;padding:40px 20px;color:#e74c3c;font-size:14px}
-  .empty{text-align:center;padding:30px;color:#aaa;font-size:13px}
-  .footer{text-align:center;padding:20px;font-size:11px;color:#aaa}
-  .period-badge{display:inline-block;background:#e8f4ee;color:#1D3C2A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:4px}
+/* SECTION CARD */
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8e3da}
+.card-title{font-size:12px;font-weight:700;color:#5a7a5a;margin-bottom:12px;display:flex;align-items:center;gap:5px}
 
-  @media(max-width:480px){
-    .kpi-grid-3{grid-template-columns:1fr 1fr}
-    .filter-row{flex-direction:column}
-    .filter-group{min-width:unset}
-    .action-row{flex-direction:column}
-  }
-  @media print{
-    .pdf-btn,.wa-btn,.filter-card,.tabs,.action-row{display:none!important}
-    .card{box-shadow:none;border:1px solid #ddd}
-  }
+/* ENTRY ROW — موبايل */
+.entry{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f5f2ec;gap:8px}
+.entry:last-child{border-bottom:none}
+.entry-info{flex:1;min-width:0}
+.entry-desc{font-size:13px;font-weight:600;color:#1a2e1a;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-meta{font-size:10px;color:#aaa;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.entry-amt{font-size:14px;font-weight:800;white-space:nowrap}
+.entry-amt.inc{color:#1D9E75}
+.entry-amt.exp{color:#e74c3c}
+.seq-b{background:#e8f4ee;color:#1D9E75;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.seq-b.exp{background:#fef0f0;color:#e74c3c}
+.cat-b{background:#f0ede6;color:#5a7a5a;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600}
+
+/* CATEGORY GROUP */
+.cat-group{margin-bottom:14px}
+.cat-header{display:flex;justify-content:space-between;align-items:center;background:#f8f6f2;border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer}
+.cat-header-name{font-size:12px;font-weight:700;color:#1D3C2A;display:flex;align-items:center;gap:6px}
+.cat-header-amt{font-size:13px;font-weight:800;color:#e74c3c}
+.cat-pct{font-size:10px;color:#aaa;font-weight:600}
+.cat-bar{height:4px;background:#f0ede6;border-radius:4px;margin-bottom:8px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.cat-entries{padding:0 4px}
+
+/* TOTALS */
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f6f2;border-radius:10px;margin-top:8px}
+.total-lbl{font-size:12px;font-weight:700;color:#5a7a5a}
+.total-amt{font-size:15px;font-weight:800}
+.total-amt.inc{color:#1D9E75}
+.total-amt.exp{color:#e74c3c}
+
+.empty{text-align:center;padding:30px;color:#aaa;font-size:13px}
+.loading{text-align:center;padding:60px 20px;color:#888;font-size:14px}
+.error{text-align:center;padding:40px;color:#e74c3c;font-size:13px}
+.footer{text-align:center;padding:20px;font-size:10px;color:#bbb}
+
+@media print{.btns,.filter,.tabs{display:none!important}.card{box-shadow:none}}
 </style>
 </head>
 <body>
@@ -110,52 +113,46 @@
   <div id="periodBadge"></div>
 </div>
 
-<div class="container">
-  <div id="content"><div class="loading">⏳ جاري تحميل بيانات المشروع...</div></div>
+<div class="wrap">
+  <div id="content"><div class="loading">⏳ جاري تحميل البيانات...</div></div>
 </div>
 
 <div class="footer">تقرير صادر من Legacy Core · للاستفسار تواصل مع مكتب المشروع</div>
 
 <script>
-const SB = 'https://ctcoqgluaytwelnutrox.supabase.co';
-const AK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+const SB='https://ctcoqgluaytwelnutrox.supabase.co';
+const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
 
-let _allInc=[], _allExp=[], _proj=null;
-let _curTab='summary';
+let _inc=[],_exp=[],_proj=null,_tab='sum';
 
 function fn(n){return Number(n||0).toLocaleString('en-US');}
 
-function cleanDate(s){
+function fmtDate(s){
   if(!s)return'—';
   const str=String(s).trim();
   if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str))return str;
-  if(/^\d{4}-\d{2}-\d{2}$/.test(str)){const p=str.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  if(/^\d{4}-\d{2}-\d{2}/.test(str)){
+    const p=str.substring(0,10).split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
   try{
     const d=new Date(str);
-    if(!isNaN(d.getTime())){
-      const dd=String(d.getDate()).padStart(2,'0');
-      const mm=String(d.getMonth()+1).padStart(2,'0');
-      return dd+'/'+mm+'/'+d.getFullYear();
+    if(!isNaN(d)){
+      return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
     }
   }catch(_){}
   return str;
 }
 
-function parseDate(s){
+function toDate(s){
   if(!s)return null;
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s.trim()))return new Date(s.trim());
-  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s.trim())){
-    const [d,m,y]=s.trim().split('/');
+  const str=String(s).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(str))return new Date(str.substring(0,10));
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)){
+    const[d,m,y]=str.split('/');
     return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
   }
-  return null;
-}
-
-function toInputDate(s){
-  if(!s)return'';
-  const d=parseDate(s);
-  if(!d)return'';
-  return d.toISOString().split('T')[0];
+  try{const d=new Date(str);return isNaN(d)?null:d;}catch(_){return null;}
 }
 
 async function sbGet(path){
@@ -164,193 +161,177 @@ async function sbGet(path){
   return r.json();
 }
 
-function filterByPeriod(entries, from, to){
-  return entries.filter(e=>{
-    const d=parseDate(e.entry_date);
+function filterPeriod(arr,from,to){
+  return arr.filter(e=>{
+    const d=toDate(e.entry_date);
     if(!d)return true;
-    if(from && d < from)return false;
-    if(to && d > to)return false;
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
     return true;
   });
 }
 
-function renderSummary(inc, exp){
-  const totalInc=inc.reduce((s,e)=>s+e.amount,0);
-  const totalExp=exp.reduce((s,e)=>s+e.amount,0);
-  const bal=totalInc-totalExp;
-  const pct=totalInc>0?Math.min(100,Math.round((totalExp/totalInc)*100)):0;
-  const barClass=pct>90?'danger':pct>70?'warn':'good';
-
-  return `
-    <div class="kpi-grid">
-      <div class="kpi inc">
-        <div class="kpi-lbl">📈 إجمالي الوارد</div>
-        <div class="kpi-val inc">${fn(totalInc)} ج</div>
-      </div>
-      <div class="kpi exp">
-        <div class="kpi-lbl">📉 إجمالي المصاريف</div>
-        <div class="kpi-val exp">${fn(totalExp)} ج</div>
-      </div>
+// ── RENDER SUMMARY ──────────────────────
+function renderSum(inc,exp){
+  const tInc=inc.reduce((s,e)=>s+e.amount,0);
+  const tExp=exp.reduce((s,e)=>s+e.amount,0);
+  const bal=tInc-tExp;
+  const pct=tInc>0?Math.min(100,Math.round(tExp/tInc*100)):0;
+  const bc=pct>90?'d':pct>70?'w':'g';
+  return`
+    <div class="kpi-row">
+      <div class="kpi inc"><div class="kpi-lbl">📈 إجمالي الوارد</div><div class="kv inc">▲ ${fn(tInc)} ج</div></div>
+      <div class="kpi exp"><div class="kpi-lbl">📉 إجمالي المصاريف</div><div class="kv exp">▼ ${fn(tExp)} ج</div></div>
+      <div class="kpi bal"><div class="kpi-lbl">💰 صافي الرصيد</div><div class="kv ${bal>=0?'pos':'neg'}">${bal>=0?'▲':'▼'} ${fn(Math.abs(bal))} ج</div></div>
     </div>
-    <div class="kpi bal" style="margin-bottom:14px">
-      <div class="kpi-lbl">💰 صافي الرصيد</div>
-      <div class="kpi-val ${bal>=0?'bal-pos':'bal-neg'}">${bal>=0?'▲':'▼'} ${fn(Math.abs(bal))} ج</div>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
-    </div>
-    <div class="progress-label">
-      <span>نسبة الصرف</span>
-      <span>${pct}%</span>
-    </div>
-    <div style="height:14px"></div>
-    <div class="kpi-grid-3">
-      <div class="kpi neu"><div class="kpi-lbl">دفعات واردة</div><div class="kpi-val neu">${inc.length}</div></div>
-      <div class="kpi neu"><div class="kpi-lbl">بنود مصاريف</div><div class="kpi-val neu">${exp.length}</div></div>
-      <div class="kpi neu"><div class="kpi-lbl">% الصرف</div><div class="kpi-val neu">${pct}%</div></div>
-    </div>
-    ${_proj.start_date?`<div class="info-row"><span class="info-lbl">تاريخ البداية</span><span class="info-val">${cleanDate(_proj.start_date)}</span></div>`:''}
-    ${_proj.close_date?`<div class="info-row"><span class="info-lbl">تاريخ الإغلاق</span><span class="info-val">${cleanDate(_proj.close_date)}</span></div>`:''}
+    <div class="prog-wrap"><div class="prog-bar ${bc}" style="width:${pct}%"></div></div>
+    <div class="prog-meta"><span>نسبة الصرف</span><span style="font-weight:700;color:${pct>90?'#e74c3c':pct>70?'#f39c12':'#1D9E75'}">${pct}%</span></div>
+    <div style="height:12px"></div>
+    ${_proj.start_date?`<div class="entry"><div class="entry-info"><div class="entry-desc">تاريخ البداية</div></div><div class="entry-amt" style="color:#5a7a5a">${fmtDate(_proj.start_date)}</div></div>`:''}
+    ${_proj.close_date?`<div class="entry"><div class="entry-info"><div class="entry-desc">تاريخ الإغلاق</div></div><div class="entry-amt" style="color:#5a7a5a">${fmtDate(_proj.close_date)}</div></div>`:''}
+    <div class="entry"><div class="entry-info"><div class="entry-desc">عدد الدفعات الواردة</div></div><div class="entry-amt" style="color:#5a7a5a">${inc.length}</div></div>
+    <div class="entry"><div class="entry-info"><div class="entry-desc">عدد بنود المصاريف</div></div><div class="entry-amt" style="color:#5a7a5a">${exp.length}</div></div>
   `;
 }
 
+// ── RENDER INC ───────────────────────────
 function renderInc(inc){
   if(!inc.length)return'<div class="empty">لا توجد دفعات في هذه الفترة</div>';
   const total=inc.reduce((s,e)=>s+e.amount,0);
-  const rows=inc.map((e,i)=>`<tr>
-    <td style="color:#aaa;font-size:11px">${i+1}</td>
-    <td>${e.seq?`<span class="seq-badge">${e.seq}</span>`:'—'}</td>
-    <td>${cleanDate(e.entry_date)}</td>
-    <td>${e.description||e.category||'—'}</td>
-    <td class="amt-inc">▲ ${fn(e.amount)} ج</td>
-  </tr>`).join('');
-  return`<table>
-    <thead><tr><th>#</th><th>رقم</th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
-    <tbody>${rows}</tbody>
-    <tfoot><tr><td colspan="4" style="color:#5a7a5a">الإجمالي</td><td class="amt-inc">▲ ${fn(total)} ج</td></tr></tfoot>
-  </table>`;
+  const rows=inc.map(e=>`
+    <div class="entry">
+      <div class="entry-info">
+        <div class="entry-desc">${e.description||e.category||'دفعة'}</div>
+        <div class="entry-meta">
+          ${e.seq?`<span class="seq-b">${e.seq}</span>`:''}
+          <span>${fmtDate(e.entry_date)}</span>
+        </div>
+      </div>
+      <div class="entry-amt inc">▲ ${fn(e.amount)} ج</div>
+    </div>`).join('');
+  return rows+`<div class="total-row"><span class="total-lbl">الإجمالي</span><span class="total-amt inc">▲ ${fn(total)} ج</span></div>`;
 }
 
+// ── RENDER EXP بالبنود ───────────────────
 function renderExp(exp){
   if(!exp.length)return'<div class="empty">لا توجد مصاريف في هذه الفترة</div>';
   const total=exp.reduce((s,e)=>s+e.amount,0);
-  const rows=exp.map((e,i)=>`<tr>
-    <td style="color:#aaa;font-size:11px">${i+1}</td>
-    <td>${e.seq?`<span class="seq-badge exp">${e.seq}</span>`:'—'}</td>
-    <td>${cleanDate(e.entry_date)}</td>
-    <td>${e.description||'—'}</td>
-    <td>${e.category?`<span class="cat-badge">${e.category}</span>`:'—'}</td>
-    <td class="amt-exp">▼ ${fn(e.amount)} ج</td>
-  </tr>`).join('');
-  return`<table>
-    <thead><tr><th>#</th><th>رقم</th><th>التاريخ</th><th>البيان</th><th>البند</th><th>المبلغ</th></tr></thead>
-    <tbody>${rows}</tbody>
-    <tfoot><tr><td colspan="5" style="color:#5a7a5a">الإجمالي</td><td class="amt-exp">▼ ${fn(total)} ج</td></tr></tfoot>
-  </table>`;
+
+  // تجميع حسب الكاتيجوري
+  const cats={};
+  exp.forEach(e=>{
+    const c=e.category||'غير مصنف';
+    if(!cats[c])cats[c]={total:0,items:[]};
+    cats[c].total+=e.amount;
+    cats[c].items.push(e);
+  });
+
+  // ترتيب تنازلي حسب الإجمالي
+  const sorted=Object.entries(cats).sort((a,b)=>b[1].total-a[1].total);
+
+  const groups=sorted.map(([cat,data])=>{
+    const pct=total>0?Math.round(data.total/total*100):0;
+    const items=data.items.map(e=>`
+      <div class="entry">
+        <div class="entry-info">
+          <div class="entry-desc">${e.description||cat}</div>
+          <div class="entry-meta">
+            ${e.seq?`<span class="seq-b exp">${e.seq}</span>`:''}
+            <span>${fmtDate(e.entry_date)}</span>
+          </div>
+        </div>
+        <div class="entry-amt exp">▼ ${fn(e.amount)} ج</div>
+      </div>`).join('');
+
+    return`<div class="cat-group">
+      <div class="cat-header">
+        <div class="cat-header-name">
+          <span>${cat}</span>
+          <span class="cat-pct">${pct}%</span>
+        </div>
+        <div class="cat-header-amt">▼ ${fn(data.total)} ج</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+      <div class="cat-entries">${items}</div>
+    </div>`;
+  }).join('');
+
+  return groups+`<div class="total-row"><span class="total-lbl">إجمالي المصاريف</span><span class="total-amt exp">▼ ${fn(total)} ج</span></div>`;
 }
 
-function renderTab(tab, inc, exp){
-  _curTab=tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===tab));
+// ── TABS ─────────────────────────────────
+function switchTab(tab,inc,exp){
+  _tab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
   const body=document.getElementById('tabBody');
-  if(tab==='summary') body.innerHTML=renderSummary(inc,exp);
-  else if(tab==='inc') body.innerHTML=renderInc(inc);
-  else if(tab==='exp') body.innerHTML=renderExp(exp);
+  if(tab==='sum')body.innerHTML=renderSum(inc,exp);
+  else if(tab==='inc')body.innerHTML=renderInc(inc);
+  else body.innerHTML=renderExp(exp);
 }
 
+// ── FILTER ───────────────────────────────
 function applyFilter(){
-  const from=document.getElementById('fFrom').value;
-  const to=document.getElementById('fTo').value;
-  const fromDate=from?new Date(from):null;
-  const toDate=to?new Date(to+'T23:59:59'):null;
-
-  const inc=filterByPeriod(_allInc, fromDate, toDate);
-  const exp=filterByPeriod(_allExp, fromDate, toDate);
-
-  // تحديث الـ period badge
+  const fv=document.getElementById('fF').value;
+  const tv=document.getElementById('fT').value;
+  const from=fv?new Date(fv):null;
+  const to=tv?new Date(tv+'T23:59:59'):null;
+  const inc=filterPeriod(_inc,from,to);
+  const exp=filterPeriod(_exp,from,to);
   const badge=document.getElementById('periodBadge');
-  if(from||to){
-    badge.innerHTML=`<span class="period-badge">📅 ${from?cleanDate(from):'البداية'} ← ${to?cleanDate(to):'الآن'}</span>`;
-  } else {
-    badge.innerHTML='';
-  }
-
-  renderTab(_curTab, inc, exp);
+  badge.innerHTML=(fv||tv)?`<span class="period-badge">📅 ${fv?fmtDate(fv):'البداية'} ← ${tv?fmtDate(tv):'الآن'}</span>`:'';
+  switchTab(_tab,inc,exp);
 }
 
 function resetFilter(){
-  document.getElementById('fFrom').value='';
-  document.getElementById('fTo').value='';
+  document.getElementById('fF').value='';
+  document.getElementById('fT').value='';
   document.getElementById('periodBadge').innerHTML='';
-  renderTab(_curTab, _allInc, _allExp);
+  switchTab(_tab,_inc,_exp);
 }
 
+// ── LOAD ─────────────────────────────────
 async function load(){
-  const params=new URLSearchParams(location.search);
-  const pid=params.get('pid');
-  if(!pid){
-    document.getElementById('content').innerHTML='<div class="error">❌ لينك غير صحيح — مفيش كود مشروع</div>';
-    return;
-  }
+  const pid=new URLSearchParams(location.search).get('pid');
+  if(!pid){document.getElementById('content').innerHTML='<div class="error">❌ لينك غير صحيح</div>';return;}
   try{
-    const [projects, allEntries]=await Promise.all([
+    const[projects,entries]=await Promise.all([
       sbGet('projects?id=eq.'+pid+'&select=id,name,start_date,close_date'),
       sbGet('entries?project_id=eq.'+pid+'&select=id,seq,amount,description,entry_date,category,type&order=entry_date.asc&limit=2000')
     ]);
-
-    if(!projects||!projects.length){
-      document.getElementById('content').innerHTML='<div class="error">❌ المشروع غير موجود</div>';
-      return;
-    }
-
+    if(!projects?.length){document.getElementById('content').innerHTML='<div class="error">❌ المشروع غير موجود</div>';return;}
     _proj=projects[0];
-    _allInc=allEntries.filter(e=>e.type==='i');
-    _allExp=allEntries.filter(e=>e.type==='e');
+    _inc=entries.filter(e=>e.type==='i');
+    _exp=entries.filter(e=>e.type==='e');
 
     document.getElementById('projName').textContent='📋 '+_proj.name;
     document.getElementById('reportDate').textContent='تقرير بتاريخ: '+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
 
-    const defaultFrom=_proj.start_date?toInputDate(_proj.start_date):'';
-
     document.getElementById('content').innerHTML=`
-      <div class="action-row">
-        <button class="pdf-btn" onclick="window.print()">📕 طباعة / PDF</button>
-        <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent('تقرير مشروع '+_proj.name+'\n'+location.href)}" target="_blank">📤 واتساب</a>
+      <div class="btns">
+        <button class="btn-pdf" onclick="window.print()">📕 طباعة / PDF</button>
+        <a class="btn-wa" href="https://wa.me/?text=${encodeURIComponent('تقرير مشروع '+_proj.name+'\n'+location.href)}" target="_blank">📤 واتساب</a>
       </div>
-
-      <div class="filter-card">
+      <div class="filter">
         <div class="filter-title">📅 فلتر الفترة</div>
         <div class="filter-row">
-          <div class="filter-group">
-            <span class="filter-label">من تاريخ</span>
-            <input class="filter-input" type="date" id="fFrom" value="${defaultFrom}">
-          </div>
-          <div class="filter-group">
-            <span class="filter-label">إلى تاريخ</span>
-            <input class="filter-input" type="date" id="fTo">
-          </div>
-          <button class="filter-btn" onclick="applyFilter()">عرض</button>
-          <button class="filter-reset" onclick="resetFilter()">كل الفترات</button>
+          <div class="fg"><label>من</label><input type="date" id="fF"></div>
+          <div class="fg"><label>إلى</label><input type="date" id="fT"></div>
+          <button class="btn-go" onclick="applyFilter()">عرض</button>
+          <button class="btn-all" onclick="resetFilter()">الكل</button>
         </div>
       </div>
-
-      <div class="card">
-        <div class="tabs">
-          <button class="tab on" data-tab="summary" onclick="renderTab('summary',_allInc,_allExp)">📊 الملخص</button>
-          <button class="tab" data-tab="inc" onclick="renderTab('inc',_allInc,_allExp)">📈 الوارد</button>
-          <button class="tab" data-tab="exp" onclick="renderTab('exp',_allInc,_allExp)">📉 المصاريف</button>
-        </div>
-        <div id="tabBody"></div>
+      <div class="tabs">
+        <button class="tab on" data-t="sum" onclick="switchTab('sum',_inc,_exp)">📊 الملخص</button>
+        <button class="tab" data-t="inc" onclick="switchTab('inc',_inc,_exp)">📈 الوارد</button>
+        <button class="tab" data-t="exp" onclick="switchTab('exp',_inc,_exp)">📉 المصاريف</button>
       </div>
+      <div class="card"><div id="tabBody"></div></div>
     `;
-
-    renderTab('summary', _allInc, _allExp);
-
+    switchTab('sum',_inc,_exp);
   }catch(e){
-    document.getElementById('content').innerHTML='<div class="error">❌ خطأ في تحميل البيانات: '+e.message+'</div>';
+    document.getElementById('content').innerHTML='<div class="error">❌ خطأ: '+e.message+'</div>';
   }
 }
-
 load();
 </script>
 </body>
