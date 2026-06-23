@@ -286,13 +286,18 @@ function advProjSelect(id, name){
 }
 
 function _showAdvConfirm(msg, color){
+  // امسح القديمة
   const ex=document.getElementById('_advConfirmMsg');
   if(ex)ex.remove();
+  // دور على الـ modal box
+  const modal=document.querySelector('#_advEntModal .modal-box');
+  if(!modal)return;
   const el=document.createElement('div');
   el.id='_advConfirmMsg';
-  el.style.cssText=`position:fixed;top:80px;left:50%;transform:translateX(-50%);background:${color};color:#fff;padding:12px 24px;border-radius:14px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;z-index:999999;box-shadow:0 4px 20px rgba(0,0,0,.2);text-align:center;min-width:260px;animation:fadeIn .2s ease`;
+  el.style.cssText=`background:${color};color:#fff;padding:10px 16px;border-radius:10px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;text-align:center;margin-bottom:12px;animation:fadeIn .2s ease`;
   el.textContent=msg;
-  document.body.appendChild(el);
+  // حطه في أول الـ modal box
+  modal.insertBefore(el, modal.firstChild);
   setTimeout(()=>el.remove(), 3000);
 }
 async function addAdvEntry(){
