@@ -8,12 +8,16 @@ async function backupAll(){
     // ExcelJS loaded in index.html
     setSav('⏳ جاري جلب البيانات...','ng');
     // جيب كل البيانات
-    const [prjs,ents,advs,insts,profs]=await Promise.all([
+    const [prjs,ents,advs,insts,profs,dues,pending,notes,advEnts]=await Promise.all([
       sb('projects?order=created_at'),
       sbAll('entries?order=created_at'),
       sb('advances?order=created_at'),
       sb('advance_installments?order=created_at'),
-      sb('profiles?order=created_at')
+      sb('profiles?order=created_at'),
+      sb('contractor_dues?order=created_at'),
+      sb('pending_entries?order=created_at'),
+      sb('notes?order=created_at'),
+      sbAll('entries?advance_id=not.is.null&order=created_at&select=advance_id,amount')
     ]);
     setSav('⏳ جاري بناء الملف...','ng');
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];
@@ -59,10 +63,19 @@ async function backupAll(){
       cell.font={bold:true,color:{argb:isInc?'FF1E6B3A':'FF922B21'}};
       wsE.getRow(i).getCell(3).font={bold:true,color:{argb:isInc?'FF1E6B3A':'FF922B21'}};
     }
-    // شيت العهد
+    // شيت العهد — مع المصروف والمتبقي
     const wsA=wb.addWorksheet('العهد',{views:[{rightToLeft:true}]});
-    hdr(wsA,[{h:'الاسم',k:'name',w:22},{h:'الحالة',k:'status',w:12},{h:'ملاحظات',k:'notes',w:30},{h:'ID',k:'id',w:38}]);
-    advs.forEach(a=>wsA.addRow({name:a.person_name||'',status:a.status==='open'?'مفتوحة':'مغلقة',notes:a.notes||'',id:a.id}));
+    hdr(wsA,[{h:'الاسم',k:'name',w:22},{h:'الحالة',k:'status',w:12},{h:'إجمالي الدفعات',k:'total',w:18},{h:'إجمالي المصروف',k:'spent',w:18},{h:'المتبقي',k:'rem',w:15},{h:'ملاحظات',k:'notes',w:30}]);
+    // احسب المصروف لكل عهدة
+    const advSpentMap={};
+    advEnts.forEach(e=>{if(!advSpentMap[e.advance_id])advSpentMap[e.advance_id]=0;advSpentMap[e.advance_id]+=e.amount;});
+    advs.forEach(a=>{
+      const total=insts.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
+      const spent=advSpentMap[a.id]||0;
+      const rem=total-spent;
+      const row=wsA.addRow({name:a.person_name||'',status:a.status==='open'?'مفتوحة':'مغلقة',total,spent,rem,notes:a.notes||''});
+      row.getCell(5).font={bold:true,color:{argb:rem>=0?'FF1E6B3A':'FF922B21'}};
+    });
     styleRows(wsA,advs.length);
     // شيت دفعات العهد
     const wsI=wb.addWorksheet('دفعات العهد',{views:[{rightToLeft:true}]});
@@ -75,6 +88,27 @@ async function backupAll(){
     hdr(wsU,[{h:'الاسم',k:'name',w:22},{h:'الدور',k:'role',w:15},{h:'ID',k:'id',w:38}]);
     profs.forEach(u=>wsU.addRow({name:u.name||'',role:u.role||'',id:u.id}));
     styleRows(wsU,profs.length);
+    // شيت المستحقات
+    if(dues&&dues.length){
+      const wsD=wb.addWorksheet('المستحقات',{views:[{rightToLeft:true}]});
+      hdr(wsD,[{h:'المقاول',k:'name',w:22},{h:'المشروع',k:'proj',w:20},{h:'المبلغ',k:'amt',w:15},{h:'الحالة',k:'status',w:12},{h:'التاريخ',k:'dt',w:15},{h:'ملاحظة',k:'note',w:25}]);
+      dues.forEach(d=>wsD.addRow({name:d.contractor_name||'',proj:projMap[d.project_id]||'',amt:d.amount,status:d.status==='paid'?'مدفوع':'غير مدفوع',dt:d.due_date||'',note:d.note||''}));
+      styleRows(wsD,dues.length);
+    }
+    // شيت القيود المعلقة
+    if(pending&&pending.length){
+      const wsPN=wb.addWorksheet('قيود معلقة',{views:[{rightToLeft:true}]});
+      hdr(wsPN,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'الحالة',k:'status',w:15}]);
+      pending.forEach(e=>wsPN.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',status:'في الانتظار'}));
+      styleRows(wsPN,pending.length);
+    }
+    // شيت الملاحظات
+    if(notes&&notes.length){
+      const wsN=wb.addWorksheet('الملاحظات',{views:[{rightToLeft:true}]});
+      hdr(wsN,[{h:'العنوان',k:'title',w:25},{h:'المحتوى',k:'body',w:40},{h:'التاريخ',k:'dt',w:15}]);
+      notes.forEach(n=>wsN.addRow({title:n.title||'',body:n.body||n.content||'',dt:n.created_at?n.created_at.substring(0,10):''}));
+      styleRows(wsN,notes.length);
+    }
     // تحميل الملف
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
@@ -87,7 +121,7 @@ async function backupAll(){
     URL.revokeObjectURL(url);
     localStorage.setItem('lft_last_backup', new Date().toISOString());
     updateBackupDateDisplay();
-    setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة','ok');
+    setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة · '+dues.length+' مستحقة','ok');
     msg.style.color='var(--primary-btn)';
   }catch(e){
     setSav('❌ '+friendlyError(e),'er');
