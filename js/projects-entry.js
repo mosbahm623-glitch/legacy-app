@@ -101,9 +101,20 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
-    // ارجع لملخص المشروع بعد الإرسال
-    cTab='s';
-    rp();
+    // حدث الـ KPI فقط بدون أي حركة في الشاشة
+    const inc2=pInc().reduce((s,e)=>s+e.amount,0);
+    const exp2=pExp().reduce((s,e)=>s+e.amount,0);
+    const bal2=inc2-exp2;
+    const pct2=inc2>0?Math.round((exp2/inc2)*100):0;
+    const pctCls2=pct2<70?'kc-pct-ok':pct2<90?'kc-pct-warn':'kc-pct-danger';
+    const balCls2=bal2<0?'kc-neg':'kc-bal';
+    const balValCls2=bal2<0?'kv kv-neg':'kv kv-pos';
+    const balLbl2=bal2<0?'⚠ عجز':'الرصيد';
+    const kpEl=document.getElementById('kp');
+    if(kpEl)kpEl.innerHTML=
+      '<div class="kc kc-inc"><div class="kl">الوارد</div><div class="kv kv-inc">'+fn(inc2)+'</div></div>'+
+      '<div class="kc kc-exp"><div class="kl">المصروف <span class="kc-pct '+pctCls2+'">'+pct2+'%</span></div><div class="kv kv-exp">'+fn(exp2)+'</div><div class="kc-bar"><div class="kc-bar-fill" style="width:'+Math.min(pct2,100)+'%"></div></div></div>'+
+      '<div class="kc '+balCls2+'"><div class="kl">'+balLbl2+'</div><div class="'+balValCls2+'">'+fn(Math.abs(bal2))+'</div></div>';
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
