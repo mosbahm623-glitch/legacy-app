@@ -1,3 +1,17 @@
+function _showEntryConfirm(msg, color){
+  const ex=document.getElementById('_entConfirmMsg');
+  if(ex)ex.remove();
+  // حطها فوق فورم الإدخال
+  const form=document.getElementById('entryForm');
+  if(!form)return;
+  const el=document.createElement('div');
+  el.id='_entConfirmMsg';
+  el.style.cssText=`background:${color};color:#fff;padding:10px 16px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;text-align:center;margin-bottom:10px;animation:fadeIn .2s ease`;
+  el.textContent=msg;
+  form.insertBefore(el, form.firstChild);
+  setTimeout(()=>el.remove(), 3000);
+}
+
 function _clearErr(inputId, errId){
   const el=document.getElementById(inputId);
   const er=document.getElementById(errId);
@@ -73,12 +87,14 @@ async function ae(){
       refreshProjSummary(savedPid);
       setSav('✅ تم الحفظ','ok');
       notify(`✅ تم حفظ القيد في مشروع: ${savedProjName}`,'ok');
+      _showEntryConfirm('✅ تم إضافة القيد بنجاح','#1D9E75');
       auditLog('إضافة قيد','entries',entry.id,{project:savedProjName,amount:entry.amount,category:entry.category,type:entry.type});
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
       await sb('pending_entries','POST',pending);
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       notify(`⏳ تم إرسال القيد للموافقة — مشروع: ${savedProjName}`,'warn');
+      _showEntryConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة','#C9A84C');
     }
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
