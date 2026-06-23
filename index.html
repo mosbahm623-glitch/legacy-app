@@ -410,8 +410,15 @@
             <button class="gsm" onclick="np()">+ مشروع جديد</button>
           </div>
         </div>
-        <div style="padding:0 0 12px 0">
+        <div style="padding:0 0 8px 0">
           <input id="projSearchInput" type="text" placeholder="🔍 ابحث عن مشروع..." oninput="filterProjCards(this.value)" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
+        <div id="projStatusFilters" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px 0">
+          <button onclick="setProjFilter('all',this)" class="pfbtn pfbtn-on" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--accent,#1D3C2A);color:#D4C49A;transition:all .15s">الكل</button>
+          <button onclick="setProjFilter('danger',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">⚠️ عجز</button>
+          <button onclick="setProjFilter('warn',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">🟡 تحذير</button>
+          <button onclick="setProjFilter('good',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">✅ طبيعي</button>
+          <button onclick="setProjFilter('zero',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">— بدون حركة</button>
         </div>
         <div id="projCardsGrid" class="proj-cards-grid"></div>
       </div>
