@@ -125,10 +125,10 @@ async function initApp(){
   initNetworkStatus();
   setTimeout(()=>{initRealtime();setTimeout(()=>initNotifSystem(),1500);},1000);
 
-  // Viewer يدخل مباشرة على عهدته
+  // Viewer يدخل مباشرة على عهدته — أخبي الداشبورد فوراً
   if(uRole==='viewer'){
-    await loadAdvList();
     showScreen('adv');
+    await loadAdvList();
     // افتح عهدته تلقائي لو عنده عهدة واحدة
     await autoOpenViewerAdv();
   } else {
