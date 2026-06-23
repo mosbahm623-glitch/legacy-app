@@ -284,6 +284,17 @@ function advProjSelect(id, name){
   document.getElementById('advProjInput').value=name;
   document.getElementById('advProjDD').style.display='none';
 }
+
+function _showAdvConfirm(msg, color){
+  const ex=document.getElementById('_advConfirmMsg');
+  if(ex)ex.remove();
+  const el=document.createElement('div');
+  el.id='_advConfirmMsg';
+  el.style.cssText=`position:fixed;top:80px;left:50%;transform:translateX(-50%);background:${color};color:#fff;padding:12px 24px;border-radius:14px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;z-index:999999;box-shadow:0 4px 20px rgba(0,0,0,.2);text-align:center;min-width:260px;animation:fadeIn .2s ease`;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
 async function addAdvEntry(){
   const pid=document.getElementById('advProjSel').value;
   const cat=document.getElementById('advCat').value.trim();
@@ -319,10 +330,12 @@ async function addAdvEntry(){
       await sb('entries','POST',entry);
       setSav('✅ تم الحفظ','ok');
       markNewAdvEntry(curAdv.id, amt, cat, desc);
+      _showAdvConfirm('✅ تم إضافة القيد بنجاح', '#1D9E75');
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
       await sb('pending_entries','POST',pending);
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
+      _showAdvConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة', '#C9A84C');
     }
     document.getElementById('advCat').value='';
     document.getElementById('advDesc').value='';
