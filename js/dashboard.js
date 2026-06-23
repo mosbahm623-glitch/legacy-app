@@ -62,7 +62,7 @@ async function loadDashboard(){
       sb('advances?status=eq.open'),
       sb('advance_installments?order=created_at'),
       sb('project_summaries?select=project_id,inc,exp'),
-      sb('entries?advance_id=not.is.null&status=eq.approved&select=advance_id,amount')
+      sb('entries?advance_id=not.is.null&select=advance_id,amount')
     ]);
     allInstallments=_allInstallments;
 
