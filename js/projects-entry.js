@@ -101,14 +101,12 @@ async function ae(){
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
     // يفضل في فورم الإضافة — مش يتنقل لشاشة القيود
     const _savedTab=cTab;
+    const _savedScroll=window.scrollY||document.documentElement.scrollTop;
     rp();
     cTab=_savedTab;
     re();
-    // scroll للفورم عشان يفضل في نفس المكان
-    setTimeout(()=>{
-      const ef=document.getElementById('entryForm');
-      if(ef)ef.scrollIntoView({behavior:'smooth',block:'start'});
-    },100);
+    // ارجع لنفس مكان الـ scroll عشان الفورم يفضل ظاهر
+    setTimeout(()=>window.scrollTo({top:_savedScroll,behavior:'instant'}),50);
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
