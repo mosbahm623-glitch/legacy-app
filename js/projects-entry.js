@@ -101,11 +101,9 @@ async function ae(){
     document.getElementById('ia').value='';document.getElementById('id_').value='';document.getElementById('iq').value='';
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
-    // حدث الـ KPI فقط بدون أي scroll أو تغيير شاشة
-    const _savedTab=cTab;
+    // ارجع لملخص المشروع بعد الإرسال
+    cTab='s';
     rp();
-    cTab=_savedTab;
-    re();
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
