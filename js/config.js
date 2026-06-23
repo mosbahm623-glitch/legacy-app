@@ -83,6 +83,10 @@ async function auditLog(action,tableName,recordId,details){
   }catch(e){console.warn('audit log failed:',e);}
 }
 
+
+// ══════════════════════════════════════════
+// ██ SUPABASE CONFIG + GLOBAL VARIABLES
+// ══════════════════════════════════════════
 const SB='https://ctcoqgluaytwelnutrox.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
 let token=null,uid=null,uRole=null,uName='',uEmail='';
@@ -92,6 +96,10 @@ let cT='e',cTab='s',edId=null,edType=null,imType='e',xOK=false,curScreen='proj';
 let allChatUsers=[];
 let _rtEntCh=null,_rtAdvCh=null;
 
+
+// ══════════════════════════════════════════
+// ██ SUPABASE HELPERS — sb / sbAll / sbAuth
+// ══════════════════════════════════════════
 async function sb(path,method,body){
   const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json'};
   if(method==='POST'||method==='PATCH')h['Prefer']='return=representation';
@@ -120,6 +128,10 @@ async function sbAuth(path,method,body){
   if(!r.ok){const e=await r.json();throw new Error(e.error_description||e.message||'خطأ');}
   return r.json();
 }
+
+// ══════════════════════════════════════════
+// ██ UTILITY FUNCTIONS — helpers عامة
+// ══════════════════════════════════════════
 function setSav(m,c){
   const el=document.getElementById('sav');
   if(!el)return;
