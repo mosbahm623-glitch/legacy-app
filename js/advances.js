@@ -231,7 +231,12 @@ function showAdvEntryModal(){
   ov.innerHTML=`<div class="modal-box" style="max-width:400px;width:100%">
     <div style="text-align:center;margin-bottom:14px"><div style="font-size:26px">➕</div><div class="title-md">إضافة مصروف على العهدة</div></div>
     <div style="display:flex;flex-direction:column;gap:10px">
-      <select id="advProjSel" class="inp-lg"><option value="">اختار المشروع</option>${projs}</select>
+      <div style="position:relative">
+        <input id="advProjInput" placeholder="🔍 ابحث عن مشروع..." class="inp-lg" autocomplete="off"
+          oninput="advProjSearch(this.value)" onfocus="advProjSearch(this.value)" style="width:100%">
+        <input type="hidden" id="advProjSel">
+        <div id="advProjDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:4px"></div>
+      </div>
       <input id="advCat" placeholder="البند" class="inp-lg" list="cl">
       <input id="advDesc" placeholder="البيان" class="inp-lg">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -251,6 +256,34 @@ function showAdvEntryModal(){
   setTimeout(()=>document.getElementById('advCat')?.focus(),150);
 }
 
+
+function advProjSearch(q){
+  const dd=document.getElementById('advProjDD');
+  const inp=document.getElementById('advProjInput');
+  if(!dd||!inp)return;
+  const filtered=allProjects.filter(p=>p.name.includes(q.trim())||q.trim()==='');
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.innerHTML=filtered.map(p=>`
+    <div onclick="advProjSelect('${p.id}','${p.name.replace(/'/g,"\'")}')"
+      style="padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;border-bottom:1px solid #f5f5f5"
+      onmouseover="this.style.background='#f0f7f0'" onmouseout="this.style.background='#fff'">
+      ${p.name}
+    </div>`).join('');
+  dd.style.display='block';
+  // أغلق لو ضغط بره
+  setTimeout(()=>{
+    document.addEventListener('click', function _c(e){
+      if(!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}
+      document.removeEventListener('click',_c);
+    });
+  },100);
+}
+
+function advProjSelect(id, name){
+  document.getElementById('advProjSel').value=id;
+  document.getElementById('advProjInput').value=name;
+  document.getElementById('advProjDD').style.display='none';
+}
 async function addAdvEntry(){
   const pid=document.getElementById('advProjSel').value;
   const cat=document.getElementById('advCat').value.trim();
@@ -295,7 +328,7 @@ async function addAdvEntry(){
     document.getElementById('advDesc').value='';
     document.getElementById('advEntAmt').value='';
     document.getElementById('advMq').value='';
-    document.getElementById('_advEntModal')?.remove();
+    // الفورم يفضل مفتوح — بس امسح الحقول
     await loadAdvDetail();
     if(curPid===pid)await loadEntries();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
