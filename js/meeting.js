@@ -45,19 +45,44 @@ function openMeetingView(){
   document.getElementById('mvProjName').textContent='📋 '+p.name;
   document.getElementById('mvDate').textContent='عرض بتاريخ: '+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
 
+  // تجميع القيود لكل بند
+  const catItems={};
+  exp.forEach(e=>{
+    const c=e.category||'غير مصنف';
+    if(!catItems[c])catItems[c]=[];
+    catItems[c].push(e);
+  });
+
+  let catIdx=0;
   const catsHtml = catsSorted.map(([cat,amt])=>{
     const p2=tExp>0?Math.round(amt/tExp*100):0;
-    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0ede6">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:#1a2e1a">${cat}</div>
-        <div style="margin-top:5px;background:#f0ede6;border-radius:4px;height:5px;overflow:hidden">
-          <div style="width:${p2}%;height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:4px"></div>
+    const idx=catIdx++;
+    const items=(catItems[cat]||[]).map(e=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fafaf8;border-radius:8px;margin-bottom:4px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:#1a2e1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.description||cat}</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">${fmtD(e.entry_date)}</div>
+        </div>
+        <div style="font-size:13px;font-weight:800;color:#e74c3c;white-space:nowrap;padding-right:8px">▼ ${fn2(e.amount)} ج</div>
+      </div>`).join('');
+
+    return`<div style="border-bottom:1px solid #f0ede6;padding:10px 0">
+      <div onclick="mvToggleCat(${idx})" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#1a2e1a">${cat}</div>
+          <div style="margin-top:5px;background:#f0ede6;border-radius:4px;height:4px;overflow:hidden">
+            <div style="width:${p2}%;height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:4px"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-right:10px">
+          <div style="text-align:left">
+            <div style="font-size:13px;font-weight:800;color:#e74c3c">▼ ${fn2(amt)} ج</div>
+            <div style="font-size:10px;color:#aaa;text-align:center">${p2}%</div>
+          </div>
+          <span id="mvCatArr${idx}" style="font-size:14px;color:#aaa;transition:transform .3s">⌄</span>
         </div>
       </div>
-      <div style="text-align:left;min-width:100px;padding-right:12px">
-        <div style="font-size:14px;font-weight:800;color:#e74c3c">▼ ${fn2(amt)} ج</div>
-        <div style="font-size:10px;color:#aaa;text-align:center">${p2}%</div>
-      </div>
+      <div id="mvCatBody${idx}" style="display:none;margin-top:8px">${items}</div>
     </div>`;
   }).join('');
 
@@ -152,6 +177,14 @@ function closeMeetingView(){
   document.body.style.overflow='';
 }
 
+function mvToggleCat(idx){
+  const b=document.getElementById('mvCatBody'+idx);
+  const a=document.getElementById('mvCatArr'+idx);
+  if(!b)return;
+  const open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  if(a)a.style.transform=open?'rotate(180deg)':'rotate(0)';
+}
 function mvToggleCats(){
   const b=document.getElementById('mvCatsBody');
   const a=document.getElementById('mvCatsArrow');
