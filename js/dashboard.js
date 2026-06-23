@@ -58,10 +58,11 @@ async function loadDashboard(){
       dateEl.textContent=`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
     }
 
-    const [allAdvances,_allInstallments,_liveSummaries]=await Promise.all([
+    const [allAdvances,_allInstallments,_liveSummaries,_advEntries]=await Promise.all([
       sb('advances?status=eq.open'),
       sb('advance_installments?order=created_at'),
-      sb('project_summaries?select=project_id,inc,exp')
+      sb('project_summaries?select=project_id,inc,exp'),
+      sb('entries?advance_id=not.is.null&status=eq.approved&select=advance_id,amount')
     ]);
     allInstallments=_allInstallments;
 
@@ -73,8 +74,8 @@ async function loadDashboard(){
     });
     let totalAdv=0;
     allAdvances.forEach(a=>{
-      const inst=allInstallments.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
-      const spent=allEntries.filter(e=>e.advance_id===a.id).reduce((s,e)=>s+e.amount,0);
+      const inst=_allInstallments.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
+      const spent=_advEntries.filter(e=>e.advance_id===a.id).reduce((s,e)=>s+e.amount,0);
       totalAdv+=(inst-spent);
     });
 
