@@ -80,7 +80,7 @@ async function ae(){
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid};
   setSav('💾 جاري الحفظ...','ng');
   try{
-    if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
+    if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'||uRole==='owner'){
       await sb('entries','POST',entry);
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
