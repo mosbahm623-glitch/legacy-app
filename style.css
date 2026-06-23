@@ -2443,3 +2443,21 @@ body.ent-fs #entExpandBtn{
   border:0.5px solid #D4C49A44;
   letter-spacing:.3px;
 }
+
+/* ══ MEETING VIEW — Dark Mode ══════════════════ */
+body.dark-mode #meetingModal{background:var(--dark-base,#0F150F) !important}
+body.dark-mode #meetingModal .mv-card{background:var(--dark-card,#1A2A1A) !important;border-color:rgba(212,196,154,.1) !important;color:var(--accent,#D4C49A) !important}
+body.dark-mode #meetingModal [style*="background:#fff"]{background:var(--dark-card,#1A2A1A) !important}
+body.dark-mode #meetingModal [style*="background:#fafaf8"]{background:rgba(255,255,255,.04) !important}
+body.dark-mode #meetingModal [style*="background:#f0ede6"]{background:rgba(212,196,154,.06) !important}
+body.dark-mode #meetingModal [style*="background:#f8f6f2"]{background:rgba(212,196,154,.06) !important}
+body.dark-mode #meetingModal [style*="color:#1a2e1a"]{color:var(--accent,#D4C49A) !important}
+body.dark-mode #meetingModal [style*="color:#888"]{color:rgba(212,196,154,.4) !important}
+body.dark-mode #meetingModal [style*="color:#aaa"]{color:rgba(212,196,154,.35) !important}
+body.dark-mode #meetingModal [style*="border-color:#e8e3da"]{border-color:rgba(212,196,154,.1) !important}
+body.dark-mode #meetingModal [style*="border-bottom:1px solid #f0ede6"]{border-bottom-color:rgba(212,196,154,.1) !important}
+body.dark-mode #meetingModal [style*="border-bottom:1px solid #f5f2ec"]{border-bottom-color:rgba(212,196,154,.1) !important}
+
+/* ══ PROJECT CARDS — Dark Mode ══════════════════ */
+body.dark-mode .pfbtn{background:rgba(255,255,255,.05) !important;border-color:rgba(212,196,154,.15) !important;color:rgba(212,196,154,.5) !important}
+body.dark-mode .pfbtn.pfbtn-on{background:var(--accent,#1D3C2A) !important;color:#D4C49A !important}
