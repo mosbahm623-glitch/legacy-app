@@ -350,11 +350,11 @@ async function addAdvEntry(){
     document.getElementById('advDesc').value='';
     document.getElementById('advEntAmt').value='';
     document.getElementById('advMq').value='';
-    // أعد المشروع المختار
-    if(_lastAdvProjId){
-      document.getElementById('advProjSel').value=_lastAdvProjId;
-      document.getElementById('advProjInput').value=_lastAdvProjName;
-    }
+    // امسح المشروع مع باقي الحقول
+    _lastAdvProjId='';
+    _lastAdvProjName='';
+    document.getElementById('advProjSel').value='';
+    document.getElementById('advProjInput').value='';
     // الفورم يفضل مفتوح — بس امسح الحقول
     await loadAdvDetail();
     if(curPid===pid)await loadEntries();
