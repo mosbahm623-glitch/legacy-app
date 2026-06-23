@@ -17,7 +17,6 @@ async function backupAll(){
       sb('contractor_dues?order=created_at'),
       sb('pending_entries?order=created_at'),
       sb('notes?order=created_at'),
-      sbAll('entries?advance_id=not.is.null&order=created_at&select=advance_id,amount')
     ]);
     setSav('⏳ جاري بناء الملف...','ng');
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];
@@ -68,7 +67,7 @@ async function backupAll(){
     hdr(wsA,[{h:'الاسم',k:'name',w:22},{h:'الحالة',k:'status',w:12},{h:'إجمالي الدفعات',k:'total',w:18},{h:'إجمالي المصروف',k:'spent',w:18},{h:'المتبقي',k:'rem',w:15},{h:'ملاحظات',k:'notes',w:30}]);
     // احسب المصروف لكل عهدة
     const advSpentMap={};
-    advEnts.forEach(e=>{if(!advSpentMap[e.advance_id])advSpentMap[e.advance_id]=0;advSpentMap[e.advance_id]+=e.amount;});
+    ents.filter(e=>e.advance_id).forEach(e=>{if(!advSpentMap[e.advance_id])advSpentMap[e.advance_id]=0;advSpentMap[e.advance_id]+=e.amount;});
     advs.forEach(a=>{
       const total=insts.filter(i=>i.advance_id===a.id).reduce((s,i)=>s+i.amount,0);
       const spent=advSpentMap[a.id]||0;
