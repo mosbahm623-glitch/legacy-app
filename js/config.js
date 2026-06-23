@@ -544,9 +544,11 @@ let _rtDebounceTimer = null;
 
 // بيحدث الشاشة اللي أنت واقف عليها بس — مع debounce 800ms
 function _rtRefreshVisible() {
+  if (window._blockRtRefresh) return;
   if (_rtDebounceTimer) clearTimeout(_rtDebounceTimer);
   _rtDebounceTimer = setTimeout(() => {
     _rtDebounceTimer = null;
+    if (window._blockRtRefresh) return;
     const s = curScreen || '';
     if (s === 'dash') {
       if (typeof loadDashboard === 'function') loadDashboard();
