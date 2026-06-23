@@ -218,9 +218,19 @@ function renderSum(inc,exp){
     <div class="entry"><div class="entry-info"><div class="entry-desc">بنود مصاريف</div></div><div class="entry-amt" style="color:#5a7a5a">${exp.length}</div></div>
     ${catsSorted.length?`
     <div style="height:6px"></div>
-    <div class="card-title" style="margin-top:4px">📂 ملخص البنود</div>
-    ${catsHtml}
-    <div class="total-row"><span class="total-lbl">إجمالي المصاريف</span><span class="total-amt exp">▼ ${fn(tExp)} ج</span></div>`:''}
+    <div onclick="toggleCats()" style="display:flex;justify-content:space-between;align-items:center;background:#fff5f5;border:1.5px solid #f5c0c0;border-radius:12px;padding:12px 14px;cursor:pointer;margin-top:4px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#e74c3c">📂 تفاصيل البنود</div>
+        <div style="font-size:10px;color:#aaa;margin-top:2px">${catsSorted.length} بند</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:14px;font-weight:800;color:#e74c3c">▼ ${fn(tExp)} ج</div>
+        <div id="catsArrow" style="font-size:16px;color:#e74c3c;transition:transform .3s">⌄</div>
+      </div>
+    </div>
+    <div id="catsBody" style="display:none;margin-top:8px">
+      ${catsHtml}
+    </div>`:''}
   `;
 }
 
@@ -361,6 +371,14 @@ async function load(){
   }catch(e){
     document.getElementById('content').innerHTML='<div class="error">❌ خطأ: '+e.message+'</div>';
   }
+}
+function toggleCats(){
+  const b=document.getElementById('catsBody');
+  const a=document.getElementById('catsArrow');
+  if(!b)return;
+  const open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  a.style.transform=open?'rotate(180deg)':'rotate(0deg)';
 }
 load();
 </script>
