@@ -402,13 +402,38 @@ function buildProjListScreen(){
     </div>
   </div>`;
 
-  if(groups.danger.length){html+=sectionLbl('⚠️ تحتاج متابعة',groups.danger.length);html+=groups.danger.map(projCard).join('');}
-  if(groups.warn.length){html+=sectionLbl('🟡 تحذير',groups.warn.length);html+=groups.warn.map(projCard).join('');}
-  if(groups.good.length){html+=sectionLbl('✅ طبيعي',groups.good.length);html+=groups.good.map(projCard).join('');}
-  if(groups.zero.length){html+=sectionLbl('— بدون حركة',groups.zero.length);html+=groups.zero.map(projCard).join('');}
+  const _f=typeof _curProjFilter!=='undefined'?_curProjFilter:'all';
+  const showDanger=_f==='all'||_f==='danger';
+  const showWarn=_f==='all'||_f==='warn';
+  const showGood=_f==='all'||_f==='good';
+  const showZero=_f==='all'||_f==='zero';
+  if(showDanger&&groups.danger.length){html+=sectionLbl('⚠️ تحتاج متابعة',groups.danger.length);html+=groups.danger.map(projCard).join('');}
+  if(showWarn&&groups.warn.length){html+=sectionLbl('🟡 تحذير',groups.warn.length);html+=groups.warn.map(projCard).join('');}
+  if(showGood&&groups.good.length){html+=sectionLbl('✅ طبيعي',groups.good.length);html+=groups.good.map(projCard).join('');}
+  if(showZero&&groups.zero.length){html+=sectionLbl('— بدون حركة',groups.zero.length);html+=groups.zero.map(projCard).join('');}
+  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع في هذا التصنيف</div>';
 
   grid.innerHTML=html;
 }
+let _curProjFilter='all';
+
+function setProjFilter(f, btn){
+  _curProjFilter=f;
+  document.querySelectorAll('.pfbtn').forEach(b=>{
+    b.style.background='var(--card)';
+    b.style.color='var(--text-soft,#888)';
+    b.style.borderColor='var(--border)';
+  });
+  if(btn){
+    btn.style.background='var(--accent,#1D3C2A)';
+    btn.style.color='#D4C49A';
+    btn.style.borderColor='var(--accent,#1D3C2A)';
+  }
+  buildProjListScreen();
+  const q=document.getElementById('projSearchInput')?.value||'';
+  if(q)filterProjCards(q);
+}
+
 function filterProjCards(q){
   const term=q.trim().toLowerCase();
   // table structure: filter tbody rows
