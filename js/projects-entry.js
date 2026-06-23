@@ -100,11 +100,15 @@ async function ae(){
     ['ia','id_','ic','idt'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('input-err','input-ok');}});
     ['err-ia','err-id_','err-ic','err-idt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
     // يفضل في فورم الإضافة — مش يتنقل لشاشة القيود
-    // بس نحدث الـ KPI cards والـ sidebar بدون تغيير الـ tab
     const _savedTab=cTab;
     rp();
     cTab=_savedTab;
     re();
+    // scroll للفورم عشان يفضل في نفس المكان
+    setTimeout(()=>{
+      const ef=document.getElementById('entryForm');
+      if(ef)ef.scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
   }catch(e){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
