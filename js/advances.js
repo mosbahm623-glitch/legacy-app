@@ -199,14 +199,14 @@ async function loadAdvDetail(silent=false){
             const rowHov=_dk?'rgba(29,60,42,.4)':'#eef4ee';
             const rowBrd=_dk?'rgba(212,196,154,.08)':'#eee';
             return `<tr style="background:${rowBg};border-bottom:0.5px solid ${rowBrd}" onmouseover="this.style.background='${rowHov}'" onmouseout="this.style.background='${rowBg}'">
-              <td style="padding:7px 10px;color:#aaa;font-size:11px">${i+1}</td>
+              <td style="padding:7px 10px;color:var(--text-soft,#aaa);font-size:11px">${i+1}</td>
               <td style="padding:7px 10px">${e2.seq?`<span class="nb">#${e2.seq}</span>`:'—'}</td>
-              <td style="padding:7px 10px;color:#888;font-size:11px;white-space:nowrap">${cleanDate(e2.entry_date)||'—'}</td>
-              <td style="padding:7px 10px;color:#555;font-size:11px">${pName}</td>
-              <td style="padding:7px 10px"><span style="font-size:10px;background:#f0f0ec;border:0.5px solid #ddd;padding:2px 7px;border-radius:10px;color:#666">${e2.category||'—'}</span></td>
-              <td style="padding:7px 10px;color:#333">${e2.description||'—'}</td>
-              <td style="padding:7px 10px;color:#888;font-size:11px">${e2.contractor||'—'}</td>
-              <td style="padding:7px 10px;font-weight:500;color:#C0392B;white-space:nowrap">▼ ${fn(e2.amount)} ج</td>
+              <td style="padding:7px 10px;color:var(--text-soft,#888);font-size:11px;white-space:nowrap">${cleanDate(e2.entry_date)||'—'}</td>
+              <td style="padding:7px 10px;color:var(--text-soft,#555);font-size:11px">${pName}</td>
+              <td style="padding:7px 10px"><span style="font-size:10px;background:var(--bg-ivory,#f0f0ec);border:0.5px solid var(--border,#ddd);padding:2px 7px;border-radius:10px;color:var(--text-soft,#666)">${e2.category||'—'}</span></td>
+              <td style="padding:7px 10px;color:var(--text-body,#333)">${e2.description||'—'}</td>
+              <td style="padding:7px 10px;color:var(--text-soft,#888);font-size:11px">${e2.contractor||'—'}</td>
+              <td style="padding:7px 10px;font-weight:500;color:var(--danger,#C0392B);white-space:nowrap">▼ ${fn(e2.amount)} ج</td>
               <td style="padding:4px 6px;white-space:nowrap">${btns}</td>
             </tr>`;
           }).join('')}</tbody>
