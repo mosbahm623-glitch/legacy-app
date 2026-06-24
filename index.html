@@ -439,7 +439,16 @@
         <div class="kp" id="kp"></div>
         <div id="entryForm">
           <div class="ef">
-            <div id="entryProjBanner" style="display:flex;align-items:center;gap:6px;padding:4px 8px;margin-bottom:6px;font-size:11px;color:var(--text-muted)"><span>📌</span><span id="entryProjName" style="font-weight:600;color:var(--primary)">—</span></div>
+            <div id="entryProjBanner" style="margin-bottom:8px">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📌 المشروع <span style="color:var(--danger)">*</span></div>
+              <div style="position:relative">
+                <input id="entryProjInput" placeholder="🔍 ابحث عن مشروع..." autocomplete="off"
+                  oninput="entProjSearch(this.value)" onfocus="entProjSearch(this.value)"
+                  style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box">
+                <input type="hidden" id="entryProjId">
+                <div id="entryProjDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto;margin-top:4px"></div>
+              </div>
+            </div>
             <div class="tt">
               <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
               <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
