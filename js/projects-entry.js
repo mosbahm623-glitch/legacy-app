@@ -1,3 +1,38 @@
+
+// ══ ENTRY FORM — بحث المشروع ══════════════════
+function entProjSearch(q){
+  const dd=document.getElementById('entryProjDD');
+  const inp=document.getElementById('entryProjInput');
+  if(!dd||!inp)return;
+  const filtered=(allProjects||[]).filter(p=>!q.trim()||p.name.includes(q.trim()));
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.innerHTML=filtered.map(p=>`
+    <div onclick="entProjSelect('${p.id}','${p.name.replace(/'/g,"\'")}',event)"
+      style="padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;border-bottom:1px solid var(--border-faint,#f5f5f5)"
+      onmouseenter="this.style.background='var(--bg-ivory,#f0f7f0)'"
+      onmouseleave="this.style.background=''">
+      ${p.name}
+    </div>`).join('');
+  dd.style.display='block';
+  setTimeout(()=>{
+    document.addEventListener('click',function _c(e){
+      if(!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}
+      document.removeEventListener('click',_c);
+    });
+  },100);
+}
+
+function entProjSelect(id,name,e){
+  if(e)e.stopPropagation();
+  document.getElementById('entryProjId').value=id;
+  document.getElementById('entryProjInput').value=name;
+  document.getElementById('entryProjDD').style.display='none';
+  // لو المشروع مختلف عن الحالي — غير curPid
+  if(id!==curPid){
+    goToProject(id);
+  }
+}
+
 function _showEntryConfirm(msg, color){
   const ex=document.getElementById('_entConfirmMsg');
   if(ex)ex.remove();
@@ -368,6 +403,11 @@ ${isExp&&e.contractor&&allProjectsMap[e.project_id]?.contractor_phones?.[e.contr
 function _updateEntryBanner(){
   const el=document.getElementById('entryProjName');
   if(el)el.textContent=allProjectsMap[curPid]?.name||'—';
+  // حدّث الـ search input كمان
+  const inp=document.getElementById('entryProjInput');
+  const hid=document.getElementById('entryProjId');
+  if(inp&&curPid)inp.value=allProjectsMap[curPid]?.name||'';
+  if(hid&&curPid)hid.value=curPid;
 }
 async function sw(pid){
   curPid=pid;cTab='s';window._rpPage=0;setSav('⏳ جاري تحميل المشروع...','ng');
