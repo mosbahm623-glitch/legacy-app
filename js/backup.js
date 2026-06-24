@@ -121,10 +121,8 @@ async function backupAll(){
     localStorage.setItem('lft_last_backup', new Date().toISOString());
     updateBackupDateDisplay();
     setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة · '+dues.length+' مستحقة','ok');
-    msg.style.color='var(--primary-btn)';
   }catch(e){
     setSav('❌ '+friendlyError(e),'er');
-    msg.style.color='var(--danger)';
   }
   btn.disabled=false;
 }
