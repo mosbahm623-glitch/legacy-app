@@ -222,9 +222,6 @@ async function confirmEditApprove(id){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
     const r=rows[0];
-    // seq بيتولد تلقائياً من Supabase trigger
-    if(nextSeq<20260000)nextSeq=20260000;
-    nextSeq++;
     const entry={
       id:r.id,
       project_id:newProjId,
@@ -235,7 +232,6 @@ async function confirmEditApprove(id){
       entry_date:document.getElementById('eaDate').value.trim(),
       contractor:document.getElementById('eaContr').value.trim(),
       advance_id:r.advance_id||null,
-      seq:nextSeq,
       created_by:r.submitted_by
     };
     await sb('entries','POST',entry);
@@ -290,9 +286,6 @@ async function approveEntry(id,silent=false){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    // seq بيتولد تلقائياً من Supabase trigger
-    if(nextSeq<20260000)nextSeq=20260000;
-    nextSeq++;
     const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by};
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
