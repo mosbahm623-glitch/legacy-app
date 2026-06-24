@@ -55,8 +55,6 @@ function entProjSelect(id,name){
   if(id!==curPid)goToProject(id);
 }
 
-}
-
 function _showEntryConfirm(msg, color){
   const ex=document.getElementById('_entConfirmMsg');
   if(ex)ex.remove();
