@@ -1,36 +1,60 @@
 
 // ══ ENTRY FORM — بحث المشروع ══════════════════
-function entProjSearch(q){
+let _entProjDDOpen=false;
+
+function toggleEntProjDD(){
   const dd=document.getElementById('entryProjDD');
-  const inp=document.getElementById('entryProjInput');
-  if(!dd||!inp)return;
-  const filtered=(allProjects||[]).filter(p=>!q.trim()||p.name.includes(q.trim()));
-  if(!filtered.length){dd.style.display='none';return;}
-  dd.innerHTML=filtered.map(p=>`
-    <div onclick="entProjSelect('${p.id}','${p.name.replace(/'/g,"\'")}',event)"
-      style="padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;border-bottom:1px solid var(--border-faint,#f5f5f5)"
-      onmouseenter="this.style.background='var(--bg-ivory,#f0f7f0)'"
-      onmouseleave="this.style.background=''">
-      ${p.name}
-    </div>`).join('');
+  const arrow=document.getElementById('entryProjArrow');
+  if(!dd)return;
+  if(_entProjDDOpen){
+    dd.style.display='none';
+    if(arrow)arrow.style.transform='translateY(-50%) rotate(0deg)';
+    _entProjDDOpen=false;
+    return;
+  }
   dd.style.display='block';
+  if(arrow)arrow.style.transform='translateY(-50%) rotate(180deg)';
+  _entProjDDOpen=true;
+  entProjSearch('');
+  setTimeout(()=>document.getElementById('entryProjSrch')?.focus(),50);
   setTimeout(()=>{
     document.addEventListener('click',function _c(e){
-      if(!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}
+      const wrap=document.getElementById('entryProjInput')?.parentElement;
+      if(wrap&&!wrap.contains(e.target)){
+        dd.style.display='none';
+        if(arrow)arrow.style.transform='translateY(-50%) rotate(0deg)';
+        _entProjDDOpen=false;
+      }
       document.removeEventListener('click',_c);
     });
   },100);
 }
 
-function entProjSelect(id,name,e){
-  if(e)e.stopPropagation();
+function entProjSearch(q){
+  const list=document.getElementById('entryProjList');
+  if(!list)return;
+  const filtered=(allProjects||[]).filter(p=>!q.trim()||p.name.includes(q.trim()));
+  if(!filtered.length){list.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">لا توجد نتائج</div>';return;}
+  list.innerHTML=filtered.map(p=>`
+    <div onclick="entProjSelect('${p.id}','${p.name.replace(/'/g,"\'")}')"
+      style="padding:10px 14px;cursor:pointer;font-size:13px;font-weight:600;border-bottom:1px solid var(--border-faint,#f5f0e8);display:flex;align-items:center;gap:8px"
+      onmouseenter="this.style.background='var(--bg-ivory,#f5f0e8)'"
+      onmouseleave="this.style.background=''">
+      <span style="font-size:11px;color:var(--text-muted)">📁</span>${p.name}
+    </div>`).join('');
+}
+
+function entProjSelect(id,name){
   document.getElementById('entryProjId').value=id;
   document.getElementById('entryProjInput').value=name;
-  document.getElementById('entryProjDD').style.display='none';
-  // لو المشروع مختلف عن الحالي — غير curPid
-  if(id!==curPid){
-    goToProject(id);
-  }
+  const dd=document.getElementById('entryProjDD');
+  const arrow=document.getElementById('entryProjArrow');
+  if(dd)dd.style.display='none';
+  if(arrow)arrow.style.transform='translateY(-50%) rotate(0deg)';
+  _entProjDDOpen=false;
+  if(id!==curPid)goToProject(id);
+}
+
 }
 
 function _showEntryConfirm(msg, color){
