@@ -33,7 +33,6 @@ async function ae(){
   window._savingEntry=true;
   const _addBtn=document.getElementById('addEntryBtn');
   if(_addBtn){_addBtn.disabled=true;_addBtn.textContent='⏳ جاري الحفظ...';}
-  try{
   const a=parseFloat(document.getElementById('ia').value);
   const c=document.getElementById('ic').value.trim();
   const d=document.getElementById('id_').value.trim();
@@ -113,11 +112,10 @@ async function ae(){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
     notify('❌ فشل الحفظ — '+_em,'err');
-  }finally{
-    window._savingEntry=false;
-    const _b=document.getElementById('addEntryBtn');
-    if(_b){_b.disabled=false;_b.textContent='+ إضافة القيد';}
   }
+  window._savingEntry=false;
+  const _rb=document.getElementById('addEntryBtn');
+  if(_rb){_rb.disabled=false;_rb.textContent='+ إضافة القيد';}
 }
 // ██ PASSWORD CONFIRMATION MODAL ══════════════════
 function confirmWithPassword(actionLabel, actionIcon, onConfirmed){
