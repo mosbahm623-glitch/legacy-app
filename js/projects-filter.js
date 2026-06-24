@@ -43,7 +43,7 @@ let _duesList=[];
 let _allDues=[];
 let _duesFilter='all';
 
-function goToNotes(){if(uRole==='viewer'){notify('مش مسموح لك بالملاحظات','warn');return;}showScreen('notes');}
+function goToNotes(){showScreen('notes');}
 
 // ══════════════════════════════════════════
 //  NOTES SCREEN
