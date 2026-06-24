@@ -88,7 +88,6 @@ async function initApp(){
     document.getElementById('sbi-dash').style.display='none';
     document.getElementById('sbi-proj-hdr').style.display='none';
     document.getElementById('sbi-daily').style.display='none';
-    const sbiNotes=document.getElementById('sbi-notes');if(sbiNotes)sbiNotes.style.display='none';
     const vn=document.getElementById('viewerAdvNotice');if(vn)vn.style.display='block';
     if(sbProjSub)sbProjSub.style.display='none';
     document.getElementById('fab').style.display='none';
