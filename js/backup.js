@@ -46,8 +46,8 @@ async function backupAll(){
     }
     // شيت المشاريع
     const wsP=wb.addWorksheet('المشاريع',{views:[{rightToLeft:true}]});
-    hdr(wsP,[{h:'الاسم',k:'name',w:25},{h:'تاريخ البداية',k:'sd',w:18},{h:'تاريخ الإغلاق',k:'cd',w:18},{h:'ID',k:'id',w:38}]);
-    prjs.forEach(p=>wsP.addRow({name:p.name,sd:p.start_date||'',cd:p.close_date||'',id:p.id}));
+    hdr(wsP,[{h:'الاسم',k:'name',w:25},{h:'تاريخ البداية',k:'sd',w:18},{h:'تاريخ الإغلاق',k:'cd',w:18},{h:'مؤرشف',k:'arc',w:12},{h:'ID',k:'id',w:38}]);
+    prjs.forEach(p=>wsP.addRow({name:p.name,sd:p.start_date||'',cd:p.close_date||'',arc:p.archived?'مؤرشف':'نشط',id:p.id}));
     styleRows(wsP,prjs.length);
     // شيت القيود
     const wsE=wb.addWorksheet('القيود',{views:[{rightToLeft:true}]});
