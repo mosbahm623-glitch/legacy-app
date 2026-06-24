@@ -223,7 +223,7 @@ async function confirmEditApprove(id){
     if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
     const r=rows[0];
     const entry={
-      id:r.id,
+      id:crypto.randomUUID(),
       project_id:newProjId,
       type:document.getElementById('eaType').value,
       amount:amt,
@@ -286,7 +286,7 @@ async function approveEntry(id,silent=false){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by};
+    const entry={id:crypto.randomUUID(),project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by};
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
