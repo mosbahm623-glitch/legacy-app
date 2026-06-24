@@ -28,6 +28,12 @@ async function _getPeriodLocks(){
 }
 function _clearPeriodLocksCache(){_periodLocksCache=null;}
 async function ae(){
+  // منع الضغط المزدوج
+  if(window._savingEntry)return;
+  window._savingEntry=true;
+  const _addBtn=document.getElementById('addEntryBtn');
+  if(_addBtn){_addBtn.disabled=true;_addBtn.textContent='⏳ جاري الحفظ...';}
+  try{
   const a=parseFloat(document.getElementById('ia').value);
   const c=document.getElementById('ic').value.trim();
   const d=document.getElementById('id_').value.trim();
@@ -107,6 +113,10 @@ async function ae(){
     const _em=friendlyError(e);
     setSav('❌ '+_em,'er');
     notify('❌ فشل الحفظ — '+_em,'err');
+  }finally{
+    window._savingEntry=false;
+    const _b=document.getElementById('addEntryBtn');
+    if(_b){_b.disabled=false;_b.textContent='+ إضافة القيد';}
   }
 }
 // ██ PASSWORD CONFIRMATION MODAL ══════════════════
