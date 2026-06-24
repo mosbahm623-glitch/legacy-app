@@ -442,11 +442,19 @@
             <div id="entryProjBanner" style="margin-bottom:8px">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📌 المشروع <span style="color:var(--danger)">*</span></div>
               <div style="position:relative">
-                <input id="entryProjInput" placeholder="🔍 ابحث عن مشروع..." autocomplete="off"
-                  oninput="entProjSearch(this.value)" onfocus="entProjSearch(this.value)"
-                  style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box">
+                <input id="entryProjInput" placeholder="اختر أو ابحث عن مشروع..." autocomplete="off" readonly
+                  onclick="toggleEntProjDD()" onfocus="toggleEntProjDD()"
+                  style="width:100%;padding:9px 36px 9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box;cursor:pointer">
+                <span id="entryProjArrow" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;transition:transform .2s">▾</span>
                 <input type="hidden" id="entryProjId">
-                <div id="entryProjDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto;margin-top:4px"></div>
+                <div id="entryProjDD" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-card,#fff);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:999;max-height:220px;overflow:hidden;margin-top:2px">
+                  <div style="padding:8px 10px;border-bottom:1px solid var(--border)">
+                    <input id="entryProjSrch" placeholder="🔍 ابحث باسم المشروع..." autocomplete="off"
+                      oninput="entProjSearch(this.value)"
+                      style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg);color:var(--text-body);outline:none">
+                  </div>
+                  <div id="entryProjList" style="max-height:170px;overflow-y:auto"></div>
+                </div>
               </div>
             </div>
             <div class="tt">
