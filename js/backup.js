@@ -15,7 +15,7 @@ async function backupAll(){
       sb('advance_installments?order=created_at'),
       sb('profiles?order=created_at'),
       sb('contractor_dues?order=created_at'),
-      sb('pending_entries?order=created_at'),
+      sb('pending_entries?order=submitted_at'),
       sb('notes?order=created_at'),
     ]);
     setSav('⏳ جاري بناء الملف...','ng');
