@@ -127,8 +127,8 @@ async function autoOpenViewerAdv(){
 
 function showScreen(s){
 // ██ UI NAVIGATION — SCREENS + SIDEBAR ════════════
-  // Viewer مش يقدر يدخل على حاجة غير العهدة والرسائل
-  if(uRole==='viewer'&&s!=='adv')return;
+  // Viewer مش يقدر يدخل على حاجة غير العهدة والملاحظات
+  if(uRole==='viewer'&&s!=='adv'&&s!=='notes')return;
   curScreen=s;
   ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati','owner'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
