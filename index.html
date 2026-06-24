@@ -1427,5 +1427,25 @@
   <div style="max-width:480px;margin:0 auto;padding:16px 14px 40px" id="mvBody">
   </div>
 </div>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange',()=>{
+        if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+          // نسخة جديدة جاهزة — طبّق فوراً
+          newWorker.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
+  });
+  // لما يتفعّل SW جديد — ارفرش الصفحة
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    window.location.reload();
+  });
+}
+</script>
 </body>
 </html>
