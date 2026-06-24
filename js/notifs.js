@@ -222,8 +222,7 @@ async function confirmEditApprove(id){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
     const r=rows[0];
-    const last=await sb('entries?select=seq&order=seq.desc&limit=1');
-    let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
+    // seq بيتولد تلقائياً من Supabase trigger
     if(nextSeq<20260000)nextSeq=20260000;
     nextSeq++;
     const entry={
@@ -291,11 +290,10 @@ async function approveEntry(id,silent=false){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    const last=await sb('entries?select=seq&order=seq.desc&limit=1');
-    let nextSeq=(last&&last.length?Number(last[0].seq||20260000):20260000);
+    // seq بيتولد تلقائياً من Supabase trigger
     if(nextSeq<20260000)nextSeq=20260000;
     nextSeq++;
-    const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,seq:nextSeq,created_by:r.submitted_by};
+    const entry={id:r.id,project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by};
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
