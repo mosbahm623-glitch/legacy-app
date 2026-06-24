@@ -83,11 +83,14 @@ async function initApp(){
   const sbProjSub=document.getElementById('sb-proj-sub');
   if(sbProjSub)sbProjSub.style.display='';
 
-  // ثانياً: لو viewer — إخفاء كل حاجة ما عدا العهدة والرسائل
+  // ثانياً: لو viewer — بيشوف بس ملاحظاتي والعهدة
   if(uRole==='viewer'){
-    document.getElementById('sbi-dash').style.display='none';
-    document.getElementById('sbi-proj-hdr').style.display='none';
-    document.getElementById('sbi-daily').style.display='none';
+    ['sbi-dash','sbi-proj-hdr','sbi-daily','sbi-rep','sbi-daf3ati',
+     'sbi-search','sbi-approvals','sbi-archive','sbi-auditlog','sbi-admin',
+     'sbi-backup','sbi-save-proj','sbi-timeline'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='none';
+    });
+    document.querySelectorAll('.sb-sec-lbl,.sb-sec-div').forEach(el=>el.style.display='none');
     const vn=document.getElementById('viewerAdvNotice');if(vn)vn.style.display='block';
     if(sbProjSub)sbProjSub.style.display='none';
     document.getElementById('fab').style.display='none';
