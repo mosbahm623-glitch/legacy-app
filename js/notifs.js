@@ -89,6 +89,7 @@ async function loadApprovals(silent=false){
             <div class="appr-item-meta">
               ${r.description?'<span>📝 '+r.description+'</span> &nbsp;':''}
               ${r.contractor?'<span>👷 '+r.contractor+'</span> &nbsp;':''}
+              ${r.payment_method?'<span>💳 '+r.payment_method+'</span> &nbsp;':''}
               <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
               <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span>
             </div>
