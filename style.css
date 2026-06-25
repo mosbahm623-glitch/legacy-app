@@ -2468,28 +2468,35 @@ body.dark-mode .pfbtn{background:rgba(255,255,255,.05) !important;border-color:r
 body.dark-mode .pfbtn.pfbtn-on{background:var(--accent,#1D3C2A) !important;color:#D4C49A !important}
 
 /* ══ DARK MODE — Owner Screen ══════════════════════════ */
-body.dark-mode #ownerScreen,
-body.dark-mode #ownerScreen > div {background:var(--dark-bg)!important}
+body.dark-mode #ownerScreen {background:var(--dark-night)!important}
 body.dark-mode #ownerScreen input,
-body.dark-mode #ownerScreen select,
-body.dark-mode #ownerScreen textarea {
-  background:var(--dark-card)!important;
+body.dark-mode #ownerScreen select {
+  background:var(--dark-base)!important;
   color:var(--accent)!important;
   border-color:rgba(212,196,154,.2)!important;
 }
-body.dark-mode #ownerScreen input::placeholder,
-body.dark-mode #ownerScreen textarea::placeholder {color:rgba(212,196,154,.3)!important}
-body.dark-mode #ownerScreen select option {background:var(--dark-card);color:var(--accent)}
-body.dark-mode #ownerScreen label {color:rgba(212,196,154,.6)!important}
-body.dark-mode #ownerScreen [style*="background:#EEF2FF"],
-body.dark-mode #ownerScreen [style*="background:#EBF5EF"],
-body.dark-mode #ownerScreen [style*="background:#F"] {
-  background:rgba(212,196,154,.05)!important;
-  color:var(--accent)!important;
-  border-color:rgba(212,196,154,.15)!important;
-}
+body.dark-mode #ownerScreen input::placeholder {color:rgba(212,196,154,.3)!important}
+body.dark-mode #ownerScreen select option {background:var(--dark-base);color:var(--accent)}
+body.dark-mode #ownerScreen label {color:rgba(212,196,154,.55)!important}
 body.dark-mode #ownerScreen [id*="ow-viewer-"] {
   background:var(--dark-card)!important;
   border-color:rgba(212,196,154,.15)!important;
   color:var(--accent)!important;
+}
+body.dark-mode #ownerScreen [style*="background:#EEF2FF"],
+body.dark-mode #ownerScreen [style*="background:#EBF5EF"] {
+  background:rgba(212,196,154,.06)!important;
+  border-color:rgba(212,196,154,.15)!important;
+  color:rgba(212,196,154,.7)!important;
+}
+/* زرار وارد في dark mode */
+body.dark-mode #ow-inc-btn {
+  background:var(--dark-base)!important;
+  color:rgba(212,196,154,.6)!important;
+  border-color:rgba(212,196,154,.2)!important;
+}
+body.dark-mode #ow-exp-btn {
+  background:#3A1515!important;
+  color:#F1948A!important;
+  border-color:#C0392B!important;
 }
