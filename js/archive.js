@@ -63,8 +63,8 @@ async function loadArchivedProjects(){
     try{archEntries=await sbAll('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id');}catch(_){}
     _archiveData=archived.map(p=>{
       const s=summMap[p.id]||{};
-      const inc=s.total_income||0;
-      const expDirect=s.total_expenses||0;
+      const inc=s.inc||0;
+      const expDirect=s.exp||0;
       const bal=inc-expDirect;
       const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
       const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
