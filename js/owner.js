@@ -70,10 +70,11 @@ async function loadOwnerScreen(){
         '<input id="ow-mq" type="text" placeholder="اختياري" style="'+inp+'"></div>'+
         '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
         '<select id="ow-pmt" onchange="owPmtChange(this.value)" style="'+inp+';background:var(--bg-pure,#fff)">'+
-          '<option value="">اختر طريقة الدفع...</option>'+
-          '<option value="كاش">💵 كاش</option>'+
-          '<option value="الأهلي">🏦 الأهلي</option>'+
+          '<option value="">اختر...</option>'+
+          '<option value="Cash">💵 Cash</option>'+
+          '<option value="Al Ahly">🏦 Al Ahly</option>'+
           '<option value="CIB">🏦 CIB</option>'+
+          '<option value="CIB شركات">🏦 CIB شركات</option>'+
           '<option value="أخرى">✏️ أخرى</option>'+
         '</select>'+
         '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
@@ -96,10 +97,11 @@ async function loadOwnerScreen(){
         '<input id="ow-adv-note" type="text" placeholder="سبب الدفعة..." style=\"width:100%;padding:10px 12px;border:1.5px solid var(--border,#EAEEE8);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure,#fff);outline:none\"></div>'+
         '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
         '<select id="ow-adv-pmt" onchange="owAdvPmtChange(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid var(--border,#EAEEE8);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure,#fff);outline:none">'+
-          '<option value="">اختر طريقة الدفع...</option>'+
-          '<option value="كاش">💵 كاش</option>'+
-          '<option value="الأهلي">🏦 الأهلي</option>'+
+          '<option value="">اختر...</option>'+
+          '<option value="Cash">💵 Cash</option>'+
+          '<option value="Al Ahly">🏦 Al Ahly</option>'+
           '<option value="CIB">🏦 CIB</option>'+
+          '<option value="CIB شركات">🏦 CIB شركات</option>'+
           '<option value="أخرى">✏️ أخرى</option>'+
         '</select>'+
         '<input id="ow-adv-pmt-other" type="text" placeholder="اسم البنك..." style="display:none;width:100%;margin-top:6px;padding:10px 12px;border:1.5px solid var(--border,#EAEEE8);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure,#fff);outline:none"></div>'+
