@@ -2466,3 +2466,30 @@ body.dark-mode #meetingModal [style*="border-bottom:1px solid #f5f2ec"]{border-b
 /* ══ PROJECT CARDS — Dark Mode ══════════════════ */
 body.dark-mode .pfbtn{background:rgba(255,255,255,.05) !important;border-color:rgba(212,196,154,.15) !important;color:rgba(212,196,154,.5) !important}
 body.dark-mode .pfbtn.pfbtn-on{background:var(--accent,#1D3C2A) !important;color:#D4C49A !important}
+
+/* ══ DARK MODE — Owner Screen ══════════════════════════ */
+body.dark-mode #ownerScreen,
+body.dark-mode #ownerScreen > div {background:var(--dark-bg)!important}
+body.dark-mode #ownerScreen input,
+body.dark-mode #ownerScreen select,
+body.dark-mode #ownerScreen textarea {
+  background:var(--dark-card)!important;
+  color:var(--accent)!important;
+  border-color:rgba(212,196,154,.2)!important;
+}
+body.dark-mode #ownerScreen input::placeholder,
+body.dark-mode #ownerScreen textarea::placeholder {color:rgba(212,196,154,.3)!important}
+body.dark-mode #ownerScreen select option {background:var(--dark-card);color:var(--accent)}
+body.dark-mode #ownerScreen label {color:rgba(212,196,154,.6)!important}
+body.dark-mode #ownerScreen [style*="background:#EEF2FF"],
+body.dark-mode #ownerScreen [style*="background:#EBF5EF"],
+body.dark-mode #ownerScreen [style*="background:#F"] {
+  background:rgba(212,196,154,.05)!important;
+  color:var(--accent)!important;
+  border-color:rgba(212,196,154,.15)!important;
+}
+body.dark-mode #ownerScreen [id*="ow-viewer-"] {
+  background:var(--dark-card)!important;
+  border-color:rgba(212,196,154,.15)!important;
+  color:var(--accent)!important;
+}
