@@ -519,7 +519,7 @@ async function loadDailyLog(){
       <div style="flex:1;min-width:0">
         <div class="entry-desc">${e.description||'—'}</div>
         <div class="daily-proj" style="display:flex;gap:6px;align-items:center">${proj}${e.category?' · '+e.category:''} ${e.seq&&e.seq!==0?'<span style="font-size:10px;background:#1C3A1C;color:#C0DD97;padding:1px 7px;border-radius:4px;font-weight:500">'+e.seq+'</span>':''}</div>
-        <div class="daily-proj">${proj}${e.category?' · '+e.category:''}</div>
+        <div class="daily-proj">${proj}${e.category?' · '+e.category:''}${e.payment_method?' · 💳 '+e.payment_method:''}</div>
       </div>
       <div class="daily-amt ${isInc?'inc':'exp'}">${isInc?'+':'-'}${fn(Math.abs(e.amount))} ج</div>
       <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-right:4px;flex-shrink:0">إيصال</button>
