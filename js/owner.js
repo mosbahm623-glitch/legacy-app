@@ -68,7 +68,7 @@ async function loadOwnerScreen(){
         '<div id="ow-proj-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:#fff;border:1.5px solid #EAEEE8;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
         '<div id="ow-mq-wrap" style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المقاول</label>'+
         '<input id="ow-mq" type="text" placeholder="اختياري" style="'+inp+'"></div>'+
-        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع <span style="color:#E74C3C">*</span></label>'+
+        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
         '<select id="ow-pmt" onchange="owPmtChange(this.value)" style="'+inp+';background:#fff">'+
           '<option value="">اختر طريقة الدفع...</option>'+
           '<option value="كاش">💵 كاش</option>'+
@@ -94,7 +94,7 @@ async function loadOwnerScreen(){
         '<input id="ow-adv-amt" type="number" placeholder="0.00" step="any" style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:16px;font-weight:800;color:#1D3C2A;background:#fff;outline:none\"></div>'+
         '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">ملاحظة</label>'+
         '<input id="ow-adv-note" type="text" placeholder="سبب الدفعة..." style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none\"></div>'+
-        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع <span style="color:#E74C3C">*</span></label>'+
+        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
         '<select id="ow-adv-pmt" onchange="owAdvPmtChange(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none">'+
           '<option value="">اختر طريقة الدفع...</option>'+
           '<option value="كاش">💵 كاش</option>'+
@@ -180,12 +180,7 @@ function owSetType(t){
     if(catWrap)catWrap.style.display='none';
     if(mqWrap)mqWrap.style.display='none';
   }
-  // تغيير label طريقة الدفع/الاستقبال
-  var pmtLbl=document.querySelector('#ow-screen-add label[for-pmt]')||
-    (function(){var els=document.querySelectorAll('#ow-screen-add label');for(var i=0;i<els.length;i++){if(els[i].textContent.includes('طريقة'))return els[i];}return null;})();
-  if(pmtLbl)pmtLbl.innerHTML=(t==='i'?'طريقة الاستقبال':'طريقة الدفع')+' <span style="color:#E74C3C">*</span>';
-  var pmtSel=document.getElementById('ow-pmt');
-  if(pmtSel)pmtSel.options[0].text=t==='i'?'اختر طريقة الاستقبال...':'اختر طريقة الدفع...';
+
 }
 
 function owFilterProj(q){
