@@ -260,12 +260,15 @@ function toggleSidebar(){
   const sb=document.getElementById('sidebar');
   const ov=document.getElementById('sbOverlay');
   sb.classList.toggle('sb-open');
-  ov.classList.toggle('show',sb.classList.contains('sb-open'));
+  const isOpen=sb.classList.contains('sb-open');
+  ov.classList.toggle('show',isOpen);
+  document.body.style.overflow=isOpen?'hidden':'';
 }
 function closeSidebar(){
   if(window.innerWidth<768){
     document.getElementById('sidebar').classList.remove('sb-open');
     document.getElementById('sbOverlay').classList.remove('show');
+    document.body.style.overflow='';
   }
 }
 function toggleSbSub(key){
