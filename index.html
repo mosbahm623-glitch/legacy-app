@@ -511,6 +511,18 @@
                   </div>
                 </div>
               </div>
+              <div class="ig-field" id="pmtWrap">
+                <div class="ig-lbl">طريقة الدفع <span class="ig-req">*</span></div>
+                <select id="iPmt" class="input-full" onchange="onPmtChange(this.value)" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                  <option value="">اختر طريقة الدفع...</option>
+                  <option value="كاش">💵 كاش</option>
+                  <option value="الأهلي">🏦 الأهلي</option>
+                  <option value="CIB">🏦 CIB</option>
+                  <option value="أخرى">✏️ أخرى</option>
+                </select>
+                <input id="iPmtOther" class="input-full" placeholder="اكتب اسم البنك..." style="display:none;margin-top:6px;padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                <div class="ig-err" id="err-iPmt">إلزامي</div>
+              </div>
               <div class="etype-wrap" id="etypeWrap">
                 <button class="etype-btn daf on" onclick="setEtype('payment',this)">💰 دفعة</button>
                 <button class="etype-btn aml" onclick="setEtype('work',this)">🔨 أعمال</button>
@@ -549,6 +561,14 @@
               <input id="eD" class="fl" placeholder="البيان">
               <input id="eDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
               <input id="eM" class="fl input-mq-bg" placeholder="👷 المقاول" oninput="onEditMqInput(this.value)">
+              <select id="ePmt" class="fl" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)" onchange="onEditPmtChange(this.value)">
+                <option value="">طريقة الدفع...</option>
+                <option value="كاش">💵 كاش</option>
+                <option value="الأهلي">🏦 الأهلي</option>
+                <option value="CIB">🏦 CIB</option>
+                <option value="أخرى">✏️ أخرى</option>
+              </select>
+              <input id="ePmtOther" class="fl" placeholder="اسم البنك..." style="display:none">
               <div class="etype-wrap" id="editEtypeWrap">
                 <button class="etype-btn daf" id="eEt-payment" onclick="setEditEtype('payment',this)">💰 دفعة</button>
                 <button class="etype-btn aml" id="eEt-work" onclick="setEditEtype('work',this)">🔨 أعمال</button>
