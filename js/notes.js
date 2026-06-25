@@ -18,15 +18,15 @@ function renderNotesScreen(){
   const stats=document.getElementById('notesScreenStats');
   if(stats)stats.innerHTML=`
     <div style="background:var(--bg-faint);border-radius:12px;padding:12px 16px;text-align:center">
-      <div style="font-size:22px;font-weight:500;color:#1D3C2A">${_notesList.length}</div>
+      <div style="font-size:22px;font-weight:500;color:var(--text-body)">${_notesList.length}</div>
       <div style="font-size:11px;color:var(--text-hint)">إجمالي</div>
     </div>
     <div style="background:var(--bg-faint);border-radius:12px;padding:12px 16px;text-align:center">
-      <div style="font-size:22px;font-weight:500;color:#C86060">${undone}</div>
+      <div style="font-size:22px;font-weight:500;color:#E57373">${undone}</div>
       <div style="font-size:11px;color:var(--text-hint)">متبقي</div>
     </div>
     <div style="background:var(--bg-faint);border-radius:12px;padding:12px 16px;text-align:center">
-      <div style="font-size:22px;font-weight:500;color:#1D6A3E">${done}</div>
+      <div style="font-size:22px;font-weight:500;color:var(--primary)">${done}</div>
       <div style="font-size:11px;color:var(--text-hint)">منتهي</div>
     </div>`;
 
