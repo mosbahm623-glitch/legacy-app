@@ -109,6 +109,16 @@ function oe(id){
       btn.classList.toggle('on',t===curEditEtype);
     });
   }else{wrap.classList.remove('show');curEditEtype=null;}
+  // payment_method
+  const _ePmtSel=document.getElementById('ePmt');
+  const _ePmtOther=document.getElementById('ePmtOther');
+  if(_ePmtSel){
+    const pv=e.payment_method||'';
+    const known=['كاش','الأهلي','CIB'];
+    if(known.includes(pv)){_ePmtSel.value=pv;if(_ePmtOther)_ePmtOther.style.display='none';}
+    else if(pv){_ePmtSel.value='أخرى';if(_ePmtOther){_ePmtOther.value=pv;_ePmtOther.style.display='block';}}
+    else{_ePmtSel.value='';if(_ePmtOther)_ePmtOther.style.display='none';}
+  }
   document.getElementById('ep').style.display='block';
 }
 function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
