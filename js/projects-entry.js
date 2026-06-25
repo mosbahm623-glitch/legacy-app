@@ -84,6 +84,16 @@ async function _getPeriodLocks(){
   return _periodLocksCache;
 }
 function _clearPeriodLocksCache(){_periodLocksCache=null;}
+function onEditPmtChange(v){
+  const other=document.getElementById('ePmtOther');
+  if(other)other.style.display=v==='أخرى'?'block':'none';
+}
+
+function onPmtChange(v){
+  const other=document.getElementById('iPmtOther');
+  if(other)other.style.display=v==='أخرى'?'block':'none';
+}
+
 async function ae(){
   // منع الضغط المزدوج
   if(window._savingEntry)return;
@@ -139,7 +149,11 @@ async function ae(){
   const savedPid=curPid;
   const savedProjName=allProjectsMap[savedPid]?.name||'المشروع';
   // seq بيتولد تلقائياً من Supabase sequence — مش محتاج نحسبه هنا
-  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid};
+  const _pmtSel=document.getElementById('iPmt');
+  const _pmtOther=document.getElementById('iPmtOther');
+  const _pmt=_pmtSel?(_pmtSel.value==='أخرى'?(_pmtOther?_pmtOther.value.trim():''):_pmtSel.value):'';
+  if(!_pmt){notify('اختر طريقة الدفع','err');if(_pmtSel)_pmtSel.style.borderColor='#E74C3C';return;}
+  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid,payment_method:_pmt};
   setSav('💾 جاري الحفظ...','ng');
   try{
     if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
@@ -287,6 +301,10 @@ async function sed(){
       u.category=nc;
       const mq=document.getElementById('eM').value.trim();
       u.contractor=mq;u.entry_type=mq&&curEditEtype?curEditEtype:null;
+      const _ePmtSel=document.getElementById('ePmt');
+      const _ePmtOther=document.getElementById('ePmtOther');
+      const _ePmt=_ePmtSel?(_ePmtSel.value==='أخرى'?(_ePmtOther?_ePmtOther.value.trim():''):_ePmtSel.value):'';
+      if(_ePmt)u.payment_method=_ePmt;
     }
     setSav('💾 جاري الحفظ...','ng');
     try{
