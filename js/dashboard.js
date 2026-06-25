@@ -322,35 +322,22 @@ async function loadTimeline(){try{
   const tlEl=document.getElementById('dTimeline');
   if(!tlEl)return;
   if(!allEntries.length){tlEl.innerHTML='<div class="empty-state">⏳ جاري التحميل...</div>';await loadAllData();}
-  const recent=[...allEntries].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,50);
+  const recent=[...allEntries].sort((a,b)=>(b.seq||0)-(a.seq||0)).slice(0,50);
   if(!recent.length){tlEl.innerHTML='<div class="empty-state">لا توجد حركات بعد</div>';return;}
   const projMap={};allProjects.forEach(p=>{projMap[p.id]=p.name;});
-  const today=new Date().toDateString();
-  const yday=new Date(Date.now()-86400000).toDateString();
-  const groups={'اليوم':[],'أمس':[],'سابق':[]};
-  recent.forEach(e=>{
-    const d=new Date(e.created_at).toDateString();
-    if(d===today)groups['اليوم'].push(e);
-    else if(d===yday)groups['أمس'].push(e);
-    else groups['سابق'].push(e);
-  });
-  tlEl.innerHTML=Object.entries(groups).filter(([,v])=>v.length).map(([date,items])=>`
-    <div class="tl-group">
-      <div class="tl-date-lbl">${date}</div>
-      ${items.map(e=>{
-        const proj=projMap[e.project_id]||'—';
-        const ii=e.type==='i';
-        return `<div class="tl-item">
-          <div class="tl-dot ${ii?'inc':'exp'}"></div>
-          <div class="tl-info">
-            <div class="tl-main"><span class="tl-proj-tag">${proj}</span>${e.description||e.category||'—'} ${e.seq&&e.seq!==0?'<span style="font-size:10px;background:#1C3A1C;color:#C0DD97;padding:1px 7px;border-radius:4px;font-weight:500">'+e.seq+'</span>':''}</div>
-            <div class="tl-sub">${e.category||''} · ${cleanDate(e.entry_date)}</div>
-          </div>
-          <div class="tl-amt ${ii?'inc':'exp'}">${ii?'▲':'▼'} ${fn(e.amount)} ج</div>
-          <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-right:6px">إيصال</button>
-        </div>`;
-      }).join('')}
-    </div>`).join('');
+  tlEl.innerHTML=recent.map(e=>{
+    const proj=projMap[e.project_id]||'—';
+    const ii=e.type==='i';
+    return `<div class="tl-item">
+      <div class="tl-dot ${ii?'inc':'exp'}"></div>
+      <div class="tl-info">
+        <div class="tl-main"><span class="tl-proj-tag">${proj}</span>${e.description||e.category||'—'} ${e.seq&&e.seq!==0?'<span style="font-size:10px;background:#1C3A1C;color:#C0DD97;padding:1px 7px;border-radius:4px;font-weight:500">'+e.seq+'</span>':''}</div>
+        <div class="tl-sub">${e.category||''} · ${cleanDate(e.entry_date)}</div>
+      </div>
+      <div class="tl-amt ${ii?'inc':'exp'}">${ii?'▲':'▼'} ${fn(e.amount)} ج</div>
+      <button onclick="event.stopPropagation();printReceipt('${e.id}')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;color:#27500A;font-weight:500;margin-right:6px">إيصال</button>
+    </div>`;
+  }).join('');
 }catch(_e){const _c=document.getElementById('dTimeline');if(_c)_c.innerHTML='<div class="empty-state">⚠️ خطأ في تحميل السجل</div>';}}
 
 
