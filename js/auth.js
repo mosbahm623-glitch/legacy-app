@@ -54,6 +54,14 @@ async function initApp(){
   document.getElementById('sbi-approvals').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-backup').style.display=isAdmin?'flex':'none';
   document.getElementById('sbi-rep').style.display=(uRole==='viewer')?'none':'flex';
+  if(uRole==='viewer'){
+    // إخفاء كل حاجة في الـ sidebar غير العهد والملاحظات
+    ['sbi-dash','sbi-proj-hdr','sba-proj','sbs-proj','sbi-timeline','sbi-daily','sbi-daf3ati','sbi-search','sbi-archive','sbi-auditlog','sbi-backup','sbi-save-proj'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='none';
+    });
+    // إخفاء الـ section labels
+    document.querySelectorAll('.sb-sec-lbl,.sb-sec-div').forEach(el=>el.style.display='none');
+  }
   const ownerBtn=document.getElementById('sbi-owner');if(ownerBtn)ownerBtn.style.display=uRole==='owner'?'flex':'none';
   const saveProj=document.getElementById('sbi-save-proj');
   if(saveProj)saveProj.style.display=uRole==='admin'?'flex':'none';
