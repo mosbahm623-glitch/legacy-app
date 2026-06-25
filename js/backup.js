@@ -8,7 +8,7 @@ async function backupAll(){
     // ExcelJS loaded in index.html
     setSav('⏳ جاري جلب البيانات...','ng');
     // جيب كل البيانات
-    const [prjs,ents,advs,insts,profs,dues,pending,notes,advEnts]=await Promise.all([
+    const [prjs,ents,advs,insts,profs,dues,pending,notes,summaries]=await Promise.all([
       sb('projects?order=created_at'),
       sbAll('entries?order=created_at'),
       sb('advances?order=created_at'),
@@ -62,11 +62,10 @@ async function backupAll(){
     const wsSUM=wb.addWorksheet('ملخص عام',{views:[{rightToLeft:true}]});
     mergeTitle(wsSUM,'⚡  Legacy Core — ملخص المشاريع المالي',7,CLR.dark);
     hdr(wsSUM,[{h:'المشروع',k:'name',w:22},{h:'تاريخ البداية',k:'sd',w:16},{h:'الحالة',k:'status',w:14},{h:'إجمالي الوارد',k:'inc',w:18},{h:'إجمالي المصروف',k:'exp',w:18},{h:'صافي الربح',k:'net',w:16},{h:'ملاحظة',k:'note',w:14}],CLR.green);
-    const entByProj={};
-    ents.forEach(e=>{const pn=projMap[e.project_id]||'';if(!entByProj[pn]){entByProj[pn]={inc:0,exp:0};}if(e.type==='i')entByProj[pn].inc+=e.amount;else entByProj[pn].exp+=e.amount;});
+    const sumMap={};if(summaries)summaries.forEach(s=>{sumMap[s.project_id]={inc:parseFloat(s.inc)||0,exp:parseFloat(s.exp)||0};});
     let sumInc=0,sumExp=0;
     prjs.forEach(p=>{
-      const v=entByProj[p.name]||{inc:0,exp:0};
+      const v=sumMap[p.id]||{inc:0,exp:0};
       const net=v.inc-v.exp;
       const isArc=p.archived;
       const status=isArc?'🗂 مؤرشف':net<0?'🔴 عجز':'🟢 نشط';
