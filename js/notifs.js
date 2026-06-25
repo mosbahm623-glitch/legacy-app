@@ -201,6 +201,15 @@ async function editAndApproveEntry(id){
         <input id="eaCat" type="text" value="${(r.category||'').replace(/"/g,'&quot;')}" style="${inp}">
         <label class="lbl-lg">المقاول</label>
         <input id="eaContr" type="text" value="${(r.contractor||'').replace(/"/g,'&quot;')}" style="${inp}">
+        <label class="lbl-lg">💳 طريقة الدفع / الاستقبال</label>
+        <select id="eaPmt" style="${inp}">
+          <option value="">اختر...</option>
+          <option value="Cash" ${r.payment_method==='Cash'?'selected':''}>💵 Cash</option>
+          <option value="Al Ahly" ${r.payment_method==='Al Ahly'?'selected':''}>🏦 Al Ahly</option>
+          <option value="CIB" ${r.payment_method==='CIB'?'selected':''}>🏦 CIB</option>
+          <option value="CIB شركات" ${r.payment_method==='CIB شركات'?'selected':''}>🏦 CIB شركات</option>
+          <option value="أخرى" ${r.payment_method&&!['Cash','Al Ahly','CIB','CIB شركات'].includes(r.payment_method)?'selected':''}>✏️ أخرى</option>
+        </select>
         <label class="lbl-lg">التاريخ</label>
         <input id="eaDate" type="text" value="${r.entry_date||''}" placeholder="dd/mm/yyyy" style="${inp}margin-bottom:20px">
         <div class="modal-btns">
@@ -232,6 +241,7 @@ async function confirmEditApprove(id){
       description:document.getElementById('eaDesc').value.trim(),
       entry_date:document.getElementById('eaDate').value.trim(),
       contractor:document.getElementById('eaContr').value.trim(),
+      payment_method:document.getElementById('eaPmt')?.value||r.payment_method||null,
       advance_id:r.advance_id||null,
       created_by:r.submitted_by
     };
