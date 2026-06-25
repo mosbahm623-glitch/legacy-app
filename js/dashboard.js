@@ -66,9 +66,11 @@ async function loadDashboard(){
     ]);
     allInstallments=_allInstallments;
 
-    // حساب الإجماليات — من Supabase مباشرة لضمان الدقة اللحظية
+    // حساب الإجماليات — من Supabase مباشرة لضمان الدقة اللحظية (مشاريع نشطة فقط)
+    const activeIds=new Set((allProjects||[]).filter(p=>!p.archived).map(p=>p.id));
     let totalInc=0,totalExp=0;
     _liveSummaries.forEach(s=>{
+      if(!activeIds.has(s.project_id))return;
       totalInc+=parseFloat(s.inc)||0;
       totalExp+=parseFloat(s.exp)||0;
     });
