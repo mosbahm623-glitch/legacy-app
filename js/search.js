@@ -177,6 +177,8 @@ function buildSearchCard(e,idx,total,projMap,profMap){
           '<input id="se-cat-'+e.id+'" type="text" value="'+catVal+'" list="cl" class="search-edit-input"></div>'+
         '<div><label class="lbl-md">👷 المقاول</label>'+
           '<input id="se-mq-'+e.id+'" type="text" value="'+mqVal+'" class="search-edit-contractor"></div>'+
+        '<div><label class="lbl-md">💳 طريقة الدفع</label>'+
+          '<input id="se-pmt-'+e.id+'" type="text" value="'+(e.payment_method||'—')+'" class="search-edit-input" readonly style="background:var(--bg-faint);color:var(--text-muted)"></div>'+
         '<div style="grid-column:1/-1"><label class="lbl-md">📝 البيان</label>'+
           '<input id="se-desc-'+e.id+'" type="text" value="'+descVal+'" class="search-edit-input"></div>'+
       '</div>'+
