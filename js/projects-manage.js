@@ -122,7 +122,20 @@ function oe(id){
   document.getElementById('ep').style.display='block';
 }
 function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
-function st(t){cT=t;document.getElementById('tx').classList.toggle('on',t==='e');document.getElementById('ti').classList.toggle('on',t==='i');document.getElementById('ic').style.display=t==='e'?'block':'none';document.getElementById('iq').style.display=t==='e'?'block':'none';}
+function st(t){
+  cT=t;
+  document.getElementById('tx').classList.toggle('on',t==='e');
+  document.getElementById('ti').classList.toggle('on',t==='i');
+  document.getElementById('ic').style.display=t==='e'?'block':'none';
+  document.getElementById('iq').style.display=t==='e'?'block':'none';
+  // تغيير label طريقة الدفع/الاستقبال
+  const pmtLbl=document.querySelector('#pmtWrap .ig-lbl');
+  if(pmtLbl)pmtLbl.innerHTML=(t==='i'?'طريقة الاستقبال':'طريقة الدفع')+' <span class="ig-req">*</span>';
+  const pmtSel=document.getElementById('iPmt');
+  if(pmtSel){
+    pmtSel.options[0].text=t==='i'?'اختر طريقة الاستقبال...':'اختر طريقة الدفع...';
+  }
+}
 function setCTab(t){stab(t);}
 function stab(t){
   cTab=t;window._rpPage=0;
