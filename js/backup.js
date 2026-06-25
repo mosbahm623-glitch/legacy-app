@@ -171,6 +171,52 @@ async function backupAll(){
       notes.forEach(n=>wsN.addRow({title:n.title||'',body:n.body||n.content||'',dt:n.created_at?n.created_at.substring(0,10):''}));
       styleRows(wsN,notes.length);
     }
+    // شيت لكل مشروع
+    const entsByProj={};
+    ents.forEach(e=>{const pid=e.project_id;if(!entsByProj[pid])entsByProj[pid]=[];entsByProj[pid].push(e);});
+    prjs.forEach(p=>{
+      const pe=entsByProj[p.id]||[];
+      if(!pe.length)return;
+      const sv=sumMap[p.id]||{inc:0,exp:0};
+      const net=sv.inc-sv.exp;
+      const sheetName=(p.name||'').substring(0,31);
+      const wsPR=wb.addWorksheet(sheetName,{views:[{rightToLeft:true}]});
+      const isArc=p.archived;
+      const status=isArc?'🗂 مؤرشف':net<0?'🔴 عجز':'🟢 نشط';
+      mergeTitle(wsPR,'📁  '+p.name+'  —  '+status,8,CLR.dark);
+      // بطاقات ملخص
+      const cardRow=wsPR.addRow(['إجمالي الوارد','','إجمالي المصروف','','صافي الربح','','عدد القيود','']);
+      cardRow.height=14;
+      const cardRow2=wsPR.addRow([sv.inc,'',sv.exp,'',net,'',pe.length,'']);
+      cardRow2.height=28;
+      [[1,CLR.green],[3,CLR.red],[5,net>=0?CLR.green:CLR.red],[7,CLR.blue]].forEach(([col,clr])=>{
+        wsPR.mergeCells(cardRow.number,col,cardRow.number,col+1);
+        wsPR.mergeCells(cardRow2.number,col,cardRow2.number,col+1);
+        cardRow.getCell(col).fill=fill(clr);cardRow.getCell(col).font={bold:true,color:{argb:CLR.white},size:9,name:'Arial'};cardRow.getCell(col).alignment={horizontal:'center',vertical:'middle'};cardRow.getCell(col).border=brd();
+        cardRow2.getCell(col).fill=fill(clr);cardRow2.getCell(col).font={bold:true,color:{argb:CLR.white},size:12,name:'Arial'};cardRow2.getCell(col).alignment={horizontal:'center',vertical:'middle'};cardRow2.getCell(col).border=brd();
+        if(col!==7)cardRow2.getCell(col).numFmt='#,##0';
+      });
+      wsPR.addRow([]);
+      // وارد
+      const incRows=pe.filter(e=>e.type==='i');
+      if(incRows.length){
+        const incTitle=wsPR.addRow(['📥  الوارد','','','','','','','']);wsPR.mergeCells(incTitle.number,1,incTitle.number,8);incTitle.height=26;incTitle.getCell(1).fill=fill(CLR.green);incTitle.getCell(1).font={bold:true,color:{argb:CLR.white},size:12,name:'Arial'};incTitle.getCell(1).alignment={horizontal:'center',vertical:'middle'};incTitle.getCell(1).border=brd();
+        hdr(wsPR,[{h:'رقم',k:'n',w:5},{h:'البيان',k:'desc',w:35},{h:'المبلغ',k:'amt',w:18},{h:'التاريخ',k:'dt',w:14},{h:'رقم القيد',k:'seq',w:14}],'FF2E7D52');
+        incRows.forEach((e,i)=>{const r=wsPR.addRow({n:i+1,desc:e.description||'',amt:e.amount,dt:e.entry_date||'',seq:e.seq||''});r.height=20;r.getCell(3).numFmt='#,##0';if(i%2===0)r.eachCell(c=>{c.fill=fill(CLR.light);});else r.eachCell(c=>{c.fill=fill(CLR.white);});r.eachCell(c=>{c.border=brd();c.font={size:10,name:'Arial'};});});
+        const iTot=wsPR.addRow(['إجمالي الوارد','',sv.inc,'','','','','']);iTot.height=24;wsPR.mergeCells(iTot.number,1,iTot.number,2);iTot.getCell(1).fill=fill(CLR.green);iTot.getCell(1).font={bold:true,color:{argb:CLR.white},size:10,name:'Arial'};iTot.getCell(1).alignment={horizontal:'center',vertical:'middle'};iTot.getCell(1).border=brd();iTot.getCell(3).fill=fill(CLR.green);iTot.getCell(3).font={bold:true,color:{argb:CLR.white},size:10,name:'Arial'};iTot.getCell(3).numFmt='#,##0';iTot.getCell(3).alignment={horizontal:'center',vertical:'middle'};iTot.getCell(3).border=brd();
+        wsPR.addRow([]);
+      }
+      // مصروف
+      const expRows=pe.filter(e=>e.type==='e');
+      if(expRows.length){
+        const expTitle=wsPR.addRow(['📤  المصروف','','','','','','','']);wsPR.mergeCells(expTitle.number,1,expTitle.number,8);expTitle.height=26;expTitle.getCell(1).fill=fill('FF8B2020');expTitle.getCell(1).font={bold:true,color:{argb:CLR.white},size:12,name:'Arial'};expTitle.getCell(1).alignment={horizontal:'center',vertical:'middle'};expTitle.getCell(1).border=brd();
+        hdr(wsPR,[{h:'رقم',k:'n',w:5},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'المبلغ',k:'amt',w:16},{h:'التاريخ',k:'dt',w:14},{h:'المقاول',k:'mq',w:18},{h:'رقم القيد',k:'seq',w:14}],CLR.red);
+        expRows.forEach((e,i)=>{const r=wsPR.addRow({n:i+1,cat:e.category||'',desc:e.description||'',amt:e.amount,dt:e.entry_date||'',mq:e.contractor||'',seq:e.seq||''});r.height=20;r.getCell(4).numFmt='#,##0';if(i%2===0)r.eachCell(c=>{c.fill=fill('FFFEF2F1');});else r.eachCell(c=>{c.fill=fill(CLR.white);});r.eachCell(c=>{c.border=brd();c.font={size:10,name:'Arial'};});});
+        const eTot=wsPR.addRow(['إجمالي المصروف','','',sv.exp,'','','','']);eTot.height=24;wsPR.mergeCells(eTot.number,1,eTot.number,3);eTot.getCell(1).fill=fill(CLR.red);eTot.getCell(1).font={bold:true,color:{argb:CLR.white},size:10,name:'Arial'};eTot.getCell(1).alignment={horizontal:'center',vertical:'middle'};eTot.getCell(1).border=brd();eTot.getCell(4).fill=fill(CLR.red);eTot.getCell(4).font={bold:true,color:{argb:CLR.white},size:10,name:'Arial'};eTot.getCell(4).numFmt='#,##0';eTot.getCell(4).alignment={horizontal:'center',vertical:'middle'};eTot.getCell(4).border=brd();
+      }
+      wsPR.views=[{state:'frozen',ySplit:1,rightToLeft:true}];
+    });
+
     // تحميل الملف
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
