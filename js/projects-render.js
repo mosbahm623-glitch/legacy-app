@@ -145,7 +145,6 @@ function re(){
         <td style="padding:7px 10px;color:${_bodyClr};max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        <td style="padding:7px 10px;white-space:nowrap;color:${balClr};font-size:11px">${fn(e.bal)} ج</td>
         ${rcpt}${del}
       </tr>`;
     }).join('');
@@ -162,7 +161,6 @@ function re(){
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البيان</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">المبلغ</th>
-        <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">الرصيد</th>
         <th></th>
         ${canEdit?'<th></th>':''}
       </tr></thead>
