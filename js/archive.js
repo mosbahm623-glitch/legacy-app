@@ -56,13 +56,17 @@ async function loadArchivedProjects(){
       return;
     }
     const pids=archived.map(p=>p.id);
+    let summaries=[];
+    try{summaries=await sb('project_summaries?project_id=in.('+pids.join(',')+')');}catch(_){}
+    const summMap={};(summaries||[]).forEach(s=>{summMap[s.project_id]=s;});
     let archEntries=[];
     try{archEntries=await sbAll('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id');}catch(_){}
     _archiveData=archived.map(p=>{
-      const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
-      const inc=pe.filter(e=>e.type==='i').reduce((s,e)=>s+e.amount,0);
-      const expDirect=pe.filter(e=>e.type==='e'&&!e.advance_id).reduce((s,e)=>s+e.amount,0);
+      const s=summMap[p.id]||{};
+      const inc=s.total_income||0;
+      const expDirect=s.total_expenses||0;
       const bal=inc-expDirect;
+      const pe=(archEntries||[]).filter(e=>e.project_id===p.id);
       const cats=[...new Set(pe.filter(e=>e.type==='e'&&!e.advance_id).map(e=>e.category).filter(Boolean))];
       return{...p,_inc:inc,_exp:expDirect,_bal:bal,_cats:cats,_count:pe.length};
     });
