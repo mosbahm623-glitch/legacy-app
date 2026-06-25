@@ -57,7 +57,7 @@ async function loadArchivedProjects(){
     }
     const pids=archived.map(p=>p.id);
     let summaries=[];
-    try{summaries=await sb('project_summaries?project_id=in.('+pids.join(',')+')');}catch(_){}
+    try{summaries=await sb('project_summaries?select=project_id,inc,exp&project_id=in.('+pids.join(',')+')');}catch(_){}
     const summMap={};(summaries||[]).forEach(s=>{summMap[s.project_id]=s;});
     let archEntries=[];
     try{archEntries=await sbAll('entries?project_id=in.('+pids.join(',')+')&select=id,project_id,type,amount,category,advance_id');}catch(_){}
