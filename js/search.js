@@ -147,7 +147,7 @@ async function getProfileMap(){
 function buildSearchCard(e,idx,total,projMap,profMap){
   const isInc=e.type==='i';
   const projName=(projMap&&projMap[e.project_id])||'—';
-  const creator=(profMap&&e.created_by)?(profMap[e.created_by]||'—'):(typeof uName!=='undefined'?uName:'—');
+  const creator=(profMap&&e.created_by)?(profMap[e.created_by]||'—'):'—';
   let dtVal='';
   if(e.entry_date&&e.entry_date!=='—'){dtVal=cleanDate(e.entry_date)||e.entry_date;}
   const projOpts=allProjects.map(p=>'<option value="'+p.id+'"'+(p.id===e.project_id?' selected':'')+'>'+p.name+'</option>').join('');
