@@ -869,7 +869,12 @@ body.day-mode .ap{background:var(--bg-green)}
 body.day-mode input,body.day-mode select,body.day-mode textarea{background:#fff;color:var(--text-deep);border-color:var(--border)}
 
 /* DARK MODE = deep dark */
-body.dark-mode{--bg-pure:var(--dark-card,#1A2A1A);--bg-card:var(--dark-card,#1A2A1A);--bg-surface:var(--dark-alt,#0F150F);--bg-ivory:rgba(212,196,154,.05)}
+body.dark-mode{--bg-pure:var(--dark-card,#1A2A1A);--bg-card:var(--dark-card,#1A2A1A);--bg-surface:var(--dark-alt,#0F150F);--bg-ivory:rgba(212,196,154,.05);--bg-faint:var(--dark-mid,#161F16)}
+/* dark mode — notes stats */
+body.dark-mode #notesScreen [style*="background:var(--bg-faint)"] > div:first-child{color:var(--accent) !important}
+body.dark-mode #notesScreen [style*="color:#1D3C2A"]{color:var(--accent) !important}
+body.dark-mode #notesScreen [style*="color:#C86060"]{color:#F1948A !important}
+body.dark-mode #notesScreen [style*="color:#1D6A3E"]{color:#6FCF97 !important}
 body.dark-mode #mainApp{background:var(--dark-deep)}
 body.dark-mode .main-content{background:var(--dark-night)}
 body.dark-mode .app-body{background:var(--dark-night)}
