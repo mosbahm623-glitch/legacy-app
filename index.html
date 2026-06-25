@@ -515,9 +515,10 @@
                 <div class="ig-lbl">طريقة الدفع / الاستقبال <span class="ig-req">*</span></div>
                 <select id="iPmt" class="input-full" onchange="onPmtChange(this.value)" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
                   <option value="">اختر...</option>
-                  <option value="كاش">💵 كاش</option>
-                  <option value="الأهلي">🏦 الأهلي</option>
+                  <option value="Cash">💵 Cash</option>
+                  <option value="Al Ahly">🏦 Al Ahly</option>
                   <option value="CIB">🏦 CIB</option>
+                  <option value="CIB شركات">🏦 CIB شركات</option>
                   <option value="أخرى">✏️ أخرى</option>
                 </select>
                 <input id="iPmtOther" class="input-full" placeholder="اكتب اسم البنك..." style="display:none;margin-top:6px;padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
@@ -562,10 +563,11 @@
               <input id="eDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
               <input id="eM" class="fl input-mq-bg" placeholder="👷 المقاول" oninput="onEditMqInput(this.value)">
               <select id="ePmt" class="fl" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)" onchange="onEditPmtChange(this.value)">
-                <option value="">طريقة الدفع...</option>
-                <option value="كاش">💵 كاش</option>
-                <option value="الأهلي">🏦 الأهلي</option>
+                <option value="">اختر...</option>
+                <option value="Cash">💵 Cash</option>
+                <option value="Al Ahly">🏦 Al Ahly</option>
                 <option value="CIB">🏦 CIB</option>
+                <option value="CIB شركات">🏦 CIB شركات</option>
                 <option value="أخرى">✏️ أخرى</option>
               </select>
               <input id="ePmtOther" class="fl" placeholder="اسم البنك..." style="display:none">
