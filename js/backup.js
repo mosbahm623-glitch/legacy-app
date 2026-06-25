@@ -58,6 +58,7 @@ async function backupAll(){
       ws.getRow(1).height=36;
     }
     // ═══ ملخص عام ═══
+    const projMap={};prjs.forEach(p=>projMap[p.id]=p.name);
     const wsSUM=wb.addWorksheet('ملخص عام',{views:[{rightToLeft:true}]});
     mergeTitle(wsSUM,'⚡  Legacy Core — ملخص المشاريع المالي',7,CLR.dark);
     hdr(wsSUM,[{h:'المشروع',k:'name',w:22},{h:'تاريخ البداية',k:'sd',w:16},{h:'الحالة',k:'status',w:14},{h:'إجمالي الوارد',k:'inc',w:18},{h:'إجمالي المصروف',k:'exp',w:18},{h:'صافي الربح',k:'net',w:16},{h:'ملاحظة',k:'note',w:14}],CLR.green);
@@ -102,7 +103,6 @@ async function backupAll(){
     const wsE=wb.addWorksheet('القيود',{views:[{rightToLeft:true}]});
     mergeTitle(wsE,'📊  القيود التفصيلية',8,CLR.dark);
     hdr(wsE,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'المقاول',k:'mq',w:20},{h:'رقم',k:'seq',w:8}]);
-    const projMap={};prjs.forEach(p=>projMap[p.id]=p.name);
     ents.forEach(e=>wsE.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',mq:e.contractor||'',seq:e.seq||''}));
     styleRows(wsE,ents.length);
     // لون الوارد والمصروف
