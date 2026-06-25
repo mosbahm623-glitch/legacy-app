@@ -17,6 +17,7 @@ async function backupAll(){
       sb('contractor_dues?order=created_at'),
       sb('pending_entries?order=submitted_at'),
       sb('notes?order=created_at'),
+      sb('project_summaries'),
     ]);
     setSav('⏳ جاري بناء الملف...','ng');
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];
