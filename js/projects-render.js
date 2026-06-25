@@ -5,7 +5,7 @@ function rp(){
   const p=curP();
   const ps=document.getElementById('ps');ps.innerHTML='';
   if(!projects.length){ps.innerHTML='<option>لا توجد مشاريع</option>';document.getElementById('ent').innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
-  projects.forEach(pr=>{const o=document.createElement('option');o.value=pr.id;o.textContent=pr.name;if(pr.id===curPid)o.selected=true;ps.appendChild(o);});
+  projects.filter(pr=>!pr.archived).forEach(pr=>{const o=document.createElement('option');o.value=pr.id;o.textContent=pr.name;if(pr.id===curPid)o.selected=true;ps.appendChild(o);});
   if(p){document.getElementById('dst').value=p.start_date||'';document.getElementById('dcl').value=p.close_date||'';}
   const inc=pInc().reduce((s,e)=>s+e.amount,0),exp=pExp().reduce((s,e)=>s+e.amount,0),bal=inc-exp;
   const _pct=inc>0?Math.round((exp/inc)*100):0;
