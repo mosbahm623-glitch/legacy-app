@@ -94,6 +94,15 @@ async function loadOwnerScreen(){
         '<input id="ow-adv-amt" type="number" placeholder="0.00" step="any" style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:16px;font-weight:800;color:#1D3C2A;background:#fff;outline:none\"></div>'+
         '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">ملاحظة</label>'+
         '<input id="ow-adv-note" type="text" placeholder="سبب الدفعة..." style=\"width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none\"></div>'+
+        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع <span style="color:#E74C3C">*</span></label>'+
+        '<select id="ow-adv-pmt" onchange="owAdvPmtChange(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none">'+
+          '<option value="">اختر طريقة الدفع...</option>'+
+          '<option value="كاش">💵 كاش</option>'+
+          '<option value="الأهلي">🏦 الأهلي</option>'+
+          '<option value="CIB">🏦 CIB</option>'+
+          '<option value="أخرى">✏️ أخرى</option>'+
+        '</select>'+
+        '<input id="ow-adv-pmt-other" type="text" placeholder="اسم البنك..." style="display:none;width:100%;margin-top:6px;padding:10px 12px;border:1.5px solid #EAEEE8;border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none"></div>'+
         '<button onclick="owSubmitAdv()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">💼 إرسال طلب العهدة</button>'+
       '</div>'+
 
@@ -264,6 +273,11 @@ async function owLoadApproved(){
   }catch(ex){console.error(ex);}
 }
 
+function owAdvPmtChange(v){
+  const other=document.getElementById('ow-adv-pmt-other');
+  if(other)other.style.display=v==='أخرى'?'block':'none';
+}
+
 function owPmtChange(v){
   const other=document.getElementById('ow-pmt-other');
   if(other)other.style.display=v==='أخرى'?'block':'none';
@@ -370,7 +384,11 @@ async function owSubmitAdv(){
   if(!_owSelectedViewer){notify('❌ اختر الشخص أولاً','err');return;}
   var amt=parseFloat(document.getElementById('ow-adv-amt').value);
   var note=(document.getElementById('ow-adv-note').value||'').trim();
+  var advPmtSel=document.getElementById('ow-adv-pmt');
+  var advPmtOther=document.getElementById('ow-adv-pmt-other');
+  var advPmt=advPmtSel?(advPmtSel.value==='أخرى'?(advPmtOther?advPmtOther.value.trim():''):advPmtSel.value):'';
   if(!amt||amt<=0){notify('❌ ادخل المبلغ','err');return;}
+  if(!advPmt){notify('❌ اختر طريقة الدفع','err');return;}
 
   // نجيب العهدة المفتوحة للشخص ده
   var advRows=[];
@@ -390,6 +408,7 @@ async function owSubmitAdv(){
       amount:amt,
       inst_date:today,
       inst_note:note||'دفعة من الأونر',
+      payment_method:advPmt,
       adv_user_id:_owSelectedViewer,
       submitted_by:uid,
       submitted_at:new Date().toISOString(),
@@ -397,6 +416,8 @@ async function owSubmitAdv(){
     notify('✅ تم إرسال طلب الدفعة لـ '+(viewer?viewer.name:'—')+' — في انتظار موافقة الأدمن','ok');
     document.getElementById('ow-adv-amt').value='';
     document.getElementById('ow-adv-note').value='';
+    if(document.getElementById('ow-adv-pmt'))document.getElementById('ow-adv-pmt').value='';
+    if(document.getElementById('ow-adv-pmt-other'))document.getElementById('ow-adv-pmt-other').style.display='none';
     _owSelectedViewer=null;
     owLoadViewers();
     owLoadPending();
