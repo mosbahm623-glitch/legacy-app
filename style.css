@@ -2489,14 +2489,22 @@ body.dark-mode #ownerScreen [style*="background:#EBF5EF"] {
   border-color:rgba(212,196,154,.15)!important;
   color:rgba(212,196,154,.7)!important;
 }
-/* زرار وارد في dark mode */
+/* أزرار وارد/مصروف في dark mode */
 body.dark-mode #ow-inc-btn {
-  background:var(--dark-base)!important;
-  color:rgba(212,196,154,.6)!important;
-  border-color:rgba(212,196,154,.2)!important;
+  background:rgba(39,174,96,.1)!important;
+  color:#6FCF97!important;
+  border-color:#27AE60!important;
 }
 body.dark-mode #ow-exp-btn {
-  background:#3A1515!important;
+  background:rgba(192,57,43,.1)!important;
   color:#F1948A!important;
   border-color:#C0392B!important;
+}
+/* labels في dark mode */
+body.dark-mode #ownerScreen [style*="color:#999"],
+body.dark-mode #ownerScreen [style*="color:#888"] {
+  color:rgba(212,196,154,.55)!important;
+}
+body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
+  color:var(--accent)!important;
 }
