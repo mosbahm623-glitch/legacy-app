@@ -68,6 +68,15 @@ async function loadOwnerScreen(){
         '<div id="ow-proj-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:#fff;border:1.5px solid #EAEEE8;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
         '<div id="ow-mq-wrap" style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المقاول</label>'+
         '<input id="ow-mq" type="text" placeholder="اختياري" style="'+inp+'"></div>'+
+        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع <span style="color:#E74C3C">*</span></label>'+
+        '<select id="ow-pmt" onchange="owPmtChange(this.value)" style="'+inp+';background:#fff">'+
+          '<option value="">اختر طريقة الدفع...</option>'+
+          '<option value="كاش">💵 كاش</option>'+
+          '<option value="الأهلي">🏦 الأهلي</option>'+
+          '<option value="CIB">🏦 CIB</option>'+
+          '<option value="أخرى">✏️ أخرى</option>'+
+        '</select>'+
+        '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
       '</div>'+
 
@@ -255,6 +264,11 @@ async function owLoadApproved(){
   }catch(ex){console.error(ex);}
 }
 
+function owPmtChange(v){
+  const other=document.getElementById('ow-pmt-other');
+  if(other)other.style.display=v==='أخرى'?'block':'none';
+}
+
 async function owSubmit(){
   var t=window._owType||'e';
   var amt=parseFloat(document.getElementById('ow-amt').value);
@@ -277,7 +291,11 @@ async function owSubmit(){
   if(btn){btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';}
 
   try{
-    var entry={id:crypto.randomUUID(),project_id:projId,type:t,amount:amt,category:cat,description:desc,entry_date:date,contractor:mq||null,advance_id:null,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
+    var pmtSel=document.getElementById('ow-pmt');
+    var pmtOther=document.getElementById('ow-pmt-other');
+    var pmt=pmtSel?(pmtSel.value==='أخرى'?(pmtOther?pmtOther.value.trim():''):pmtSel.value):'';
+    if(!pmt){notify('❌ اختر طريقة الدفع','err');return;}
+    var entry={id:crypto.randomUUID(),project_id:projId,type:t,amount:amt,category:cat,description:desc,entry_date:date,contractor:mq||null,advance_id:null,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString(),payment_method:pmt};
     await sb('pending_entries','POST',entry);
     notify('✅ تم الإرسال — في انتظار موافقة الأدمن','ok');
     document.getElementById('ow-amt').value='';
@@ -285,6 +303,8 @@ async function owSubmit(){
     if(document.getElementById('ow-cat'))document.getElementById('ow-cat').value='';
     if(document.getElementById('ow-cat-inp'))document.getElementById('ow-cat-inp').value='';
     if(document.getElementById('ow-mq'))document.getElementById('ow-mq').value='';
+    if(document.getElementById('ow-pmt'))document.getElementById('ow-pmt').value='';
+    if(document.getElementById('ow-pmt-other'))document.getElementById('ow-pmt-other').style.display='none';
     document.getElementById('ow-proj-inp').value='';
     document.getElementById('ow-proj').value='';
     owSetType('e');
