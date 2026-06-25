@@ -119,14 +119,12 @@ function filterArchive(q){
 async function openArchivedEntries(pid){
   const archProj=_archiveData.find(p=>p.id===pid);
   if(!archProj)return;
-  // نضيفه مؤقتاً في allProjects و projects عشان rp() تشتغل صح
+  // نضيفه مؤقتاً في allProjects و allProjectsMap فقط (مش projects عشان مش يظهر في الـ dropdown)
   if(!allProjects.find(p=>p.id===pid)){
     allProjects.push(archProj);
     allProjectsMap[pid]=archProj;
   }
-  if(!projects.find(p=>p.id===pid)){
-    projects.push(archProj);
-  }
+  // مش نضيفه في projects عشان مش يظهر في dropdown التعديل
   showScreen('proj');
   await sw(pid);
   setSav('📦 مشروع مؤرشف — يمكن التعديل على قيوده','ok');
