@@ -277,7 +277,9 @@ async function sed(){
   const a=parseFloat(document.getElementById('eA').value);
   if(isNaN(a)){notify('ادخل المبلغ','err');return;}
   confirmWithPassword('تأكيد حفظ التعديل','✏️',async()=>{
-    const newPid=document.getElementById('ePrj').value;
+    const _selPid=document.getElementById('ePrj').value;
+    const _selProj=allProjects.find(p=>p.id===_selPid)||allProjectsMap[_selPid];
+    const newPid=(_selProj&&_selProj.archived)||!_selPid?curPid:_selPid;
     const u={amount:a,description:document.getElementById('eD').value.trim(),entry_date:fd(document.getElementById('eDt').value),project_id:newPid};
     if(edType==='e'){
       const nc=document.getElementById('eC').value.trim();
