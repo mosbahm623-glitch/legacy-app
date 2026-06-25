@@ -180,6 +180,12 @@ function owSetType(t){
     if(catWrap)catWrap.style.display='none';
     if(mqWrap)mqWrap.style.display='none';
   }
+  // تغيير label طريقة الدفع/الاستقبال
+  var pmtLbl=document.querySelector('#ow-screen-add label[for-pmt]')||
+    (function(){var els=document.querySelectorAll('#ow-screen-add label');for(var i=0;i<els.length;i++){if(els[i].textContent.includes('طريقة'))return els[i];}return null;})();
+  if(pmtLbl)pmtLbl.innerHTML=(t==='i'?'طريقة الاستقبال':'طريقة الدفع')+' <span style="color:#E74C3C">*</span>';
+  var pmtSel=document.getElementById('ow-pmt');
+  if(pmtSel)pmtSel.options[0].text=t==='i'?'اختر طريقة الاستقبال...':'اختر طريقة الدفع...';
 }
 
 function owFilterProj(q){
