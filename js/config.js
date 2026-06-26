@@ -160,7 +160,7 @@ function setSav(m,c){
   if(msg){msg.textContent=m;}else{el.textContent=m;}
   if(dot){dot.style.background=c==='ok'?'#1D9E75':c==='er'?'var(--danger)':'var(--warning)';}
 }
-function setLS(m,c){const el=document.getElementById('lst');el.textContent=m;el.className='lst '+c;}
+function setLS(m,c){const el=document.getElementById('lst');if(el){el.textContent=m;el.className='lst '+c;}}
 /** تنسيق الأرقام بالفواصل — مثال: 1000 → 1,000 */
 function fn(n){return Number(n||0).toLocaleString('en-US');}
 function uid_(){return crypto.randomUUID();}
@@ -567,3 +567,4 @@ function stopRealtime() {
   if (_rtEntCh) { try { client.removeChannel(_rtEntCh); } catch(_) {} _rtEntCh = null; }
   if (_rtAdvCh) { try { client.removeChannel(_rtAdvCh); } catch(_) {} _rtAdvCh = null; }
 }
+
