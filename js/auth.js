@@ -19,7 +19,7 @@ async function logout(){
   localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');
   const mobNav=document.getElementById('mobBottomNav');
   if(mobNav)mobNav.style.display='none';
-  document.getElementById('loginScreen').style.display='flex';
+  window.location.replace('login.html');
   document.getElementById('mainApp').style.display='none';
 }
 async function checkSaved(){
@@ -28,7 +28,7 @@ async function checkSaved(){
     try{const r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':AK,'Authorization':'Bearer '+tk}});if(r.ok){token=tk;uid=id;uEmail=em||'';await initApp();return;}}catch(e){console.warn('session check failed:',e);} // صامت متعمد
     localStorage.removeItem('lg_tk');localStorage.removeItem('lg_uid');localStorage.removeItem('lg_em');
   }
-  document.getElementById('loginScreen').style.display='flex';
+  window.location.replace('login.html');
 }
 async function initApp(){
   try{
@@ -41,7 +41,7 @@ async function initApp(){
   const app=document.getElementById('mainApp');
   app.style.display='flex';
   closeAhdrMenu();
-  document.getElementById('loginScreen').style.display='none';
+  // login handled by login.html
   document.body.style.overflow='';
   document.body.style.position='';
   applyUserTheme();
@@ -150,6 +150,7 @@ async function initApp(){
     if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
   }
 }
+
 
 
 
