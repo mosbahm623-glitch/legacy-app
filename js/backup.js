@@ -1,4 +1,3 @@
-let xOK=false;
 async function loadExcelJS(){
   if(xOK)return;
   await new Promise((res,rej)=>{
