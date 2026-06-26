@@ -1,11 +1,20 @@
+let xOK=false;
+async function loadExcelJS(){
+  if(xOK)return;
+  await new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+    s.onload=()=>{xOK=true;res();};s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
 async function backupAll(){
 // ██ BACKUP SYSTEM ══════════════════════════════════
   const btn=document.getElementById('sbi-backup');
   if(btn)btn.disabled=true;
   setSav('⏳ جاري تحميل المكتبة...','ng');
   try{
-    // تحميل ExcelJS لو مش محملة
-    // ExcelJS loaded in index.html
+    await loadExcelJS();
     setSav('⏳ جاري جلب البيانات...','ng');
     // جيب كل البيانات
     const [prjs,ents,advs,insts,profs,dues,pending,notes,summaries]=await Promise.all([
@@ -242,14 +251,7 @@ async function exportAllProjects(){
   if(btn){btn.disabled=true;}
   setSav('⏳ جاري التحضير...','ng');
   try{
-    if(!xOK){
-      await new Promise((res,rej)=>{
-        const s=document.createElement('script');
-        s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
-        s.onload=()=>{xOK=true;res();};s.onerror=rej;
-        document.head.appendChild(s);
-      });
-    }
+    await loadExcelJS();
     const savedPid=curPid;
     const total=allProjects.length;
     for(let i=0;i<total;i++){
@@ -281,3 +283,4 @@ function closeMqManager(){
   document.getElementById('mqManagerScreen').style.display='none';
   document.getElementById('repHub').style.display='block';
 }
+
