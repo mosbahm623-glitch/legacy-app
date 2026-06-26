@@ -54,18 +54,19 @@
         <div class="lc-hint">سجّل دخولك للمتابعة</div>
         <div class="lc-input-wrap">
           <span class="lc-icon">✉</span>
-          <input class="lc-input" type="email" placeholder="البريد الإلكتروني">
+          <input class="lc-input" type="email" id="lemail" placeholder="البريد الإلكتروني" onkeydown="if(event.key==='Enter')login()">
         </div>
         <div class="lc-input-wrap">
           <span class="lc-icon">🔒</span>
-          <input class="lc-input" type="password" placeholder="كلمة المرور">
-          <button class="lc-eye">👁</button>
+          <input class="lc-input lc-input-pass" type="password" id="lpass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+          <button class="lc-eye" onclick="toggleLpass()" type="button" id="lEyeBtn"><i class="ti ti-eye" id="lEyeIcon"></i></button>
         </div>
         <div class="lc-row">
           <label class="lc-remember"><input type="checkbox"> تذكرني</label>
-          <button class="lc-forgot-btn">نسيت كلمة المرور؟</button>
+          <button class="lc-forgot-btn" onclick="showForgotPwd()">نسيت كلمة المرور؟</button>
         </div>
-        <button class="lc-btn">دخول إلى النظام</button>
+        <button class="lc-btn" onclick="login()">دخول إلى النظام</button>
+        <div class="lst" id="lst"></div>
         <div class="lc-mob-stat"><div class="lc-mob-stat-dot"></div><span>النظام يعمل بشكل طبيعي</span></div>
       </div>
     </div>
@@ -1480,3 +1481,4 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
+
