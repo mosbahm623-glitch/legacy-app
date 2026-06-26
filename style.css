@@ -299,7 +299,8 @@ td{font-weight:400}
 /* إخفاء الـ bottom nav — بيتحكم فيه JS */
 @import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700;800&family=Manrope:wght@400;600;700;800&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%;width:100%;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0}
+  html,body{height:100%;width:100%}
+  #loginScreen{position:fixed;inset:0;overflow:hidden}
   body{font-family:'Alexandria',sans-serif;background:#0f2318}
 
   /* ══ BASE — كل الأحجام ══ */
@@ -2649,4 +2650,5 @@ body.dark-mode #ownerScreen [style*="color:#888"] {
 body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
   color:var(--accent)!important;
 }
+
 
