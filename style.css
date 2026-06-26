@@ -2526,7 +2526,7 @@ body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
 #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;height:100vh;height:100svh;background:#0f2318;padding:24px;overflow:hidden;box-sizing:border-box}
 .ls-wrap{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 .ls-card{
-  width:100%;max-width:420px;
+  width:100%;max-width:400px;
   display:flex;flex-direction:column;align-items:center;
   padding:40px 36px 36px;
   background:#1a3528;
