@@ -56,7 +56,7 @@ async function initApp(){
   document.getElementById('sbi-rep').style.display=(uRole==='viewer')?'none':'flex';
   if(uRole==='viewer'){
     // إخفاء كل حاجة في الـ sidebar غير العهد والملاحظات
-    ['sbi-dash','sbi-proj-hdr','sba-proj','sbs-proj','sbi-timeline','sbi-daily','sbi-daf3ati','sbi-search','sbi-archive','sbi-auditlog','sbi-backup','sbi-save-proj'].forEach(id=>{
+    ['sbi-dash','sbi-proj-hdr','sba-proj','sbs-proj','sbi-timeline','sbi-daily','sbi-daf3ati','sbi-search','sbi-archive','sbi-auditlog','sbi-backup','sbi-save-proj','sbi-cashcalc'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.style.display='none';
     });
     // إخفاء الـ section labels
@@ -148,4 +148,5 @@ async function initApp(){
     if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
   }
 }
+
 
