@@ -2216,16 +2216,51 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
 .btn-gsm-gold{background:var(--gold,#D4C49A)!important;color:var(--primary,#1D3C2A)!important;font-weight:700}
 
 @media(max-width:600px){
-  .ls-wrap{flex-direction:column;min-height:100vh}
-  .ls-left{width:100%;min-width:unset;padding:20px 24px;flex-direction:row;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0}
-  .ls-left-top{display:flex;align-items:center;gap:14px}
-  .ls-logo{margin-bottom:0;width:52px;height:52px;flex-shrink:0}
-  .ls-app-name{font-size:18px;margin-bottom:2px}
-  .ls-app-sub{font-size:10px}
-  .ls-left-bottom{display:none}
-  .ls-right{flex:1;padding:32px 20px;align-items:flex-start !important;justify-content:flex-start !important}
-  .ls-form-wrap{width:100%;max-width:100%}
+  /* إخفاء الـ left panel في الموبايل */
+  .ls-left{display:none}
+  /* الـ right يملأ الشاشة كلها */
+  .ls-wrap{flex-direction:column;min-height:100svh;min-height:100vh}
+  .ls-right{
+    flex:1;padding:0;
+    display:flex;flex-direction:column;
+    background:#1D3C2A;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    overflow:hidden;
+  }
+  /* الـ top bar الأخضر */
+  .ls-mob-top{
+    display:flex !important;
+    align-items:center;gap:14px;
+    padding:48px 24px 24px;
+    flex-shrink:0;
+  }
+  .ls-mob-logo{width:54px;height:54px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+  .ls-mob-logo img{width:100%;height:100%;object-fit:cover}
+  .ls-mob-name{font-size:20px;font-weight:800;color:#fff}
+  .ls-mob-sub{font-size:11px;color:rgba(212,196,154,.5);letter-spacing:.8px;margin-top:2px}
+  /* الكارد الأبيض */
+  .ls-form-wrap{
+    flex:1;
+    background:#fff;
+    border-radius:28px 28px 0 0;
+    padding:28px 24px 20px;
+    display:flex;flex-direction:column;
+    width:100%;max-width:100%;
+    overflow:hidden;
+  }
+  .ls-welcome{font-size:21px}
+  .ls-hint{font-size:13px;margin-bottom:20px}
+  .ls-field{margin-bottom:12px}
+  .ls-input{padding:12px 40px 12px 14px;font-size:15px}
+  .ls-btn{padding:14px;font-size:15px}
+  /* stat في الموبايل */
+  .ls-mob-stat{display:flex !important;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:14px}
+  .ls-mob-stat span{font-size:11px;color:#ccc}
 }
+/* إخفاء عناصر الموبايل في الديسكتوب */
+.ls-mob-top{display:none}
+.ls-mob-stat{display:none}
 
 /* ══ Archive Screen ══ */
 .gsm-archive{background:var(--warning-bg,#FFF3CD)!important;color:var(--warning-dark,#856404)!important;border:1.5px solid var(--warning,#F59E0B)!important}
