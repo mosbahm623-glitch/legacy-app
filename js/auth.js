@@ -42,6 +42,8 @@ async function initApp(){
   app.style.display='flex';
   closeAhdrMenu();
   document.getElementById('loginScreen').style.display='none';
+  document.body.style.overflow='';
+  document.body.style.position='';
   applyUserTheme();
   document.getElementById('uname').textContent=uName;
   document.getElementById('urole').textContent={'super_admin':'⚡ سوبر أدمن','admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد','owner':'🏢 أونر'}[uRole]||uRole;
@@ -148,5 +150,6 @@ async function initApp(){
     if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
   }
 }
+
 
 
