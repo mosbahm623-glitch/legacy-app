@@ -2578,8 +2578,11 @@ body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
   .ls-wrap{height:100vh;height:100svh}
   .ls-card{
     max-width:100%;border-radius:0;
-    padding:52px 24px 32px;
+    padding:52px 28px 32px;
     justify-content:center;
     min-height:100%;
+    overflow:hidden;
   }
+  .ls-field{width:100%;padding:0}
+  .ls-input{width:100%;box-sizing:border-box}
 }
