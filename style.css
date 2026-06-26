@@ -2216,10 +2216,9 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
 .btn-gsm-gold{background:var(--gold,#D4C49A)!important;color:var(--primary,#1D3C2A)!important;font-weight:700}
 
 @media(max-width:600px){
-  /* إخفاء الـ left panel في الموبايل */
+  #loginScreen{position:fixed;inset:0;overflow:hidden}
   .ls-left{display:none}
-  /* الـ right يملأ الشاشة كلها */
-  .ls-wrap{flex-direction:column;min-height:100svh;min-height:100vh}
+  .ls-wrap{flex-direction:column;height:100%;height:100svh}
   .ls-right{
     flex:1;padding:0;
     display:flex;flex-direction:column;
@@ -2227,38 +2226,37 @@ body.dark-mode .proj-card:hover{border-color:var(--border-tan,#D4C49A)}
     align-items:stretch !important;
     justify-content:flex-start !important;
     overflow:hidden;
+    height:100%;
   }
-  /* الـ top bar الأخضر */
   .ls-mob-top{
     display:flex !important;
     align-items:center;gap:14px;
-    padding:48px 24px 24px;
+    padding:48px 24px 22px;
     flex-shrink:0;
   }
   .ls-mob-logo{width:54px;height:54px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.3)}
   .ls-mob-logo img{width:100%;height:100%;object-fit:cover}
   .ls-mob-name{font-size:20px;font-weight:800;color:#fff}
   .ls-mob-sub{font-size:11px;color:rgba(212,196,154,.5);letter-spacing:.8px;margin-top:2px}
-  /* الكارد الأبيض */
   .ls-form-wrap{
     flex:1;
     background:#fff;
     border-radius:28px 28px 0 0;
-    padding:28px 24px 20px;
+    padding:26px 24px 16px;
     display:flex;flex-direction:column;
     width:100%;max-width:100%;
     overflow:hidden;
+    min-height:0;
   }
-  .ls-welcome{font-size:21px}
-  .ls-hint{font-size:13px;margin-bottom:20px}
-  .ls-field{margin-bottom:12px}
-  .ls-input{padding:12px 40px 12px 14px;font-size:15px}
-  .ls-btn{padding:14px;font-size:15px}
-  /* stat في الموبايل */
-  .ls-mob-stat{display:flex !important;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:14px}
+  .ls-welcome{font-size:20px}
+  .ls-hint{font-size:12px;margin-bottom:16px}
+  .ls-field{margin-bottom:11px}
+  .ls-input{padding:11px 40px 11px 14px;font-size:14px}
+  .ls-btn{padding:13px;font-size:15px;margin-top:4px}
+  .ls-forgot{margin-top:10px}
+  .ls-mob-stat{display:flex !important;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:10px}
   .ls-mob-stat span{font-size:11px;color:#ccc}
 }
-/* إخفاء عناصر الموبايل في الديسكتوب */
 .ls-mob-top{display:none}
 .ls-mob-stat{display:none}
 
