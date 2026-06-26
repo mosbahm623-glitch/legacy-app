@@ -1,7 +1,7 @@
 // Legacy Core — Service Worker
 // Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
-const CACHE = 'lft-v233';
+const CACHE = 'lft-v232';
 const SHELL = [
   './',
   './index.html',
@@ -123,6 +123,5 @@ self.addEventListener('fetch', e => {
 self.addEventListener('message', e => {
   if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
-
 
 
