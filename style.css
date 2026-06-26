@@ -2523,8 +2523,8 @@ body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
 
 
 /* ══ LOGIN SCREEN ══════════════════════════════════ */
-#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f2318;padding:24px}
-.ls-wrap{display:flex;align-items:center;justify-content:center;width:100%}
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;height:100vh;height:100svh;background:#0f2318;padding:24px;overflow:hidden;box-sizing:border-box}
+.ls-wrap{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 .ls-card{
   width:100%;max-width:420px;
   display:flex;flex-direction:column;align-items:center;
