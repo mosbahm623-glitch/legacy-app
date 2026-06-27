@@ -1280,39 +1280,50 @@
 <div id="mqPayModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box" onclick="if(event.target===this)closeMqPay()">
   <div class="mq-pay-modal">
     <div class="mq-pay-header">
-      <div id="mqPayName" class="mq-pay-name">👷</div>
+      <div class="mq-pay-header-info">
+        <div class="mq-pay-icon">👷</div>
+        <div>
+          <div id="mqPayName" class="mq-pay-name">إضافة دفعة</div>
+          <div id="mqPaySubName" class="mq-pay-subname"></div>
+        </div>
+      </div>
       <button onclick="closeMqPay()" class="mq-pay-close">✕</button>
     </div>
     <div class="mq-pay-body">
-      <div class="mq-pay-grid">
-        <div>
-          <label class="mq-pay-lbl">المبلغ</label>
-          <input id="mqPayAmt" type="number" placeholder="0" onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+      <div class="mq-pay-amt-wrap">
+        <label class="mq-pay-lbl">المبلغ</label>
+        <div class="mq-pay-amt-row">
+          <input id="mqPayAmt" type="number" placeholder="0" onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-amt-inp">
+          <span class="mq-pay-currency">ج.م</span>
         </div>
-        <div>
-          <label class="mq-pay-lbl">البند</label>
-          <input id="mqPayCat" placeholder="كهربا..." onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
-        </div>
-      </div>
-      <div>
-        <label class="mq-pay-lbl">البيان</label>
-        <input id="mqPayDesc" placeholder="دفعة" onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
       </div>
       <div class="mq-pay-grid">
         <div>
           <label class="mq-pay-lbl">التاريخ</label>
-          <input id="mqPayDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="mq-pay-inp-sm">
+          <input id="mqPayDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="mq-pay-inp">
         </div>
         <div>
           <label class="mq-pay-lbl">النوع</label>
-          <select id="mqPayEtype" class="mq-pay-inp-sm">
+          <select id="mqPayEtype" class="mq-pay-inp">
             <option value="payment">💰 دفعة</option>
             <option value="work">🔨 أعمال</option>
             <option value="material">🔩 مصنعيات</option>
           </select>
         </div>
       </div>
-      <button onclick="saveMqPay()" class="mq-pay-save">💾 حفظ</button>
+      <div>
+        <label class="mq-pay-lbl">البند</label>
+        <input id="mqPayCat" placeholder="كهربا..." onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+      </div>
+      <div>
+        <label class="mq-pay-lbl">البيان</label>
+        <input id="mqPayDesc" placeholder="دفعة..." onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+      </div>
+      <div id="mqPayBalance" class="mq-pay-balance" style="display:none"></div>
+      <div class="mq-pay-btns">
+        <button onclick="closeMqPay()" class="mq-pay-cancel">إلغاء</button>
+        <button onclick="saveMqPay()" class="mq-pay-save">💾 حفظ</button>
+      </div>
       <div id="mqPayMsg" class="mq-pay-msg"></div>
     </div>
   </div>
