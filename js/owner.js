@@ -59,7 +59,7 @@ async function loadOwnerScreen(){
           '<input id="ow-date" type="date" style="'+inp+'" value="'+todayISO+'"></div>'+
         '</div>'+
         '<div id="ow-cat-wrap" style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
-        '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
+        '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onfocus="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
         '<input type="hidden" id="ow-cat">'+
         '<div id="ow-cat-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-pure,#fff);border:1.5px solid var(--border,#EAEEE8);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
         '<div style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المشروع <span style="color:#E74C3C">*</span></label>'+
@@ -140,12 +140,15 @@ function owFilterCat(val){
   var hidden=document.getElementById('ow-cat');
   if(!dd)return;
   hidden.value='';
-  var cats=window._owAllCats||[];
-  var filtered=val?cats.filter(function(c){return c.includes(val);}):cats;
-  if(!filtered.length){dd.style.display='none';return;}
+  var base=typeof _CATS!=='undefined'?_CATS:[];
+  var extra=(allEntries||[]).map(function(e){return e.category;}).filter(Boolean);
+  var all=[...new Set([...base,...extra])].sort();
+  var filtered=val?all.filter(function(c){return c.includes(val);}):all;
+  if(!filtered.length){dd.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#999">لا يوجد</div>';dd.style.display='block';return;}
   dd.style.display='block';
   dd.innerHTML=filtered.map(function(c){
-    return '<div onclick="owSelectCat(\"'+c+'\")'  + ' style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee">'+c+'</div>';
+    var safe=c.replace(/'/g,"\'");
+    return '<div onmousedown="event.preventDefault();owSelectCat(\''+safe+'\')" style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee" onmouseenter="this.style.background=\'#f5f0e8\'" onmouseleave="this.style.background=\'\'">  '+c+'</div>';
   }).join('');
 }
 
