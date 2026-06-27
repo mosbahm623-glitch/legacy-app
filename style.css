@@ -904,7 +904,8 @@ body.dark-mode .chat-ta{color:var(--border-tan)}
 body.dark-mode .sav{background:var(--dark-teal);color:rgba(212,196,154,.7)}
 body.dark-mode .adv-screen{background:var(--dark-night)}
 body.dark-mode .ap{background:var(--dark-night)}
-body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:var(--dark-base);color:var(--border-tan);border-color:rgba(212,196,154,.12)}
+body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:var(--dark-card,#1A2A1A);color:#EFF6F2;border-color:rgba(212,196,154,.2)}
+body.dark-mode input::placeholder,body.dark-mode textarea::placeholder{color:rgba(212,196,154,.45)!important}
 body.dark-mode .lbox input{background:rgba(255,255,255,.05);color:#fff}
 body.dark-mode .conv-item:hover,body.dark-mode .conv-item.active{background:var(--dark-mid)}
 body.dark-mode .new-chat-dd{background:var(--dark-base);border-color:rgba(212,196,154,.1)}
