@@ -16,7 +16,7 @@ async function backupAll(){
     await loadExcelJS();
     setSav('⏳ جاري جلب البيانات...','ng');
     // جيب كل البيانات
-    const [prjs,ents,advs,insts,profs,dues,pending,notes,summaries]=await Promise.all([
+    const [prjs,ents,advs,insts,profs,dues,pending,pendingAdvs,notes,summaries]=await Promise.all([
       sb('projects?order=created_at'),
       sbAll('entries?order=created_at'),
       sb('advances?order=created_at'),
@@ -24,6 +24,7 @@ async function backupAll(){
       sb('profiles?order=created_at'),
       sb('contractor_dues?order=created_at'),
       sb('pending_entries?order=submitted_at'),
+      sb('pending_advances?status=eq.pending&order=submitted_at'),
       sb('notes?order=created_at'),
       sb('project_summaries'),
     ]);
@@ -170,6 +171,18 @@ async function backupAll(){
       hdr(wsPN,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'الحالة',k:'status',w:15}]);
       pending.forEach(e=>wsPN.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',status:'في الانتظار'}));
       styleRows(wsPN,pending.length);
+    }
+    // شيت العهد المعلقة
+    if(pendingAdvs&&pendingAdvs.length){
+      const advMap2={};advs.forEach(a=>advMap2[a.id]=a.person_name||'');
+      const wsPAdv=wb.addWorksheet('عهد معلقة',{views:[{rightToLeft:true}]});
+      mergeTitle(wsPAdv,'⏳  العهد المعلقة',5,'FFD4800A');
+      hdr(wsPAdv,[{h:'صاحب العهدة',k:'name',w:22},{h:'المبلغ',k:'amt',w:15},{h:'الملاحظة',k:'note',w:30},{h:'تاريخ الدفعة',k:'dt',w:16},{h:'الحالة',k:'status',w:14}]);
+      pendingAdvs.forEach(pa=>{
+        const row=wsPAdv.addRow({name:advMap2[pa.advance_id]||'',amt:pa.amount,note:pa.inst_note||'',dt:pa.inst_date||'',status:'في الانتظار'});
+        row.getCell(2).numFmt='#,##0';
+      });
+      styleRows(wsPAdv,pendingAdvs.length);
     }
     // شيت الملاحظات
     if(notes&&notes.length){
