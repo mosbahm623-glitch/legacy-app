@@ -59,7 +59,7 @@ async function loadOwnerScreen(){
           '<input id="ow-date" type="date" style="'+inp+'" value="'+todayISO+'"></div>'+
         '</div>'+
         '<div id="ow-cat-wrap" style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
-        '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onfocus="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
+        '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
         '<input type="hidden" id="ow-cat">'+
         '<div id="ow-cat-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-pure,#fff);border:1.5px solid var(--border,#EAEEE8);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
         '<div style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المشروع <span style="color:#E74C3C">*</span></label>'+
