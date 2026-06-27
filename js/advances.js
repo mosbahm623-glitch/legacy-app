@@ -1,3 +1,19 @@
+
+function _advCatFilter(val){
+  var dd=document.getElementById('_advCatDD');
+  if(!dd)return;
+  var base=typeof _CATS!=='undefined'?_CATS:[];
+  var extra=(allEntries||[]).map(function(e){return e.category;}).filter(Boolean);
+  var all=[...new Set([...base,...extra])].sort();
+  var filtered=val?all.filter(function(c){return c.includes(val);}):all;
+  if(!filtered.length){dd.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#999">لا يوجد</div>';dd.style.display='block';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(function(c){
+    var safe=c.replace(/'/g,"\'");
+    return '<div onmousedown="event.preventDefault();document.getElementById(\'advCat\').value=\''+safe+'\';document.getElementById(\'_advCatDD\').style.display=\'none\'" style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0ee" onmouseenter="this.style.background=\'#f5f0e8\'" onmouseleave="this.style.background=\'\'" >'+c+'</div>';
+  }).join('');
+}
+
 async function loadAdvList(){
   setSav('⏳ جاري تحميل العهد...','ng');
   // Populate user selector (admin only)
@@ -237,7 +253,13 @@ function showAdvEntryModal(){
         <input type="hidden" id="advProjSel">
         <div id="advProjDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:4px"></div>
       </div>
-      <input id="advCat" placeholder="البند" class="inp-lg" list="cl">
+      <div style="position:relative">
+        <input id="advCat" placeholder="اكتب أو اختر البند..." class="inp-lg" autocomplete="off"
+          oninput="_advCatFilter(this.value)"
+          onfocus="_advCatFilter(this.value)"
+          onblur="setTimeout(()=>{const d=document.getElementById('_advCatDD');if(d)d.style.display='none';},150)">
+        <div id="_advCatDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;max-height:200px;overflow-y:auto"></div>
+      </div>
       <input id="advDesc" placeholder="البيان" class="inp-lg">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <input id="advEntAmt" type="number" placeholder="المبلغ (ج)" step="any" class="inp-lg">
