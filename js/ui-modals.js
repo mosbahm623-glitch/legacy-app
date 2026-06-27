@@ -55,11 +55,11 @@ function updateDarkBtn(mode){
 }
 function applyUserTheme(){
   const key='lft_theme_'+(uid||'guest');
-  const saved=localStorage.getItem(key)||'dark';
+  const saved=localStorage.getItem(key)||'day';
   document.body.classList.remove('dark-mode','day-mode');
-  if(saved==='day')document.body.classList.add('day-mode');
-  else document.body.classList.add('dark-mode');
-  updateDarkBtn(saved==='day'?'day':'dark');
+  if(saved==='dark')document.body.classList.add('dark-mode');
+  else document.body.classList.add('day-mode');
+  updateDarkBtn(saved);
 }
 
 
