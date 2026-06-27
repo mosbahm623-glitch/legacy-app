@@ -48,7 +48,8 @@ function mqPrintReport(idx){
 let _mqName='',_mqCat='';
 function mqAddPayment(name,cat){
   _mqName=name;_mqCat=cat;
-  document.getElementById('mqPayName').textContent='👷 '+name;
+  document.getElementById('mqPayName').textContent='إضافة دفعة';
+  const sub=document.getElementById('mqPaySubName');if(sub)sub.textContent=name;
   document.getElementById('mqPayAmt').value='';
   document.getElementById('mqPayDesc').value='دفعة';
   document.getElementById('mqPayDt').value=ts();
