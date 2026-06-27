@@ -1,3 +1,4 @@
+let _advMap={}; // global للوصول من editAndApproveAdv
 async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
@@ -32,6 +33,7 @@ async function loadApprovals(silent=false){
     }
     const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
     const advMap={};advances.forEach(a=>advMap[a.id]=a.person_name);
+    _advMap=advMap; // نسخة عالمية
     const profMap=await getProfileMap();
     const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
     let html='';
@@ -328,7 +330,7 @@ async function editAndApproveAdv(id){
     ov=document.createElement('div');
     ov.id='eaAdvModal';
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-    const advName=(advances&&advances.find(a=>a.id===r.advance_id)?.person_name)||(advMap&&advMap[r.advance_id])||r.person_name||'—';
+    const advName=(advances&&advances.find(a=>a.id===r.advance_id)?.person_name)||_advMap[r.advance_id]||r.person_name||'—';
     ov.innerHTML=`
       <div class="appr-edit-modal-box">
         <div class="modal-hdr">
