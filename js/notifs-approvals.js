@@ -133,6 +133,7 @@ async function loadApprovals(silent=false){
           </div>
           <div style="display:flex;gap:8px">
             <button onclick="approveAdv('${r.id}')" class="appr-adv-approve-btn">✅ موافقة</button>
+            ${!isAdv?`<button onclick="editAndApproveAdv('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>`:''}
             <button onclick="rejectAdv('${r.id}')" class="appr-adv-reject-btn">❌ رفض</button>
           </div>
         </div>`;
@@ -315,6 +316,63 @@ async function rejectEntry(id,silent=false){
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 // ══════════════════════════════════════
+
+async function editAndApproveAdv(id){
+  try{
+    const rows=await sb('pending_advances?id=eq.'+id);
+    if(!rows||!rows.length){setSav('❌ الطلب مش موجود','er');return;}
+    const r=rows[0];
+    const inp='width:100%;padding:10px;border:1.5px solid var(--border-mid,#e0e0e0);border-radius:10px;font-family:inherit;font-size:13px;margin-bottom:12px;box-sizing:border-box;background:var(--input-bg,#f9f9f9);color:var(--text-body,#222)';
+    let ov=document.getElementById('eaAdvModal');
+    if(ov)ov.remove();
+    ov=document.createElement('div');
+    ov.id='eaAdvModal';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    const advName=advances.find(a=>a.id===r.advance_id)?.person_name||'—';
+    ov.innerHTML=`
+      <div class="appr-edit-modal-box">
+        <div class="modal-hdr">
+          <div class="title-md">✏️ تعديل الدفعة قبل الموافقة</div>
+          <button onclick="document.getElementById('eaAdvModal').remove()" class="appr-edit-modal-close">✕</button>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:var(--bg-faint,#f5f5f0);border-radius:8px;font-size:13px;color:var(--text-sub)">
+          💼 صاحب العهدة: <strong>${advName}</strong>
+        </div>
+        <label class="lbl-lg">المبلغ</label>
+        <input id="eaAdvAmount" type="number" value="${r.amount||''}" style="${inp}">
+        <label class="lbl-lg">الملاحظة</label>
+        <input id="eaAdvNote" type="text" value="${(r.inst_note||'').replace(/"/g,'&quot;')}" style="${inp}">
+        <label class="lbl-lg">التاريخ</label>
+        <input id="eaAdvDate" type="text" value="${r.inst_date||''}" placeholder="dd/mm/yyyy" style="${inp}margin-bottom:20px">
+        <div class="modal-btns">
+          <button onclick="confirmEditApproveAdv('${id}')" class="btn-primary">✅ حفظ وموافقة</button>
+          <button onclick="document.getElementById('eaAdvModal').remove()" class="btn-cancel">إلغاء</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+    setTimeout(()=>initDateInput(document.getElementById('eaAdvDate')),0);
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+async function confirmEditApproveAdv(id){
+  const amt=parseFloat(document.getElementById('eaAdvAmount').value);
+  if(!amt||amt<=0){setSav('❌ المبلغ مش صح','er');return;}
+  const note=document.getElementById('eaAdvNote').value.trim();
+  const date=document.getElementById('eaAdvDate').value.trim();
+  try{
+    const rows=await sb('pending_advances?id=eq.'+id);
+    if(!rows||!rows.length){setSav('❌ الطلب مش موجود','er');return;}
+    const r=rows[0];
+    await sb('advance_installments','POST',{advance_id:r.advance_id,amount:amt,inst_date:date||'',note:note||'دفعة'});
+    await sb('pending_advances?id=eq.'+id,'DELETE');
+    document.getElementById('eaAdvModal')?.remove();
+    setSav('✅ تمت الموافقة — تم إضافة الدفعة','ok');
+    updatePendingBadge();
+    loadApprovals(true);
+  }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
 
 async function approveAdv(id,silent=false){
   if(!silent)await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الطلب',msg:'هيتحفظ الطلب.',okLabel:'موافقة',okType:'success',onOk:res}));
