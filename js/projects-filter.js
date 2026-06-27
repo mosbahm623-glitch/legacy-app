@@ -145,15 +145,16 @@ async function importFromXlsx(input){
       let pid=curPid;
       if(r[5]){const pn=String(r[5]).trim().toLowerCase();if(projMap[pn])pid=projMap[pn];}
       if(imType==='e'){
-        if(!r[1]){sk++;return;}
+        if(!r[1]||!String(r[1]).trim()){sk++;return;}
         ents.push({id:uid_(),project_id:pid,type:'e',amount:am,category:String(r[1]).trim(),description:String(r[2]||'').trim(),entry_date:pimd(dt)||dt,contractor:String(r[4]||'').trim()});
       }else{
         ents.push({id:uid_(),project_id:pid,type:'i',amount:am,description:String(r[1]||'دفعة').trim(),entry_date:pimd(dt)||dt,category:'',contractor:''});
       }
     });
-    if(!ents.length){setSav('⚠️ لم يتم التعرف على أي قيد','er');input.value='';return;}
+    if(!ents.length){setSav('⚠️ لم يتم التعرف على أي قيد — تأكد إن عمود البند مش فاضي','er');input.value='';return;}
     input.value='';
     setSav('','ok');
+    if(sk>0)notify('⚠️ تم تخطي '+sk+' صف — تأكد إن البند والمبلغ موجودين في كل صف','warn');
     showImportPreview(ents,sk);
   }catch(e){setSav('❌ '+friendlyError(e),'er');input.value='';}
 }
