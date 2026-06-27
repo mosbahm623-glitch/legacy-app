@@ -166,7 +166,7 @@
   --border-ghost: #EEEEEE;
 }
 
-@media(max-width:1024px){
+@media(max-width:767px){
   .sidebar{position:fixed !important;right:0 !important;top:0 !important;bottom:0 !important;width:260px !important;transform:translateX(100%) !important;z-index:200 !important}
   .sidebar.sb-open{transform:translateX(0) !important}
   .sidebar.mini{width:260px !important;transform:translateX(100%) !important}
