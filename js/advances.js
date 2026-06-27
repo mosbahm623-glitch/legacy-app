@@ -285,7 +285,8 @@ function advProjSearch(q){
   const dd=document.getElementById('advProjDD');
   const inp=document.getElementById('advProjInput');
   if(!dd||!inp)return;
-  const filtered=allProjects.filter(p=>p.name.includes(q.trim())||q.trim()==='');
+  if(!q.trim()){dd.style.display='none';return;}
+  const filtered=allProjects.filter(p=>p.name.includes(q.trim()));
   if(!filtered.length){dd.style.display='none';return;}
   dd.innerHTML=filtered.map(p=>`
     <div onclick="advProjSelect('${p.id}','${p.name.replace(/'/g,"\'")}')"
