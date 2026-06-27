@@ -58,6 +58,7 @@ function _selectCat(val) {
 
 function _onCatInput(val) {
   _clearErr('ic','err-ic');
+  if (!val) { _closeCatDD(); return; }
   if (!_catOpen) _openCatDD();
   _renderCatList(val);
 }
