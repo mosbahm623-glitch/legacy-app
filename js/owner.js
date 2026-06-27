@@ -15,7 +15,7 @@ async function loadOwnerScreen(){
   var catOpts='<option value="">اختر...</option>';
   cats.forEach(function(c){catOpts+='<option value="'+c+'">'+c+'</option>';});
 
-  var inp='width:100%;padding:10px 12px;border:1.5px solid var(--border-color,#EAEEE8);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-input,var(--bg-faint,#f8f8f6));color:var(--text-main,#1a2e1a);outline:none';
+  var inp='width:100%;padding:10px 12px;border:1.5px solid var(--border-color,rgba(212,196,154,.2));border-radius:8px;font-family:inherit;font-size:13px;outline:none';
   var _d=new Date();var todayISO=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
 
   var isMobile=window.innerWidth<=768;
@@ -352,7 +352,7 @@ async function owLoadViewers(){
     var insts=await sb('advance_installments?select=advance_id,amount');
     _owViewers=viewers||[];
     _owSelectedViewer=null;
-    var inp='width:100%;padding:10px 12px;border:1.5px solid var(--border-color,#EAEEE8);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-input,var(--bg-faint,#f8f8f6));color:var(--text-main,#1a2e1a);outline:none';
+    var inp='width:100%;padding:10px 12px;border:1.5px solid var(--border-color,rgba(212,196,154,.2));border-radius:8px;font-family:inherit;font-size:13px;outline:none';
     if(!_owViewers.length){
       el.innerHTML='<div style="text-align:center;padding:20px;color:#aaa;font-size:12px">لا يوجد مستخدمين من نوع viewer</div>';
       return;
