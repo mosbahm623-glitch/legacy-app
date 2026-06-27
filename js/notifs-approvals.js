@@ -328,7 +328,7 @@ async function editAndApproveAdv(id){
     ov=document.createElement('div');
     ov.id='eaAdvModal';
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-    const advName=advances.find(a=>a.id===r.advance_id)?.person_name||'—';
+    const advName=(advances&&advances.find(a=>a.id===r.advance_id)?.person_name)||(advMap&&advMap[r.advance_id])||r.person_name||'—';
     ov.innerHTML=`
       <div class="appr-edit-modal-box">
         <div class="modal-hdr">
