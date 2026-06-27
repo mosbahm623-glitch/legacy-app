@@ -1,85 +1,73 @@
+// ══ CATEGORY FIELD ════════════════════════════════
+const _CATS = [
+  'اشراف هندسي','اعمال حدادة','اعمال معدنية','اكرامبه','السلاب',
+  'الوارد','الوميتال','الوميتال&سوكريت','ايجار','ايرا سيستم',
+  'بنا','بنود يتحملها المكتب','تجهيزات','تجهيزات موقع','تشوينات',
+  'تصوير','تكسيات','تكييفات','تلفيات مصعد','تيار خفيف',
+  'جبس','جبس بورد','حدادة','حديد','حمام سباحة','خرسانات','خرسانه',
+  'رتش','رخام','زراعة','زراعه','ساوند سيستم','سباكة','سباكه',
+  'شخصي','شفاط','صاج','طاقه مصر','طوله الالف','عزل','عزل صوتي',
+  'عمالة','عماله','فرش','قرميد','كهربا','مباني&خرسانات','محارة',
+  'مرتبات','مطبخ','نثريات','نجارة'
+];
 
-// ══ CATEGORY DROPDOWN — البند ══════════════════════
+let _catOpen = false;
 
-let _catDDOpen = false;
-
-const _DEFAULT_CATS = ["اشراف هندسي", "اعمال حدادة", "اعمال معدنية", "اكرامبه", "السلاب", "الوارد", "الوميتال", "الوميتال&سوكريت", "ايجار", "ايرا سيستم", "بنا", "بنود يتحملها المكتب", "تجهيزات", "تجهيزات موقع", "تشوينات", "تصوير", "تكسيات", "تكييفات", "تلفيات مصعد", "تيار خفيف", "جبس", "جبس بورد", "حدادة", "حديد", "حمام سباحة", "خرسانات", "خرسانه", "رتش", "رخام", "زراعة", "زراعه", "ساوند سيستم", "سباكة", "سباكه", "شخصي", "شفاط", "صاج", "طاقه مصر", "طوله الالف", "عزل", "عزل صوتي", "عمالة", "عماله", "فرش", "قرميد", "كهربا", "مباني&خرسانات", "محارة", "مرتبات", "مطبخ", "نثريات", "نجارة"];
-function _getCats() {
-  const s = new Set([..._DEFAULT_CATS]);
-  (allEntries || []).forEach(e => { if (e.category) s.add(e.category); });
-  return [...s].sort();
+function _getAllCats() {
+  const extra = (allEntries||[]).map(e=>e.category).filter(Boolean);
+  return [...new Set([..._CATS, ...extra])].sort();
 }
-function fillCatDatalist() {
-  const dl = document.getElementById('cl');
-  if (!dl) return;
-  dl.innerHTML = _getCats().map(c => `<option value="${c}">`).join('');
+
+function _renderCatList(q) {
+  const list = document.getElementById('_catList');
+  if (!list) return;
+  const all = _getAllCats();
+  const filtered = q ? all.filter(c => c.includes(q)) : all;
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:10px 14px;color:var(--text-muted);font-size:12px">لا يوجد — اضغط حفظ لإضافة "${q}"</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(c => `<div
+    onmousedown="event.preventDefault();_selectCat('${c.replace(/'/g,"\'")}')"
+    style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border-faint,#eee);color:var(--text-main)"
+    onmouseenter="this.style.background='var(--bg-ivory,#f5f0e8)'"
+    onmouseleave="this.style.background=''">
+    ${c}
+  </div>`).join('');
 }
 
-function toggleCatDD() {
-  const dd = document.getElementById('catDD');
+function _openCatDD() {
+  const dd = document.getElementById('_catDD');
   if (!dd) return;
-  if (_catDDOpen) { _closeCatDD(); return; }
-  _catDDOpen = true;
+  _catOpen = true;
   dd.style.display = 'block';
-  const arr = document.getElementById('catArr');
-  if (arr) arr.style.transform = 'rotate(180deg)';
-  onCatSearch(document.getElementById('ic')?.value || '');
-  setTimeout(() => document.getElementById('catSrch')?.focus(), 50);
-  setTimeout(() => {
-    document.addEventListener('click', function _c(e) {
-      const wrap = document.getElementById('catWrap');
-      if (wrap && !wrap.contains(e.target)) _closeCatDD();
-      document.removeEventListener('click', _c);
-    });
-  }, 100);
+  _renderCatList(document.getElementById('ic')?.value || '');
 }
 
 function _closeCatDD() {
-  _catDDOpen = false;
-  const dd = document.getElementById('catDD');
+  _catOpen = false;
+  const dd = document.getElementById('_catDD');
   if (dd) dd.style.display = 'none';
-  const arr = document.getElementById('catArr');
-  if (arr) arr.style.transform = 'rotate(0deg)';
 }
 
-function onCatSearch(q) {
-  const list = document.getElementById('catList');
-  if (!list) return;
-  const cats = _getCats();
-  const filtered = q.trim()
-    ? cats.filter(c => c.includes(q.trim()))
-    : cats;
-  if (!filtered.length) {
-    list.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px">لا توجد بنود — اضغط + لإضافة جديد</div>';
-    return;
-  }
-  list.innerHTML = filtered.map(c => `
-    <div onmousedown="selectCat('${c.replace(/'/g, "\'")}')"
-      style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border-faint,#eee)"
-      onmouseenter="this.style.background='var(--bg-ivory,#f5f0e8)'"
-      onmouseleave="this.style.background=''">
-      ${c}
-    </div>`).join('');
-  // لو فيه DD مفيش display — افتحه
-  const dd = document.getElementById('catDD');
-  if (dd && q.trim()) dd.style.display = 'block', _catDDOpen = true;
-}
-
-function selectCat(val) {
+function _selectCat(val) {
   const inp = document.getElementById('ic');
-  if (inp) { inp.value = val; _clearErr('ic', 'err-ic'); }
+  if (inp) { inp.value = val; _clearErr('ic','err-ic'); }
   _closeCatDD();
 }
 
-function addNewCat() {
-  const inp = document.getElementById('ic');
-  const val = inp?.value.trim();
-  if (val) { selectCat(val); return; }
-  inp?.focus();
-  notify('اكتب اسم البند الجديد في الحقل ثم اضغط حفظ', 'info');
+function _onCatInput(val) {
+  _clearErr('ic','err-ic');
+  if (!_catOpen) _openCatDD();
+  _renderCatList(val);
 }
-// ══════════════════════════════════════════════════
 
+function _onCatFocus() { _openCatDD(); }
+
+function _onCatBlur() {
+  setTimeout(_closeCatDD, 150);
+}
+// ═══════════════════════════════════════════════════
 
 // ══ ENTRY FORM — بحث المشروع ══════════════════
 let _entProjDDOpen=false;
