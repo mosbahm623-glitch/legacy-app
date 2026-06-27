@@ -2425,3 +2425,34 @@ body.dark-mode .ig-field select option {
   background: var(--dark-base, #1a2e1a);
   color: #EFF6F2;
 }
+
+/* ── dark mode entry form — override inline styles ── */
+body.dark-mode #entryForm input,
+body.dark-mode #entryForm select,
+body.dark-mode #entryForm textarea,
+body.dark-mode .ef input,
+body.dark-mode .ef select {
+  background: #1A2A1A !important;
+  color: #EFF6F2 !important;
+  border-color: rgba(212,196,154,.2) !important;
+}
+body.dark-mode #entryForm input::placeholder,
+body.dark-mode .ef input::placeholder {
+  color: rgba(212,196,154,.4) !important;
+}
+body.dark-mode #entryForm select option {
+  background: #1A2A1A;
+  color: #EFF6F2;
+}
+body.dark-mode #entryProjDD,
+body.dark-mode #_catDD,
+body.dark-mode #mqDD {
+  background: #1A2A1A !important;
+  border-color: rgba(212,196,154,.2) !important;
+}
+body.dark-mode #entryProjDD div,
+body.dark-mode #_catDD div,
+body.dark-mode #mqDD div {
+  color: #EFF6F2 !important;
+  border-bottom-color: rgba(212,196,154,.08) !important;
+}
