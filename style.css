@@ -2166,3 +2166,183 @@ body.dark-mode #mqDD div {
 .adv-screen-h4, .adv-screen-h4-sm, .srch-h2, .appr-h2 {
   font-family: 'Alexandria', 'Cairo', sans-serif;
 }
+/* ══════════════════════════════════════════
+   MQ PAY MODAL — CONTRACTOR PAYMENT REDESIGN
+   ══════════════════════════════════════════ */
+.mq-pay-modal{
+  background:var(--card);
+  border-radius:16px;
+  border:1px solid var(--border);
+  width:100%;
+  max-width:400px;
+  overflow:hidden;
+  direction:rtl;
+  box-shadow:0 8px 32px rgba(0,0,0,.25);
+}
+.mq-pay-header{
+  background:#1a3a2a;
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.mq-pay-header-info{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.mq-pay-icon{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+.mq-pay-name{
+  font-size:15px;
+  font-weight:600;
+  color:#fff;
+  margin:0;
+}
+.mq-pay-subname{
+  font-size:12px;
+  color:rgba(255,255,255,.6);
+  margin-top:2px;
+}
+.mq-pay-close{
+  background:rgba(255,255,255,.12);
+  border:none;
+  border-radius:50%;
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  color:#fff;
+  font-size:14px;
+  line-height:1;
+  transition:background .15s;
+}
+.mq-pay-close:hover{background:rgba(255,255,255,.22);}
+.mq-pay-body{
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.mq-pay-lbl{
+  display:block;
+  font-size:12px;
+  color:var(--txt2);
+  font-weight:600;
+  margin-bottom:5px;
+  letter-spacing:.3px;
+}
+.mq-pay-amt-wrap{}
+.mq-pay-amt-row{
+  position:relative;
+}
+.mq-pay-amt-inp{
+  width:100%;
+  box-sizing:border-box;
+  font-size:22px;
+  font-weight:600;
+  padding:10px 14px 10px 46px;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  background:var(--inp-bg,var(--card));
+  color:var(--txt);
+  outline:none;
+  transition:border-color .15s;
+}
+.mq-pay-amt-inp:focus{border-color:var(--primary);}
+.mq-pay-currency{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:13px;
+  color:var(--txt2);
+  font-weight:600;
+  pointer-events:none;
+}
+.mq-pay-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.mq-pay-inp{
+  width:100%;
+  box-sizing:border-box;
+  padding:8px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--inp-bg,var(--card));
+  color:var(--txt);
+  font-size:13px;
+  outline:none;
+  transition:border-color .15s;
+  font-family:inherit;
+}
+.mq-pay-inp:focus{border-color:var(--primary);}
+.mq-pay-balance{
+  background:rgba(26,58,42,.1);
+  border:1px solid rgba(26,58,42,.25);
+  border-radius:8px;
+  padding:9px 13px;
+  font-size:13px;
+  color:#1a3a2a;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.dark .mq-pay-balance{
+  background:rgba(163,217,179,.1);
+  border-color:rgba(163,217,179,.25);
+  color:#a3d9b3;
+}
+.mq-pay-btns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:4px;
+}
+.mq-pay-cancel{
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:transparent;
+  color:var(--txt2);
+  font-size:14px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:background .15s;
+}
+.mq-pay-cancel:hover{background:var(--hover);}
+.mq-pay-save{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#1a3a2a;
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:background .15s;
+}
+.mq-pay-save:hover{background:#0f2a1c;}
+.mq-pay-msg{
+  font-size:13px;
+  text-align:center;
+  min-height:18px;
+  color:var(--danger,#c00);
+}
