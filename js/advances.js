@@ -256,8 +256,7 @@ function showAdvEntryModal(){
       <div style="position:relative">
         <input id="advCat" placeholder="اكتب أو اختر البند..." class="inp-lg" autocomplete="off"
           oninput="_advCatFilter(this.value)"
-          onfocus="_advCatFilter(this.value)"
-          onblur="setTimeout(()=>{const d=document.getElementById('_advCatDD');if(d)d.style.display='none';},150)">
+                    onblur="setTimeout(()=>{const d=document.getElementById('_advCatDD');if(d)d.style.display='none';},150)">
         <div id="_advCatDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;max-height:200px;overflow-y:auto"></div>
       </div>
       <input id="advDesc" placeholder="البيان" class="inp-lg">
