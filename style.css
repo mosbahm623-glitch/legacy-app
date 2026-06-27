@@ -2397,3 +2397,30 @@ body.dark-mode #_advCatDD div{
 color:#EFF6F2 !important;
 border-bottom-color:rgba(212,196,154,.08) !important;
 }
+/* ── dark mode entry form inputs ── */
+body.dark-mode #entForm input,
+body.dark-mode #entForm select,
+body.dark-mode #entForm textarea,
+body.dark-mode .ig-field input,
+body.dark-mode .ig-field select,
+body.dark-mode .req-left {
+  background: rgba(255,255,255,.06) !important;
+  border: 0.5px solid rgba(200,230,215,.12) !important;
+  color: #EFF6F2 !important;
+}
+body.dark-mode .ig-field input::placeholder,
+body.dark-mode .ig-field select::placeholder,
+body.dark-mode .req-left::placeholder,
+body.dark-mode .input-full::placeholder {
+  color: rgba(200,230,215,.35) !important;
+}
+body.dark-mode .ig-field input:focus,
+body.dark-mode .req-left:focus,
+body.dark-mode .input-full:focus {
+  border-color: rgba(212,168,67,.4) !important;
+  background: rgba(255,255,255,.09) !important;
+}
+body.dark-mode .ig-field select option {
+  background: var(--dark-base, #1a2e1a);
+  color: #EFF6F2;
+}
