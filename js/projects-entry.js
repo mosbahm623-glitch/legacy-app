@@ -165,6 +165,11 @@ function onPmtChange(v){
   if(other)other.style.display=v==='أخرى'?'block':'none';
 }
 
+function _resetSaveBtn(){
+  window._savingEntry=false;
+  const _rb=document.getElementById('addEntryBtn');
+  if(_rb){_rb.disabled=false;_rb.textContent='+ إضافة القيد';}
+}
 async function ae(){
   // منع الضغط المزدوج
   if(window._savingEntry)return;
@@ -189,7 +194,7 @@ async function ae(){
   _mark('ic','err-ic',cT==='e'&&!c);
   _mark('id_','err-id_',!d);
   _mark('idt','err-idt',!dt);
-  if(_hasErr){notify('❌ اكمل الحقول الإلزامية — البيان والبند والتاريخ مطلوبين','err');return;}
+  if(_hasErr){notify('❌ اكمل الحقول الإلزامية — البيان والبند والتاريخ مطلوبين','err');_resetSaveBtn();return;}
   // تحويل التاريخ dd/mm/yyyy لـ Date object
   function _parseDate(s){if(!s)return null;const p=s.split('/');if(p.length===3)return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));return null;}
   // تحذير لو التاريخ في المستقبل
@@ -197,7 +202,7 @@ async function ae(){
     const entDt=_parseDate(dt);const today=new Date();today.setHours(0,0,0,0);
     if(entDt&&entDt>today){
       const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'تاريخ في المستقبل',msg:'التاريخ المدخل ('+dt+') في المستقبل. متأكد؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
-      if(!go)return;
+      if(!go){_resetSaveBtn();return;}
     }
   }
   // تحقق من إقفال الفترة المحاسبية (من الكاش)
@@ -214,7 +219,7 @@ async function ae(){
   const _dup=entries.find(e=>e.description===d&&parseFloat(e.amount)===a&&e.entry_date===dt&&e.type===cT);
   if(_dup){
     const go=await new Promise(res=>showConfirm({icon:'⚠️',title:'قيد مشابه موجود',msg:'يوجد قيد بنفس البيان والمبلغ والتاريخ (#'+(_dup.seq||'؟')+')\nمتأكد إنه مش مكرر؟',okLabel:'نعم، حفظ',okType:'warn',onOk:()=>res(true),onCancel:()=>res(false)}));
-    if(!go)return;
+    if(!go){_resetSaveBtn();return;}
   }
   // snapshot الـ pid واسم المشروع وقت الضغط على حفظ — مش بنعتمد على curPid اللي ممكن يتغير
   const savedPid=curPid;
@@ -223,7 +228,7 @@ async function ae(){
   const _pmtSel=document.getElementById('iPmt');
   const _pmtOther=document.getElementById('iPmtOther');
   const _pmt=_pmtSel?(_pmtSel.value==='أخرى'?(_pmtOther?_pmtOther.value.trim():''):_pmtSel.value):'';
-  if(!_pmt){notify('اختر طريقة الدفع','err');if(_pmtSel)_pmtSel.style.borderColor='#E74C3C';return;}
+  if(!_pmt){notify('اختر طريقة الدفع','err');if(_pmtSel)_pmtSel.style.borderColor='#E74C3C';_resetSaveBtn();return;}
   const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid,payment_method:_pmt};
   setSav('💾 جاري الحفظ...','ng');
   try{
