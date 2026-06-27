@@ -2170,7 +2170,7 @@ body.dark-mode #mqDD div {
    MQ PAY MODAL — CONTRACTOR PAYMENT REDESIGN
    ══════════════════════════════════════════ */
 .mq-pay-modal{
-  background:var(--card);
+  background:#fff;
   border-radius:16px;
   border:1px solid var(--border);
   width:100%;
@@ -2254,7 +2254,7 @@ body.dark-mode #mqDD div {
   padding:10px 14px 10px 46px;
   border:1.5px solid var(--border);
   border-radius:10px;
-  background:var(--inp-bg,var(--card));
+  background:#fff;
   color:var(--txt);
   outline:none;
   transition:border-color .15s;
@@ -2281,7 +2281,7 @@ body.dark-mode #mqDD div {
   padding:8px 12px;
   border:1px solid var(--border);
   border-radius:8px;
-  background:var(--inp-bg,var(--card));
+  background:#fff;
   color:var(--txt);
   font-size:13px;
   outline:none;
@@ -2346,3 +2346,9 @@ body.dark-mode #mqDD div {
   min-height:18px;
   color:var(--danger,#c00);
 }
+
+body.dark-mode .mq-pay-modal{background:var(--dark-surface);}
+body.dark-mode .mq-pay-amt-inp,body.dark-mode .mq-pay-inp,body.dark-mode .mq-pay-inp select{background:var(--dark-card)!important;color:var(--accent);border-color:rgba(212,196,154,.2)!important;}
+body.dark-mode .mq-pay-cancel{background:transparent;color:var(--accent);border-color:rgba(212,196,154,.2);}
+body.dark-mode .mq-pay-lbl{color:rgba(212,196,154,.7);}
+body.dark-mode .mq-pay-currency{color:rgba(212,196,154,.6);}
