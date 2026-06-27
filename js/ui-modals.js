@@ -1,18 +1,4 @@
-function toggleDark(){
-  const body=document.body;
-  const isDay=body.classList.contains('day-mode');
-  if(isDay){
-    body.classList.remove('day-mode');
-    body.classList.add('dark-mode');
-    saveDarkPref('dark');
-    updateDarkBtn('dark');
-  } else {
-    body.classList.remove('dark-mode');
-    body.classList.add('day-mode');
-    saveDarkPref('day');
-    updateDarkBtn('day');
-  }
-}
+
 // ── MOBILE HEADER DROPDOWN ────────────────────────
 function toggleAhdrMenu(){
   const menu=document.getElementById('ahdrMenu');
@@ -21,10 +7,7 @@ function toggleAhdrMenu(){
   if(isOpen){closeAhdrMenu();}else{
     // sync dark mode label
     const isDark=document.body.classList.contains('dark-mode');
-    const ico=document.getElementById('ahdrMenuDarkIco');
-    const lbl=document.getElementById('ahdrMenuDarkLbl');
-    if(ico)ico.textContent=isDark?'☀️':'🌙';
-    if(lbl)lbl.textContent=isDark?'الوضع النهاري':'الوضع الليلي';
+    updateDarkBtn(isDark?'dark':'day');
     menu.classList.add('open');
     setTimeout(()=>document.addEventListener('click',_ahdrMenuClose,{once:true}),10);
   }
@@ -38,30 +21,6 @@ function _ahdrMenuClose(e){
   const btn=document.getElementById('ahdrMoreBtn');
   if(menu&&!menu.contains(e.target)&&e.target!==btn)closeAhdrMenu();
 }
-function saveDarkPref(val){
-  const key='lft_theme_'+(uid||'guest');
-  localStorage.setItem(key,val);
-}
-function updateDarkBtn(mode){
-  const ico=document.getElementById('sb-dark-icon');
-  const lbl=document.getElementById('sb-dark-lbl');
-  if(ico)ico.textContent=mode==='dark'?'☀️':'🌙';
-  if(lbl)lbl.textContent=mode==='dark'?'الوضع النهاري':'الوضع الليلي';
-
-  const b=document.getElementById('darkBtn');
-  if(!b)return;
-  if(mode==='day'){b.innerHTML='☀️ نهار';}
-  else{b.innerHTML='🌙 ليل';}
-}
-function applyUserTheme(){
-  const key='lft_theme_'+(uid||'guest');
-  const saved=localStorage.getItem(key)||'day';
-  document.body.classList.remove('dark-mode','day-mode');
-  if(saved==='dark')document.body.classList.add('dark-mode');
-  else document.body.classList.add('day-mode');
-  updateDarkBtn(saved);
-}
-
 
 // ── PASSWORD CHANGE ───────────────────────────────
 function showPwdModal(){
