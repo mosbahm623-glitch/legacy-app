@@ -6,6 +6,7 @@ function _advCatFilter(val){
   var extra=(allEntries||[]).map(function(e){return e.category;}).filter(Boolean);
   var all=[...new Set([...base,...extra])].sort();
   var filtered=val?all.filter(function(c){return c.includes(val);}):all;
+  if(!val){dd.style.display='none';return;}
   if(!filtered.length){dd.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#999">لا يوجد</div>';dd.style.display='block';return;}
   dd.style.display='block';
   dd.innerHTML=filtered.map(function(c){
