@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Legacy Fine Touch</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1D3C2A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Legacy">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="shortcut icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Alexandria:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script>
+(function(){
+  var tk=localStorage.getItem('lg_tk');
+  var id=localStorage.getItem('lg_uid');
+  if(!tk||!id){window.location.replace('login.html');}
+})();
+</script>
+
+<div id="mainApp" style="display:none;flex-direction:column;min-height:100vh">
+  <div class="ahdr">
+    <div class="ahdr-left">
+      <button class="sb-hamburger" id="sbHam" onclick="toggleSidebar()">☰</button>
+      <div class="ahdr-brand">
+        <h2>Legacy Core</h2>
+        <span class="ahdr-brand-sub" id="uname-hdr"></span>
+      </div>
+    </div>
+    <div class="ahdr-right ahdr-right-desktop">
+      <div class="ubadge"><span id="uname"></span> <span id="urole" class="urole-badge"></span></div>
+      <div id="onlinePill" class="online-pill" onclick="openNotifPanel('online')" title="المتصلين الآن" style="display:none">
+        <span class="online-dot-live"></span><span id="onlineCount">0</span> أونلاين
+      </div>
+      <button class="notif-btn" id="notifBellBtn" onclick="openNotifPanel('notifs')" title="الإشعارات" style="display:none">
+        🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span>
+      </button>
+      <button onclick="showPwdModal()" class="ahdr-icon-btn" title="تغيير كلمة المرور">🔑</button>
+      <button class="lout" onclick="confirmRestart()" title="إعادة تشغيل">🔄</button>
+      <button class="dark-toggle" id="darkBtn" onclick="toggleDark()" title="تغيير المظهر">🌙 ليل</button>
+      <button class="lout" onclick="logout()">خروج</button>
+    </div>
+    <!-- Mobile-only: notif + more menu -->
+    <div class="ahdr-right ahdr-right-mobile">
+      <button class="notif-btn mob-notif-btn" id="notifBellBtnMob" onclick="openNotifPanel('notifs')" title="الإشعارات" style="display:none">
+        🔔<span class="notif-badge" id="notifBadgeMob" style="display:none">0</span>
+      </button>
+      <button class="ahdr-more-btn" id="ahdrMoreBtn" onclick="toggleAhdrMenu()" title="المزيد">⋮</button>
+      <div class="ahdr-menu" id="ahdrMenu">
+        <div class="ahdr-menu-user">
+          <div class="ahdr-menu-name" id="ahdr-uname"></div>
+          <div class="ahdr-menu-role" id="ahdr-urole"></div>
+        </div>
+        <div class="ahdr-menu-divider"></div>
+        <button class="ahdr-menu-item" onclick="toggleDark();closeAhdrMenu()">
+          <span id="ahdrMenuDarkIco">🌙</span> <span id="ahdrMenuDarkLbl">الوضع الليلي</span>
+        </button>
+        <button class="ahdr-menu-item" onclick="openNotifPanel('online');closeAhdrMenu()" id="ahdrMenuOnlineBtn" style="display:none">
+          <span class="online-dot-live" style="display:inline-block;width:8px;height:8px"></span> أونلاين
+        </button>
+        <button class="ahdr-menu-item" onclick="showPwdModal();closeAhdrMenu()">🔑 تغيير كلمة المرور</button>
+        <button class="ahdr-menu-item" onclick="confirmRestart();closeAhdrMenu()">🔄 إعادة تشغيل</button>
+        <div class="ahdr-menu-divider"></div>
+        <button class="ahdr-menu-item ahdr-menu-logout" onclick="logout()">🚪 خروج</button>
+      </div>
+    </div>
+  </div>
+  <div class="sav ok" id="sav">
+    <div class="sav-inner">
+      <div class="sav-icon-wrap"><i class="ti ti-database" aria-hidden="true"></i></div>
+      <div class="sav-text-wrap">
+        <span class="sav-dot"></span>
+        <span class="sav-msg">متصل · محفوظ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-head">
+        <h3>⚡ Legacy Core</h3>
+      </div>
+      <nav class="sb-nav">
+        <!-- ─── الرئيسية ─── -->
+        <div class="sb-sec-lbl">الرئيسية</div>
+
+        <button class="sb-item on" id="sbi-dash" onclick="showScreen('dash')">
+          <span class="sb-icon">🏠</span><span class="sb-label">لوحة التحكم</span>
+        </button>
+
+        <div class="sb-item-row">
+          <button class="sb-item sb-item-main" id="sbi-proj-hdr" onclick="showScreen('projList')">
+            <span class="sb-icon">📁</span><span class="sb-label">المشاريع</span>
+          </button>
+          <button class="sb-arrow-btn" id="sba-proj" onclick="toggleSbSub('proj')" title="عرض المشاريع">▶</button>
+        </div>
+        <div class="sb-sub" id="sbs-proj">
+
+          <button class="sb-item sb-sub-item" id="sbi-timeline" onclick="showScreen('timeline')">
+            <span class="sb-icon">🕐</span><span class="sb-label">آخر التحركات</span>
+          </button>
+          <div id="sb-proj-list"></div>
+        </div>
+
+        <button class="sb-item" id="sbi-adv" onclick="showScreen('adv')">
+          <span class="sb-icon">💼</span>
+          <span class="sb-label">العهد <span id="advBadge" onclick="showAdvNotifications()" style="display:none;background:#e74c3c;color:#fff;border-radius:50%;padding:1px 6px;font-size:10px;font-weight:700;margin-right:4px;cursor:pointer"></span></span>
+        </button>
+
+        <!-- ─── التقارير ─── -->
+        <div class="sb-sec-div"></div>
+        <div class="sb-sec-lbl">التقارير</div>
+
+        <button class="sb-item" id="sbi-rep" onclick="showScreen('rep')">
+          <span class="sb-icon">📊</span><span class="sb-label">تقارير</span>
+        </button>
+
+        <button class="sb-item" id="sbi-daily" onclick="showScreen('daily')">
+          <span class="sb-icon">📋</span><span class="sb-label">Booking Journal</span>
+        </button>
+
+        <button class="sb-item" id="sbi-daf3ati" onclick="showScreen('daf3ati')">
+          <i class="ti ti-cash"></i>
+          <span>دفعاتي</span>
+        </button>
+        <button class="sb-item" id="sbi-owner" style="display:none" onclick="showScreen('owner')">
+          <i class="ti ti-plus"></i>
+          <span>قيد جديد</span>
+        </button>
+        <button class="sb-item" id="sbi-search" onclick="showScreen('search')">
+          <span class="sb-icon">🔍</span><span class="sb-label">بحث برقم القيد</span>
+        </button>
+
+        <button class="sb-item" id="sbi-approvals" style="display:none" onclick="showScreen('approvals')">
+          <span class="sb-icon">✅</span>
+          <span class="sb-label">الموافقات <span id="pending-badge" style="display:none;background:#EB5757;color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-right:4px">0</span></span>
+        </button>
+
+        <!-- ─── الأدوات ─── -->
+        <div class="sb-sec-div"></div>
+        <div class="sb-sec-lbl">الأدوات</div>
+
+        <button class="sb-item" id="sbi-save-proj" onclick="exportAllProjects()" style="display:none">
+          <span class="sb-icon">📥</span><span class="sb-label">حفظ المشاريع</span>
+        </button>
+
+        <button class="sb-item" id="sbi-backup" onclick="backupAll()" style="display:none">
+          <span class="sb-icon">💾</span>
+          <span class="sb-label-col">
+            <span class="sb-label">نسخة احتياطية</span>
+            <span class="sb-backup-date" id="sbBackupDate"></span>
+          </span>
+        </button>
+
+        <button class="sb-item" id="sbi-archive" style="display:none" onclick="showScreen('archive')">
+          <span class="sb-icon">📦</span><span class="sb-label">الأرشيف</span>
+        </button>
+        <button class="sb-item" id="sbi-auditlog" onclick="showScreen('auditlog')" style="display:none">
+          <span class="sb-icon">📋</span><span class="sb-label">لوج التعديلات</span>
+        </button>
+        <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
+          <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
+        </button>
+        <button class="sb-item" id="sbi-notes" onclick="goToNotes()">
+          <span class="sb-icon">📝</span><span class="sb-label">ملاحظاتي</span>
+        </button>
+        <button class="sb-item" id="sbi-cashcalc" onclick="openCashCalc()">
+          <span class="sb-icon">💰</span><span class="sb-label">صافي النقدية</span>
+        </button>
+      </nav>
+
+      <div style="padding:12px;border-top:1px solid rgba(212,196,154,.1);display:flex;flex-direction:column;gap:6px">
+        <button onclick="toggleDark()" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:rgba(212,196,154,.08);color:#D4C49A;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;width:100%;text-align:right">
+          <span id="sb-dark-icon">🌙</span><span id="sb-dark-lbl">الوضع الليلي</span>
+        </button>
+        <button onclick="logout()" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:rgba(231,76,60,.12);color:#F1948A;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;width:100%;text-align:right">
+          🚪 <span>تسجيل خروج</span>
+        </button>
+      </div>
+
+      <div class="sb-mini-btn">
+        <button onclick="toggleMini()" id="miniBtn" title="تصغير">◀◀</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="mainContent">
+
+      <!-- DASHBOARD -->
+      <div id="dashScreen" class="dash">
+        <div class="dash-inner">
+
+          <!-- Welcome Row -->
+          <div class="d-welcome">
+            <div>
+              <div class="d-welcome-name">👋 مرحباً، <span id="dWelcomeName">—</span></div>
+              <div class="d-welcome-sub">إليك ملخص أعمال شركتك اليوم</div>
+            </div>
+            <div class="d-welcome-date" id="dWelcomeDate">—</div>
+          </div>
+
+          <!-- KPI Row — 6 cards -->
+          <div class="d-kpi-row d-kpi-row-6">
+            <div class="d-kpi-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">إجمالي الوارد</span><span class="d-kpi-ico inc">↑</span></div>
+              <div class="d-kpi-val inc" id="dInc">—</div>
+              <div class="d-kpi-trend" id="dIncTrend"></div>
+            </div>
+            <div class="d-kpi-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">إجمالي المصاريف</span><span class="d-kpi-ico exp">↓</span></div>
+              <div class="d-kpi-val exp" id="dExp">—</div>
+              <div class="d-kpi-trend" id="dExpTrend"></div>
+            </div>
+            <div class="d-kpi-card net-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">صافي النقدية</span><span class="d-kpi-ico net">✓</span></div>
+              <div class="d-kpi-val net" id="dBal">—</div>
+              <div class="d-kpi-trend" id="dBalTrend"></div>
+            </div>
+            <div class="d-kpi-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">إجمالي العهد</span><span class="d-kpi-ico adv">◈</span></div>
+              <div class="d-kpi-val adv" id="dAdv">—</div>
+              <div class="d-kpi-trend" id="dAdvTrend"></div>
+            </div>
+            <div class="d-kpi-card" onclick="showScreen('dues')" style="cursor:pointer">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">مستحقات المقاولين</span><span class="d-kpi-ico" style="color:#C86060">💰</span></div>
+              <div class="d-kpi-val" style="color:#C86060" id="dDues">—</div>
+              <div class="d-kpi-trend" id="dDuesTrend"></div>
+            </div>
+            <div class="d-kpi-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">مشاريع نشطة</span><span class="d-kpi-ico proj">▣</span></div>
+              <div class="d-kpi-val proj" id="dProjActive">—</div>
+              <div class="d-kpi-trend" id="dProjTrend"></div>
+            </div>
+            <div class="d-kpi-card">
+              <div class="d-kpi-top"><span class="d-kpi-lbl">تحتاج متابعة</span><span class="d-kpi-ico warn">⚠</span></div>
+              <div class="d-kpi-val warn" id="dProjWarn">—</div>
+              <div class="d-kpi-trend" id="dWarnTrend"></div>
+            </div>
+          </div>
+
+          <!-- Row 2: ملخص المشاريع + التنبيهات + آخر الحركات -->
+          <div class="d-mid-row">
+
+            <!-- ملخص حالة المشاريع -->
+            <div class="d-panel d-panel-sm">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">ملخص حالة المشاريع</span>
+              </div>
+              <div class="d-donut-wrap">
+                <canvas id="dDonutChart" role="img" aria-label="ملخص حالة المشاريع">مخطط دائري لحالة المشاريع</canvas>
+              </div>
+              <div class="d-proj-status-list" id="dProjStatusList"></div>
+            </div>
+
+            <!-- التنبيهات المهمة -->
+            <div class="d-panel d-panel-sm">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">🔔 التنبيهات المهمة</span>
+                <span class="d-panel-count" id="dAlertCount"></span>
+              </div>
+              <div class="d-alerts-list" id="dAlertsList">
+                <div class="d-empty">لا توجد تنبيهات</div>
+              </div>
+            </div>
+
+            <!-- آخر الحركات -->
+            <div class="d-panel d-panel-md">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">آخر الحركات المالية</span>
+              </div>
+              <div class="d-txn-list" id="dTxnList">
+                <div class="d-empty">جاري التحميل...</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Row 3: التدفق النقدي + اختصارات -->
+          <div class="d-bot-row">
+
+            <!-- التدفق النقدي -->
+            <div class="d-panel d-panel-chart">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">التدفق النقدي لآخر 30 يوم</span>
+                <div class="d-chart-legend">
+                  <span class="d-leg-item"><span class="d-leg-dot inc"></span>الوارد</span>
+                  <span class="d-leg-item"><span class="d-leg-dot exp"></span>المصروفات</span>
+                </div>
+              </div>
+              <div style="position:relative;width:100%;height:180px">
+                <canvas id="dCashChart" role="img" aria-label="التدفق النقدي لآخر 30 يوم">مخطط التدفق النقدي</canvas>
+              </div>
+            </div>
+
+            <!-- آخر وارد 15 يوم -->
+            <div class="d-panel d-panel-shortcuts">
+              <div class="d-panel-hdr">
+                <span class="d-panel-title">📥 آخر وارد — 30 يوم</span>
+                <span class="d-panel-count" id="dIncCount"></span>
+              </div>
+              <div class="d-inc-list" id="dIncList">
+                <div class="d-empty">جاري التحميل...</div>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+      <div id="projStatusScreen" style="display:none">
+        <div class="dash-inner">
+          <div class="d-welcome">
+            <div>
+              <div class="d-welcome-name">📊 حالة المشاريع</div>
+              <div class="d-welcome-sub" id="psStatusSub">نظرة عامة على جميع المشاريع</div>
+            </div>
+            <div class="d-welcome-date" id="psStatusDate">—</div>
+          </div>
+          <div class="d-sec-hdr">
+            <span>المشاريع</span>
+            <span class="d-sec-count" id="dProjCount"></span>
+          </div>
+          <div id="dProjCards" class="d-proj-grid"><div class="empty-state">⏳ جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- TIMELINE SCREEN -->
+      <div id="timelineScreen" style="display:none">
+        <div class="dash-inner">
+          <div class="d-welcome">
+            <div>
+              <div class="d-welcome-name">🕐 آخر التحركات</div>
+              <div class="d-welcome-sub">أحدث القيود على جميع المشاريع</div>
+            </div>
+            <div class="d-welcome-date" id="tlScreenDate">—</div>
+          </div>
+          <div class="d-sec-hdr" id="tlHdr"><span>آخر التحركات</span></div>
+          <div id="dTimeline"></div>
+        </div>
+      </div>
+
+      <!-- DAILY LOG -->
+      <div id="dailyScreen" style="display:none">
+        <div class="daily-wrap">
+          <div class="daily-date" id="dailyDateTitle">📋 Booking Journal</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg-surface);border-bottom:0.5px solid var(--border-faint);direction:rtl">
+            <span style="font-size:12px;color:var(--text-muted)">التاريخ:</span>
+            <input type="date" id="dailyDateFilter" style="padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-pure);color:var(--text-body)" onchange="loadDailyLog()">
+            <button onclick="document.getElementById('dailyDateFilter').value='';loadDailyLog()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer">اليوم</button>
+          </div>
+          <div id="dailyList"><div class="emp">⏳ جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- PROJECT LIST SCREEN -->
+      <div id="projListScreen" style="display:none">
+        <div class="proj-list-header">
+          <div class="proj-list-title">📁 المشاريع</div>
+          <div style="display:flex;gap:8px">
+            <button class="gsm" onclick="np()">+ مشروع جديد</button>
+          </div>
+        </div>
+        <div style="padding:0 0 8px 0">
+          <input id="projSearchInput" type="text" placeholder="🔍 ابحث عن مشروع..." oninput="filterProjCards(this.value)" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
+        <div id="projStatusFilters" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px 0">
+          <button onclick="setProjFilter('all',this)" class="pfbtn pfbtn-on" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--accent,#1D3C2A);color:#D4C49A;transition:all .15s">الكل</button>
+          <button onclick="setProjFilter('danger',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">⚠️ عجز</button>
+          <button onclick="setProjFilter('warn',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">🟡 تحذير</button>
+          <button onclick="setProjFilter('good',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">✅ طبيعي</button>
+          <button onclick="setProjFilter('zero',this)" class="pfbtn" style="padding:6px 14px;border-radius:20px;font-family:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text-soft,#888);transition:all .15s">— بدون حركة</button>
+        </div>
+        <div id="projCardsGrid" class="proj-cards-grid"></div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div id="projScreen" style="display:none">
+        <div class="pb">
+          <select id="ps" onchange="sw(this.value)"></select>
+          <button class="gsm" id="editPBtn" onclick="editProject()" title="تعديل المشروع" class="btn-gsm-blue">✏️</button>
+          <button class="gsm" id="addPBtn" onclick="np()">+ مشروع</button>
+          <button class="gsm gsm-archive" id="archPBtn" onclick="archiveProject()" title="أرشفة المشروع" style="display:none">📦</button>
+          <button class="gsm" id="delPBtn" onclick="dp()" class="btn-gsm-red">🗑</button>
+        </div>
+        <div class="dates">
+          <span>📅 البداية:</span><input id="dst" onblur="upm('s',this.value)" placeholder="dd/mm/yyyy">
+          <span>📅 الإغلاق:</span><input id="dcl" onblur="upm('c',this.value)" placeholder="dd/mm/yyyy">
+        </div>
+        <div class="kp" id="kp"></div>
+        <div id="entryForm">
+          <div class="ef">
+            <div id="entryProjBanner" style="margin-bottom:8px">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📌 المشروع <span style="color:var(--danger)">*</span></div>
+              <div style="position:relative">
+                <input id="entryProjInput" placeholder="اختر أو ابحث عن مشروع..." autocomplete="off" readonly
+                  onclick="toggleEntProjDD()" onfocus="toggleEntProjDD()"
+                  style="width:100%;padding:9px 36px 9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box;cursor:pointer">
+                <span id="entryProjArrow" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;transition:transform .2s">▾</span>
+                <input type="hidden" id="entryProjId">
+                <div id="entryProjDD" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-card,#fff);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:999;max-height:220px;overflow:hidden;margin-top:2px">
+                  <div style="padding:8px 10px;border-bottom:1px solid var(--border)">
+                    <input id="entryProjSrch" placeholder="🔍 ابحث باسم المشروع..." autocomplete="off"
+                      oninput="entProjSearch(this.value)"
+                      style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg);color:var(--text-body);outline:none">
+                  </div>
+                  <div id="entryProjList" style="max-height:170px;overflow-y:auto"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tt">
+              <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
+              <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
+            </div>
+            <div class="ig">
+              <div class="ig-field full" id="descWrap">
+                <div class="ig-lbl">البيان <span class="ig-req">*</span></div>
+                <div class="cat-dd-trig pos-rel-flex1">
+                  <input id="id_" placeholder="وصف العملية..." autocomplete="off"
+                    oninput="onDescInput(this.value);_clearErr('id_','err-id_')" onclick="onDescInput(this.value)"
+                    class="input-full">
+                  <div class="cat-dd" id="descDD" style="display:none">
+                    <div id="descList"></div>
+                  </div>
+                </div>
+                <div class="ig-err" id="err-id_">إلزامي</div>
+              </div>
+              <div class="ig-field">
+                <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
+                <input id="ia" type="number" placeholder="0.00" step="any" class="req-left" oninput="_clearErr('ia','err-ia')">
+                <div class="ig-err" id="err-ia">إلزامي</div>
+              </div>
+              <div class="ig-field">
+                <div class="ig-lbl">التاريخ <span class="ig-req">*</span></div>
+                <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left" oninput="_clearErr('idt','err-idt')">
+                <div class="ig-err" id="err-idt">إلزامي</div>
+              </div>
+              <div class="ig-field" id="catWrap">
+                <div class="ig-lbl">البند <span class="ig-req">*</span></div>
+                <input id="ic" placeholder="اكتب البند..." autocomplete="off" name="lft_cat_x91" oninput="_clearErr('ic','err-ic')" class="input-full" readonly onfocus="this.removeAttribute('readonly')">
+                <div class="ig-err" id="err-ic">إلزامي</div>
+              </div>
+              <div class="ig-field" id="mqWrap">
+                <div class="ig-lbl">المقاول</div>
+                <div class="cat-dd-trig pos-rel-flex1">
+                  <input id="iq" class="mq input-full" placeholder="اختياري" autocomplete="off"
+                    oninput="onMqInput(this.value)" onclick="toggleMqDD()">
+                  <div class="cat-dd" id="mqDD" style="display:none">
+                    <div id="mqList"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="ig-field" id="pmtWrap">
+                <div class="ig-lbl">طريقة الدفع / الاستقبال <span class="ig-req">*</span></div>
+                <select id="iPmt" class="input-full" onchange="onPmtChange(this.value)" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                  <option value="">اختر...</option>
+                  <option value="Cash">💵 Cash</option>
+                  <option value="Al Ahly">🏦 Al Ahly</option>
+                  <option value="CIB">🏦 CIB</option>
+                  <option value="CIB شركات">🏦 CIB شركات</option>
+                  <option value="أخرى">✏️ أخرى</option>
+                </select>
+                <input id="iPmtOther" class="input-full" placeholder="اكتب اسم البنك..." style="display:none;margin-top:6px;padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                <div class="ig-err" id="err-iPmt">إلزامي</div>
+              </div>
+              <div class="etype-wrap" id="etypeWrap">
+                <button class="etype-btn daf on" onclick="setEtype('payment',this)">💰 دفعة</button>
+                <button class="etype-btn aml" onclick="setEtype('work',this)">🔨 أعمال</button>
+                <button class="etype-btn msn" onclick="setEtype('material',this)">🔩 مصنعيات</button>
+              </div>
+            </div>
+            <div class="br">
+              <button class="ab" id="addEntryBtn" onclick="ae()">+ إضافة القيد</button>
+              <button class="ib" onclick="triggerImport()">📥 استيراد</button>
+              <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
+
+            </div>
+          </div>
+          <div class="ep" id="dueEp" style="display:none">
+            <div class="ep-h">
+              <span>تعديل المستحق</span>
+              <button onclick="document.getElementById('dueEp').style.display='none'" class="btn-close-x">✕</button>
+            </div>
+            <div class="ep-g">
+              <input id="dueEpContr" class="fl" placeholder="اسم المقاول">
+              <input id="dueEpAmt" type="number" placeholder="المبلغ" step="any">
+              <input id="dueEpDesc" class="fl" placeholder="البيان">
+              <input id="dueEpDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+            </div>
+            <button class="svb" onclick="saveDueEdit()">💾 حفظ التعديلات</button>
+          </div>
+          <div class="ep" id="ep">
+            <div class="ep-h">
+              <span id="ep-t">تعديل القيد</span>
+              <button onclick="cep()" class="btn-close-x">✕</button>
+            </div>
+            <div class="ep-g">
+              <select id="ePrj" class="fl ep-select"></select>
+              <input id="eA" type="number" placeholder="المبلغ" step="any">
+              <input id="eC" placeholder="البند">
+              <input id="eD" class="fl" placeholder="البيان">
+              <input id="eDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+              <input id="eM" class="fl input-mq-bg" placeholder="👷 المقاول" oninput="onEditMqInput(this.value)">
+              <select id="ePmt" class="fl" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)" onchange="onEditPmtChange(this.value)">
+                <option value="">اختر...</option>
+                <option value="Cash">💵 Cash</option>
+                <option value="Al Ahly">🏦 Al Ahly</option>
+                <option value="CIB">🏦 CIB</option>
+                <option value="CIB شركات">🏦 CIB شركات</option>
+                <option value="أخرى">✏️ أخرى</option>
+              </select>
+              <input id="ePmtOther" class="fl" placeholder="اسم البنك..." style="display:none">
+              <div class="etype-wrap" id="editEtypeWrap">
+                <button class="etype-btn daf" id="eEt-payment" onclick="setEditEtype('payment',this)">💰 دفعة</button>
+                <button class="etype-btn aml" id="eEt-work" onclick="setEditEtype('work',this)">🔨 أعمال</button>
+                <button class="etype-btn msn" id="eEt-material" onclick="setEditEtype('material',this)">🔩 مصنعيات</button>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="svb" onclick="sed()" style="flex:1">💾 حفظ التعديلات</button>
+              <button onclick="de(edId);cep();" style="background:var(--danger);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">🗑 حذف</button>
+            </div>
+          </div>
+        </div>
+        <div id="vnotice" class="vnotice" style="display:none">👁 وضع المشاهدة فقط</div>
+        <div class="hi" id="ehint">💡 اضغط على أي قيد لتعديله</div>
+        <div id="entryFilterBar" style="display:none;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+          <input id="entFltText" type="text" placeholder="🔍 بيان / مقاول..." style="flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body)" oninput="applyEntryFilter()">
+          <select id="entFltType" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body)" onchange="applyEntryFilter()">
+            <option value="">الكل</option>
+            <option value="e">مصروف</option>
+            <option value="i">وارد</option>
+          </select>
+          <input id="entFltFrom" type="text" class="dp-input" placeholder="من تاريخ" readonly style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body);cursor:pointer">
+          <input id="entFltTo" type="text" class="dp-input" placeholder="لتاريخ" readonly style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body);cursor:pointer">
+          <button onclick="clearEntryFilter()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text-muted);font-family:inherit;font-size:12px;cursor:pointer">✕ مسح</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0">
+          <div class="tbs" id="tbs" style="flex:1;min-width:0"></div>
+          <button id="entExpandBtn" onclick="toggleEntFullscreen()" title="تكبير الجدول" style="flex-shrink:0;background:none;border:none;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);border-radius:6px;" onmouseover="this.style.background='var(--bg-gray)'" onmouseout="this.style.background='none'">⛶</button>
+        </div>
+        <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
+        <div class="im" id="im" style="display:none"></div>
+        <div class="eb">
+          <div style="background:var(--bg-surface,var(--bg-pure));border-top:1px solid var(--border-color);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--text-hint)">تصدير:</span>
+            <button onclick="xl()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#1D6A3E;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📊 مكتب Excel</button>
+            <button onclick="xlClient()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#854F0B;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📋 تقرير Excel</button>
+            <button onclick="pdfClient()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#A32D2D;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📄 تقرير PDF</button>
+            <button onclick="openMeetingView()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">🎯 عرض الاجتماع</button>
+          </div>
+          <div class="emsg" id="emsg"></div>
+        </div>
+      </div>
+
+      <!-- ADVANCES LIST -->
+      <div id="advScreen" class="adv-screen" style="display:none">
+        <div class="new-adv" id="newAdvForm">
+          <h4 class="adv-screen-h4">➕ إضافة عهدة جديدة</h4>
+          <input id="advName" placeholder="اسم الشخص">
+          <input id="advNotes" placeholder="ملاحظات (اختياري)">
+          <select id="advUserSel" class="adv-user-sel">
+            <option value="">👤 ربط بمستخدم (اختياري)</option>
+          </select>
+          <button class="svb" onclick="createAdv()">➕ إضافة</button>
+        </div>
+        <h4 class="adv-screen-h4">💼 العهد</h4>
+        <button onclick="loadAdvList()" class="pg-refresh-btn" style="margin-bottom:10px">🔄 تحديث</button>
+        <div id="viewerAdvNotice" style="display:none;background:#FFF3CD;color:#856404;padding:8px 12px;border-radius:8px;font-size:11px;margin-bottom:10px">👁 أنت في وضع المشاهد — بتشوف عهدتك فقط</div>
+        <div id="advList"><div class="emp">⏳ جاري التحميل...</div></div>
+      </div>
+
+      <!-- ADVANCE DETAIL -->
+      <div id="advDetail" class="adv-detail" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <button class="back-btn" onclick="backToAdvList()" style="margin-bottom:0">→ العودة للعهد</button>
+          <button onclick="loadAdvDetail()" class="pg-refresh-btn" style="margin-bottom:0">🔄 تحديث</button>
+        </div>
+        <div class="adv-det-header">
+          <div>
+            <div class="adv-det-name" id="advDetName"></div>
+            <div class="adv-det-notes" id="advDetNotes"></div>
+          </div>
+          <div class="adv-det-btns">
+            <button onclick="editAdv()" id="advEditBtn" class="btn-edit-blue">✏️ تعديل</button>
+            <button onclick="deleteAdv()" id="advDelBtn" class="btn-del-red">🗑 حذف</button>
+            <button id="advLinkBtn" onclick="showLinkUserModal()" style="font-size:11px;padding:5px 10px;border:1px solid #185FA5;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:600;background:#fff;color:#185FA5;display:none">🔗 ربط بمستخدم</button>
+            <button id="advCloseBtn" onclick="toggleAdvStatus()" class="adv-close-btn"></button>
+          </div>
+        </div>
+        <div class="adv-detail-kp" id="advDetKp"></div>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          <button id="advTab-exp" onclick="switchAdvTab('exp')" class="adv-tab adv-tab-on">📋 المصروفات</button>
+          <button id="advTab-inst" onclick="switchAdvTab('inst')" class="adv-tab adv-tab-off">💰 الدفعات</button>
+        </div>
+
+        <!-- EXPENSES TAB -->
+        <div id="advTabPanel-exp">
+          <div id="advEntryFormDiv">
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+              <button onclick="showAdvEntryModal()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#1D3C2A;color:#D4C49A;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">➕ إضافة مصروف</button>
+              <button onclick="document.getElementById('advXlsFile').click()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#854F0B;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📥 استيراد Excel</button>
+              <button onclick="downloadAdvTemplate()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;background:#185FA5;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500">📋 Template</button>
+              <input type="file" id="advXlsFile" accept=".xlsx" style="display:none" onchange="readAdvXls(this)">
+            </div>
+            <div class="adv-im" id="advIm" style="display:none"></div>
+          </div>
+          <div class="ep adv-ep-mb" id="advEp">
+            <div class="ep-h"><span id="advEpT">تعديل المصروف</span><button onclick="cancelAdvEdit()" class="btn-close-x">✕</button></div>
+            <div class="ep-g">
+              <select id="advEPrj" class="fl ep-select"></select>
+              <input id="advEA" type="number" placeholder="المبلغ" step="any">
+              <input id="advEC" placeholder="البند">
+              <input id="advED" class="fl" placeholder="البيان">
+              <input id="advEDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="fl">
+              <input id="advEM" class="fl input-mq-bg" placeholder="👷 المقاول (اختياري)">
+            </div>
+            <button class="svb" onclick="saveAdvEntry()">💾 حفظ التعديل</button>
+          </div>
+          <div class="filter-bar adv-filter-mt" id="advFilterBar">
+            <div><label>📅 من</label><input type="text" id="advFDateFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+            <div><label>📅 لحد</label><input type="text" id="advFDateTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+            <div class="adv-filter-row">
+              <button class="filter-btn" onclick="runAdvFilter()">🔍 فلتر</button>
+              <button class="filter-btn sec" onclick="clearAdvFilter()">✕</button>
+              <button class="filter-btn dl" onclick="downloadAdvReport()">📥 Excel</button>
+              <button class="filter-btn dl btn-pdf-red" onclick="downloadAdvPDF()">📕 PDF</button>
+            </div>
+          </div>
+          <div class="adv-entries" id="advEntries"><div class="emp">⏳ جاري التحميل...</div></div>
+        </div>
+
+        <!-- INSTALLMENTS TAB -->
+        <div id="advTabPanel-inst" style="display:none">
+          <div class="adv-entry-form" id="advInstDiv">
+            <h4>💰 إضافة دفعة جديدة</h4>
+            <div class="adv-ig">
+              <input id="advInstAmt" type="number" placeholder="المبلغ (ج)" step="any">
+              <input id="advInstDate" type="text" placeholder="dd/mm/yyyy" maxlength="10">
+              <input id="advInstNote" class="fl" placeholder="ملاحظة (اختياري)">
+            </div>
+            <button class="svb" onclick="addInstallment()">+ إضافة الدفعة</button>
+          </div>
+          <div style="display:flex;justify-content:flex-start;gap:6px;margin-bottom:10px">
+            <button class="filter-btn dl" onclick="downloadInstallmentsReport()">📥 Excel</button>
+            <button class="filter-btn dl btn-pdf-red" onclick="downloadInstallmentsPDF()">📕 PDF</button>
+          </div>
+          <div class="adv-entries" id="advInstList"><div class="emp">⏳...</div></div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <!-- APPROVALS SCREEN -->
+      <div id="approvalsScreen" style="display:none;padding:16px;max-width:780px;margin:0 auto">
+        <div class="appr-header">
+          <div>
+            <h2 class="appr-h2">✅ الموافقات</h2>
+            <p class="appr-sub">القيود التي تنتظر موافقتك</p>
+          </div>
+          <button onclick="loadApprovals()" class="appr-refresh-btn" style="display:none">🔄 تحديث</button>
+        </div>
+        <div id="approvalsList"><div class="appr-loading">⏳ جاري التحميل...</div></div>
+      </div>
+
+      <div id="adminScreen" class="ap" style="display:none">
+        <div class="asec">
+          <h3>➕ إضافة مستخدم</h3>
+          <div class="nuf">
+            <input id="nuUID" type="text" placeholder="User UID من Supabase">
+            <input id="nuName" type="text" placeholder="الاسم">
+            <select id="nuRole"><option value="editor">✏️ محاسب</option><option value="viewer">👁 مشاهد</option><option value="admin">👑 أدمن</option></select>
+            <button class="svb" onclick="addUser()">➕ إضافة</button>
+          </div>
+        </div>
+        <div class="asec"><h3>👥 المستخدمين</h3><div id="usersList"><div class="emp">⏳...</div></div></div>
+        <div class="asec">
+          <h3>🔒 إقفال الفترة المحاسبية</h3>
+          <div class="nuf" style="align-items:center">
+            <select id="lockYear" style="width:100px"></select>
+            <select id="lockMonth" style="width:120px">
+              <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option>
+              <option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option>
+              <option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option>
+              <option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+            </select>
+            <button class="svb" onclick="lockPeriod()" style="background:#A32D2D">🔒 إقفال الشهر</button>
+            <button class="svb" onclick="unlockPeriod()" style="background:#185FA5">🔓 فتح الشهر</button>
+          </div>
+          <div id="lockedPeriodsList" style="margin-top:8px;font-size:12px;color:var(--text-muted)"></div>
+        </div>
+      </div>
+
+      <div id="ownerScreen" style="display:none"></div>
+      <!-- SEARCH SCREEN -->
+      <div id="daf3atiScreen" style="display:none;padding:16px"></div>
+    <div id="searchScreen" style="display:none;padding:16px;max-width:720px;margin:0 auto">
+        <div class="mb-18">
+          <h2 class="srch-h2">🔍 البحث الشامل</h2>
+          <p class="srch-sub">ابحث في القيود والعهد بفلاتر متقدمة</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button id="stab-entries" onclick="setSrchTab('entries')" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--primary);background:var(--primary);color:var(--accent);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📋 القيود</button>
+          <button id="stab-advances" onclick="setSrchTab('advances')" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-pure);color:var(--text-muted);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">🤝 العهد</button>
+        </div>
+        <div id="srch-entries-panel">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+            <div class="srch-filters-row" style="flex-wrap:wrap;gap:8px">
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:120px">
+                <label class="srch-filter-lbl">📁 المشروع</label>
+                <select id="srch-proj-filter" class="srch-inp-sm"><option value="">كل المشاريع</option></select>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">📅 من تاريخ</label>
+                <input id="srch-date-from" type="text" class="srch-inp-sm dp-input" placeholder="dd/mm/yyyy" readonly style="cursor:pointer;max-width:130px">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">📅 لتاريخ</label>
+                <input id="srch-date-to" type="text" class="srch-inp-sm dp-input" placeholder="dd/mm/yyyy" readonly style="cursor:pointer;max-width:130px">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">📊 النوع</label>
+                <select id="srch-type-filter" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                  <option value="e">مصروف ⬇</option>
+                  <option value="i">وارد ⬆</option>
+                </select>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">👤 المُدخِل</label>
+                <select id="srch-user-filter" class="srch-inp-sm"><option value="">الكل</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="srch-mode-row">
+            <button id="smode-seq" onclick="setSearchMode('seq')" class="srch-btn-on">🔢 برقم القيد</button>
+            <button id="smode-name" onclick="setSearchMode('name')" class="srch-btn-off">🔤 بالاسم</button>
+            <button id="smode-amt" onclick="setSearchMode('amt')" class="srch-btn-off">💰 بالقيمة</button>
+          </div>
+          <div id="sform-seq" class="srch-inp-row">
+            <input id="searchSeqInp" type="number" min="1" placeholder="رقم القيد..." class="srch-inp" onkeydown="if(event.key==='Enter')searchBySeq()">
+            <button onclick="searchBySeq()" class="srch-go-btn">🔍 بحث</button>
+          </div>
+          <div id="sform-amt" style="display:none;margin-bottom:18px">
+            <div class="flex-gap8-mb8">
+              <input id="searchAmtInp" type="number" min="0" placeholder="المبلغ بالجنيه..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByAmt()">
+              <button onclick="searchByAmt()" class="srch-go-btn">🔍 بحث</button>
+            </div>
+            <div class="srch-filters-row">
+              <label class="srch-filter-lbl">هامش التقريب:</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-exact" checked> تطابق تام</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-100"> ± 100</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-500"> ± 500</label>
+              <label class="srch-check-lbl"><input type="radio" name="amt-range" id="amt-1000"> ± 1000</label>
+            </div>
+          </div>
+          <div id="sform-name" style="display:none;margin-bottom:18px">
+            <div class="flex-gap8-mb8">
+              <input id="searchNameInp" type="text" placeholder="اسم مقاول / بيان / بند..." class="srch-inp-sm" onkeydown="if(event.key==='Enter')searchByName()">
+              <button onclick="searchByName()" class="srch-go-btn">🔍 بحث</button>
+            </div>
+            <div class="srch-filters-row">
+              <label class="srch-filter-lbl">بحث في:</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-mq" checked> المقاول</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-desc" checked> البيان</label>
+              <label class="srch-check-lbl"><input type="checkbox" id="sf-cat" checked> البند</label>
+            </div>
+          </div>
+          <div id="searchResult"></div>
+        </div>
+        <div id="srch-advances-panel" style="display:none">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+            <div class="srch-filters-row" style="flex-wrap:wrap;gap:8px">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">📊 الحالة</label>
+                <select id="srch-adv-status" class="srch-inp-sm">
+                  <option value="">الكل</option>
+                  <option value="open">مفتوحة</option>
+                  <option value="closed">مغلقة</option>
+                </select>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label class="srch-filter-lbl">👤 المسؤول</label>
+                <select id="srch-adv-user" class="srch-inp-sm"><option value="">الكل</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="srch-inp-row" style="margin-top:12px">
+            <input id="searchAdvInp" type="text" placeholder="اسم صاحب العهدة..." class="srch-inp" onkeydown="if(event.key==='Enter')searchAdvances()">
+            <button onclick="searchAdvances()" class="srch-go-btn">🔍 بحث</button>
+          </div>
+          <div id="searchAdvResult"></div>
+        </div>
+      </div>
+
+      <!-- MESSAGES SCREEN -->
+      <!-- MESSAGES SCREEN (NEW CHAT SYSTEM) -->
+      <!-- REPORTS SCREEN -->
+      <div id="repScreen" style="display:none;padding:16px 20px;max-width:960px;margin:0 auto">
+
+        <!-- HUB -->
+        <div id="repHub">
+          <div class="mb-24">
+            <h2 class="rep-hub-title">📊 التقارير</h2>
+            <p class="rep-hub-sub">اختار التقرير اللي محتاجه</p>
+          </div>
+          <div class="rep-hub-grid">
+            <div class="rep-hub-card" onclick="openReport('cash')">
+              <div class="rhc-icon rhc-icon-blue">💰</div>
+              <div class="rhc-title">التدفق النقدي</div>
+              <div class="rhc-sub">حركة الوارد والمصاريف من تاريخ لتاريخ</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+            <div class="rep-hub-card" onclick="openReport('summary')">
+              <div class="rhc-icon rhc-icon-gold">📋</div>
+              <div class="rhc-title">الملخص الدوري</div>
+              <div class="rhc-sub">ملخص شامل للفترة المحددة بكل المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+            <div class="rep-hub-card" onclick="openReport('proj')">
+              <div class="rhc-icon rhc-icon-green">🏗️</div>
+              <div class="rhc-title">تقرير المشاريع</div>
+              <div class="rhc-sub">وارد ومصاريف لكل مشروع بالفترة الزمنية</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+<!-- removed adv report -->
+            <div class="rep-hub-card" onclick="openReport('adv')">
+              <div class="rhc-icon rhc-icon-purple">💼</div>
+              <div class="rhc-title">تقرير العهد</div>
+              <div class="rhc-sub">تفاصيل صرف العهد لكل شخص</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+
+            <div class="rep-hub-card" onclick="openReport('compare')">
+              <div class="rhc-icon rhc-icon-green">⚖️</div>
+              <div class="rhc-title">مقارنة المشاريع</div>
+              <div class="rhc-sub">مقارنة الوارد والمصروف والرصيد لكل المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+            <div class="rep-hub-card" onclick="openReport('contractor')">
+              <div class="rhc-icon rhc-icon-gold">👷</div>
+              <div class="rhc-title">تقرير مقاول</div>
+              <div class="rhc-sub">كل مدفوعات مقاول معين عبر جميع المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+
+            <div class="rep-hub-card" onclick="showScreen('dues')">
+              <div class="rhc-icon rhc-icon-red">💰</div>
+              <div class="rhc-title">مستحقات المقاولين</div>
+              <div class="rhc-sub">المبالغ المستحقة لكل مقاول لم تُدفع بعد</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+
+
+
+            <div class="rep-hub-card" onclick="openReport('client')">
+              <div class="rhc-icon rhc-icon-red">📄</div>
+              <div class="rhc-title">تقرير المشروع</div>
+              <div class="rhc-sub">ملخص احترافي PDF للمشروع بدون تفاصيل داخلية</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+            <div class="rep-hub-card" onclick="openReport('seqrange')">
+              <div class="rhc-icon rhc-icon-blue">🔢</div>
+              <div class="rhc-title">تقرير نطاق القيود</div>
+              <div class="rhc-sub">وارد ومصروف من رقم قيد لرقم قيد</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+            <div class="rep-hub-card" onclick="openMqManager()">
+              <div class="rhc-icon rhc-icon-gold">🔧</div>
+              <div class="rhc-title">إدارة أسماء المقاولين</div>
+              <div class="rhc-sub">توحيد وإعادة تسمية أسماء المقاولين عبر المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MQ MANAGER MODAL -->
+        <div id="mqManagerScreen" style="display:none">
+          <div class="mq-mgr-wrap">
+            <div class="mq-mgr-hdr">
+              <button class="btn-back-rep" onclick="closeMqManager()">← رجوع</button>
+              <h2 class="rep-hub-title">🔧 إدارة المقاولين</h2>
+            </div>
+            <p class="rep-hub-sub" style="margin-bottom:16px">اضغط على أي اسم لإعادة تسميته — التغيير بيأثر على كل المشاريع</p>
+            <div class="mq-mgr-search-wrap">
+              <input id="mqMgrSearch" type="text" placeholder="🔍 ابحث عن مقاول..." class="mq-mgr-search" oninput="renderMqManager(this.value)">
+            </div>
+            <div id="mqMgrList" class="mq-mgr-list"></div>
+          </div>
+        </div>
+
+        <!-- REPORT VIEW -->
+        <div id="repView" style="display:none">
+          <div class="rep-view-hdr">
+            <button class="rep-back-btn" onclick="backToRepHub()">→ رجوع</button>
+            <h2 id="repViewTitle" class="rep-hub-title rep-view-title"></h2>
+            <div class="rep-export-btns" id="repExportBtns" style="display:none">
+              <button class="rep-exp-btn pdf" id="repBtnPdf" onclick="repCurrentExportPDF()">📕 PDF</button>
+              <button class="rep-exp-btn xls" id="repBtnXls" onclick="repCurrentExportExcel()">📗 Excel</button>
+            </div>
+          </div>
+
+          <!-- CASH FLOW -->
+          <div id="repCashPanel" style="display:none">
+            <div class="filter-bar rep-filter-mb">
+              <div><label>📅 من تاريخ</label><input type="text" id="rCashFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد تاريخ</label><input type="text" id="rCashTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📁 المشروع</label>
+                <select id="rCashProj"><option value="all">كل المشاريع</option></select>
+              </div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runCashFlow()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearCashFlow()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="cashExportPDF()">📕</button>
+                <button class="filter-btn rep-exp-xls" onclick="cashExportExcel()">📗</button>
+              </div>
+            </div>
+            <div id="repCashResult"></div>
+          </div>
+
+          <!-- PERIODIC SUMMARY -->
+          <div id="repSummaryPanel" style="display:none">
+            <div class="filter-bar rep-filter-mb">
+              <div><label>📅 من تاريخ</label><input type="text" id="rSumFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد تاريخ</label><input type="text" id="rSumTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📁 المشروع</label>
+                <select id="rSumProj"><option value="all">كل المشاريع</option></select>
+              </div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runSummary()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearSummary()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="summaryExportPDF()">📕</button>
+                <button class="filter-btn rep-exp-xls" onclick="summaryExportExcel()">📗</button>
+              </div>
+            </div>
+            <div id="repSummaryResult"></div>
+          </div>
+
+          <!-- PROJECTS REPORT -->
+          <div id="repProjPanel" style="display:none">
+            <div class="filter-bar">
+              <div class="rep-proj-wrap"><label>📁 المشروع</label>
+                <select id="rProjSel" class="rep-proj-sel"><option value="all">كل المشاريع</option></select>
+              </div>
+              <div><label>📅 من</label><input type="text" id="rDateFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد</label><input type="text" id="rDateTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runRepFilter()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearRepFilter()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="repExportPDF()">📕</button>
+                <button class="filter-btn rep-exp-xls" onclick="repExportExcel()">📗</button>
+              </div>
+            </div>
+            <div id="repResult"></div>
+          </div>
+
+          <!-- ADVANCES REPORT -->
+          <div id="repAdvPanel" style="display:none">
+            <div class="filter-bar">
+              <div class="rep-adv-wrap"><label>💼 العهدة</label>
+                <select id="rAdvSel" class="rep-adv-sel"><option value="all">كل العهد</option></select>
+              </div>
+              <div><label>📅 من</label><input type="text" id="rAdvDateFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد</label><input type="text" id="rAdvDateTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runRepAdvFilter()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearRepAdvFilter()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="repAdvExportPDF()">📕</button>
+                <button class="filter-btn rep-exp-xls" onclick="repAdvExportExcel()">📗</button>
+              </div>
+            </div>
+            <div id="repAdvResult"></div>
+          </div>
+
+          <!-- CONTRACTOR REPORT -->
+          <div id="repContractorPanel" style="display:none">
+            <div class="filter-bar rep-filter-mb">
+              <div style="position:relative"><label>👷 المقاول</label>
+                <input id="rContrSel" type="text" placeholder="اكتب اسم المقاول..." autocomplete="off" oninput="onContrRepSearch(this.value)" onclick="onContrRepSearch(this.value)" style="width:100%;padding:8px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-pure);color:var(--text-main);font-family:inherit;font-size:13px;outline:none">
+                <div id="rContrDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-pure);border:0.5px solid var(--border);border-radius:8px;z-index:999;max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
+              </div>
+              <div><label>📅 من</label><input type="text" id="rContrFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد</label><input type="text" id="rContrTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+                <input type="checkbox" id="rContrIncArchived" style="width:16px;height:16px;cursor:pointer">
+                <label for="rContrIncArchived" style="font-size:12px;cursor:pointer;color:var(--text-main)">تضمين المشاريع المؤرشفة</label>
+              </div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runContractorReport()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearContractorReport()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="contractorExportPDF()">📕</button>
+                <button class="filter-btn rep-exp-xls" onclick="contractorExportExcel()">📗</button>
+              </div>
+            </div>
+            <div id="repContractorResult"></div>
+          </div>
+
+                                        <!-- CLIENT REPORT -->
+          <div id="repClientPanel" style="display:none">
+            <div class="filter-bar rep-filter-mb">
+              <div class="rep-proj-wrap"><label>📁 المشروع</label>
+                <select id="rClientProj" class="rep-proj-sel"><option value="all">كل المشاريع</option></select>
+              </div>
+              <div><label>📅 من</label><input type="text" id="rClientFrom" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div><label>📅 لحد</label><input type="text" id="rClientTo" placeholder="dd/mm/yyyy" maxlength="10"></div>
+              <div class="rep-filter-row">
+                <button class="filter-btn" onclick="runClientReport()">🔍 عرض</button>
+                <button class="filter-btn sec" onclick="clearClientReport()">✕ مسح</button>
+                <button class="filter-btn rep-exp-pdf" onclick="clientExportPDF()">📕 PDF تقرير</button>
+              </div>
+            </div>
+            <div id="repClientResult"></div>
+          </div>
+
+          <!-- COMPARE PANEL -->
+          <div id="repComparePanel" style="display:none">
+            <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="cmpSort" onchange="renderCompareReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                <option value="bal">ترتيب حسب الرصيد</option>
+                <option value="inc">ترتيب حسب الوارد</option>
+                <option value="exp">ترتيب حسب المصروف</option>
+                <option value="name">ترتيب حسب الاسم</option>
+              </select>
+            </div>
+            <div id="repCompareResult"></div>
+          </div>
+
+          <!-- SEQ RANGE PANEL -->
+          <div id="repSeqRangePanel" style="display:none">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end">
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">من رقم قيد</div>
+                <input id="rSeqFrom" type="number" placeholder="مثال: 20260001" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+              </div>
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">لرقم قيد</div>
+                <input id="rSeqTo" type="number" placeholder="مثال: 20260100" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+              </div>
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">المشروع</div>
+                <select id="rSeqProj" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                  <option value="all">كل المشاريع</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+              <button class="filter-btn is46" onclick="runSeqRangeReport()">🔍 عرض التقرير</button>
+              <button class="filter-btn" onclick="seqRangeExportPDF()" style="background:var(--danger-bg,#FEE2E2);color:var(--danger);border-color:var(--danger)">📕 PDF</button>
+              <button class="filter-btn" onclick="clearSeqRangeReport()" style="opacity:.6">✕ مسح</button>
+            </div>
+            <div id="repSeqRangeResult"></div>
+          </div>
+
+        </div><!-- end repView -->
+      </div><!-- end repScreen -->
+
+
+
+      <!-- ARCHIVE SCREEN -->
+      <div id="archiveScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div class="arch-header">
+          <div class="arch-header-title">
+            <span class="arch-header-icon">📦</span>
+            <div>
+              <div class="arch-header-h1">أرشيف المشاريع</div>
+              <div class="arch-header-sub" id="archCount">جاري التحميل...</div>
+            </div>
+          </div>
+          <div class="arch-search-wrap">
+            <input class="arch-search-input" id="archSearchInput" placeholder="🔍 ابحث باسم المشروع..." oninput="filterArchive(this.value)">
+          </div>
+        </div>
+        <div id="archivedProjList" class="arch-list"></div>
+      </div><!-- end archiveScreen -->
+
+      <div id="auditlogScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <h2 style="font-size:18px;font-weight:700;color:var(--text-main)">📋 لوج التعديلات</h2>
+            <p style="font-size:12px;color:var(--text-hint);margin-top:2px">سجل كل العمليات في التطبيق</p>
+          </div>
+          <button onclick="loadAuditLog()" class="gsm">🔄 تحديث</button>
+        </div>
+        <div id="auditLogList"><div class="emp">⏳ جاري التحميل...</div></div>
+      </div>
+
+      <div id="notesScreen" style="display:none;padding:20px;max-width:700px;margin:0 auto;direction:rtl">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:10px;height:10px;border-radius:50%;background:#1D3C2A"></div>
+            <span style="font-size:18px;font-weight:500;color:var(--text-main)">ملاحظاتي</span>
+          </div>
+          <span style="font-size:11px;color:var(--text-hint)" id="notesScreenDate"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px" id="notesScreenStats"></div>
+        <div style="display:flex;gap:8px;margin-bottom:20px">
+          <input id="notesScreenInput" placeholder="اكتب ملاحظة أو مهمة جديدة..." style="flex:1;height:42px;border:0.5px solid var(--border-color);border-radius:12px;padding:0 16px;font-size:14px;background:var(--bg-faint);color:var(--text-main);outline:none" onkeydown="if(event.key==='Enter')addNoteFromScreen()">
+          <button onclick="addNoteFromScreen()" style="width:42px;height:42px;border-radius:12px;border:none;background:#1D3C2A;color:#D4C49A;font-size:22px;cursor:pointer;flex-shrink:0">+</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="filter-btn" onclick="setNotesFilter('all',this)" id="nfAll" style="background:var(--primary);color:#fff;border-radius:20px">الكل</button>
+          <button class="filter-btn" onclick="setNotesFilter('undone',this)" id="nfUndone" style="border-radius:20px">متبقي</button>
+          <button class="filter-btn" onclick="setNotesFilter('done',this)" id="nfDone" style="border-radius:20px">منتهي</button>
+        </div>
+        <div id="notesScreenList"></div>
+      </div>
+
+      <div id="duesScreen" style="display:none;padding:20px;max-width:900px;margin:0 auto">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <span style="font-size:24px">💰</span>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:var(--text-main)">مستحقات المقاولين</div>
+            <div style="font-size:12px;color:var(--text-hint)" id="duesScreenSub">اختار مشروع وابحث</div>
+          </div>
+        </div>
+
+        <!-- فلتر البحث -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+          <select id="duesProjectFilter" style="flex:1;min-width:160px;height:38px;border:0.5px solid var(--border-color);border-radius:10px;padding:0 12px;background:var(--bg-faint);color:var(--text-main);font-size:13px">
+            <option value="all">كل المشاريع</option>
+          </select>
+          <button onclick="searchDues()" style="height:38px;padding:0 20px;border-radius:10px;border:none;background:#1D3C2A;color:#D4C49A;font-size:13px;cursor:pointer">🔍 بحث</button>
+        </div>
+
+        <div class="kp" id="duesScreenKpi" style="margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="duesScreenFilters" style="display:none">
+          <button class="filter-btn" onclick="filterDuesScreen('all')" id="duesFilterAll" style="background:var(--primary);color:#fff">الكل</button>
+          <button class="filter-btn" onclick="filterDuesScreen('unpaid')" id="duesFilterUnpaid">غير مدفوع</button>
+          <button class="filter-btn" onclick="filterDuesScreen('paid')" id="duesFilterPaid">مدفوع</button>
+          <button class="filter-btn dl btn-pdf-red" onclick="duesExportPDF()">📕 PDF</button>
+          <button class="filter-btn dl btn-pdf-green" onclick="duesExportExcel()">📗 Excel</button>
+        </div>
+        <div id="duesScreenList"><div class="emp">اختار مشروع واضغط بحث</div></div>
+      </div>
+
+    </div><!-- end main-content -->
+  </div><!-- end app-body -->
+
+  <!-- FAB -->
+  <!-- LINK USER TO ADVANCE MODAL -->
+  <div id="linkUserModal" class="pwd-modal-overlay" style="display:none" onclick="if(event.target===this)closeLinkModal()">
+    <div class="pwd-modal">
+      <h3>🔗 ربط العهدة بمستخدم</h3>
+      <p id="linkAdvName" class="link-adv-name"></p>
+      <select id="linkUserSel" class="link-user-sel">
+        <option value="">— اختار المستخدم —</option>
+      </select>
+      <div id="linkCurUser" class="link-cur-user"></div>
+      <div class="pwd-modal-btns">
+        <button class="pwd-save" onclick="saveLinkUser()">🔗 ربط</button>
+        <button class="pwd-cancel" onclick="closeLinkModal()">إلغاء</button>
+      </div>
+      <div class="pwd-msg" id="linkMsg"></div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgotPwdModal" class="pwd-modal-overlay" style="display:none" onclick="if(event.target===this)closeForgotPwd()">
+    <div class="pwd-modal">
+      <h3>🔓 نسيت كلمة المرور؟</h3>
+      <p>أدخل إيميلك وهنبعتلك رابط لإعادة الضبط</p>
+      <input type="email" id="forgotEmail" placeholder="البريد الإلكتروني" onkeydown="if(event.key==='Enter')sendResetLink()">
+      <div class="pwd-modal-btns">
+        <button class="pwd-save" onclick="sendResetLink()">📧 إرسال الرابط</button>
+        <button class="pwd-cancel" onclick="closeForgotPwd()">إلغاء</button>
+      </div>
+      <div class="pwd-msg" id="forgotMsg"></div>
+    </div>
+  </div>
+
+  <!-- PASSWORD CHANGE MODAL -->
+  <div id="pwdModal" class="pwd-modal-overlay" style="display:none" onclick="if(event.target===this)closePwdModal()">
+    <div class="pwd-modal">
+      <h3>🔑 تغيير كلمة المرور</h3>
+      <p>تحقق من هويتك ثم أدخل الباسورد الجديد</p>
+      <input type="password" id="pwdOld" placeholder="كلمة المرور الحالية" onkeydown="if(event.key==='Enter')savePwd()">
+      <div class="modal-divider"></div>
+      <input type="password" id="pwdNew" placeholder="كلمة المرور الجديدة" oninput="checkPwdStrength(this.value)" onkeydown="if(event.key==='Enter')savePwd()">
+      <div class="pwd-strength"><div class="pwd-strength-bar pwd-bar-init" id="pwdBar"></div></div>
+      <input type="password" id="pwdConfirm" placeholder="تأكيد كلمة المرور" onkeydown="if(event.key==='Enter')savePwd()">
+      <div class="pwd-modal-btns">
+        <button class="pwd-save" onclick="savePwd()">💾 حفظ</button>
+        <button class="pwd-cancel" onclick="closePwdModal()">إلغاء</button>
+      </div>
+      <div class="pwd-msg" id="pwdMsg"></div>
+    </div>
+  </div>
+
+  <div class="fab" id="fab">
+    <div class="fab-opts" id="fabOpts">
+      <button class="fab-opt" onclick="fabAddExp()">📥 <span>إضافة مصروف</span></button>
+      <button class="fab-opt" onclick="fabAddAdv()">💼 <span>إضافة عهدة</span></button>
+      <button class="fab-opt" onclick="fabAddProj()">📁 <span>إضافة مشروع</span></button>
+      <button class="fab-opt" onclick="fabAddNote()">📝 <span>إضافة ملاحظة</span></button>
+    </div>
+    <button class="fab-main" id="fabMain" onclick="toggleFab()">＋</button>
+  </div>
+</div>
+
+
+
+<!-- ADVANCE EXCEL IMPORT MODAL -->
+<div id="advImModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow-y:auto;padding:20px;box-sizing:border-box">
+  <div class="adv-im-modal">
+    <div class="adv-im-header">
+      <div>
+        <div class="adv-im-title">📥 استيراد مصروفات العهدة</div>
+        <div class="adv-im-sub" id="advImSubtitle"></div>
+      </div>
+      <button onclick="closeAdvImModal()" class="adv-im-close">✕</button>
+    </div>
+    <div class="adv-im-body">
+      <table class="adv-im-table">
+        <thead class="adv-im-thead">
+          <tr class="adv-im-thead-row">
+            <th class="adv-im-th">#</th>
+            <th class="adv-im-th">المبلغ</th>
+            <th class="adv-im-th">البند</th>
+            <th class="adv-im-th">البيان</th>
+            <th class="adv-im-th">التاريخ</th>
+            <th class="adv-im-th">المقاول</th>
+            <th class="adv-im-th-wide">المشروع ⚠</th>
+          </tr>
+        </thead>
+        <tbody id="advImBody"></tbody>
+      </table>
+    </div>
+    <div class="adv-im-footer">
+      <div class="adv-im-count" id="advImCount"></div>
+      <div class="adv-im-footer-btns">
+        <button onclick="closeAdvImModal()" class="adv-im-cancel">إلغاء</button>
+        <button onclick="confirmAdvImport()" class="adv-im-confirm">✅ استيراد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK MQ PAYMENT MODAL -->
+<!-- IMPORT PREVIEW MODAL -->
+<div id="importPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+  <div class="imp-modal">
+    <div class="imp-modal-hdr">
+      <div>
+        <div class="imp-modal-title">📋 معاينة الاستيراد</div>
+        <div class="imp-modal-sub" id="impPreviewSub"></div>
+      </div>
+      <button onclick="closeImportPreview()" class="imp-modal-close">✕</button>
+    </div>
+    <div class="imp-preview-table-wrap">
+      <table class="imp-preview-table" id="impPreviewTable"></table>
+    </div>
+    <div class="imp-modal-footer">
+      <button onclick="closeImportPreview()" class="imp-btn-cancel">إلغاء</button>
+      <button onclick="confirmImport()" class="imp-btn-confirm">✅ تأكيد الاستيراد</button>
+    </div>
+  </div>
+</div>
+
+<div id="mqPayModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box" onclick="if(event.target===this)closeMqPay()">
+  <div class="mq-pay-modal">
+    <div class="mq-pay-header">
+      <div id="mqPayName" class="mq-pay-name">👷</div>
+      <button onclick="closeMqPay()" class="mq-pay-close">✕</button>
+    </div>
+    <div class="mq-pay-body">
+      <div class="mq-pay-grid">
+        <div>
+          <label class="mq-pay-lbl">المبلغ</label>
+          <input id="mqPayAmt" type="number" placeholder="0" onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+        </div>
+        <div>
+          <label class="mq-pay-lbl">البند</label>
+          <input id="mqPayCat" placeholder="كهربا..." onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+        </div>
+      </div>
+      <div>
+        <label class="mq-pay-lbl">البيان</label>
+        <input id="mqPayDesc" placeholder="دفعة" onkeydown="if(event.key==='Enter')saveMqPay()" class="mq-pay-inp">
+      </div>
+      <div class="mq-pay-grid">
+        <div>
+          <label class="mq-pay-lbl">التاريخ</label>
+          <input id="mqPayDt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="mq-pay-inp-sm">
+        </div>
+        <div>
+          <label class="mq-pay-lbl">النوع</label>
+          <select id="mqPayEtype" class="mq-pay-inp-sm">
+            <option value="payment">💰 دفعة</option>
+            <option value="work">🔨 أعمال</option>
+            <option value="material">🔩 مصنعيات</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="saveMqPay()" class="mq-pay-save">💾 حفظ</button>
+      <div id="mqPayMsg" class="mq-pay-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ NOTIFICATION PANEL HTML ══════ -->
+<div id="notifToastWrap"></div>
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notifPanel">
+  <div class="np-head">
+    <div>
+      <div class="np-title">🔔 الإشعارات</div>
+      <div id="npOnlineInfo" class="np-online-info">جاري التحميل...</div>
+    </div>
+    <button class="np-close" onclick="closeNotifPanel()">✕</button>
+  </div>
+  <div class="np-tabs">
+    <button class="np-tab active" id="npTab-notifs" onclick="switchNpTab('notifs')">🔔 الإشعارات</button>
+    <button class="np-tab" id="npTab-online" onclick="switchNpTab('online')">🟢 أونلاين</button>
+  </div>
+  <div class="np-body" id="npBody">
+    <div class="np-empty">🔔<br>لا توجد إشعارات بعد</div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<div class="mob-bottom-nav" id="mobBottomNav" style="display:none">
+  <button class="mob-nav-it active" id="mbn-dash" onclick="showScreen('dash');mobNavActive('mbn-dash')">
+    <span class="mob-nav-ic">🏠</span><span class="mob-nav-lbl">الرئيسية</span>
+  </button>
+  <button class="mob-nav-it" id="mbn-proj" onclick="showScreen('projList');mobNavActive('mbn-proj')">
+    <span class="mob-nav-ic">📁</span><span class="mob-nav-lbl">المشاريع</span>
+  </button>
+  <button class="mob-nav-it" id="mbn-adv" onclick="showScreen('adv');mobNavActive('mbn-adv')">
+    <span class="mob-nav-ic">💼</span><span class="mob-nav-lbl">العهد</span>
+  </button>
+  <button class="mob-nav-it" id="mbn-rep" onclick="showScreen('rep');mobNavActive('mbn-rep')">
+    <span class="mob-nav-ic">📊</span><span class="mob-nav-lbl">تقارير</span>
+  </button>
+  <button class="mob-nav-it" id="mbn-daf3ati" onclick="showScreen('daf3ati');mobNavActive('mbn-daf3ati')">
+    <span class="mob-nav-ic">💰</span><span class="mob-nav-lbl">دفعاتي</span>
+  </button>
+  <button class="mob-nav-it" id="mbn-more" onclick="toggleSidebar()">
+    <span class="mob-nav-ic">☰</span><span class="mob-nav-lbl">المزيد</span>
+  </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<!-- ═══ Legacy Core Modules — الترتيب مهم ═══ -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui_helpers.js"></script>
+<script src="js/backup.js" defer></script>
+<script src="js/dashboard.js"></script>
+<script src="js/projects-data.js"></script>
+<script src="js/projects-entry.js"></script>
+<script src="js/projects-manage.js"></script>
+<script src="js/projects-filter.js"></script>
+<script src="js/projects-render.js"></script>
+<script src="js/archive.js" defer></script>
+<script src="js/notes.js" defer></script>
+<script src="js/dues.js" defer></script>
+  <script src="js/whatsapp.js" defer></script>
+<script src="js/advances.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/ui-login.js"></script>
+<script src="js/ui-modals.js"></script>
+<script src="js/ui-dash-filter.js"></script>
+<script src="js/ui-pdf.js"></script>
+<script src="js/ui-print.js"></script>
+<script src="js/reports-core.js" defer></script>
+<script src="js/reports-contractor.js" defer></script>
+<script src="js/reports-client.js" defer></script>
+<script src="js/reports-mq.js" defer></script>
+<script src="js/search.js" defer></script>
+<script src="js/notifs.js"></script>
+<script src="js/owner.js"></script>
+<script src="js/meeting.js"></script>
+<script src="js/cashcalc.js"></script>
+
+<!-- MEETING VIEW MODAL -->
+<div id="meetingModal" style="display:none;position:fixed;inset:0;z-index:99999;background:#f0ede6;overflow-y:auto;font-family:Cairo,sans-serif;direction:rtl">
+  <div style="background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:20px 16px 16px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;opacity:.5;letter-spacing:2px">LEGACY CORE</div>
+        <div style="font-size:18px;font-weight:800" id="mvProjName">—</div>
+        <div style="font-size:11px;opacity:.6" id="mvDate"></div>
+      </div>
+      <button onclick="closeMeetingView()" style="background:rgba(255,255,255,.15);border:none;color:#D4C49A;border-radius:10px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">✕ إغلاق</button>
+    </div>
+  </div>
+  <div style="max-width:480px;margin:0 auto;padding:16px 14px 40px" id="mvBody">
+  </div>
+</div>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange',()=>{
+        if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+          // نسخة جديدة جاهزة — طبّق فوراً
+          newWorker.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
+  });
+  // لما يتفعّل SW جديد — ارفرش الصفحة
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    window.location.reload();
+  });
+}
+</script>
+</body>
+</html>
+

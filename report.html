@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير المشروع — Legacy Core</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:#f0ede6;color:#1a2e1a;direction:rtl;min-height:100vh}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;padding:28px 20px 20px;text-align:center}
+.header-logo{font-size:11px;opacity:.5;letter-spacing:3px;margin-bottom:6px}
+.header-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.header-sub{font-size:11px;opacity:.6;margin-bottom:8px}
+.period-badge{display:inline-block;background:rgba(255,255,255,.15);color:#D4C49A;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+
+/* CONTAINER */
+.wrap{max-width:480px;margin:0 auto;padding:16px 14px 40px}
+
+/* ACTION BUTTONS */
+.btns{display:flex;gap:10px;margin-bottom:14px}
+.btn-pdf{flex:1;padding:12px;background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-wa{flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
+
+/* FILTER */
+.filter{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1px solid #e8e3da}
+.filter-title{font-size:12px;font-weight:700;color:#5a7a5a;margin-bottom:10px}
+.filter-row{display:flex;gap:8px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px;flex:1}
+.fg label{font-size:10px;color:#999;font-weight:600}
+.fg input{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;outline:none;width:100%}
+.fg input:focus{border-color:#2D5A3E}
+.btn-go{padding:8px 14px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-all{padding:8px 10px;background:#f0ede6;color:#5a7a5a;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.kpi{border-radius:14px;padding:14px 12px;text-align:center}
+.kpi.inc{background:#e8f7f0;border:1.5px solid #a8dcc2}
+.kpi.exp{background:#fef0f0;border:1.5px solid #f5c0c0}
+.kpi.bal{background:#fff;border:1.5px solid #e0d8c8;grid-column:1/-1}
+.kpi.bal .kv{font-size:22px}
+.kpi-lbl{font-size:10px;color:#888;font-weight:600;margin-bottom:5px}
+.kpi .kv{font-size:16px;font-weight:800}
+.kv.inc{color:#1D9E75}
+.kv.exp{color:#e74c3c}
+.kv.pos{color:#1D9E75}
+.kv.neg{color:#e74c3c}
+
+/* PROGRESS */
+.prog-wrap{background:#f0ede6;border-radius:20px;height:10px;overflow:hidden;margin:12px 0 6px}
+.prog-bar{height:100%;border-radius:20px}
+.prog-bar.g{background:linear-gradient(90deg,#1D9E75,#27ae60)}
+.prog-bar.w{background:linear-gradient(90deg,#f39c12,#e67e22)}
+.prog-bar.d{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.prog-meta{display:flex;justify-content:space-between;font-size:10px;color:#999}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:9px 4px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#888;font-family:'Cairo',sans-serif;text-align:center}
+.tab.on{background:linear-gradient(135deg,#1D3C2A,#2D5A3E);color:#D4C49A;border-color:transparent}
+
+/* SECTION CARD */
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8e3da}
+.card-title{font-size:12px;font-weight:700;color:#5a7a5a;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+
+/* ENTRY ROW — موبايل */
+.entry{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f5f2ec;gap:8px}
+.entry:last-child{border-bottom:none}
+.entry-info{flex:1;min-width:0}
+.entry-desc{font-size:13px;font-weight:600;color:#1a2e1a;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-meta{font-size:10px;color:#aaa;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.entry-amt{font-size:14px;font-weight:800;white-space:nowrap}
+.entry-amt.inc{color:#1D9E75}
+.entry-amt.exp{color:#e74c3c}
+.seq-b{background:#e8f4ee;color:#1D9E75;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.seq-b.exp{background:#fef0f0;color:#e74c3c}
+.cat-b{background:#f0ede6;color:#5a7a5a;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600}
+
+/* CATEGORY GROUP */
+.cat-group{margin-bottom:14px}
+.cat-header{display:flex;justify-content:space-between;align-items:center;background:#f8f6f2;border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer}
+.cat-header-name{font-size:12px;font-weight:700;color:#1D3C2A;display:flex;align-items:center;gap:6px}
+.cat-header-amt{font-size:13px;font-weight:800;color:#e74c3c}
+.cat-pct{font-size:10px;color:#aaa;font-weight:600}
+.cat-bar{height:4px;background:#f0ede6;border-radius:4px;margin-bottom:8px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.cat-entries{padding:0 4px}
+
+/* TOTALS */
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f6f2;border-radius:10px;margin-top:8px}
+.total-lbl{font-size:12px;font-weight:700;color:#5a7a5a}
+.total-amt{font-size:15px;font-weight:800}
+.total-amt.inc{color:#1D9E75}
+.total-amt.exp{color:#e74c3c}
+
+.empty{text-align:center;padding:30px;color:#aaa;font-size:13px}
+.loading{text-align:center;padding:60px 20px;color:#888;font-size:14px}
+.error{text-align:center;padding:40px;color:#e74c3c;font-size:13px}
+.footer{text-align:center;padding:20px;font-size:10px;color:#bbb}
+
+@media print{.btns,.filter,.tabs{display:none!important}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">LEGACY CORE</div>
+  <div class="header-title" id="projName">⏳ جاري التحميل...</div>
+  <div class="header-sub" id="reportDate"></div>
+  <div id="periodBadge"></div>
+</div>
+
+<div class="wrap">
+  <div id="content"><div class="loading">⏳ جاري تحميل البيانات...</div></div>
+</div>
+
+<div class="footer">تقرير صادر من Legacy Core · للاستفسار تواصل مع مكتب المشروع</div>
+
+<script>
+const SB='https://ctcoqgluaytwelnutrox.supabase.co';
+const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+
+let _inc=[],_exp=[],_proj=null,_tab='sum';
+
+function fn(n){return Number(n||0).toLocaleString('en-US');}
+
+function fmtDate(s){
+  if(!s)return'—';
+  const str=String(s).trim();
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str))return str;
+  if(/^\d{4}-\d{2}-\d{2}/.test(str)){
+    const p=str.substring(0,10).split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
+  try{
+    const d=new Date(str);
+    if(!isNaN(d)){
+      return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+    }
+  }catch(_){}
+  return str;
+}
+
+function toDate(s){
+  if(!s)return null;
+  const str=String(s).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(str))return new Date(str.substring(0,10));
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)){
+    const[d,m,y]=str.split('/');
+    return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+  }
+  try{const d=new Date(str);return isNaN(d)?null:d;}catch(_){return null;}
+}
+
+async function sbGet(path){
+  const r=await fetch(SB+'/rest/v1/'+path,{headers:{'apikey':AK,'Authorization':'Bearer '+AK}});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+function filterPeriod(arr,from,to){
+  return arr.filter(e=>{
+    const d=toDate(e.entry_date);
+    if(!d)return true;
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+}
+
+// ── RENDER SUMMARY ──────────────────────
+function renderSum(inc,exp){
+  const tInc=inc.reduce((s,e)=>s+e.amount,0);
+  const tExp=exp.reduce((s,e)=>s+e.amount,0);
+  const bal=tInc-tExp;
+  const pct=tInc>0?Math.min(100,Math.round(tExp/tInc*100)):0;
+  const bc=pct>90?'d':pct>70?'w':'g';
+
+  // تجميع المصاريف بالبنود
+  const cats={};
+  exp.forEach(e=>{
+    const c=e.category||'غير مصنف';
+    if(!cats[c])cats[c]=0;
+    cats[c]+=e.amount;
+  });
+  const catsSorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const catsHtml=catsSorted.map(([cat,amt])=>{
+    const p=tExp>0?Math.round(amt/tExp*100):0;
+    return`<div class="entry">
+      <div class="entry-info">
+        <div class="entry-desc">${cat}</div>
+        <div style="margin-top:4px;background:#f0ede6;border-radius:4px;height:4px;overflow:hidden">
+          <div style="width:${p}%;height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:4px"></div>
+        </div>
+      </div>
+      <div style="text-align:left;min-width:90px">
+        <div class="entry-amt exp">▼ ${fn(amt)} ج</div>
+        <div style="font-size:10px;color:#aaa;text-align:center">${p}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return`
+    <div class="kpi-row">
+      <div class="kpi inc"><div class="kpi-lbl">📈 إجمالي الوارد</div><div class="kv inc">▲ ${fn(tInc)} ج</div></div>
+      <div class="kpi exp"><div class="kpi-lbl">📉 إجمالي المصاريف</div><div class="kv exp">▼ ${fn(tExp)} ج</div></div>
+      <div class="kpi bal"><div class="kpi-lbl">💰 صافي الرصيد</div><div class="kv ${bal>=0?'pos':'neg'}">${bal>=0?'▲':'▼'} ${fn(Math.abs(bal))} ج</div></div>
+    </div>
+    <div class="prog-wrap"><div class="prog-bar ${bc}" style="width:${pct}%"></div></div>
+    <div class="prog-meta"><span>نسبة الصرف</span><span style="font-weight:700;color:${pct>90?'#e74c3c':pct>70?'#f39c12':'#1D9E75'}">${pct}%</span></div>
+    <div style="height:14px"></div>
+    ${_proj.start_date?`<div class="entry"><div class="entry-info"><div class="entry-desc">تاريخ البداية</div></div><div class="entry-amt" style="color:#5a7a5a">${fmtDate(_proj.start_date)}</div></div>`:''}
+    ${_proj.close_date?`<div class="entry"><div class="entry-info"><div class="entry-desc">تاريخ الإغلاق</div></div><div class="entry-amt" style="color:#5a7a5a">${fmtDate(_proj.close_date)}</div></div>`:''}
+    <div class="entry"><div class="entry-info"><div class="entry-desc">دفعات واردة</div></div><div class="entry-amt" style="color:#5a7a5a">${inc.length}</div></div>
+    <div class="entry"><div class="entry-info"><div class="entry-desc">بنود مصاريف</div></div><div class="entry-amt" style="color:#5a7a5a">${exp.length}</div></div>
+    ${catsSorted.length?`
+    <div style="height:6px"></div>
+    <div onclick="toggleCats()" style="display:flex;justify-content:space-between;align-items:center;background:#fff5f5;border:1.5px solid #f5c0c0;border-radius:12px;padding:12px 14px;cursor:pointer;margin-top:4px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#e74c3c">📂 تفاصيل البنود</div>
+        <div style="font-size:10px;color:#aaa;margin-top:2px">${catsSorted.length} بند</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:14px;font-weight:800;color:#e74c3c">▼ ${fn(tExp)} ج</div>
+        <div id="catsArrow" style="font-size:16px;color:#e74c3c;transition:transform .3s">⌄</div>
+      </div>
+    </div>
+    <div id="catsBody" style="display:none;margin-top:8px">
+      ${catsHtml}
+    </div>`:''}
+  `;
+}
+
+// ── RENDER INC ───────────────────────────
+function renderInc(inc){
+  if(!inc.length)return'<div class="empty">لا توجد دفعات في هذه الفترة</div>';
+  const total=inc.reduce((s,e)=>s+e.amount,0);
+  const rows=inc.map(e=>`
+    <div class="entry">
+      <div class="entry-info">
+        <div class="entry-desc">${e.description||e.category||'دفعة'}</div>
+        <div class="entry-meta">
+          ${e.seq?`<span class="seq-b">${e.seq}</span>`:''}
+          <span>${fmtDate(e.entry_date)}</span>
+        </div>
+      </div>
+      <div class="entry-amt inc">▲ ${fn(e.amount)} ج</div>
+    </div>`).join('');
+  return rows+`<div class="total-row"><span class="total-lbl">الإجمالي</span><span class="total-amt inc">▲ ${fn(total)} ج</span></div>`;
+}
+
+// ── RENDER EXP بالبنود ───────────────────
+function renderExp(exp){
+  if(!exp.length)return'<div class="empty">لا توجد مصاريف في هذه الفترة</div>';
+  const total=exp.reduce((s,e)=>s+e.amount,0);
+
+  // تجميع حسب الكاتيجوري
+  const cats={};
+  exp.forEach(e=>{
+    const c=e.category||'غير مصنف';
+    if(!cats[c])cats[c]={total:0,items:[]};
+    cats[c].total+=e.amount;
+    cats[c].items.push(e);
+  });
+
+  // ترتيب تنازلي حسب الإجمالي
+  const sorted=Object.entries(cats).sort((a,b)=>b[1].total-a[1].total);
+
+  const groups=sorted.map(([cat,data])=>{
+    const pct=total>0?Math.round(data.total/total*100):0;
+    const items=data.items.map(e=>`
+      <div class="entry">
+        <div class="entry-info">
+          <div class="entry-desc">${e.description||cat}</div>
+          <div class="entry-meta">
+            ${e.seq?`<span class="seq-b exp">${e.seq}</span>`:''}
+            <span>${fmtDate(e.entry_date)}</span>
+          </div>
+        </div>
+        <div class="entry-amt exp">▼ ${fn(e.amount)} ج</div>
+      </div>`).join('');
+
+    return`<div class="cat-group">
+      <div class="cat-header">
+        <div class="cat-header-name">
+          <span>${cat}</span>
+          <span class="cat-pct">${pct}%</span>
+        </div>
+        <div class="cat-header-amt">▼ ${fn(data.total)} ج</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+      <div class="cat-entries">${items}</div>
+    </div>`;
+  }).join('');
+
+  return groups+`<div class="total-row"><span class="total-lbl">إجمالي المصاريف</span><span class="total-amt exp">▼ ${fn(total)} ج</span></div>`;
+}
+
+// ── TABS ─────────────────────────────────
+function switchTab(tab,inc,exp){
+  _tab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
+  const body=document.getElementById('tabBody');
+  if(tab==='sum')body.innerHTML=renderSum(inc,exp);
+  else if(tab==='inc')body.innerHTML=renderInc(inc);
+  else body.innerHTML=renderExp(exp);
+}
+
+// ── FILTER ───────────────────────────────
+function applyFilter(){
+  const fv=document.getElementById('fF').value;
+  const tv=document.getElementById('fT').value;
+  const from=fv?new Date(fv):null;
+  const to=tv?new Date(tv+'T23:59:59'):null;
+  const inc=filterPeriod(_inc,from,to);
+  const exp=filterPeriod(_exp,from,to);
+  const badge=document.getElementById('periodBadge');
+  badge.innerHTML=(fv||tv)?`<span class="period-badge">📅 ${fv?fmtDate(fv):'البداية'} ← ${tv?fmtDate(tv):'الآن'}</span>`:'';
+  switchTab(_tab,inc,exp);
+}
+
+function resetFilter(){
+  document.getElementById('fF').value='';
+  document.getElementById('fT').value='';
+  document.getElementById('periodBadge').innerHTML='';
+  switchTab(_tab,_inc,_exp);
+}
+
+// ── LOAD ─────────────────────────────────
+async function load(){
+  const pid=new URLSearchParams(location.search).get('pid');
+  if(!pid){document.getElementById('content').innerHTML='<div class="error">❌ لينك غير صحيح</div>';return;}
+  try{
+    const[projects,entries]=await Promise.all([
+      sbGet('projects?id=eq.'+pid+'&select=id,name,start_date,close_date'),
+      sbGet('entries?project_id=eq.'+pid+'&select=id,seq,amount,description,entry_date,category,type&order=entry_date.asc&limit=2000')
+    ]);
+    if(!projects?.length){document.getElementById('content').innerHTML='<div class="error">❌ المشروع غير موجود</div>';return;}
+    _proj=projects[0];
+    _inc=entries.filter(e=>e.type==='i');
+    _exp=entries.filter(e=>e.type==='e');
+
+    document.getElementById('projName').textContent='📋 '+_proj.name;
+    document.getElementById('reportDate').textContent='تقرير بتاريخ: '+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+
+    document.getElementById('content').innerHTML=`
+      <div class="btns">
+        <button class="btn-pdf" onclick="window.print()">📕 طباعة / PDF</button>
+        <a class="btn-wa" href="https://wa.me/?text=${encodeURIComponent('تقرير مشروع '+_proj.name+'\n'+location.href)}" target="_blank">📤 واتساب</a>
+      </div>
+      <div class="filter">
+        <div class="filter-title">📅 فلتر الفترة</div>
+        <div class="filter-row">
+          <div class="fg"><label>من</label><input type="date" id="fF"></div>
+          <div class="fg"><label>إلى</label><input type="date" id="fT"></div>
+          <button class="btn-go" onclick="applyFilter()">عرض</button>
+          <button class="btn-all" onclick="resetFilter()">الكل</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-t="sum" onclick="switchTab('sum',_inc,_exp)">📊 الملخص</button>
+        <button class="tab" data-t="inc" onclick="switchTab('inc',_inc,_exp)">📈 الوارد</button>
+        <button class="tab" data-t="exp" onclick="switchTab('exp',_inc,_exp)">📉 المصاريف</button>
+      </div>
+      <div class="card"><div id="tabBody"></div></div>
+    `;
+    switchTab('sum',_inc,_exp);
+  }catch(e){
+    document.getElementById('content').innerHTML='<div class="error">❌ خطأ: '+e.message+'</div>';
+  }
+}
+function toggleCats(){
+  const b=document.getElementById('catsBody');
+  const a=document.getElementById('catsArrow');
+  if(!b)return;
+  const open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  a.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+}
+load();
+</script>
+</body>
+</html>
