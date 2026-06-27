@@ -450,7 +450,16 @@
               </div>
               <div class="ig-field" id="catWrap">
                 <div class="ig-lbl">البند <span class="ig-req">*</span></div>
-                <input id="ic" placeholder="اكتب البند..." autocomplete="off" name="lft_cat_x91" oninput="_clearErr('ic','err-ic')" class="input-full" readonly onfocus="this.removeAttribute('readonly')">
+                <div style="position:relative">
+                  <input id="ic" placeholder="اكتب أو اختر البند..." autocomplete="off"
+                    oninput="_onCatInput(this.value)"
+                    onfocus="_onCatFocus()"
+                    onblur="_onCatBlur()"
+                    class="input-full">
+                  <div id="_catDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid var(--border-color,#ddd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;max-height:220px;overflow-y:auto">
+                    <div id="_catList"></div>
+                  </div>
+                </div>
                 <div class="ig-err" id="err-ic">إلزامي</div>
               </div>
               <div class="ig-field" id="mqWrap">
