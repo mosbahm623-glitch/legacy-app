@@ -261,15 +261,14 @@ function toggleSidebar(){
   const ov=document.getElementById('sbOverlay');
   sb.classList.toggle('sb-open');
   const isOpen=sb.classList.contains('sb-open');
-  ov.classList.toggle('show',isOpen);
+  if(ov)ov.classList.toggle('show',isOpen);
   document.body.style.overflow=isOpen?'hidden':'';
 }
 function closeSidebar(){
-  if(window.innerWidth<768){
-    document.getElementById('sidebar').classList.remove('sb-open');
-    document.getElementById('sbOverlay').classList.remove('show');
-    document.body.style.overflow='';
-  }
+  document.getElementById('sidebar').classList.remove('sb-open');
+  const ov=document.getElementById('sbOverlay');
+  if(ov)ov.classList.remove('show');
+  document.body.style.overflow='';
 }
 function toggleSbSub(key){
   const sub=document.getElementById('sbs-'+key);
