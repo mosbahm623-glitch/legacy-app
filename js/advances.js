@@ -250,7 +250,7 @@ function showAdvEntryModal(){
     <div style="display:flex;flex-direction:column;gap:10px">
       <div style="position:relative">
         <input id="advProjInput" placeholder="🔍 ابحث عن مشروع..." class="inp-lg" autocomplete="off"
-          oninput="advProjSearch(this.value)" onfocus="advProjSearch(this.value)" style="width:100%">
+          oninput="advProjSearch(this.value)" style="width:100%">
         <input type="hidden" id="advProjSel">
         <div id="advProjDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;max-height:180px;overflow-y:auto;margin-top:4px"></div>
       </div>
