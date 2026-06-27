@@ -2367,3 +2367,33 @@ body.dark-mode #ownerScreen [style*="color:#1D3C2A"] {
   color:var(--accent)!important;
 }
 
+
+/* dark mode input-full fix */
+body.dark-mode .input-full{
+background:rgba(255,255,255,.06) !important;
+border:0.5px solid rgba(200,230,215,.12) !important;
+color:#EFF6F2 !important;
+}
+body.dark-mode .input-full::placeholder{
+color:rgba(200,230,215,.3) !important;
+}
+body.dark-mode .input-full:focus{
+border-color:rgba(212,168,67,.35) !important;
+background:rgba(255,255,255,.08) !important;
+}
+body.dark-mode #_catDD{
+background:var(--dark-card,#1a3326) !important;
+border-color:rgba(212,196,154,.15) !important;
+}
+body.dark-mode #_catDD div{
+color:#EFF6F2 !important;
+border-bottom-color:rgba(212,196,154,.08) !important;
+}
+body.dark-mode #_advCatDD{
+background:var(--dark-card,#1a3326) !important;
+border-color:rgba(212,196,154,.15) !important;
+}
+body.dark-mode #_advCatDD div{
+color:#EFF6F2 !important;
+border-bottom-color:rgba(212,196,154,.08) !important;
+}
