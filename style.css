@@ -179,7 +179,7 @@
   /* إخفاء أزرار الـ navbar على موبايل — موجودة في الـ sidebar */
   #navBackupBtn,#navExportBtn{display:none !important}
   /* تصليح الـ KPI grid على موبايل */
-  #mainApp{overflow-x:visible}
+  #mainApp{overflow-x:hidden}
   .dash-inner{padding:10px !important}
   /* notifications mobile */
   .notif-panel{width:100% !important;max-width:100% !important;border-radius:18px 18px 0 0 !important;bottom:0 !important;top:auto !important;height:80vh !important}
@@ -466,7 +466,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 }
 /* PROJECTS */
 .pb{background:var(--accent-ivory);padding:7px 12px;display:flex;gap:6px;align-items:center}
-.pb select{flex:1;padding:6px 8px;border:1px solid #1D3C2A60;border-radius:5px;font-size:12px;font-weight:500;background:#fff;font-family:inherit}
+.pb select{flex:1;min-width:0;padding:6px 8px;border:1px solid #1D3C2A60;border-radius:5px;font-size:12px;font-weight:500;background:#fff;font-family:inherit}
 .gsm{background:var(--primary);color:var(--accent);border:none;border-radius:5px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500}
 .dates{padding:5px 12px;background:var(--bg-warm);font-size:10px;color:var(--primary);display:flex;gap:4px;flex-wrap:wrap}
 .dates span{white-space:nowrap;flex-shrink:0}
@@ -1848,7 +1848,7 @@ body.dark-mode .arch-stat{background:var(--bg-gray)}
 /* ══ MOBILE ENTRY CARDS ══ */
 @media(max-width:767px){
   /* اليومية — horizontal scroll كامل زي الديسكتوب */
-  .main-content{overflow-x:visible !important;}
+  .main-content{overflow-x:hidden !important;}
   #ent{overflow-x:auto !important;-webkit-overflow-scrolling:touch;width:100%;}
   #ent table{table-layout:auto !important;width:max-content !important;min-width:100%;}
   #ent table td,#ent table th{white-space:nowrap !important;}
