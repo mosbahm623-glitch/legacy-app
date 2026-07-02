@@ -468,8 +468,9 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .pb{background:var(--accent-ivory);padding:7px 12px;display:flex;gap:6px;align-items:center}
 .pb select{flex:1;padding:6px 8px;border:1px solid #1D3C2A60;border-radius:5px;font-size:12px;font-weight:500;background:#fff;font-family:inherit}
 .gsm{background:var(--primary);color:var(--accent);border:none;border-radius:5px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500}
-.dates{padding:5px 12px;background:var(--bg-warm);font-size:10px;color:var(--primary);display:flex;gap:4px}
-.dates input{flex:1;background:transparent;border:none;font-size:10px;color:var(--primary);padding:2px;font-family:inherit}
+.dates{padding:5px 12px;background:var(--bg-warm);font-size:10px;color:var(--primary);display:flex;gap:4px;flex-wrap:wrap}
+.dates span{white-space:nowrap;flex-shrink:0}
+.dates input{flex:1;min-width:0;background:transparent;border:none;font-size:10px;color:var(--primary);padding:2px;font-family:inherit}
 .kp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 14px;background:var(--bg-surface);border-bottom:0.5px solid var(--border-faint)}
 .kc{background:var(--bg-faint);border-radius:8px;padding:10px 12px;border-top:2.5px solid var(--border)}
 .kc.kc-inc{border-top-color:#378ADD}
