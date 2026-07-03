@@ -36,21 +36,30 @@ async function loadApprovals(silent=false){
     const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
     let html='';
 
-    // ── فلتر المُدخِل ──
+    // ── فلتر المُدخِل + المشروع ──
     const allUsers=Object.entries(profMap);
     const submitterIds=new Set((entRows||[]).map(r=>r.submitted_by).filter(Boolean));
     const submitterOpts=allUsers.filter(([id])=>submitterIds.has(id))
       .map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+    const projIds=[...new Set((entRows||[]).map(r=>r.project_id).filter(Boolean))];
+    const projOpts=projIds.map(id=>`<option value="${id}">${projMap[id]||id}</option>`).join('');
     window._approvalsEntRows=entRows||[];
     window._approvalsAdvRows=advRows||[];
     window._approvalsProfMap=profMap;
     window._approvalsHtmlFn=null;
-    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">👤 فلتر المُدخِل:</span>
-      <select id="apprUserFilter" onchange="apprFilterByUser()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer">
-        <option value="all">الكل (${submitterIds.size} مُدخِل)</option>
+    html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;background:var(--bg-faint,#f9f7f3);padding:8px 12px;border-radius:10px">
+      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">👤</span>
+      <select id="apprUserFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:120px">
+        <option value="all">كل المُدخِلين</option>
         ${submitterOpts}
       </select>
+      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">🏗️</span>
+      <select id="apprProjFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:140px">
+        <option value="all">كل المشاريع</option>
+        ${projOpts}
+      </select>
+      <button onclick="apprResetFilters()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:11px;background:var(--bg-pure);color:var(--text-hint);cursor:pointer">✖ إعادة تعيين</button>
+      <span id="apprFilterCount" style="font-size:11px;color:var(--text-hint)"></span>
     </div>`;
 
     // ── شريط التحكم الجماعي ──
@@ -695,21 +704,34 @@ function setupNotifRealtime(){
 }
 
 // ── فلتر الموافقات حسب المُدخِل ──────────────────
-function apprFilterByUser(){
-  const val=document.getElementById('apprUserFilter')?.value||'all';
+function apprFilterByUser(){apprApplyFilters();}
+function apprResetFilters(){
+  const u=document.getElementById('apprUserFilter');
+  const p=document.getElementById('apprProjFilter');
+  if(u)u.value='all';
+  if(p)p.value='all';
+  apprApplyFilters();
+}
+function apprApplyFilters(){
+  const userVal=document.getElementById('apprUserFilter')?.value||'all';
+  const projVal=document.getElementById('apprProjFilter')?.value||'all';
   const entRows=window._approvalsEntRows||[];
   const profMap=window._approvalsProfMap||{};
   const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
 
-  // فلتر القيود
-  const filtered=val==='all'?entRows:entRows.filter(r=>r.submitted_by===val);
+  let filtered=entRows;
+  if(userVal!=='all') filtered=filtered.filter(r=>r.submitted_by===userVal);
+  if(projVal!=='all') filtered=filtered.filter(r=>r.project_id===projVal);
 
-  // إعادة رسم قسم قيود المشاريع فقط
   const secWrap=document.getElementById('apprEntriesSection');
   if(!secWrap)return;
 
+  // تحديث العداد
+  const countEl=document.getElementById('apprFilterCount');
+  if(countEl) countEl.textContent=filtered.length>0?`(${filtered.length} قيد)`:'';
+
   if(!filtered.length){
-    secWrap.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text-hint);font-size:13px">لا يوجد قيود لهذا المُدخِل</div>`;
+    secWrap.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text-hint);font-size:13px">لا يوجد قيود بهذا الفلتر</div>`;
     return;
   }
 
