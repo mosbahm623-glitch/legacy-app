@@ -78,6 +78,16 @@ async function loadOwnerScreen(){
           '<option value="أخرى">✏️ أخرى</option>'+
         '</select>'+
         '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
+        '<div id="ow-inv-area" style="margin-bottom:10px">'+
+          '<div id="ow-inv-preview" style="display:none;position:relative;margin-bottom:6px">'+
+            '<img id="ow-inv-img" src="" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid #eee;cursor:pointer" onclick="owOpenInvPreview()">'+
+            '<button onclick="owRemoveInv()" style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.55);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px">✕</button>'+
+          '</div>'+
+          '<label style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#999;font-family:inherit;background:#fafaf8">'+
+            '<input type="file" id="ow-inv-file" accept="image/*" style="display:none" onchange="owSelectInv(this)">'+
+            '<span id="ow-inv-lbl">📎 إرفاق صورة فاتورة</span>'+
+          '</label>'+
+        '</div>'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
       '</div>'+
 
@@ -318,6 +328,8 @@ async function owSubmit(){
     if(!pmt){notify('❌ اختر طريقة الدفع','err');return;}
     var entry={id:crypto.randomUUID(),project_id:projId,type:t,amount:amt,category:cat,description:desc,entry_date:date,contractor:mq||null,advance_id:null,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString(),payment_method:pmt};
     await sb('pending_entries','POST',entry);
+    // رفع صورة الفاتورة لو موجودة
+    if(window._owInvFile) await owUploadInvoice(entry.id);
     notify('✅ تم الإرسال — في انتظار موافقة الأدمن','ok');
     document.getElementById('ow-amt').value='';
     document.getElementById('ow-desc').value='';
@@ -434,4 +446,70 @@ async function owSubmitAdv(){
   }finally{
     if(btn){btn.disabled=false;btn.textContent='💼 إرسال طلب العهدة';}
   }
+}
+
+// ══ OWNER INVOICE ════════════════════════════════
+function owSelectInv(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>8*1024*1024){notify('الحجم أكبر من 8MB','err');return;}
+  window._owInvFile=file;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=document.getElementById('ow-inv-img');
+    const prev=document.getElementById('ow-inv-preview');
+    const lbl=document.getElementById('ow-inv-lbl');
+    if(img)img.src=e.target.result;
+    if(prev)prev.style.display='block';
+    if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+  };
+  reader.readAsDataURL(file);
+}
+
+function owRemoveInv(){
+  window._owInvFile=null;
+  const img=document.getElementById('ow-inv-img');
+  const prev=document.getElementById('ow-inv-preview');
+  const lbl=document.getElementById('ow-inv-lbl');
+  const inp=document.getElementById('ow-inv-file');
+  if(img)img.src='';
+  if(prev)prev.style.display='none';
+  if(lbl)lbl.textContent='📎 إرفاق صورة فاتورة';
+  if(inp)inp.value='';
+}
+
+function owOpenInvPreview(){
+  const src=document.getElementById('ow-inv-img')?.src;
+  if(!src)return;
+  const lb=document.getElementById('invLb');
+  const img=document.getElementById('invLbImg');
+  if(!lb||!img)return;
+  img.src=src;
+  document.getElementById('invLbTitle').textContent='معاينة الفاتورة';
+  document.getElementById('invLbMeta').textContent='لم يتم الحفظ بعد';
+  const del=document.getElementById('invLbDelBtn');
+  if(del)del.style.display='none';
+  lb.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+async function owUploadInvoice(entryId){
+  const file=window._owInvFile;
+  if(!file||!entryId)return;
+  try{
+    const ext=file.name.split('.').pop().toLowerCase();
+    const path=`${entryId}/invoice_${Date.now()}.${ext}`;
+    const SB='https://ctcoqgluaytwelnutrox.supabase.co';
+    const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+    const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':file.type,'x-upsert':'true'},
+      body:file
+    });
+    if(r.ok){
+      const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
+      await sb('pending_entries?id=eq.'+entryId,'PATCH',{img_url:pub});
+    }
+  }catch(e){console.warn('owner invoice upload:',e);}
+  window._owInvFile=null;
+  owRemoveInv();
 }
