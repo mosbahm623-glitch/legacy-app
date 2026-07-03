@@ -278,7 +278,7 @@ async function owEditEntry(id){
     '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">البيان</label>'+
       '<input id="oeDesc" type="text" value="'+(e.description||'')+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
     '<div style="margin-bottom:16px"><label style="font-size:11px;color:#888;font-weight:700">التاريخ</label>'+
-      '<input id="oeDt" type="date" value="'+(e.entry_date||'')+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
+      '<input id="oeDt" type="date" value="'+(e.entry_date||(e.submitted_at?e.submitted_at.substring(0,10):''))+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
     '<div id="oeSavMsg" style="font-size:12px;text-align:center;margin-bottom:8px;min-height:16px"></div>'+
     '<button onclick="owSaveEditEntry(\''+id+'\')" style="width:100%;padding:12px;background:#2C6E3F;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">💾 حفظ التعديل</button>'+
   '</div>';
