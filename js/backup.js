@@ -15,18 +15,19 @@ async function backupAll(){
   try{
     await loadExcelJS();
     setSav('⏳ جاري جلب البيانات...','ng');
-    // جيب كل البيانات
+    // جيب كل البيانات — كل جدول لوحده عشان لو جدول مش موجود ميوقفش الكل
+    const safe=async(fn)=>{try{return await fn();}catch(e){console.warn('backup table skip:',e.message);return [];}};
     const [prjs,ents,advs,insts,profs,dues,pending,pendingAdvs,notes,summaries]=await Promise.all([
-      sb('projects?order=created_at'),
-      sbAll('entries?order=created_at'),
-      sb('advances?order=created_at'),
-      sb('advance_installments?order=created_at'),
-      sb('profiles?order=created_at'),
-      sb('contractor_dues?order=created_at'),
-      sb('pending_entries?order=submitted_at'),
-      sb('pending_advances?status=eq.pending&order=submitted_at'),
-      sb('notes?order=created_at'),
-      sb('project_summaries'),
+      safe(()=>sb('projects?order=created_at')),
+      safe(()=>sbAll('entries?order=created_at')),
+      safe(()=>sb('advances?order=created_at')),
+      safe(()=>sb('advance_installments?order=created_at')),
+      safe(()=>sb('profiles?order=created_at')),
+      safe(()=>sb('contractor_dues?order=created_at')),
+      safe(()=>sb('pending_entries?order=submitted_at')),
+      safe(()=>sb('pending_advances?status=eq.pending&order=submitted_at')),
+      safe(()=>sb('notes?order=created_at')),
+      safe(()=>sb('project_summaries')),
     ]);
     setSav('⏳ جاري بناء الملف...','ng');
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];
@@ -295,4 +296,5 @@ function closeMqManager(){
   document.getElementById('mqManagerScreen').style.display='none';
   document.getElementById('repHub').style.display='block';
 }
+
 
