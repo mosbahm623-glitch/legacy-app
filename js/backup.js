@@ -168,9 +168,10 @@ async function backupAll(){
     // شيت القيود المعلقة
     if(pending&&pending.length){
       const wsPN=wb.addWorksheet('قيود معلقة',{views:[{rightToLeft:true}]});
-      mergeTitle(wsPN,'⏳  القيود المعلقة',7,'FFD4800A');
-      hdr(wsPN,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'الحالة',k:'status',w:15}]);
-      pending.forEach(e=>wsPN.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',status:'في الانتظار'}));
+      mergeTitle(wsPN,'⏳  القيود المعلقة',8,'FFD4800A');
+      const profMap={};(profs||[]).forEach(p=>{profMap[p.id]=p.name||'—';});
+      hdr(wsPN,[{h:'المشروع',k:'proj',w:20},{h:'النوع',k:'type',w:10},{h:'المبلغ',k:'amt',w:15},{h:'البند',k:'cat',w:18},{h:'البيان',k:'desc',w:30},{h:'التاريخ',k:'dt',w:15},{h:'المُدخِل',k:'user',w:18},{h:'الحالة',k:'status',w:15}]);
+      pending.forEach(e=>wsPN.addRow({proj:projMap[e.project_id]||'',type:e.type==='i'?'وارد':'مصروف',amt:e.amount,cat:e.category||'',desc:e.description||'',dt:e.entry_date||'',user:profMap[e.submitted_by]||'—',status:'في الانتظار'}));
       styleRows(wsPN,pending.length);
     }
     // شيت العهد المعلقة
