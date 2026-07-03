@@ -201,7 +201,7 @@ async function backupAll(){
       if(!pe.length)return;
       const sv=sumMap[p.id]||{inc:0,exp:0};
       const net=sv.inc-sv.exp;
-      const sheetName=(p.name||'').substring(0,31);
+      const sheetName=(p.name||'').replace(/[*?:\\/\[\]]/g,'-').substring(0,31);
       const wsPR=wb.addWorksheet(sheetName,{views:[{rightToLeft:true}]});
       const isArc=p.archived;
       const status=isArc?'🗂 مؤرشف':net<0?'🔴 عجز':'🟢 نشط';
