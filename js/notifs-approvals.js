@@ -361,6 +361,22 @@ async function rejectEntry(id,silent=false){
     if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();loadApprovals(true);if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
+
+async function undoApproveEntry(id){
+  await new Promise(res=>showConfirm({icon:'↩',title:'إلغاء الموافقة',msg:'هيترجع القيد لقائمة الانتظار ويتحذف من المشروع.',okLabel:'إلغاء الموافقة',okType:'warning',onOk:res}));
+  try{
+    const rows=await sb('entries?id=eq.'+id);
+    if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
+    const e=rows[0];
+    const pending={id:crypto.randomUUID(),project_id:e.project_id,type:e.type,amount:e.amount,category:e.category||'',description:e.description||'',entry_date:e.entry_date||'',contractor:e.contractor||'',advance_id:e.advance_id||null,status:'pending',submitted_by:e.created_by||uid,submitted_at:new Date().toISOString()};
+    await sb('pending_entries','POST',pending);
+    await sb('entries?id=eq.'+id,'DELETE');
+    if(e.project_id===curPid){await loadEntries();allEntries=allEntries.filter(x=>x.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
+    auditLog('إلغاء موافقة قيد','entries',id,{project:allProjects.find(p=>p.id===e.project_id)?.name,amount:e.amount});
+    setSav('↩ تم إرجاع القيد للموافقات','ng');
+    updatePendingBadge();
+  }catch(ex){setSav('❌ '+friendlyError(ex),'er');}
+}
 // ══════════════════════════════════════
 
 async function editAndApproveAdv(id){
