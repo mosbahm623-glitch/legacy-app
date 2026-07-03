@@ -122,6 +122,7 @@ function re(){
           </div>
           <div class="card-footer">
             <button class="card-action" onclick="event.stopPropagation();printReceipt('${e.id}')">🖨 إيصال</button>
+            ${e.img_url?`<button class="card-action" onclick="event.stopPropagation();openInvoiceLb('${e.id}')" style="background:#EAF3DE;color:#27500A;border-color:#97C459">🧾 فاتورة</button>`:`<button class="card-action" onclick="event.stopPropagation();openInvoiceUpload('${e.id}')" style="color:#aaa">📎 إرفاق</button>`}
             ${wa1?`<button class="card-action card-wa" onclick="event.stopPropagation();window.open('${wa1.match(/href="([^"]+)"/)?.[1]||''}','_blank')">📲 واتساب</button>`:''}
             ${delBtn}
           </div>
@@ -129,6 +130,9 @@ function re(){
       }
       // DESKTOP: table row
       const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button></td>`;
+      const invBtn=e.img_url
+        ?`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();openInvoiceLb('${e.id}')" title="عرض الفاتورة" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:13px;padding:2px 7px" aria-label="فاتورة">🧾</button></td>`
+        :`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();openInvoiceUpload('${e.id}')" title="إرفاق فاتورة" style="background:transparent;border:0.5px dashed #bbb;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#aaa" aria-label="إرفاق فاتورة">📎</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const isDk=document.body.classList.contains('dark-mode');
       const rowBg=isDk?(i%2===0?'var(--dark-alt)':'var(--dark-mid)'):(i%2===0?'#fff':'#f7f7f5');
@@ -145,7 +149,7 @@ function re(){
         <td style="padding:7px 10px;color:${_bodyClr};max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        ${rcpt}${del}
+        ${rcpt}${invBtn}${del}
       </tr>`;
     }).join('');
     if(isMob){
