@@ -253,7 +253,8 @@ async function backupAll(){
     updateBackupDateDisplay();
     setSav('✅ تم تحميل النسخة الاحتياطية — '+prjs.length+' مشروع · '+ents.length+' قيد · '+advs.length+' عهدة · '+dues.length+' مستحقة','ok');
   }catch(e){
-    setSav('❌ '+friendlyError(e),'er');
+    console.error('BACKUP ERROR FULL:',e);
+    setSav('❌ '+friendlyError(e)+' — '+String(e?.message||e),'er');
   }
   btn.disabled=false;
 }
