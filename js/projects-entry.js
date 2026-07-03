@@ -237,6 +237,25 @@ async function ae(){
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
       refreshProjSummary(savedPid);
+      // رفع صورة الفاتورة لو موجودة
+      const _invFile=window._entryInvoiceFile;
+      if(_invFile&&entry.id){
+        try{
+          const _ext=_invFile.name.split('.').pop().toLowerCase();
+          const _path=`${entry.id}/invoice_${Date.now()}.${_ext}`;
+          const SB_STOR='https://ctcoqgluaytwelnutrox.supabase.co';
+          const _AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+          const _ur=await fetch(`${SB_STOR}/storage/v1/object/invoices/${_path}`,{method:'POST',headers:{'Authorization':'Bearer '+(token||_AK),'apikey':_AK,'Content-Type':_invFile.type,'x-upsert':'true'},body:_invFile});
+          if(_ur.ok){
+            const _pub=`${SB_STOR}/storage/v1/object/public/invoices/${_path}`;
+            await sb('entries?id=eq.'+entry.id,'PATCH',{img_url:_pub});
+            const _ent=entries.find(x=>x.id===entry.id);
+            if(_ent)_ent.img_url=_pub;
+          }
+        }catch(_e){console.warn('invoice upload:',_e);}
+        window._entryInvoiceFile=null;
+        resetEntryInvoice();
+      }
       setSav('✅ تم الحفظ','ok');
       notify(`✅ تم حفظ القيد في مشروع: ${savedProjName}`,'ok');
       _showEntryConfirm('✅ تم إضافة القيد بنجاح','#1D9E75');
@@ -538,4 +557,57 @@ async function sw(pid){
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
+}
+
+// ══ ENTRY FORM INVOICE ════════════════════════════
+function handleEntryInvoiceSelect(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>8*1024*1024){notify('الحجم أكبر من 8MB','err');return;}
+  window._entryInvoiceFile=file;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=document.getElementById('entryInvoiceImg');
+    const prev=document.getElementById('entryInvoicePreview');
+    const lbl=document.getElementById('entryInvoiceLbl');
+    if(img)img.src=e.target.result;
+    if(prev)prev.style.display='block';
+    if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeEntryInvoice(){
+  window._entryInvoiceFile=null;
+  resetEntryInvoice();
+}
+
+function resetEntryInvoice(){
+  const img=document.getElementById('entryInvoiceImg');
+  const prev=document.getElementById('entryInvoicePreview');
+  const lbl=document.getElementById('entryInvoiceLbl');
+  const inp=document.getElementById('entryInvoiceFile');
+  if(img)img.src='';
+  if(prev)prev.style.display='none';
+  if(lbl)lbl.textContent='إرفاق صورة فاتورة';
+  if(inp)inp.value='';
+}
+
+function openInvoicePreviewModal(){
+  const src=document.getElementById('entryInvoiceImg')?.src;
+  if(!src)return;
+  const lb=document.getElementById('invLb');
+  const img=document.getElementById('invLbImg');
+  if(!lb||!img)return;
+  img.src=src;
+  document.getElementById('invLbTitle').textContent='معاينة الفاتورة';
+  document.getElementById('invLbMeta').textContent='لم يتم الحفظ بعد';
+  const del=document.getElementById('invLbDelBtn');
+  if(del)del.style.display='none';
+  lb.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function showEntryInvoiceArea(){
+  const area=document.getElementById('entryInvoiceArea');
+  if(area)area.style.display='block';
 }
