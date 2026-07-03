@@ -36,31 +36,10 @@ async function loadApprovals(silent=false){
     const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
     let html='';
 
-    // ── فلتر المُدخِل + المشروع ──
-    const allUsers=Object.entries(profMap);
-    const submitterIds=new Set((entRows||[]).map(r=>r.submitted_by).filter(Boolean));
-    const submitterOpts=allUsers.filter(([id])=>submitterIds.has(id))
-      .map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
-    const projIds=[...new Set((entRows||[]).map(r=>r.project_id).filter(Boolean))];
-    const projOpts=projIds.map(id=>`<option value="${id}">${projMap[id]||id}</option>`).join('');
     window._approvalsEntRows=entRows||[];
     window._approvalsAdvRows=advRows||[];
     window._approvalsProfMap=profMap;
     window._approvalsHtmlFn=null;
-    html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;background:var(--bg-faint,#f9f7f3);padding:8px 12px;border-radius:10px">
-      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">👤</span>
-      <select id="apprUserFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:120px">
-        <option value="all">كل المُدخِلين</option>
-        ${submitterOpts}
-      </select>
-      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">🏗️</span>
-      <select id="apprProjFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:140px">
-        <option value="all">كل المشاريع</option>
-        ${projOpts}
-      </select>
-      <button onclick="apprResetFilters()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:11px;background:var(--bg-pure);color:var(--text-hint);cursor:pointer">✖ إعادة تعيين</button>
-      <span id="apprFilterCount" style="font-size:11px;color:var(--text-hint)"></span>
-    </div>`;
 
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
@@ -83,11 +62,31 @@ async function loadApprovals(silent=false){
         byPerson[name].push(r);
       });
       const secId='sec-entries-'+Date.now();
+      const allUsers2=Object.entries(profMap);
+      const submitterIds2=new Set((entRows||[]).map(r=>r.submitted_by).filter(Boolean));
+      const submitterOpts2=allUsers2.filter(([id])=>submitterIds2.has(id)).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+      const projIds2=[...new Set((entRows||[]).map(r=>r.project_id).filter(Boolean))];
+      const projOpts2=projIds2.map(id=>`<option value="${id}">${projMap[id]||id}</option>`).join('');
       html+=`<div class="appr-section-hdr appr-entries-hdr" onclick="toggleApprSection(this)">
         <span>📋 قيود المشاريع (${entRows.length})</span>
         <span class="appr-sec-arrow">▾</span>
       </div>
-      <div class="appr-section-body" id="${secId}"><div id="apprEntriesSection">`;
+      <div class="appr-section-body" id="${secId}">
+      <div style="display:flex;align-items:center;gap:10px;margin:8px 0 12px;flex-wrap:wrap;background:var(--bg-faint,#f9f7f3);padding:8px 12px;border-radius:10px">
+        <span style="font-size:12px;font-weight:700;color:var(--text-hint)">👤</span>
+        <select id="apprUserFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:120px">
+          <option value="all">كل المُدخِلين</option>
+          ${submitterOpts2}
+        </select>
+        <span style="font-size:12px;font-weight:700;color:var(--text-hint)">🏗️</span>
+        <select id="apprProjFilter" onchange="apprApplyFilters()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer;min-width:140px">
+          <option value="all">كل المشاريع</option>
+          ${projOpts2}
+        </select>
+        <button onclick="apprResetFilters()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:11px;background:var(--bg-pure);color:var(--text-hint);cursor:pointer">✖ إعادة تعيين</button>
+        <span id="apprFilterCount" style="font-size:11px;color:var(--text-hint)"></span>
+      </div>
+      <div id="apprEntriesSection">`;
       Object.entries(byPerson).forEach(([personName,rows])=>{
         const pid='person-'+personName.replace(/\s/g,'_')+'-'+Date.now();
         html+=`<div class="appr-person-hdr" onclick="toggleApprPerson(this)">
