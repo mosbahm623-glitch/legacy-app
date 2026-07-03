@@ -36,6 +36,23 @@ async function loadApprovals(silent=false){
     const viewerMap={};Object.entries(profMap).forEach(([id,name])=>viewerMap[id]=name);
     let html='';
 
+    // ── فلتر المُدخِل ──
+    const allUsers=Object.entries(profMap);
+    const submitterIds=new Set((entRows||[]).map(r=>r.submitted_by).filter(Boolean));
+    const submitterOpts=allUsers.filter(([id])=>submitterIds.has(id))
+      .map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+    window._approvalsEntRows=entRows||[];
+    window._approvalsAdvRows=advRows||[];
+    window._approvalsProfMap=profMap;
+    window._approvalsHtmlFn=null;
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:var(--text-hint)">👤 فلتر المُدخِل:</span>
+      <select id="apprUserFilter" onchange="apprFilterByUser()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-main);cursor:pointer">
+        <option value="all">الكل (${submitterIds.size} مُدخِل)</option>
+        ${submitterOpts}
+      </select>
+    </div>`;
+
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:8px;border-bottom:1px solid var(--border)">
@@ -61,7 +78,7 @@ async function loadApprovals(silent=false){
         <span>📋 قيود المشاريع (${entRows.length})</span>
         <span class="appr-sec-arrow">▾</span>
       </div>
-      <div class="appr-section-body" id="${secId}">`;
+      <div class="appr-section-body" id="${secId}"><div id="apprEntriesSection">`;
       Object.entries(byPerson).forEach(([personName,rows])=>{
         const pid='person-'+personName.replace(/\s/g,'_')+'-'+Date.now();
         html+=`<div class="appr-person-hdr" onclick="toggleApprPerson(this)">
@@ -103,7 +120,7 @@ async function loadApprovals(silent=false){
         });
         html+=`</div>`;// end person-body
       });
-      html+=`</div>`;// end section-body
+      html+=`</div></div>`;// end apprEntriesSection + section-body
     }
 
     // ── العهد والدفعات ──
@@ -677,3 +694,72 @@ function setupNotifRealtime(){
     .subscribe((status)=>{});
 }
 
+// ── فلتر الموافقات حسب المُدخِل ──────────────────
+function apprFilterByUser(){
+  const val=document.getElementById('apprUserFilter')?.value||'all';
+  const entRows=window._approvalsEntRows||[];
+  const profMap=window._approvalsProfMap||{};
+  const projMap={};allProjects.forEach(p=>projMap[p.id]=p.name);
+
+  // فلتر القيود
+  const filtered=val==='all'?entRows:entRows.filter(r=>r.submitted_by===val);
+
+  // إعادة رسم قسم قيود المشاريع فقط
+  const secWrap=document.getElementById('apprEntriesSection');
+  if(!secWrap)return;
+
+  if(!filtered.length){
+    secWrap.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text-hint);font-size:13px">لا يوجد قيود لهذا المُدخِل</div>`;
+    return;
+  }
+
+  const byPerson={};
+  filtered.forEach(r=>{
+    const name=profMap[r.submitted_by]||'—';
+    if(!byPerson[name])byPerson[name]=[];
+    byPerson[name].push(r);
+  });
+
+  let html='';
+  Object.entries(byPerson).forEach(([personName,rows])=>{
+    const pid='person-f-'+personName.replace(/\s/g,'_')+'-'+Date.now();
+    html+=`<div class="appr-person-hdr" onclick="toggleApprPerson(this)">
+      <div style="display:flex;align-items:center;gap:8px">👤 ${personName} <span class="appr-person-count">(${rows.length} قيود)</span></div>
+      <span class="appr-sec-arrow">▾</span>
+    </div>
+    <div class="appr-person-body open" id="${pid}">`;
+    rows.forEach(r=>{
+      const proj=projMap[r.project_id]||'—';
+      const typeLabel=r.type==='i'
+        ?'<span class="appr-income-badge">📤 وارد</span>'
+        :'<span class="appr-expense-badge">📥 مصروف</span>';
+      html+=`<div class="appr-item" id="appr-e-${r.id}">
+        <div class="appr-item-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" style="width:16px;height:16px;cursor:pointer" onchange="updateBulkBar()">
+            <div class="appr-item-title-row">
+              ${typeLabel}
+              <span class="title-sm">${fn(r.amount)} ج</span>
+              ${r.category?'<span class="appr-item-cat">'+r.category+'</span>':''}
+            </div>
+          </div>
+          <span class="appr-meta-sm">${r.submitted_at?r.submitted_at.substring(0,16).replace('T',' '):'—'}</span>
+        </div>
+        <div class="appr-item-meta">
+          ${r.description?'<span>📝 '+r.description+'</span> &nbsp;':''}
+          ${r.contractor?'<span>👷 '+r.contractor+'</span> &nbsp;':''}
+          ${r.payment_method?'<span>💳 '+r.payment_method+'</span> &nbsp;':''}
+          <span class="appr-meta-text">🏗️ ${proj}</span> &nbsp;
+          <span class="appr-meta-text">📅 ${cleanDate(r.entry_date)||'—'}</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="approveEntry('${r.id}')" class="appr-approve-btn">✅ موافقة</button>
+          <button onclick="editAndApproveEntry('${r.id}')" class="appr-edit-approve-btn">✏️ تعديل وموافقة</button>
+          <button onclick="rejectEntry('${r.id}')" class="appr-reject-btn">❌ رفض</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  secWrap.innerHTML=html;
+}
