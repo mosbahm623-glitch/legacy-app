@@ -229,6 +229,8 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
   var amtSign=e.type==='i'?'+':'-';
   var cat=e.category||'—';
   var catBg=e.type==='i'?'background:#EAF7EE;color:#1D6A3E':'background:#f5f5f3;color:#666';
+  var isPending=statusClr==='#E67E22';
+  var editBtn=isPending?'<button onclick="owEditEntry(\''+e.id+'\')" style="background:none;border:1px solid #999;border-radius:8px;padding:2px 10px;font-size:10px;color:#555;cursor:pointer;font-family:inherit">✏️ تعديل</button>':'';
   return '<div style="background:var(--bg-pure,#fff);border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
     '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px 5px">'+
       '<div style="font-size:11px;color:#888;font-weight:600">'+pName+'</div>'+
@@ -238,11 +240,76 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
       '<span style="font-size:10px;'+catBg+';border-radius:10px;padding:2px 8px;white-space:nowrap">'+cat+'</span>'+
       '<span style="font-size:12px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+(e.description||'—')+'</span>'+
     '</div>'+
-    '<div style="display:flex;justify-content:space-between;padding:6px 14px;border-top:1px solid #f8f8f6">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 14px;border-top:1px solid #f8f8f6">'+
       '<span style="font-size:10px;font-weight:700;color:'+statusClr+'">'+statusTxt+'</span>'+
-      '<span style="font-size:10px;color:#ccc">'+(e.entry_date||'—')+'</span>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+editBtn+'<span style="font-size:10px;color:#ccc">'+(e.entry_date||'—')+'</span></div>'+
     '</div>'+
   '</div>';
+}
+
+async function owEditEntry(id){
+  var rows=await sb('pending_entries?id=eq.'+id);
+  if(!rows||!rows.length){notify('مش لاقي القيد','er');return;}
+  var e=rows[0];
+  // ابني قائمة المشاريع
+  var projOpts=allProjects.map(function(p){return '<option value="'+p.id+'"'+(p.id===e.project_id?' selected':'')+'>'+p.name+'</option>';}).join('');
+  // بنود شائعة
+  var cats=['مرتبات','مواد','مقاولين','توصيل','شخصي','تشوينات','رخام','مطبخ','أثاث','كهرباء','سباكة','دهانات','أعمال خشب','نجارة','حديد','خرسانة','تكييف','أعمال أخرى'];
+  var catOpts=cats.map(function(c){return '<option value="'+c+'"'+(c===e.category?' selected':'')+'>'+c+'</option>';}).join('');
+  var modal=document.createElement('div');
+  modal.id='owEditModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:420px;padding:20px;font-family:inherit">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'+
+      '<div style="font-size:15px;font-weight:800;color:#333">✏️ تعديل القيد</div>'+
+      '<button onclick="document.getElementById(\'owEditModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#999">×</button>'+
+    '</div>'+
+    '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">المشروع</label>'+
+      '<select id="oeProj" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px">'+projOpts+'</select></div>'+
+    '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">النوع</label>'+
+      '<div style="display:flex;gap:8px;margin-top:4px">'+
+        '<button id="oeTypeI" onclick="owSetEditType(\'i\')" style="flex:1;padding:8px;border-radius:8px;border:2px solid '+(e.type==='i'?'#1D6A3E':'#ddd')+';background:'+(e.type==='i'?'#EAF7EE':'#fff')+';color:'+(e.type==='i'?'#1D6A3E':'#666')+';font-weight:700;cursor:pointer;font-family:inherit">▲ وارد</button>'+
+        '<button id="oeTypeE" onclick="owSetEditType(\'e\')" style="flex:1;padding:8px;border-radius:8px;border:2px solid '+(e.type==='e'?'#C0392B':'#ddd')+';background:'+(e.type==='e'?'#FFF0EE':'#fff')+';color:'+(e.type==='e'?'#C0392B':'#666')+';font-weight:700;cursor:pointer;font-family:inherit">▼ مصروف</button>'+
+      '</div></div>'+
+    '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">المبلغ</label>'+
+      '<input id="oeAmt" type="number" value="'+e.amount+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:14px;box-sizing:border-box"></div>'+
+    '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">البند</label>'+
+      '<select id="oeCat" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px">'+catOpts+'</select></div>'+
+    '<div style="margin-bottom:10px"><label style="font-size:11px;color:#888;font-weight:700">البيان</label>'+
+      '<input id="oeDesc" type="text" value="'+(e.description||'')+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
+    '<div style="margin-bottom:16px"><label style="font-size:11px;color:#888;font-weight:700">التاريخ</label>'+
+      '<input id="oeDt" type="date" value="'+(e.entry_date||'')+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
+    '<div id="oeSavMsg" style="font-size:12px;text-align:center;margin-bottom:8px;min-height:16px"></div>'+
+    '<button onclick="owSaveEditEntry(\''+id+'\')" style="width:100%;padding:12px;background:#2C6E3F;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">💾 حفظ التعديل</button>'+
+  '</div>';
+  // حفظ النوع الحالي
+  window._owEditType=e.type;
+  document.body.appendChild(modal);
+}
+
+function owSetEditType(t){
+  window._owEditType=t;
+  var bi=document.getElementById('oeTypeI');
+  var be=document.getElementById('oeTypeE');
+  if(bi){bi.style.border='2px solid '+(t==='i'?'#1D6A3E':'#ddd');bi.style.background=t==='i'?'#EAF7EE':'#fff';bi.style.color=t==='i'?'#1D6A3E':'#666';}
+  if(be){be.style.border='2px solid '+(t==='e'?'#C0392B':'#ddd');be.style.background=t==='e'?'#FFF0EE':'#fff';be.style.color=t==='e'?'#C0392B':'#666';}
+}
+
+async function owSaveEditEntry(id){
+  var msg=document.getElementById('oeSavMsg');
+  var proj=document.getElementById('oeProj').value;
+  var amt=parseFloat(document.getElementById('oeAmt').value);
+  var cat=document.getElementById('oeCat').value;
+  var desc=document.getElementById('oeDesc').value.trim();
+  var dt=document.getElementById('oeDt').value;
+  var t=window._owEditType||'e';
+  if(!proj||!amt||!desc||!dt){msg.textContent='⚠️ أكمل كل البيانات';msg.style.color='#E67E22';return;}
+  msg.textContent='⏳ جاري الحفظ...';msg.style.color='#888';
+  try{
+    await sb('pending_entries?id=eq.'+id,'PATCH',{project_id:proj,type:t,amount:amt,category:cat,description:desc,entry_date:dt});
+    msg.textContent='✅ تم التعديل';msg.style.color='#1D6A3E';
+    setTimeout(function(){document.getElementById('owEditModal')&&document.getElementById('owEditModal').remove();owLoadPending();},800);
+  }catch(ex){msg.textContent='❌ حصل خطأ';msg.style.color='#C0392B';}
 }
 
 async function owLoadPending(){
