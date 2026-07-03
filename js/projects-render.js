@@ -134,6 +134,7 @@ function re(){
         ?`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();openInvoiceLb('${e.id}')" title="عرض الفاتورة" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:13px;padding:2px 7px" aria-label="فاتورة">🧾</button></td>`
         :`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();openInvoiceUpload('${e.id}')" title="إرفاق فاتورة" style="background:transparent;border:0.5px dashed #bbb;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#aaa" aria-label="إرفاق فاتورة">📎</button></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
+      const undoBtn=(uRole==='admin'||uRole==='super_admin')?`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();undoApproveEntry('${e.id}')" title="إلغاء الموافقة" style="background:var(--warning-pale,#FFF8EC);border:0.5px solid #EF9F27;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#854F0B">↩</button></td>`:'';
       const isDk=document.body.classList.contains('dark-mode');
       const rowBg=isDk?(i%2===0?'var(--dark-alt)':'var(--dark-mid)'):(i%2===0?'#fff':'#f7f7f5');
       const hoverBg=isDk?'rgba(255,255,255,.06)':'#eef4ee';
@@ -149,7 +150,7 @@ function re(){
         <td style="padding:7px 10px;color:${_bodyClr};max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        ${rcpt}${invBtn}${del}
+        ${rcpt}${invBtn}${del}${undoBtn}
       </tr>`;
     }).join('');
     if(isMob){
