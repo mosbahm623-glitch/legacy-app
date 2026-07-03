@@ -272,6 +272,7 @@ function re(){
       <col style="width:76px">
       <col style="width:auto">
       <col style="width:82px">
+      <col style="width:34px">
       ${canEdit?'<col style="width:30px">':''}
     </colgroup>
     <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
@@ -279,6 +280,7 @@ function re(){
       <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">رقم القيد</th>
       <th style="color:#D4C49A;padding:8px 6px;text-align:right;font-weight:500;font-size:11px">البيان</th>
       <th style="color:#D4C49A;padding:8px 6px;text-align:left;font-weight:500;font-size:11px">المبلغ</th>
+      <th style="color:#D4C49A;padding:8px 4px;text-align:center;font-weight:500;font-size:11px">📎</th>
       ${canEdit?'<th style="color:#D4C49A;padding:8px 4px;text-align:center;font-weight:500;font-size:11px">🗑</th>':''}
     </tr></thead>
     <tbody>
@@ -298,6 +300,10 @@ function re(){
         <td style="padding:7px 4px">${no}</td>
         <td style="padding:7px 6px;color:${_txt2};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 4px;font-weight:600;color:${amtColor};text-align:left;white-space:nowrap">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:4px 4px;text-align:center">${e.img_url
+          ?`<button onclick="event.stopPropagation();openInvoiceLb('${e.id}')" title="عرض الفاتورة" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:14px;padding:2px 6px">🧾</button>`
+          :`<button onclick="event.stopPropagation();openInvoiceUpload('${e.id}')" title="إرفاق فاتورة" style="background:transparent;border:0.5px dashed #bbb;border-radius:4px;cursor:pointer;font-size:12px;padding:2px 6px;color:#bbb">📎</button>`
+        }</td>
         ${del}
       </tr>`;
     }).join('')}
