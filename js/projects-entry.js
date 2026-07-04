@@ -564,16 +564,44 @@ function handleEntryInvoiceSelect(input){
   const file=input.files[0];if(!file)return;
   if(file.size>8*1024*1024){notify('الحجم أكبر من 8MB','err');return;}
   window._entryInvoiceFile=file;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const img=document.getElementById('entryInvoiceImg');
-    const prev=document.getElementById('entryInvoicePreview');
-    const lbl=document.getElementById('entryInvoiceLbl');
-    if(img)img.src=e.target.result;
-    if(prev)prev.style.display='block';
+  const prev=document.getElementById('entryInvoicePreview');
+  const lbl=document.getElementById('entryInvoiceLbl');
+  const img=document.getElementById('entryInvoiceImg');
+  if(file.type==='application/pdf'){
+    // PDF — اعرض أيقونة بدل صورة
+    if(img){img.src='';img.style.display='none';}
+    if(prev){
+      prev.style.display='flex';
+      prev.style.alignItems='center';
+      prev.style.gap='8px';
+      prev.style.padding='8px';
+      prev.style.background='var(--bg-faint)';
+      prev.style.borderRadius='8px';
+      prev.style.border='0.5px solid var(--border)';
+      // أيقونة PDF
+      let pdfIcon=document.getElementById('entryPdfIcon');
+      if(!pdfIcon){
+        pdfIcon=document.createElement('span');
+        pdfIcon.id='entryPdfIcon';
+        pdfIcon.style.cssText='font-size:28px;flex-shrink:0';
+        prev.insertBefore(pdfIcon,prev.firstChild);
+      }
+      pdfIcon.textContent='📄';
+    }
     if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
-  };
-  reader.readAsDataURL(file);
+  } else {
+    // صورة — العرض الطبيعي
+    if(img)img.style.display='block';
+    const reader=new FileReader();
+    reader.onload=function(e){
+      if(img)img.src=e.target.result;
+      if(prev){prev.style.display='block';prev.style.padding='';prev.style.background='';}
+      if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+      const pdfIcon=document.getElementById('entryPdfIcon');
+      if(pdfIcon)pdfIcon.remove();
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
 function removeEntryInvoice(){
