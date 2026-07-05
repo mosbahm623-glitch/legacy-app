@@ -1,7 +1,7 @@
 // Legacy Core — Service Worker
 // Network First للملفات الرئيسية عشان التحديثات تظهر فوراً
 
-const CACHE = 'lft-v370';
+const CACHE = 'lft-v371';
 const SHELL = [
   './',
   './index.html',
@@ -52,9 +52,11 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ includeUncontrolled: true, type: 'window' }))
+      .then(clients => clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' })))
   );
 });
 
@@ -84,7 +86,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // ملفات التطبيق الرئيسية — Network First عشان التحديثات تظهر فوراً
+  // ملفات التطبيق الرئيسية — Network First
   const isAppFile = APP_FILES.some(f => url.pathname.endsWith(f) || url.pathname.includes(f)) || url.pathname === '/' || url.pathname.endsWith('/');
   if (isAppFile) {
     e.respondWith(
@@ -121,11 +123,5 @@ self.addEventListener('fetch', e => {
 });
 
 self.addEventListener('message', e => {
-  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
-
-
-
-
-
-
