@@ -25,6 +25,10 @@ async function openAdv(id){try{
   document.getElementById('advDetail').style.display='block';
   document.getElementById('advDetName').textContent='👤 '+curAdv.person_name;
   document.getElementById('advDetNotes').textContent=curAdv.notes||'';
+  // صورة العهدة
+  const advImgEl=document.getElementById('advDetImg');
+  if(advImgEl){advImgEl.innerHTML=curAdv.image_url?thumbHtml(curAdv.image_url,'adv_'+curAdv.id):'';
+  advImgEl.style.marginTop=curAdv.image_url?'6px':'0';}
   const isOpen=curAdv.status==='open';
   const btn=document.getElementById('advCloseBtn');
   btn.textContent=isOpen?'✅ إغلاق العهدة':'🔓 فتح العهدة';
@@ -159,6 +163,7 @@ async function loadAdvDetail(silent=false){
               <td style="padding:7px 10px;color:var(--text-body,#333)">${e2.description||'—'}</td>
               <td style="padding:7px 10px;color:var(--text-soft,#888);font-size:11px">${e2.contractor||'—'}</td>
               <td style="padding:7px 10px;font-weight:500;color:var(--danger,#C0392B);white-space:nowrap">▼ ${fn(e2.amount)} ج</td>
+              <td style="padding:4px 6px;white-space:nowrap">${thumbHtml(e2.image_url,e2.id)}</td>
               <td style="padding:4px 6px;white-space:nowrap">${btns}</td>
             </tr>`;
           }).join('')}</tbody>
@@ -201,6 +206,7 @@ function showAdvEntryModal(){
         <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="inp-lg">
       </div>
       <input id="advMq" placeholder="👷 المقاول (اختياري)" class="inp-lg" list="ql">
+      ${imgUploadBox('advEntImg','advEntImgPrev')}
     </div>
     <div class="modal-btns" style="margin-top:14px">
       <button onclick="addAdvEntry()" class="btn-primary">+ إضافة</button>
@@ -290,7 +296,11 @@ async function addAdvEntry(){
   }catch(e2){console.warn('overspend check:',e2);} // صامت متعمد
   const advMaxSeq=allEntries.reduce((mx,e)=>Math.max(mx,e.seq||20260000),20260000);
   const advNextSeq=advMaxSeq<20260000?20260001:advMaxSeq+1;
-  const entry={id:uid_(),project_id:pid,type:'e',amount:amt,description:desc,entry_date:dt,category:cat,contractor:mq,advance_id:curAdv.id,seq:advNextSeq,created_by:uid};
+  // رفع الصورة لو موجودة
+  const imgFile=document.getElementById('advEntImg')?.files?.[0];
+  let imgUrl=null;
+  if(imgFile){setSav('⬆️ جاري رفع الصورة...','ng');imgUrl=await uploadImage(imgFile,'entries');if(!imgUrl)return;}
+  const entry={id:uid_(),project_id:pid,type:'e',amount:amt,description:desc,entry_date:dt,category:cat,contractor:mq,advance_id:curAdv.id,seq:advNextSeq,created_by:uid,image_url:imgUrl||null};
   setSav('💾 جاري الحفظ...','ng');
   try{
     if(uRole==='admin'){
