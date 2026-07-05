@@ -201,6 +201,16 @@ function showAdvEntryModal(){
         <input id="advEntDate" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="inp-lg">
       </div>
       <input id="advMq" placeholder="👷 المقاول (اختياري)" class="inp-lg" list="ql">
+      <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><label style="font-size:11px;color:#999;font-weight:700">صورة الفاتورة</label><span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span></div>
+      <div id="advInvArea" onclick="advInvTrigger()" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div id="advInvEmpty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px"><span style="font-size:15px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>
+        <div id="advInvFilled" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:#f0faf0">
+          <div id="advInvThumb" style="width:38px;height:38px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>
+          <div style="flex:1;min-width:0"><div id="advInvName" style="font-size:11px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="advInvSize" style="font-size:10px;color:#888;margin-top:1px"></div></div>
+          <div onclick="event.stopPropagation()"><button onclick="advInvRemove()" style="background:none;border:none;cursor:pointer;font-size:14px;padding:3px">🗑</button></div>
+        </div>
+      </div>
+      <input type="file" id="advInvFile" accept="image/*,application/pdf" style="display:none" onchange="advInvSelect(this)"></div>
     </div>
     <div class="modal-btns" style="margin-top:14px">
       <button onclick="addAdvEntry()" class="btn-primary">+ إضافة</button>
@@ -295,12 +305,14 @@ async function addAdvEntry(){
   try{
     if(uRole==='admin'){
       await sb('entries','POST',entry);
+      if(window._advInvFile) await advInvUpload(entry.id);
       setSav('✅ تم الحفظ','ok');
       markNewAdvEntry(curAdv.id, amt, cat, desc);
       _showAdvConfirm('✅ تم إضافة القيد بنجاح', '#1D9E75');
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
       await sb('pending_entries','POST',pending);
+      if(window._advInvFile) await advInvUploadPending(entry.id);
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       _showAdvConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة', '#C9A84C');
     }
@@ -308,6 +320,7 @@ async function addAdvEntry(){
     document.getElementById('advDesc').value='';
     document.getElementById('advEntAmt').value='';
     document.getElementById('advMq').value='';
+    advInvRemove();
     // امسح المشروع مع باقي الحقول
     _lastAdvProjId='';
     _lastAdvProjName='';
