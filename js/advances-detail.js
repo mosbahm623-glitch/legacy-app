@@ -21,6 +21,7 @@ async function createAdv(){
 
 async function openAdv(id){try{
   curAdv=advances.find(a=>a.id===id);if(!curAdv)return;
+  if(typeof closeSidebar==='function')closeSidebar();
   document.getElementById('advScreen').style.display='none';
   document.getElementById('advDetail').style.display='block';
   document.getElementById('advDetName').textContent='👤 '+curAdv.person_name;
@@ -64,6 +65,7 @@ function downloadInstallmentsReport(){downloadAdvReport('installs');}
 function downloadInstallmentsPDF(){downloadAdvPDF('installs');}
 function toggleAdvSection(){}
 async function loadAdvDetail(silent=false){
+  if(typeof closeSidebar==='function')closeSidebar();
   // Viewer يشوف الدفعات والمصاريف بس - بدون تعديل أو حذف
   const isViewer=uRole==='viewer';
   const editBtn=document.getElementById('advEditBtn');
