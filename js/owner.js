@@ -20,7 +20,7 @@ async function loadOwnerScreen(){
 
   var isMobile=window.innerWidth<=768;
   if(isMobile){
-    el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:62px;z-index:150;display:flex;flex-direction:column';
+    el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:58px;z-index:149;display:flex;flex-direction:column';
   }else{
     el.style.cssText='background:#1D3C2A;min-height:100vh;display:flex;flex-direction:column;width:100%';
   }
@@ -90,7 +90,7 @@ async function loadOwnerScreen(){
         '</div>'+
         '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)"></div>'+
         '</div>'+
-        '<div style="padding:12px;flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
+        '<div style="padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
         '</div>'+
       '</div>'+
