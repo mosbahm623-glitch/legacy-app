@@ -143,6 +143,7 @@ async function loadAdvDetail(silent=false){
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">البيان</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">المقاول</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px;white-space:nowrap">المبلغ</th>
+            <th style="color:#D4C49A;padding:7px 10px;text-align:center;font-size:11px">📎</th>
             <th></th>
           </tr></thead>
           <tbody>${advEntries.map((e2,i)=>{
