@@ -180,6 +180,7 @@
   #navBackupBtn,#navExportBtn{display:none !important}
   /* تصليح الـ KPI grid على موبايل */
   #mainApp{overflow-x:hidden}
+  .app-body{overflow:hidden}
   .dash-inner{padding:10px !important}
   /* notifications mobile */
   .notif-panel{width:100% !important;max-width:100% !important;border-radius:18px 18px 0 0 !important;bottom:0 !important;top:auto !important;height:80vh !important}
