@@ -497,9 +497,12 @@
               <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
             </div>
             <div id="entryInvoiceArea" style="margin-top:8px;display:none">
-              <div id="entryInvoicePreview" style="display:none;margin-bottom:6px;position:relative;width:fit-content">
-                <img id="entryInvoiceImg" src="" alt="فاتورة" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border);cursor:pointer" onclick="openInvoicePreviewModal()">
-                <button onclick="removeEntryInvoice()" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.55);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+              <div id="entryInvoicePreview" style="display:none;margin-bottom:6px">
+                <span id="entryInvoiceTag" style="display:inline-flex;align-items:center;gap:6px;background:var(--success-soft,#e8f5e9);border:0.5px solid var(--success-mid,#81c784);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--primary,#1D3C2A);font-family:inherit;cursor:pointer;max-width:100%" onclick="openInvoicePreviewModal()">
+                  <span style="font-size:13px">📎</span>
+                  <span id="entryInvoiceTagName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"></span>
+                  <button onclick="event.stopPropagation();removeEntryInvoice()" style="background:none;border:none;color:var(--primary,#1D3C2A);cursor:pointer;font-size:13px;line-height:1;padding:0;margin-right:2px;opacity:0.6">✕</button>
+                </span>
               </div>
               <label id="entryInvoiceUploadBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;background:var(--bg-faint,#f9f9f7);color:var(--text-muted);font-size:12px;font-family:inherit;transition:border-color .15s">
                 <input type="file" id="entryInvoiceFile" accept="image/*,application/pdf" style="display:none" onchange="handleEntryInvoiceSelect(this)">
