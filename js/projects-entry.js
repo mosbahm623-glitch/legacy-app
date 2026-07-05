@@ -567,41 +567,12 @@ function handleEntryInvoiceSelect(input){
   const prev=document.getElementById('entryInvoicePreview');
   const lbl=document.getElementById('entryInvoiceLbl');
   const img=document.getElementById('entryInvoiceImg');
-  if(file.type==='application/pdf'){
-    // PDF — اعرض أيقونة بدل صورة
-    if(img){img.src='';img.style.display='none';}
-    if(prev){
-      prev.style.display='flex';
-      prev.style.alignItems='center';
-      prev.style.gap='8px';
-      prev.style.padding='8px';
-      prev.style.background='var(--bg-faint)';
-      prev.style.borderRadius='8px';
-      prev.style.border='0.5px solid var(--border)';
-      // أيقونة PDF
-      let pdfIcon=document.getElementById('entryPdfIcon');
-      if(!pdfIcon){
-        pdfIcon=document.createElement('span');
-        pdfIcon.id='entryPdfIcon';
-        pdfIcon.style.cssText='font-size:28px;flex-shrink:0';
-        prev.insertBefore(pdfIcon,prev.firstChild);
-      }
-      pdfIcon.textContent='📄';
-    }
-    if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
-  } else {
-    // صورة — العرض الطبيعي
-    if(img)img.style.display='block';
-    const reader=new FileReader();
-    reader.onload=function(e){
-      if(img)img.src=e.target.result;
-      if(prev){prev.style.display='block';prev.style.padding='';prev.style.background='';prev.style.width='fit-content';prev.style.maxWidth='100%';}
-      if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
-      const pdfIcon=document.getElementById('entryPdfIcon');
-      if(pdfIcon)pdfIcon.remove();
-    };
-    reader.readAsDataURL(file);
-  }
+  // عرض التاج بغض النظر عن نوع الملف
+  const tagName=document.getElementById('entryInvoiceTagName');
+  if(tagName)tagName.textContent=file.name.length>32?file.name.substring(0,30)+'…':file.name;
+  if(img){img.src='';img.style.display='none';}
+  if(prev){prev.style.display='block';}
+  if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
 }
 
 function removeEntryInvoice(){
@@ -614,10 +585,12 @@ function resetEntryInvoice(){
   const prev=document.getElementById('entryInvoicePreview');
   const lbl=document.getElementById('entryInvoiceLbl');
   const inp=document.getElementById('entryInvoiceFile');
-  if(img)img.src='';
+  const tagName=document.getElementById('entryInvoiceTagName');
+  if(img){img.src='';img.style.display='none';}
   if(prev)prev.style.display='none';
-  if(lbl)lbl.textContent='إرفاق صورة فاتورة';
+  if(lbl)lbl.textContent='إرفاق صورة أو PDF';
   if(inp)inp.value='';
+  if(tagName)tagName.textContent='';
 }
 
 function openInvoicePreviewModal(){
