@@ -1466,6 +1466,12 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     window.location.reload();
   });
+  // استقبال رسالة التحديث من الـ SW
+  navigator.serviceWorker.addEventListener('message', e => {
+    if(e.data && e.data.type === 'SW_UPDATED'){
+      window.location.reload(true);
+    }
+  });
 }
 </script>
 
