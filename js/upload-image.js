@@ -69,19 +69,16 @@ function previewImg(input, previewId) {
     </div>`;
     return;
   }
-  const reader = new FileReader();
-  reader.onload = e => {
-    prev.style.display = 'block';
-    prev.innerHTML = `<div style="position:relative;display:inline-block">
-      <img src="${e.target.result}" style="max-height:80px;max-width:100%;border-radius:8px;
-        border:1.5px solid var(--border,#ddd);object-fit:cover">
-      <span onclick="clearImgPreview('${input.id}','${previewId}')"
-        style="position:absolute;top:-6px;left:-6px;background:#e74c3c;color:#fff;
-        border-radius:50%;width:18px;height:18px;display:flex;align-items:center;
-        justify-content:center;font-size:11px;cursor:pointer;font-weight:700">✕</span>
-    </div>`;
-  };
-  reader.readAsDataURL(file);
+  const objUrl = URL.createObjectURL(file);
+  prev.style.display = 'block';
+  prev.innerHTML = `<div style="position:relative;display:inline-block">
+    <img src="${objUrl}" style="width:56px;height:56px;border-radius:8px;
+      border:1.5px solid var(--border,#ddd);object-fit:cover;display:block">
+    <span onclick="clearImgPreview('${input.id}','${previewId}')"
+      style="position:absolute;top:-6px;left:-6px;background:#e74c3c;color:#fff;
+      border-radius:50%;width:16px;height:16px;display:flex;align-items:center;
+      justify-content:center;font-size:10px;cursor:pointer;font-weight:700;line-height:1">✕</span>
+  </div>`;
 }
 
 function clearImgPreview(inputId, previewId) {
@@ -155,3 +152,4 @@ async function uploadAdvImage(input) {
     notify('✅ تم رفع صورة العهدة', 'ok');
   } catch (e) { setSav('❌ ' + (e.message || 'خطأ'), 'er'); }
 }
+
