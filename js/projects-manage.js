@@ -145,3 +145,27 @@ function stab(t){
   }
   rp();
 }
+
+// ══ INVOICE LIGHTBOX ══════════════════════════════
+function openInvLb(src, title, meta){
+  const lb=document.getElementById('invLb');
+  if(!lb)return;
+  document.getElementById('invLbImg').src=src;
+  document.getElementById('invLbTitle').textContent=title||'فاتورة';
+  document.getElementById('invLbMeta').textContent=meta||'';
+  document.getElementById('invLbOpenBtn').href=src;
+  lb.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function openEntryInvLb(id){
+  const e=entries.find(x=>x.id===id);
+  if(!e||!e.img_url)return;
+  openInvLb(e.img_url,(e.description||'قيد')+' — '+(e.seq||''),fn(Math.abs(e.amount))+' ج'+(e.entry_date?' · '+cleanDate(e.entry_date):''));
+}
+
+function closeInvLb(){
+  const lb=document.getElementById('invLb');
+  if(lb)lb.style.display='none';
+  document.body.style.overflow='';
+}
