@@ -426,8 +426,8 @@
               </div>
             </div>
             <div class="tt">
-              <button class="tb on" id="tx" onclick="st('e');showEntryInvoiceArea()">📥 مصروف</button>
-              <button class="tb" id="ti" onclick="st('i');showEntryInvoiceArea()">📤 وارد</button>
+              <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
+              <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
             </div>
             <div class="ig">
               <div class="ig-field full" id="descWrap">
@@ -500,23 +500,6 @@
               <button class="ib" onclick="triggerImport()">📥 استيراد</button>
               <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
             </div>
-            <div id="entryInvoiceArea" style="margin-top:8px;display:none">
-              <div id="entryInvoicePreview" style="display:none;margin-bottom:6px">
-                <span id="entryInvoiceTag" style="display:inline-flex;align-items:center;gap:6px;background:var(--success-soft,#e8f5e9);border:0.5px solid var(--success-mid,#81c784);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--primary,#1D3C2A);font-family:inherit;cursor:pointer;max-width:100%" onclick="openInvoicePreviewModal()">
-                  <span style="font-size:13px">📎</span>
-                  <span id="entryInvoiceTagName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"></span>
-                  <button onclick="event.stopPropagation();removeEntryInvoice()" style="background:none;border:none;color:var(--primary,#1D3C2A);cursor:pointer;font-size:13px;line-height:1;padding:0;margin-right:2px;opacity:0.6">✕</button>
-                </span>
-              </div>
-              <label id="entryInvoiceUploadBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;background:var(--bg-faint,#f9f9f7);color:var(--text-muted);font-size:12px;font-family:inherit;transition:border-color .15s">
-                <input type="file" id="entryInvoiceFile" accept="image/*,application/pdf" style="display:none" onchange="handleEntryInvoiceSelect(this)">
-                <span style="font-size:16px">📎</span>
-                <span id="entryInvoiceLbl">إرفاق صورة أو PDF</span>
-              </label>
-            </div>
-          </div>
-          <div class="ep" id="dueEp" style="display:none">
-            <div class="ep-h">
               <span>تعديل المستحق</span>
               <button onclick="document.getElementById('dueEp').style.display='none'" class="btn-close-x">✕</button>
             </div>
@@ -1475,38 +1458,6 @@ if('serviceWorker' in navigator){
 }
 </script>
 
-<!-- ══ INVOICE LIGHTBOX MODAL ══════════════════════ -->
-<div id="invLb" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)" onclick="if(event.target===this)closeInvoiceLb()">
-  <div style="background:var(--bg-card,#fff);border-radius:16px;width:min(92vw,520px);overflow:hidden;display:flex;flex-direction:column;max-height:90vh;border:0.5px solid rgba(255,255,255,0.15)">
-    <!-- Header -->
-    <div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:0.5px solid var(--border,#eee)">
-      <div>
-        <div id="invLbTitle" style="font-size:14px;font-weight:700;color:var(--text-body,#222);font-family:inherit">فاتورة</div>
-        <div id="invLbMeta" style="font-size:11px;color:var(--text-muted,#888);margin-top:3px;font-family:inherit"></div>
-      </div>
-      <button onclick="closeInvoiceLb()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted,#999);padding:0;line-height:1" aria-label="إغلاق">✕</button>
-    </div>
-    <!-- Image area -->
-    <div id="invLbImgArea" style="display:flex;align-items:center;justify-content:center;background:var(--bg-faint,#f5f5f5);min-height:280px;overflow:hidden">
-      <img id="invLbImg" src="" alt="صورة الفاتورة" style="max-width:100%;max-height:60vh;object-fit:contain;display:block">
-    </div>
-    <!-- Upload area -->
-    <div id="invLbUpload" style="display:none;align-items:center;justify-content:center;min-height:220px;background:var(--bg-faint,#f5f5f5)">
-      <label style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;padding:2rem">
-        <input type="file" accept="image/*" style="display:none" onchange="handleInvoiceUpload(this)">
-        <div style="width:64px;height:64px;border-radius:50%;background:var(--bg-card,#fff);border:0.5px solid var(--border,#ddd);display:flex;align-items:center;justify-content:center;font-size:28px">📁</div>
-        <span style="font-size:14px;font-weight:600;color:var(--text-body,#222);font-family:inherit">اضغط لرفع صورة الفاتورة</span>
-        <span style="font-size:11px;color:var(--text-muted,#999);font-family:inherit">JPG أو PNG حتى 8MB</span>
-      </label>
-    </div>
-    <!-- Footer actions -->
-    <div style="padding:12px 18px;border-top:0.5px solid var(--border,#eee);display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <button onclick="deleteInvoice()" id="invLbDelBtn" style="background:none;border:0.5px solid #e74c3c;color:#e74c3c;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">🗑 حذف الفاتورة</button>
-      <div style="display:flex;gap:8px">
-        <a id="invLbOpenBtn" href="#" target="_blank" onclick="this.href=document.getElementById('invLbImg').src" style="display:inline-flex;align-items:center;gap:4px;background:var(--bg-card,#fff);border:0.5px solid var(--border,#ddd);border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-body,#222);text-decoration:none">🔍 فتح كامل</a>
-        <button onclick="closeInvoiceLb()" style="background:#1D3C2A;border:none;color:#D4C49A;border-radius:8px;padding:7px 18px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">إغلاق</button>
-      </div>
-    </div>
   </div>
 </div>
 
