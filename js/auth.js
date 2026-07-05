@@ -34,6 +34,7 @@ async function initApp(){
     const prof=await sb('profiles?id=eq.'+uid);
     if(!prof||!prof.length){setLS('❌ حسابك غير مفعّل — تواصل مع الأدمن','er');token=null;uid=null;return;}
     uRole=prof[0].role;uName=prof[0].name;
+    if(window.lcNext)window.lcNext();
   }catch(e){setLS('❌ خطأ في تحميل البيانات','er');return;}
   // تحميل parallel — بدل sequential awaits
   try{allChatUsers=await sb('profiles?order=name');}catch(e){allChatUsers=[];}
@@ -106,10 +107,12 @@ async function initApp(){
 
   // تحميل — المشاريع أولاً ثم الباقي
   await loadAllProjects();
+  if(window.lcNext)window.lcNext();
   await Promise.all([
     loadCategories(),
     uRole!=='viewer' ? loadProjects() : Promise.resolve()
   ]);
+  if(window.lcNext)window.lcNext();
   if(uRole!=='viewer') buildSidebarProjects();
   if(uRole!=='viewer') _updateEntryBanner();
   initAllDateInputs();
@@ -138,12 +141,16 @@ async function initApp(){
 
   // Viewer يدخل مباشرة على عهدته — أخبي الداشبورد فوراً
   if(uRole==='viewer'){
+    if(window.lcDone)window.lcDone('مشاهد — عهدتك','👁');
     showScreen('adv');
     await loadAdvList();
     // افتح عهدته تلقائي لو عنده عهدة واحدة
     await autoOpenViewerAdv();
   } else {
-    showScreen('dash');
+    const _roleLabels={'super_admin':'سوبر أدمن — لوحة التحكم','admin':'أدمن — لوحة التحكم','editor':'محاسب — لوحة التحكم','owner':'أونر — شاشة الإرسال'};
+    const _roleIcos={'super_admin':'⚡','admin':'👑','editor':'✏️','owner':'🏢'};
+    if(window.lcDone)window.lcDone(_roleLabels[uRole]||'مرحباً',_roleIcos[uRole]||'👤');
+    showScreen(uRole==='owner'?'owner':'dash');
     // تنبيه الـ backup اليومي
     if(uRole==='admin'||uRole==='super_admin') checkBackupReminder();
     if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
