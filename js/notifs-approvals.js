@@ -123,6 +123,21 @@ async function loadApprovals(silent=false){
                   <span class="appr-meta-item"><span class="appr-meta-lbl">المشروع</span>${proj}</span>
                   <span class="appr-meta-item"><span class="appr-meta-lbl">التاريخ</span>${cleanDate(r.entry_date)||'—'}</span>
                 </div>
+                ${r.img_url
+                  ?`<div onclick="openInvLb('${r.img_url}','${(r.description||'قيد').replace(/'/g,String.fromCharCode(39))}','')" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
+                      <img src="${r.img_url}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 فاتورة مرفقة</div>
+                        <div style="font-size:10px;color:#888;margin-top:1px">اضغط للمعاينة قبل الموافقة</div>
+                      </div>
+                      <span style="font-size:11px;font-weight:700;color:#27500A;background:#EAF3DE;border:0.5px solid #97C459;border-radius:6px;padding:4px 10px;flex-shrink:0">🔍 عرض</span>
+                    </div>`
+                  :`<div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;padding:7px 10px;background:#fffbf0;border:1px solid #F0C060;border-radius:10px;cursor:pointer" onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.category||'').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.entry_date||'')}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.contractor||'')}')">
+                      <span style="font-size:15px">⚠️</span>
+                      <span style="font-size:11px;font-weight:600;color:#9a6700;flex:1">لا توجد فاتورة مرفقة</span>
+                      <span style="font-size:9px;background:#FFF0C0;color:#9a6700;border-radius:8px;padding:2px 7px;border:0.5px solid #F0C060">اطلبها</span>
+                    </div>`}
+
                 <div class="appr-entry-actions">
                   <button onclick="approveEntry('${r.id}')" class="appr-act-btn appr-act-approve">موافقة</button>
                   <button onclick="editAndApproveEntry('${r.id}')" class="appr-act-btn appr-act-edit">تعديل وموافقة</button>
