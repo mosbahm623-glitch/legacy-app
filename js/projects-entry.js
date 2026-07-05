@@ -595,7 +595,7 @@ function handleEntryInvoiceSelect(input){
     const reader=new FileReader();
     reader.onload=function(e){
       if(img)img.src=e.target.result;
-      if(prev){prev.style.display='block';prev.style.padding='';prev.style.background='';}
+      if(prev){prev.style.display='block';prev.style.padding='';prev.style.background='';prev.style.width='fit-content';prev.style.maxWidth='100%';}
       if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
       const pdfIcon=document.getElementById('entryPdfIcon');
       if(pdfIcon)pdfIcon.remove();
