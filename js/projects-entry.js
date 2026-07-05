@@ -241,7 +241,7 @@ async function ae(){
       const _invFile=window._entryInvoiceFile;
       if(_invFile&&entry.id){
         try{
-          const _ext=_invFile.name.split('.').pop().toLowerCase();
+          const _ext=window._entryInvoiceExt||(_invFile.name?_invFile.name.split('.').pop().toLowerCase():'jpg');
           const _path=`${entry.id}/invoice_${Date.now()}.${_ext}`;
           const SB_STOR='https://ctcoqgluaytwelnutrox.supabase.co';
           const _AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
@@ -254,6 +254,7 @@ async function ae(){
           }
         }catch(_e){console.warn('invoice upload:',_e);}
         window._entryInvoiceFile=null;
+        window._entryInvoiceExt=null;
         resetEntryInvoice();
       }
       setSav('✅ تم الحفظ','ok');
@@ -562,17 +563,46 @@ async function sw(pid){
 // ══ ENTRY FORM INVOICE ════════════════════════════
 function handleEntryInvoiceSelect(input){
   const file=input.files[0];if(!file)return;
-  if(file.size>8*1024*1024){notify('الحجم أكبر من 8MB','err');return;}
-  window._entryInvoiceFile=file;
+  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
   const prev=document.getElementById('entryInvoicePreview');
   const lbl=document.getElementById('entryInvoiceLbl');
   const img=document.getElementById('entryInvoiceImg');
-  // عرض التاج بغض النظر عن نوع الملف
   const tagName=document.getElementById('entryInvoiceTagName');
-  if(tagName)tagName.textContent=file.name.length>32?file.name.substring(0,30)+'…':file.name;
-  if(img){img.src='';img.style.display='none';}
-  if(prev){prev.style.display='block';}
-  if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+  const shortName=file.name.length>32?file.name.substring(0,30)+'…':file.name;
+  // لو PDF — خزّنه مباشرة بدون ضغط
+  if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){
+    window._entryInvoiceFile=file;
+    window._entryInvoiceExt='pdf';
+    if(tagName)tagName.textContent=shortName;
+    if(img){img.src='';img.style.display='none';}
+    if(prev)prev.style.display='block';
+    if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+    return;
+  }
+  // صورة — اضغطها بـ canvas
+  if(lbl)lbl.textContent='⏳ جاري المعالجة...';
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const image=new Image();
+    image.onload=function(){
+      const MAX=1200;
+      let w=image.width,h=image.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(image,0,0,w,h);
+      canvas.toBlob(function(blob){
+        window._entryInvoiceFile=blob;
+        window._entryInvoiceExt='jpg';
+        if(tagName)tagName.textContent=shortName;
+        if(img){img.src='';img.style.display='none';}
+        if(prev)prev.style.display='block';
+        if(lbl)lbl.textContent='✅ '+file.name.substring(0,28);
+      },'image/jpeg',0.75);
+    };
+    image.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function removeEntryInvoice(){
@@ -612,3 +642,4 @@ function showEntryInvoiceArea(){
   const area=document.getElementById('entryInvoiceArea');
   if(area)area.style.display='block';
 }
+
