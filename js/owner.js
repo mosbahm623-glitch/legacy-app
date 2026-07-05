@@ -44,7 +44,8 @@ async function loadOwnerScreen(){
       '</div>'+
 
       // ADD screen
-      '<div id="ow-screen-add" style="flex:1;overflow-y:auto;padding:12px">'+
+      '<div id="ow-screen-add" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0">'+
+        '<div style="flex:1;overflow-y:auto;padding:12px 12px 0">'+
         '<div style="background:#FFF8EC;border:1px solid #F0C060;border-radius:8px;padding:8px 12px;font-size:11px;color:#7A5500;margin-bottom:10px;display:flex;align-items:center;gap:6px">⏳ بتروح للموافقة قبل ما تتسجل</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
           '<button id="ow-exp-btn" onclick="owSetType(\'e\')" style="padding:10px;border-radius:10px;border:2px solid #E74C3C;background:#FFF0EE;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#C0392B">📤 مصروف</button>'+
@@ -66,9 +67,9 @@ async function loadOwnerScreen(){
         '<input id="ow-proj-inp" type="text" placeholder="ابحث عن مشروع..." autocomplete="off" oninput="owFilterProj(this.value)" onblur="owHideProjDD()" style="'+inp+'">'+
         '<input type="hidden" id="ow-proj">'+
         '<div id="ow-proj-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-card,var(--bg-pure,#fff));border:1.5px solid var(--border,#EAEEE8);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;max-height:140px;overflow-y:auto"></div></div>'+
-        '<div id="ow-mq-wrap" style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المقاول</label>'+
+        '<div id="ow-mq-wrap" style="margin-bottom:8px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">المقاول</label>'+
         '<input id="ow-mq" type="text" placeholder="اختياري" style="'+inp+'"></div>'+
-        '<div style="margin-bottom:12px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
+        '<div style="margin-bottom:8px"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">طريقة الدفع / الاستقبال <span style="color:#E74C3C">*</span></label>'+
         '<select id="ow-pmt" onchange="owPmtChange(this.value)" style="'+inp+';background:var(--bg-pure,#fff)">'+
           '<option value="">اختر...</option>'+
           '<option value="Cash">💵 Cash</option>'+
@@ -78,7 +79,6 @@ async function loadOwnerScreen(){
           '<option value="أخرى">✏️ أخرى</option>'+
         '</select>'+
         '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
-        '</div>'+
         '<div style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><label style="font-size:10px;color:#999;font-weight:700">صورة الفاتورة</label><span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span></div>'+
         '<div id="ow-inv-area" onclick="owInvTrigger()" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer">'+
           '<div id="ow-inv-empty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px"><span style="font-size:16px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>'+
@@ -89,7 +89,10 @@ async function loadOwnerScreen(){
           '</div>'+
         '</div>'+
         '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)"></div>'+
+        '</div>'+
+        '<div style="padding:12px;flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
+        '</div>'+
       '</div>'+
 
       // PENDING screen
