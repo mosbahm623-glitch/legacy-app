@@ -80,15 +80,15 @@ async function loadOwnerScreen(){
         '</select>'+
         '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
         '<div style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><label style="font-size:10px;color:#999;font-weight:700">صورة الفاتورة</label><span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span></div>'+
-        '<div id="ow-inv-area" onclick="owInvTrigger()" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer">'+
+        '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)">'+
+        '<label for="ow-inv-file" id="ow-inv-area" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer;display:block">'+
           '<div id="ow-inv-empty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px"><span style="font-size:16px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>'+
           '<div id="ow-inv-filled" style="display:none;align-items:center;gap:10px;padding:9px 12px;background:#f0faf0">'+
             '<div id="ow-inv-thumb" style="width:40px;height:40px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:20px">📄</div>'+
             '<div style="flex:1;min-width:0"><div id="ow-inv-name" style="font-size:12px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="ow-inv-size" style="font-size:10px;color:#888;margin-top:2px"></div></div>'+
-            '<div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()"><button onclick="owInvPreview()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🔍</button><button onclick="owInvRemove()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🗑</button></div>'+
+            '<div style="display:flex;gap:4px;flex-shrink:0" onclick="event.preventDefault();event.stopPropagation()"><button onclick="owInvPreview()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🔍</button><button onclick="owInvRemove()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🗑</button></div>'+
           '</div>'+
-        '</div>'+
-        '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)"></div>'+
+        '</label>'+
         '</div>'+
         '<div style="padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
