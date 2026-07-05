@@ -122,7 +122,7 @@ function re(){
           </div>
           <div class="card-footer">
             <button class="card-action" onclick="event.stopPropagation();printReceipt('${e.id}')">🖨 إيصال</button>
-            
+            ${e.img_url?`<button class="card-action" onclick="event.stopPropagation();openEntryInvLb('${e.id}')" style="background:#EAF3DE;border-color:#97C459;color:#27500A;font-weight:700">🧾 فاتورة</button>`:''}
             ${wa1?`<button class="card-action card-wa" onclick="event.stopPropagation();window.open('${wa1.match(/href="([^"]+)"/)?.[1]||''}','_blank')">📲 واتساب</button>`:''}
             ${delBtn}
           </div>
@@ -130,6 +130,9 @@ function re(){
       }
       // DESKTOP: table row
       const rcpt=`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:3px 8px;color:#27500A;font-weight:600">🖨</button></td>`;
+      const invTd=e.img_url
+        ?`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();openEntryInvLb('${e.id}')" title="عرض الفاتورة" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#27500A;font-weight:700">🧾</button></td>`
+        :`<td style="padding:4px 6px;text-align:center"><span style="display:inline-block;width:20px;height:20px;border:0.5px dashed #ccc;border-radius:4px"></span></td>`;
       const del=canEdit?`<td style="padding:4px 6px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
       const undoBtn=(uRole==='admin'||uRole==='super_admin')?`<td style="padding:4px 6px;text-align:center"><button onclick="event.stopPropagation();undoApproveEntry('${e.id}')" title="إلغاء الموافقة" style="background:var(--warning-pale,#FFF8EC);border:0.5px solid #EF9F27;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#854F0B">↩</button></td>`:'';
       const isDk=document.body.classList.contains('dark-mode');
@@ -147,7 +150,7 @@ function re(){
         <td style="padding:7px 10px;color:${_bodyClr};max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.description)||'—'}">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;color:${_softClr};font-size:11px">${esc(e.contractor)||'—'}</td>
         <td style="padding:7px 10px;white-space:nowrap;font-weight:500;color:${amtClr}">${ii?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
-        ${rcpt}${del}${undoBtn}
+        ${rcpt}${invTd}${del}${undoBtn}
       </tr>`;
     }).join('');
     if(isMob){
@@ -163,8 +166,10 @@ function re(){
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">البيان</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500">المقاول</th>
         <th style="color:#D4C49A;padding:8px 10px;text-align:right;font-size:11px;font-weight:500;white-space:nowrap">المبلغ</th>
-        <th></th>
+        <th style="color:#D4C49A;padding:8px 6px;text-align:center;font-size:11px;font-weight:500">🖨</th>
+        <th style="color:#D4C49A;padding:8px 6px;text-align:center;font-size:11px;font-weight:500">📎</th>
         ${canEdit?'<th></th>':''}
+        ${(typeof uRole!=='undefined'&&(uRole==='admin'||uRole==='super_admin'))?'<th></th>':''}
       </tr></thead>
       <tbody>${tblRows}</tbody>
     </table>`+pager;return;}
@@ -298,6 +303,10 @@ function re(){
         <td style="padding:7px 4px">${no}</td>
         <td style="padding:7px 6px;color:${_txt2};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ab}${esc(e.description)||'—'}</td>
         <td style="padding:7px 4px;font-weight:600;color:${amtColor};text-align:left;white-space:nowrap">${e.type==='i'?'+':'-'}${fn(Math.abs(e.amount))} ج</td>
+        <td style="padding:4px 4px;text-align:center">${e.img_url
+          ?`<button onclick="event.stopPropagation();openEntryInvLb('${e.id}')" title="عرض الفاتورة" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#27500A;font-weight:700">🧾</button>`
+          :`<span style="display:inline-block;width:18px;height:18px;border:0.5px dashed #ccc;border-radius:3px"></span>`
+        }</td>
         ${del}
       </tr>`;
     }).join('')}
