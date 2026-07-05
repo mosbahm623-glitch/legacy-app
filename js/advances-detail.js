@@ -127,8 +127,41 @@ async function loadAdvDetail(silent=false){
     }else{
       var projMap={};
       allProjects.forEach(p=>{projMap[p.id]=p.name;});
+      const isMob=window.innerWidth<=640;
       const approvedHtml=(()=>{
         if(!advEntries.length) return '';
+        if(isMob){
+          // ── MOBILE CARDS ──
+          return advEntries.map((e2,i)=>{
+            const pName=projMap[e2.project_id]||'—';
+            const isAdvLocked=uRole!=='admin'&&installs.length>0;
+            const canEditAdv=!isAdvLocked&&(uRole==='admin'||uRole==='editor'||(curAdv.user_id===uid));
+            const btns=isAdvLocked&&uRole!=='admin'
+              ?`<button class="db" onclick="notify('العهدة مقفولة','warn')" style="opacity:.5">🔒</button>`
+              :canEditAdv?`<button class='db' onclick='editAdvEntry("${e2.id}")' style='color:var(--primary)'>✏️</button><button class='db' onclick='delAdvEntry("${e2.id}")'>🗑</button>`:'';
+            const invBtn=e2.img_url?`<button onclick="openInvLb('${e2.img_url}','${(e2.description||'').replace(/'/g,"\\'")}','')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#27500A;cursor:pointer">🧾</button>`:'';
+            return `<div style="background:var(--bg-card,#fff);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:0.5px solid var(--border,#eee);box-shadow:0 1px 4px rgba(0,0,0,.05)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  ${e2.seq?`<span class="nb">#${e2.seq}</span>`:''}
+                  <span style="font-size:10px;background:var(--bg-ivory,#f0f0ec);border:0.5px solid var(--border,#ddd);padding:2px 7px;border-radius:10px;color:var(--text-soft,#666)">${e2.category||'—'}</span>
+                </div>
+                <span style="font-weight:700;color:var(--danger,#C0392B);font-size:13px">▼ ${fn(e2.amount)} ج</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-body,#333);margin-bottom:4px;font-weight:600">${e2.description||'—'}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--text-soft,#888);margin-bottom:6px">
+                <span>${pName}</span>
+                ${e2.contractor?`<span>· ${e2.contractor}</span>`:''}
+                <span>· ${cleanDate(e2.entry_date)||'—'}</span>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                ${invBtn}
+                ${btns}
+              </div>
+            </div>`;
+          }).join('');
+        }
+        // ── DESKTOP TABLE ──
         return `<table style="width:100%;border-collapse:collapse;font-size:12px;display:table">
           <thead style="position:sticky;top:0;z-index:10"><tr style="background:#1D3C2A">
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">#</th>
@@ -139,6 +172,7 @@ async function loadAdvDetail(silent=false){
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">البيان</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px">المقاول</th>
             <th style="color:#D4C49A;padding:7px 10px;text-align:right;font-size:11px;white-space:nowrap">المبلغ</th>
+            <th style="color:#D4C49A;padding:7px 6px;text-align:center;font-size:11px">📎</th>
             <th></th>
           </tr></thead>
           <tbody>${advEntries.map((e2,i)=>{
@@ -150,6 +184,9 @@ async function loadAdvDetail(silent=false){
             const rowBg=i%2===0?(_dk?'var(--bg-card,#1e2a1e)':'#fff'):(_dk?'rgba(212,196,154,.04)':'#f7f7f5');
             const rowHov=_dk?'rgba(29,60,42,.4)':'#eef4ee';
             const rowBrd=_dk?'rgba(212,196,154,.08)':'#eee';
+            const invTd=e2.img_url
+              ?`<td style="padding:4px 6px;text-align:center"><button onclick="openInvLb('${e2.img_url}','${(e2.description||'').replace(/'/g,"\\'")}','')" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 7px;color:#27500A;font-weight:700">🧾</button></td>`
+              :`<td style="padding:4px 6px;text-align:center"><span style="display:inline-block;width:18px;height:18px;border:0.5px dashed #ccc;border-radius:3px"></span></td>`;
             return `<tr style="background:${rowBg};border-bottom:0.5px solid ${rowBrd}" onmouseover="this.style.background='${rowHov}'" onmouseout="this.style.background='${rowBg}'">
               <td style="padding:7px 10px;color:var(--text-soft,#aaa);font-size:11px">${i+1}</td>
               <td style="padding:7px 10px">${e2.seq?`<span class="nb">#${e2.seq}</span>`:'—'}</td>
@@ -159,6 +196,7 @@ async function loadAdvDetail(silent=false){
               <td style="padding:7px 10px;color:var(--text-body,#333)">${e2.description||'—'}</td>
               <td style="padding:7px 10px;color:var(--text-soft,#888);font-size:11px">${e2.contractor||'—'}</td>
               <td style="padding:7px 10px;font-weight:500;color:var(--danger,#C0392B);white-space:nowrap">▼ ${fn(e2.amount)} ج</td>
+              ${invTd}
               <td style="padding:4px 6px;white-space:nowrap">${btns}</td>
             </tr>`;
           }).join('')}</tbody>
