@@ -128,3 +128,30 @@ function viewFullImg(url) {
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   document.body.appendChild(ov);
 }
+
+// ── رفع صورة للعهدة مباشرة ──
+function triggerAdvImg() {
+  const inp = document.getElementById('advImgInput');
+  if (inp) inp.click();
+}
+
+async function uploadAdvImage(input) {
+  const file = input.files?.[0];
+  if (!file || !curAdv?.id) return;
+  setSav('⬆️ جاري رفع الصورة...', 'ng');
+  const url = await uploadImage(file, 'advances');
+  if (!url) return;
+  try {
+    const token = localStorage.getItem('lg_tk');
+    await fetch(`${SB}/rest/v1/advances?id=eq.${curAdv.id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': AK, 'Authorization': `Bearer ${token || AK}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ image_url: url })
+    });
+    curAdv.image_url = url;
+    const advImgEl = document.getElementById('advDetImg');
+    if (advImgEl) { advImgEl.innerHTML = thumbHtml(url, 'adv_' + curAdv.id); advImgEl.style.marginTop = '6px'; }
+    setSav('✅ تم رفع الصورة', 'ok');
+    notify('✅ تم رفع صورة العهدة', 'ok');
+  } catch (e) { setSav('❌ ' + (e.message || 'خطأ'), 'er'); }
+}
