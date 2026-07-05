@@ -142,7 +142,6 @@ async function loadApprovals(silent=false){
                   <button onclick="approveEntry('${r.id}')" class="appr-act-btn appr-act-approve">موافقة</button>
                   <button onclick="editAndApproveEntry('${r.id}')" class="appr-act-btn appr-act-edit">تعديل وموافقة</button>
                   <button onclick="rejectEntry('${r.id}')" class="appr-act-btn appr-act-reject">رفض</button>
-                  <button onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,"\\'")}','${(r.category||'').replace(/'/g,"\\'")}','${(r.entry_date||'').replace(/'/g,"\\'")}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,"\\'")}','${(r.contractor||'').replace(/'/g,"\\'")}')">فاتورة</button>
                 </div>
               </div>
             </div>
