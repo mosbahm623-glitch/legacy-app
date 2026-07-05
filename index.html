@@ -20,6 +20,68 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ══ LEGACY CORE LOADING SCREEN ══════════════════════════════ -->
+<div id="lcLoader" style="position:fixed;inset:0;z-index:999999;background:#1D3C2A;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease,visibility .5s ease">
+  <div style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#2d5a3d,#1D3C2A);border:2px solid rgba(212,196,154,.3);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:lcLogoPulse 2s ease-in-out infinite">🏗️</div>
+  <div style="font-size:22px;font-weight:800;color:#D4C49A;letter-spacing:1px;margin-bottom:4px;font-family:'Cairo',sans-serif">Legacy Core</div>
+  <div style="font-size:11px;color:rgba(212,196,154,.45);font-weight:400;margin-bottom:36px;font-family:'Cairo',sans-serif">نظام إدارة المشاريع</div>
+  <div style="width:200px;height:3px;background:rgba(212,196,154,.15);border-radius:3px;overflow:hidden;margin-bottom:14px">
+    <div id="lcBar" style="height:100%;background:linear-gradient(90deg,#D4C49A,#a89b7a);border-radius:3px;width:0%;transition:width .4s ease"></div>
+  </div>
+  <div id="lcStatus" style="font-size:11px;color:rgba(212,196,154,.55);font-weight:600;min-height:16px;text-align:center;font-family:'Cairo',sans-serif">جاري التحقق من الهوية...</div>
+  <div id="lcRoleBadge" style="display:none;align-items:center;gap:8px;background:rgba(212,196,154,.1);border:1px solid rgba(212,196,154,.25);border-radius:30px;padding:8px 18px;margin-top:18px;animation:lcBadgeIn .4s cubic-bezier(.34,1.56,.64,1)">
+    <span id="lcRoleIco" style="font-size:18px"></span>
+    <span id="lcRoleTxt" style="font-size:13px;font-weight:700;color:#D4C49A;font-family:'Cairo',sans-serif"></span>
+  </div>
+  <div style="display:flex;gap:6px;margin-top:36px">
+    <div id="lcdot0" style="width:6px;height:6px;border-radius:50%;background:#D4C49A"></div>
+    <div id="lcdot1" style="width:6px;height:6px;border-radius:50%;background:rgba(212,196,154,.25)"></div>
+    <div id="lcdot2" style="width:6px;height:6px;border-radius:50%;background:rgba(212,196,154,.25)"></div>
+    <div id="lcdot3" style="width:6px;height:6px;border-radius:50%;background:rgba(212,196,154,.25)"></div>
+  </div>
+</div>
+<style>
+@keyframes lcLogoPulse{0%,100%{box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.2)}50%{box-shadow:0 8px 48px rgba(0,0,0,.5),0 0 0 12px rgba(212,196,154,0)}}
+@keyframes lcBadgeIn{from{transform:scale(.7) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+</style>
+<script>
+window._lcStep=0;
+window._lcSteps=[
+  {pct:20,txt:'جاري التحقق من الهوية...'},
+  {pct:45,txt:'جاري تحميل البيانات...'},
+  {pct:72,txt:'جاري تهيئة الشاشة...'},
+  {pct:90,txt:'جاري تحديد الصلاحيات...'},
+];
+window.lcNext=function(){
+  const s=window._lcSteps[window._lcStep]||null;
+  if(!s)return;
+  document.getElementById('lcBar').style.width=s.pct+'%';
+  document.getElementById('lcStatus').textContent=s.txt;
+  const dots=['lcdot0','lcdot1','lcdot2','lcdot3'];
+  dots.forEach((id,i)=>{
+    document.getElementById(id).style.background=i<=window._lcStep?'#D4C49A':'rgba(212,196,154,.25)';
+  });
+  window._lcStep++;
+};
+window.lcDone=function(roleLabel,roleIco){
+  document.getElementById('lcBar').style.width='100%';
+  document.getElementById('lcStatus').textContent='أهلاً! جاري فتح شاشتك...';
+  ['lcdot0','lcdot1','lcdot2','lcdot3'].forEach(id=>{document.getElementById(id).style.background='#D4C49A';});
+  if(roleLabel){
+    document.getElementById('lcRoleIco').textContent=roleIco||'👤';
+    document.getElementById('lcRoleTxt').textContent=roleLabel;
+    const b=document.getElementById('lcRoleBadge');b.style.display='flex';
+  }
+  setTimeout(()=>{
+    const l=document.getElementById('lcLoader');
+    l.style.opacity='0';l.style.visibility='hidden';
+  },800);
+};
+// Start progress animation immediately
+setTimeout(()=>window.lcNext(),200);
+</script>
+<!-- ══════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
   var tk=localStorage.getItem('lg_tk');
