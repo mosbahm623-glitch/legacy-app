@@ -20,7 +20,7 @@ async function loadOwnerScreen(){
 
   var isMobile=window.innerWidth<=768;
   if(isMobile){
-    el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;display:flex;flex-direction:column';
+    el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:62px;z-index:150;display:flex;flex-direction:column';
   }else{
     el.style.cssText='background:#1D3C2A;min-height:100vh;display:flex;flex-direction:column;width:100%';
   }
