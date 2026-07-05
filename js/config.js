@@ -174,3 +174,18 @@ function fd(d){
   if(!isNaN(dt))return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
   return d;
 }
+
+function updateApp(){
+  if(confirm('هيتم مسح الكاش وإعادة تحميل التطبيق. متأكد؟')){
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      Promise.all(regs.map(r=>r.unregister())).then(()=>{
+        caches.keys().then(keys=>{
+          Promise.all(keys.map(k=>caches.delete(k))).then(()=>{
+            notify('جاري تحديث التطبيق...','ok');
+            setTimeout(()=>location.reload(true),500);
+          });
+        });
+      });
+    });
+  }
+}
