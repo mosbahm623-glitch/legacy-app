@@ -2444,3 +2444,8 @@ body.dark-mode .appr-item{background:var(--dark-card);border-color:rgba(212,196,
 body.dark-mode .appr-entry-amount{color:var(--accent-warm)}
 body.dark-mode .appr-meta-item{color:rgba(212,196,154,.7)}
 body.dark-mode .appr-sec-wrap{border-color:rgba(212,196,154,.12)}
+
+/* DEBUG - REMOVE AFTER TESTING */
+.main-content { outline: 3px solid red !important; }
+.app-body { outline: 3px solid blue !important; }
+#mainApp { outline: 3px solid green !important; }
