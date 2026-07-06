@@ -136,11 +136,12 @@ async function loadOwnerScreen(){
 }
 
 function owShowTab(t){
+  var flexScreens={'add':true};
   ['add','adv','pend','done'].forEach(function(x){
     var tab=document.getElementById('ow-tab-'+x);
     var scr=document.getElementById('ow-screen-'+x);
     if(tab){tab.style.color=x===t?'#1D3C2A':'#bbb';tab.style.borderBottom=x===t?'2px solid #1D3C2A':'2px solid transparent';}
-    if(scr)scr.style.display=x===t?'block':'none';
+    if(scr)scr.style.display=x===t?(flexScreens[x]?'flex':'block'):'none';
   });
   if(t==='adv')owLoadViewers();
 }
