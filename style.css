@@ -638,16 +638,21 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ep{margin:0 24px 12px}
   .ep-g{grid-template-columns:1fr 1fr 1fr}
   .ep-g input.fl{grid-column:1/-1}
-  .adv-screen{padding:20px 24px}
+  .adv-screen{padding:20px 28px;display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+  .adv-screen > h4{grid-column:2}
+  .adv-screen > #viewerAdvNotice{grid-column:2}
+  .adv-screen > button.pg-refresh-btn{grid-column:2}
+  .adv-screen > #advList{grid-column:2}
+  .adv-screen > #newAdvForm{grid-column:1;grid-row:1/5;position:sticky;top:0}
   .adv-detail{padding:20px 24px}
   .adv-ig{grid-template-columns:1fr 1fr 1fr}
   .adv-ig input.fl,.adv-ig select.fl{grid-column:1/-1}
-  .adv-entries{max-height:400px}
+  .adv-entries{max-height:calc(100vh - 300px)}
   .adv-detail-kp{padding:0;background:transparent;gap:12px}
   .ap{padding:20px 24px}
   .asec{padding:20px}
   .im{padding:16px 24px}
-  .new-adv{max-width:600px}
+  .new-adv{max-width:100%}
   .adv-entry-form{max-width:800px}
   .nuf{max-width:600px}
 }@media(max-width:767px){
