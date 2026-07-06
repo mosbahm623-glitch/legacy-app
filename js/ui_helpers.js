@@ -132,7 +132,9 @@ function showScreen(s){
   curScreen=s;
   ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati','owner'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
-    if(el)el.style.display=x===s?'block':'none';
+    if(!el)return;
+    if(x!==s){el.style.display='none';return;}
+    el.style.display=(x==='owner')?'flex':'block';
   });
   if(s==='projList'){buildProjListScreen();}
   if(s==='owner'){loadOwnerScreen().catch(ex=>{console.error('ownerScreen error:',ex);notify('خطأ: '+ex.message,'err');});}
