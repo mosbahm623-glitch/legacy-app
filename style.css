@@ -290,6 +290,9 @@ td{font-weight:400}
 .lst.er{background:rgba(231,76,60,.12);color:var(--danger-alt);border:1px solid rgba(231,76,60,.2)}
 /* SIDEBAR LAYOUT */
 #mainApp{display:none;width:100%;min-height:100vh;max-width:100vw;overflow-x:hidden;background:var(--bg-page);flex-direction:column}
+#mainApp[style*="flex"]{flex-direction:column}
+.app-body{display:flex;flex-direction:row;width:100%}
+.main-content{flex:1;min-width:0;overflow:auto;overflow-x:hidden;background:var(--bg-page)}
 .ahdr{background:var(--primary);color:var(--accent);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;z-index:50;position:relative}
 .ahdr h2{font-size:13px;font-weight:700}
 .ahdr p{font-size:10px;opacity:.7;margin-top:2px}
