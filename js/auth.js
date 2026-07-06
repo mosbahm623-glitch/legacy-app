@@ -39,7 +39,7 @@ async function initApp(){
   // تحميل parallel — بدل sequential awaits
   try{allChatUsers=await sb('profiles?order=name');}catch(e){allChatUsers=[];}
   const app=document.getElementById('mainApp');
-  app.style.display='flex';
+  app.style.display='flex';app.style.flexDirection='column';
   closeAhdrMenu();
   // login handled by login.html
   document.body.style.overflow='';
