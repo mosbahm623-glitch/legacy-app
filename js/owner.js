@@ -22,7 +22,7 @@ async function loadOwnerScreen(){
   if(isMobile){
     el.style.cssText='background:#1D3C2A;position:fixed;top:0;left:0;right:0;bottom:58px;z-index:149;display:flex;flex-direction:column';
   }else{
-    el.style.cssText='background:#1D3C2A;min-height:100vh;display:flex;flex-direction:column;width:100%';
+    el.style.cssText='background:#1D3C2A;display:flex;flex-direction:column;width:100%;min-height:100%';
   }
 
   el.innerHTML=
