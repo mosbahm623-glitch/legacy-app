@@ -289,7 +289,7 @@ td{font-weight:400}
 .lst.ng{background:rgba(243,156,18,.1);color:var(--warning);border:1px solid rgba(243,156,18,.15)}
 .lst.er{background:rgba(231,76,60,.12);color:var(--danger-alt);border:1px solid rgba(231,76,60,.2)}
 /* SIDEBAR LAYOUT */
-#mainApp{display:none;width:100%;min-height:100vh;max-width:100vw;overflow-x:hidden;background:var(--bg-page)}
+#mainApp{display:none;width:100%;min-height:100vh;max-width:100vw;overflow-x:hidden;background:var(--bg-page);flex-direction:column}
 .ahdr{background:var(--primary);color:var(--accent);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;z-index:50;position:relative}
 .ahdr h2{font-size:13px;font-weight:700}
 .ahdr p{font-size:10px;opacity:.7;margin-top:2px}
@@ -307,7 +307,7 @@ td{font-weight:400}
 .sav.er .sav-icon-wrap{background:#7a1f1f}
 .sav.ng .sav-icon-wrap{background:#5a4a00}
 /* SIDEBAR */
-.app-body{display:flex;flex:1;min-height:calc(100vh - 62px);position:relative;overflow:hidden}
+.app-body{display:flex;flex-direction:row;flex:1;min-height:calc(100vh - 62px);position:relative;overflow:hidden}
 .sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;z-index:40}
 .main-content{flex:1;overflow:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page)}
 .sidebar.mini{width:54px}
