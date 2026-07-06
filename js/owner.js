@@ -90,6 +90,7 @@ async function loadOwnerScreen(){
           '</div>'+
         '</label>'+
         '</div>'+
+        '</div>'+
         '<div style="padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
         '<button onclick="owSubmit()" style="width:100%;padding:13px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer">⏳ إرسال للموافقة</button>'+
         '</div>'+
