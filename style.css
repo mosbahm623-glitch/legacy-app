@@ -639,12 +639,7 @@ body.dark-mode .nuf{background:var(--dark-base)!important;border-color:rgba(212,
   .ep-g{grid-template-columns:1fr 1fr 1fr}
   .ep-g input.fl{grid-column:1/-1}
   #approvalsScreen,#searchScreen,#daf3atiScreen,#notesScreen,#duesScreen,#archiveScreen,#repScreen,#adminScreen,#ownerScreen,#auditlogScreen,#projListScreen,#timelineScreen,#dailyScreen{padding:20px 28px;width:100%;box-sizing:border-box}
-  .adv-screen{padding:20px 28px;display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
-  .adv-screen > h4{grid-column:2}
-  .adv-screen > #viewerAdvNotice{grid-column:2}
-  .adv-screen > button.pg-refresh-btn{grid-column:2}
-  .adv-screen > #advList{grid-column:2}
-  .adv-screen > #newAdvForm{grid-column:1;grid-row:1/5;position:sticky;top:0}
+  .adv-screen{padding:20px 28px;width:100%;box-sizing:border-box}
   .adv-detail{padding:20px 24px}
   .adv-ig{grid-template-columns:1fr 1fr 1fr}
   .adv-ig input.fl,.adv-ig select.fl{grid-column:1/-1}
