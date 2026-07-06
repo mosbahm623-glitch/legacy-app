@@ -307,8 +307,9 @@ td{font-weight:400}
 .sav.er .sav-icon-wrap{background:#7a1f1f}
 .sav.ng .sav-icon-wrap{background:#5a4a00}
 /* SIDEBAR */
-.app-body{display:flex;flex:1;min-height:calc(100vh - 62px);position:relative}
-.sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;z-index:40}
+.app-body{display:flex;flex:1;min-height:calc(100vh - 62px);position:relative;direction:ltr}
+.sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;z-index:40;direction:rtl}
+.main-content{flex:1;overflow:auto;overflow-x:hidden;min-width:0;background:var(--bg-page);direction:rtl}
 .sidebar.mini{width:54px}
 .sb-head{padding:14px 12px 10px;border-bottom:1px solid rgba(212,196,154,.1);white-space:nowrap;overflow:hidden}
 .sb-head h3{font-size:12px;font-weight:700;color:var(--accent)}
@@ -425,7 +426,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99}
 .sb-overlay.show{display:block}
 /* MAIN CONTENT */
-.main-content{flex:1;overflow:auto;overflow-x:hidden;min-width:0;background:var(--bg-page)}
+.main-content-placeholder{}
 /* FAB */
 .fab{position:fixed;bottom:22px;left:18px;z-index:200;direction:ltr;touch-action:none;user-select:none}
 .fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--accent);border:none;font-size:24px;cursor:grab;box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.3);transition:transform .2s,background .15s,box-shadow .2s;display:flex;align-items:center;justify-content:center;animation:fab-pulse 2.5s ease-in-out infinite}@keyframes fab-pulse{0%,100%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 0 rgba(212,196,154,.2)}50%{box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 0 8px rgba(212,196,154,.05)}}
