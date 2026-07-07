@@ -384,8 +384,8 @@ async function owSaveEditEntry(id){
       var ext=isPdf?'pdf':'jpg';
       var path=id+'/invoice_'+Date.now()+'.'+ext;
       var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
-      var r=await fetch(SB_URL+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
-      if(r.ok){patch.img_url=SB_URL+'/storage/v1/object/public/invoices/'+path;}
+      var r=await fetch(SB+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
+      if(r.ok){patch.img_url=SB+'/storage/v1/object/public/invoices/'+path;}
       window._owEditInvFile=null;
     } else if(window._owEditInvClear){
       patch.img_url=null;
@@ -680,13 +680,13 @@ async function owInvUpload(entryId){
     const ext=isPdf?'pdf':'jpg';
     const path=`${entryId}/invoice_${Date.now()}.${ext}`;
     const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
-    const r=await fetch(`${SB_URL}/storage/v1/object/invoices/${path}`,{
+    const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
       method:'POST',
       headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},
       body:uploadFile
     });
     if(r.ok){
-      const pub=`${SB_URL}/storage/v1/object/public/invoices/${path}`;
+      const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
       await sb('pending_entries?id=eq.'+entryId,'PATCH',{img_url:pub});
       console.log('owInvUpload: success',pub);
     }else{
