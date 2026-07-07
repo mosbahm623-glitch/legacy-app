@@ -264,15 +264,21 @@ async function editAndApproveEntry(id){
         </select>
         <label class="lbl-lg">التاريخ</label>
         <input id="eaDate" type="text" value="${r.entry_date||''}" placeholder="dd/mm/yyyy" style="${inp}">
-        ${r.img_url?`
         <div style="margin:12px 0">
-          <div style="font-size:11px;color:var(--text-muted,#999);margin-bottom:6px;font-weight:600">📎 صورة الفاتورة</div>
-          <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border,#eee)">
-            <img src="${r.img_url}" style="width:100%;max-height:200px;object-fit:cover;display:block;cursor:zoom-in"
-              onclick="window.open('${r.img_url}','_blank')">
-            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:5px 10px;font-size:10px;color:#fff;text-align:center">اضغط لعرض كاملاً</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:11px;color:var(--text-muted,#999);font-weight:600">📎 صورة الفاتورة</div>
+            ${r.img_url?'<button onclick="eaClearInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف</button>':''}
           </div>
-        </div>`:''}
+          <div id="eaInvPreview">
+            ${r.img_url?`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px">
+              <img src="${r.img_url}" style="width:100%;max-height:160px;object-fit:cover;display:block;cursor:zoom-in"
+                onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','فاتورة','')">
+              <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px 10px;font-size:10px;color:#fff;text-align:center">اضغط للعرض الكامل</div>
+            </div>`:''}
+          </div>
+          <input type="file" id="eaInvFile" accept="image/*,application/pdf" style="display:none" onchange="eaInvSelect(this)">
+          <label for="eaInvFile" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#888">📷 ${r.img_url?'تغيير الصورة':'إرفاق صورة'}</label>
+        </div>
         <div class="modal-btns" style="margin-top:16px">
           <button onclick="confirmEditApprove('${id}')" class="btn-primary">✅ حفظ وموافقة</button>
           <button onclick="document.getElementById('eaModal').remove()" class="btn-cancel">إلغاء</button>
@@ -282,6 +288,35 @@ async function editAndApproveEntry(id){
     ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
     setTimeout(()=>initDateInput(document.getElementById('eaDate')),0);
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
+}
+
+function eaInvSelect(input){
+  var file=input.files[0];if(!file)return;
+  window._eaInvFile=file;
+  var preview=document.getElementById('eaInvPreview');
+  if(!preview)return;
+  if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){
+    preview.innerHTML='<div style="padding:10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;font-size:12px;color:#1D6A3E;text-align:center">📄 '+file.name+'</div>';
+  }else{
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      preview.innerHTML='<img src="'+ev.target.result+'" style="width:100%;max-height:140px;object-fit:cover;display:block;border-radius:8px;margin-bottom:6px">';
+    };
+    reader.readAsDataURL(file);
+  }
+  var lbl=document.querySelector('label[for="eaInvFile"]');
+  if(lbl)lbl.innerHTML='✅ '+file.name.substring(0,30);
+}
+
+function eaClearInv(){
+  window._eaInvFile=null;
+  window._eaInvClear=true;
+  var preview=document.getElementById('eaInvPreview');
+  if(preview)preview.innerHTML='';
+  var lbl=document.querySelector('label[for="eaInvFile"]');
+  if(lbl)lbl.innerHTML='📷 إرفاق صورة';
+  var inp=document.getElementById('eaInvFile');
+  if(inp)inp.value='';
 }
 
 async function confirmEditApprove(id){
@@ -307,6 +342,40 @@ async function confirmEditApprove(id){
       created_by:r.submitted_by,
       img_url:r.img_url||null
     };
+    // رفع صورة جديدة لو موجودة
+    if(window._eaInvFile){
+      try{
+        var file=window._eaInvFile;
+        var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+        var uploadFile=file;
+        if(!isPdf){
+          uploadFile=await new Promise(function(res){
+            var reader=new FileReader();
+            reader.onload=function(ev){
+              var img=new Image();
+              img.onload=function(){
+                var MAX=1400,w=img.width,h=img.height;
+                if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+                var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+                canvas.getContext('2d').drawImage(img,0,0,w,h);
+                canvas.toBlob(function(blob){res(blob);},'image/jpeg',0.80);
+              };
+              img.src=ev.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+        var ext=isPdf?'pdf':'jpg';
+        var path=entry.id+'/invoice_'+Date.now()+'.'+ext;
+        var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+        var resp=await fetch(SB_URL+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
+        if(resp.ok)entry.img_url=SB_URL+'/storage/v1/object/public/invoices/'+path;
+        window._eaInvFile=null;
+      }catch(uploadErr){console.warn('inv upload:',uploadErr);}
+    } else if(window._eaInvClear){
+      entry.img_url=null;
+      window._eaInvClear=false;
+    }
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
     // حدّث الذاكرة
