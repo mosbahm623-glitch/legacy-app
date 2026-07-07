@@ -304,7 +304,8 @@ async function confirmEditApprove(id){
       contractor:document.getElementById('eaContr').value.trim(),
       payment_method:document.getElementById('eaPmt')?.value||r.payment_method||null,
       advance_id:r.advance_id||null,
-      created_by:r.submitted_by
+      created_by:r.submitted_by,
+      img_url:r.img_url||null
     };
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
@@ -358,7 +359,7 @@ async function approveEntry(id,silent=false){
     const rows=await sb('pending_entries?id=eq.'+id);
     if(!rows||!rows.length)return;
     const r=rows[0];
-    const entry={id:crypto.randomUUID(),project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by};
+    const entry={id:crypto.randomUUID(),project_id:r.project_id,type:r.type,amount:r.amount,category:r.category||'',description:r.description||'',entry_date:r.entry_date||'',contractor:r.contractor||'',advance_id:r.advance_id||null,created_by:r.submitted_by,img_url:r.img_url||null,payment_method:r.payment_method||null};
     await sb('entries','POST',entry);
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
@@ -382,7 +383,7 @@ async function undoApproveEntry(id){
     const rows=await sb('entries?id=eq.'+id);
     if(!rows||!rows.length){setSav('❌ القيد مش موجود','er');return;}
     const e=rows[0];
-    const pending={id:crypto.randomUUID(),project_id:e.project_id,type:e.type,amount:e.amount,category:e.category||'',description:e.description||'',entry_date:e.entry_date||'',contractor:e.contractor||'',advance_id:e.advance_id||null,status:'pending',submitted_by:e.created_by||uid,submitted_at:new Date().toISOString()};
+    const pending={id:crypto.randomUUID(),project_id:e.project_id,type:e.type,amount:e.amount,category:e.category||'',description:e.description||'',entry_date:e.entry_date||'',contractor:e.contractor||'',advance_id:e.advance_id||null,status:'pending',submitted_by:e.created_by||uid,submitted_at:new Date().toISOString(),img_url:e.img_url||null,payment_method:e.payment_method||null};
     await sb('pending_entries','POST',pending);
     await sb('entries?id=eq.'+id,'DELETE');
     if(e.project_id===curPid){await loadEntries();allEntries=allEntries.filter(x=>x.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
