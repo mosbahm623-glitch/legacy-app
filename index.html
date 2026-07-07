@@ -468,115 +468,188 @@ setTimeout(()=>window.lcNext(),200);
         </div>
         <div class="kp" id="kp"></div>
         <div id="entryForm">
-          <div class="ef">
-            <div id="entryProjBanner" style="margin-bottom:8px">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📌 المشروع <span style="color:var(--danger)">*</span></div>
-              <div style="position:relative">
-                <input id="entryProjInput" placeholder="اختر أو ابحث عن مشروع..." autocomplete="off" readonly
-                  onclick="toggleEntProjDD()" onfocus="toggleEntProjDD()"
-                  style="width:100%;padding:9px 36px 9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box;cursor:pointer">
-                <span id="entryProjArrow" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;transition:transform .2s">▾</span>
-                <input type="hidden" id="entryProjId">
-                <div id="entryProjDD" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-card,#fff);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:999;max-height:220px;overflow:hidden;margin-top:2px">
-                  <div style="padding:8px 10px;border-bottom:1px solid var(--border)">
-                    <input id="entryProjSrch" placeholder="🔍 ابحث باسم المشروع..." autocomplete="off"
-                      oninput="entProjSearch(this.value)"
-                      style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg);color:var(--text-body);outline:none">
-                  </div>
-                  <div id="entryProjList" style="max-height:170px;overflow-y:auto"></div>
-                </div>
-              </div>
+          <!-- ── Steps Bar ── -->
+          <div class="ef-steps-bar">
+            <div class="ef-step-item active" id="ef-si-1">
+              <div class="ef-step-dot">1</div>
+              <div class="ef-step-lbl">المشروع</div>
             </div>
-            <div class="tt">
-              <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
-              <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
+            <div class="ef-step-item" id="ef-si-2">
+              <div class="ef-step-dot">2</div>
+              <div class="ef-step-lbl">التفاصيل</div>
             </div>
-            <div class="ig">
-              <div class="ig-field full" id="descWrap">
-                <div class="ig-lbl">البيان <span class="ig-req">*</span></div>
-                <div class="cat-dd-trig pos-rel-flex1">
-                  <input id="id_" placeholder="وصف العملية..." autocomplete="off"
-                    oninput="onDescInput(this.value);_clearErr('id_','err-id_')" onclick="onDescInput(this.value)"
-                    class="input-full">
-                  <div class="cat-dd" id="descDD" style="display:none">
-                    <div id="descList"></div>
-                  </div>
-                </div>
-                <div class="ig-err" id="err-id_">إلزامي</div>
-              </div>
-              <div class="ig-field">
-                <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
-                <input id="ia" type="number" placeholder="0.00" step="any" class="req-left" oninput="_clearErr('ia','err-ia')">
-                <div class="ig-err" id="err-ia">إلزامي</div>
-              </div>
-              <div class="ig-field">
-                <div class="ig-lbl">التاريخ <span class="ig-req">*</span></div>
-                <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left" oninput="_clearErr('idt','err-idt')">
-                <div class="ig-err" id="err-idt">إلزامي</div>
-              </div>
-              <div class="ig-field" id="catWrap">
-                <div class="ig-lbl">البند <span class="ig-req">*</span></div>
+            <div class="ef-step-item" id="ef-si-3">
+              <div class="ef-step-dot">3</div>
+              <div class="ef-step-lbl">الدفع</div>
+            </div>
+            <div class="ef-step-item" id="ef-si-4">
+              <div class="ef-step-dot">✓</div>
+              <div class="ef-step-lbl">تأكيد</div>
+            </div>
+          </div>
+
+          <!-- ── Step 1: Project + Type ── -->
+          <div class="ef-step-panel active" id="ef-sp-1">
+            <div class="ef">
+              <div id="entryProjBanner" style="margin-bottom:12px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:700">📌 المشروع <span style="color:var(--danger)">*</span></div>
                 <div style="position:relative">
-                  <input id="ic" placeholder="اكتب أو اختر البند..." autocomplete="off"
-                    oninput="_onCatInput(this.value)"
-                    onfocus="_onCatFocus()"
-                    onblur="_onCatBlur()"
-                    class="input-full">
-                  <div id="_catDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid var(--border-color,#ddd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;max-height:220px;overflow-y:auto">
-                    <div id="_catList"></div>
-                  </div>
-                </div>
-                <div class="ig-err" id="err-ic">إلزامي</div>
-              </div>
-              <div class="ig-field" id="mqWrap">
-                <div class="ig-lbl">المقاول</div>
-                <div class="cat-dd-trig pos-rel-flex1">
-                  <input id="iq" class="mq input-full" placeholder="اختياري" autocomplete="off"
-                    oninput="onMqInput(this.value)" onclick="toggleMqDD()">
-                  <div class="cat-dd" id="mqDD" style="display:none">
-                    <div id="mqList"></div>
+                  <input id="entryProjInput" placeholder="اختر أو ابحث عن مشروع..." autocomplete="off" readonly
+                    onclick="toggleEntProjDD()" onfocus="toggleEntProjDD()"
+                    style="width:100%;padding:9px 36px 9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-body);outline:none;box-sizing:border-box;cursor:pointer">
+                  <span id="entryProjArrow" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;transition:transform .2s">▾</span>
+                  <input type="hidden" id="entryProjId">
+                  <div id="entryProjDD" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--bg-card,#fff);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:999;max-height:220px;overflow:hidden;margin-top:2px">
+                    <div style="padding:8px 10px;border-bottom:1px solid var(--border)">
+                      <input id="entryProjSrch" placeholder="🔍 ابحث باسم المشروع..." autocomplete="off"
+                        oninput="entProjSearch(this.value)"
+                        style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg);color:var(--text-body);outline:none">
+                    </div>
+                    <div id="entryProjList" style="max-height:170px;overflow-y:auto"></div>
                   </div>
                 </div>
               </div>
-              <div class="ig-field" id="pmtWrap">
-                <div class="ig-lbl">طريقة الدفع / الاستقبال <span class="ig-req">*</span></div>
-                <select id="iPmt" class="input-full" onchange="onPmtChange(this.value)" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
-                  <option value="">اختر...</option>
-                  <option value="Cash">💵 Cash</option>
-                  <option value="Al Ahly">🏦 Al Ahly</option>
-                  <option value="CIB">🏦 CIB</option>
-                  <option value="CIB شركات">🏦 CIB شركات</option>
-                  <option value="أخرى">✏️ أخرى</option>
-                </select>
-                <input id="iPmtOther" class="input-full" placeholder="اكتب اسم البنك..." style="display:none;margin-top:6px;padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
-                <div class="ig-err" id="err-iPmt">إلزامي</div>
-              </div>
-              <div class="etype-wrap" id="etypeWrap">
-                <button class="etype-btn daf on" onclick="setEtype('payment',this)">💰 دفعة</button>
-                <button class="etype-btn aml" onclick="setEtype('work',this)">🔨 أعمال</button>
-                <button class="etype-btn msn" onclick="setEtype('material',this)">🔩 مصنعيات</button>
+              <div class="tt">
+                <button class="tb on" id="tx" onclick="st('e')">📥 مصروف</button>
+                <button class="tb" id="ti" onclick="st('i')">📤 وارد</button>
               </div>
             </div>
-            <div class="ig-field" id="projInvWrap">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-                <div class="ig-lbl">📎 صورة الفاتورة</div>
-                <span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span>
-              </div>
-              <input type="file" id="projInvFile" accept="image/*,application/pdf" style="display:none" onchange="projInvSelect(this)">
-              <label for="projInvFile" id="projInvArea" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer;display:block">
-                <div id="projInvEmpty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px"><span style="font-size:15px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>
-                <div id="projInvFilled" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:#f0faf0">
-                  <div id="projInvThumb" style="width:38px;height:38px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>
-                  <div style="flex:1;min-width:0"><div id="projInvName" style="font-size:11px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="projInvSize" style="font-size:10px;color:#888;margin-top:1px"></div></div>
-                  <div onclick="event.preventDefault();event.stopPropagation();projInvRemove()"><button style="background:none;border:none;cursor:pointer;font-size:14px;padding:3px">🗑</button></div>
+            <div class="ef-step-footer">
+              <button class="ef-btn-next" onclick="efGoNext(1)">التالي ←</button>
+            </div>
+          </div>
+
+          <!-- ── Step 2: Details ── -->
+          <div class="ef-step-panel" id="ef-sp-2">
+            <div class="ef">
+              <div class="ig">
+                <div class="ig-field full" id="descWrap">
+                  <div class="ig-lbl">البيان <span class="ig-req">*</span></div>
+                  <div class="cat-dd-trig pos-rel-flex1">
+                    <input id="id_" placeholder="وصف العملية..." autocomplete="off"
+                      oninput="onDescInput(this.value);_clearErr('id_','err-id_')" onclick="onDescInput(this.value)"
+                      class="input-full">
+                    <div class="cat-dd" id="descDD" style="display:none">
+                      <div id="descList"></div>
+                    </div>
+                  </div>
+                  <div class="ig-err" id="err-id_">إلزامي</div>
                 </div>
-              </label>
+                <div class="ig-field">
+                  <div class="ig-lbl">المبلغ (ج) <span class="ig-req">*</span></div>
+                  <input id="ia" type="number" placeholder="0.00" step="any" class="req-left" oninput="_clearErr('ia','err-ia')">
+                  <div class="ig-err" id="err-ia">إلزامي</div>
+                </div>
+                <div class="ig-field">
+                  <div class="ig-lbl">التاريخ <span class="ig-req">*</span></div>
+                  <input id="idt" type="text" placeholder="dd/mm/yyyy" maxlength="10" class="req-left" oninput="_clearErr('idt','err-idt')">
+                  <div class="ig-err" id="err-idt">إلزامي</div>
+                </div>
+                <div class="ig-field" id="catWrap">
+                  <div class="ig-lbl">البند <span class="ig-req">*</span></div>
+                  <div style="position:relative">
+                    <input id="ic" placeholder="اكتب أو اختر البند..." autocomplete="off"
+                      oninput="_onCatInput(this.value)"
+                      onfocus="_onCatFocus()"
+                      onblur="_onCatBlur()"
+                      class="input-full">
+                    <div id="_catDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:var(--bg-card,#fff);border:1px solid var(--border-color,#ddd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;max-height:220px;overflow-y:auto">
+                      <div id="_catList"></div>
+                    </div>
+                  </div>
+                  <div class="ig-err" id="err-ic">إلزامي</div>
+                </div>
+                <div class="ig-field" id="mqWrap">
+                  <div class="ig-lbl">المقاول</div>
+                  <div class="cat-dd-trig pos-rel-flex1">
+                    <input id="iq" class="mq input-full" placeholder="اختياري" autocomplete="off"
+                      oninput="onMqInput(this.value)" onclick="toggleMqDD()">
+                    <div class="cat-dd" id="mqDD" style="display:none">
+                      <div id="mqList"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="br">
-              <button class="ab" id="addEntryBtn" onclick="ae()">+ إضافة القيد</button>
-              <button class="ib" onclick="triggerImport()">📥 استيراد</button>
-              <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
+            <div class="ef-step-footer">
+              <button class="ef-btn-back" onclick="efGoBack(2)">→ رجوع</button>
+              <button class="ef-btn-next" onclick="efGoNext(2)">التالي ←</button>
             </div>
+          </div>
+
+          <!-- ── Step 3: Payment + Invoice ── -->
+          <div class="ef-step-panel" id="ef-sp-3">
+            <div class="ef">
+              <div class="ig">
+                <div class="ig-field" id="pmtWrap">
+                  <div class="ig-lbl">طريقة الدفع / الاستقبال <span class="ig-req">*</span></div>
+                  <select id="iPmt" class="input-full" onchange="onPmtChange(this.value)" style="padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                    <option value="">اختر...</option>
+                    <option value="Cash">💵 Cash</option>
+                    <option value="Al Ahly">🏦 Al Ahly</option>
+                    <option value="CIB">🏦 CIB</option>
+                    <option value="CIB شركات">🏦 CIB شركات</option>
+                    <option value="أخرى">✏️ أخرى</option>
+                  </select>
+                  <input id="iPmtOther" class="input-full" placeholder="اكتب اسم البنك..." style="display:none;margin-top:6px;padding:7px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg-pure);color:var(--text-body)">
+                  <div class="ig-err" id="err-iPmt">إلزامي</div>
+                </div>
+                <div class="etype-wrap" id="etypeWrap">
+                  <button class="etype-btn daf on" onclick="setEtype('payment',this)">💰 دفعة</button>
+                  <button class="etype-btn aml" onclick="setEtype('work',this)">🔨 أعمال</button>
+                  <button class="etype-btn msn" onclick="setEtype('material',this)">🔩 مصنعيات</button>
+                </div>
+                <div class="ig-field" id="projInvWrap">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <div class="ig-lbl">📎 صورة الفاتورة</div>
+                    <span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span>
+                  </div>
+                  <input type="file" id="projInvFile" accept="image/*,application/pdf" style="display:none" onchange="projInvSelect(this)">
+                  <label for="projInvFile" id="projInvArea" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer;display:block">
+                    <div id="projInvEmpty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px"><span style="font-size:15px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>
+                    <div id="projInvFilled" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:#f0faf0">
+                      <div id="projInvThumb" style="width:38px;height:38px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>
+                      <div style="flex:1;min-width:0"><div id="projInvName" style="font-size:11px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="projInvSize" style="font-size:10px;color:#888;margin-top:1px"></div></div>
+                      <div onclick="event.preventDefault();event.stopPropagation();projInvRemove()"><button style="background:none;border:none;cursor:pointer;font-size:14px;padding:3px">🗑</button></div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="ef-step-footer">
+              <button class="ef-btn-back" onclick="efGoBack(3)">→ رجوع</button>
+              <button class="ef-btn-next" onclick="efGoNext(3)">التالي ←</button>
+            </div>
+          </div>
+
+          <!-- ── Step 4: Summary + Submit ── -->
+          <div class="ef-step-panel" id="ef-sp-4">
+            <div class="ef">
+              <div class="ef-summary-card">
+                <div class="ef-sum-row"><span class="ef-sum-key">المشروع</span><span class="ef-sum-val" id="efSumProj">—</span></div>
+                <div class="ef-sum-row"><span class="ef-sum-key">النوع</span><span class="ef-sum-val" id="efSumType">—</span></div>
+                <div class="ef-sum-row"><span class="ef-sum-key">البيان</span><span class="ef-sum-val" id="efSumDesc" style="font-size:12px;max-width:60%;text-align:left">—</span></div>
+                <div class="ef-sum-row"><span class="ef-sum-key">البند</span><span class="ef-sum-val" id="efSumCat">—</span></div>
+                <div class="ef-sum-row"><span class="ef-sum-key">طريقة الدفع</span><span class="ef-sum-val" id="efSumPmt">—</span></div>
+                <div class="ef-sum-row"><span class="ef-sum-key">التاريخ</span><span class="ef-sum-val" id="efSumDate">—</span></div>
+                <div class="ef-sum-row ef-sum-amt-row"><span class="ef-sum-key" style="font-size:13px">المبلغ</span><span class="ef-sum-amt" id="efSumAmt">0 ج</span></div>
+              </div>
+              <div id="efSumInv" style="display:none;background:#f0faf0;border-radius:10px;padding:9px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+                <span style="font-size:16px">📎</span>
+                <span style="font-size:11px;color:#1D6A3E;font-weight:700" id="efSumInvName">—</span>
+              </div>
+            </div>
+            <div class="ef-step-footer">
+              <button class="ef-btn-back" onclick="efGoBack(4)">→ رجوع</button>
+              <button class="ab ef-btn-submit" id="addEntryBtn" onclick="ae()">💾 حفظ القيد</button>
+            </div>
+          </div>
+
+          <!-- استيراد Excel (مخفي) -->
+          <div style="display:none">
+            <button class="ib" onclick="triggerImport()">📥 استيراد</button>
+            <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
+          </div>
               <span>تعديل المستحق</span>
               <button onclick="document.getElementById('dueEp').style.display='none'" class="btn-close-x">✕</button>
             </div>
