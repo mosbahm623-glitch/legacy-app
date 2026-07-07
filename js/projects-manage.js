@@ -169,3 +169,10 @@ function closeInvLb(){
   if(lb)lb.style.display='none';
   document.body.style.overflow='';
 }
+
+function shareProjReport(){
+  const pid = document.getElementById('ps')?.value || savedPid;
+  const pname = document.getElementById('ps')?.options[document.getElementById('ps')?.selectedIndex]?.text || 'المشروع';
+  if(!pid){notify('اختر مشروع أولاً','err');return;}
+  showShareLinkPopup(pid, pname);
+}
