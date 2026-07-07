@@ -237,6 +237,12 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
   var catBg=e.type==='i'?'background:#EAF7EE;color:#1D6A3E':'background:#f5f5f3;color:#666';
   var isPending=statusClr==='#E67E22';
   var editBtn=isPending?'<button onclick="owEditEntry(\''+e.id+'\')" style="background:none;border:1px solid #999;border-radius:8px;padding:2px 10px;font-size:10px;color:#555;cursor:pointer;font-family:inherit">✏️ تعديل</button>':'';
+  var invRow='';
+  if(e.img_url){
+    var safeUrl=e.img_url.replace(/'/g,"%27");
+    var safeDesc=(e.description||'قيد').replace(/'/g,' ');
+    invRow='<div onclick="openInvLb(\'' +safeUrl+ '\',\'' +safeDesc+ '\',\'\')" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#f0faf0;border-top:1px solid #e0f0e0;cursor:pointer"><img src="' +e.img_url+ '" style="width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9"><span style="font-size:11px;font-weight:600;color:#1D6A3E">📎 فاتورة مرفقة — اضغط للعرض</span></div>';
+  }
   return '<div style="background:var(--bg-pure,#fff);border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
     '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px 5px">'+
       '<div style="font-size:11px;color:#888;font-weight:600">'+pName+'</div>'+
@@ -246,6 +252,7 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
       '<span style="font-size:10px;'+catBg+';border-radius:10px;padding:2px 8px;white-space:nowrap">'+cat+'</span>'+
       '<span style="font-size:12px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+(e.description||'—')+'</span>'+
     '</div>'+
+    invRow+
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 14px;border-top:1px solid #f8f8f6">'+
       '<span style="font-size:10px;font-weight:700;color:'+statusClr+'">'+statusTxt+'</span>'+
       '<div style="display:flex;align-items:center;gap:8px">'+editBtn+'<span style="font-size:10px;color:#ccc">'+(e.entry_date||'—')+'</span></div>'+
