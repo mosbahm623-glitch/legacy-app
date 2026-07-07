@@ -100,6 +100,14 @@ body{font-family:'Cairo',sans-serif;background:#f0ede6;color:#1a2e1a;direction:r
 .loading{text-align:center;padding:60px 20px;color:#888;font-size:14px}
 .error{text-align:center;padding:40px;color:#e74c3c;font-size:13px}
 .footer{text-align:center;padding:20px;font-size:10px;color:#bbb}
+.inv-btn{background:#e8f7f0;border:1px solid #a8dcc2;color:#1D6A3E;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:4px;display:inline-flex;align-items:center;gap:4px}
+.inv-lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.inv-lb.open{display:flex}
+.inv-lb img{max-width:92vw;max-height:80vh;border-radius:12px;object-fit:contain}
+.inv-lb-close{color:#fff;font-size:28px;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif}
+.inv-lb-lbl{color:#D4C49A;font-size:13px;font-weight:700}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D9E75;margin-left:6px;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 @media print{.btns,.filter,.tabs{display:none!important}.card{box-shadow:none}}
 </style>
@@ -246,6 +254,7 @@ function renderInc(inc){
           ${e.seq?`<span class="seq-b">${e.seq}</span>`:''}
           <span>${fmtDate(e.entry_date)}</span>
         </div>
+        ${e.img_url?`<button class="inv-btn" onclick="openInvLb('${e.img_url.replace(/'/g,\"'\")}','${(e.description||'فاتورة').replace(/'/g,\"'\")}')" >🧾 فاتورة</button>`:''}
       </div>
       <div class="entry-amt inc">▲ ${fn(e.amount)} ج</div>
     </div>`).join('');
@@ -278,7 +287,9 @@ function renderExp(exp){
           <div class="entry-meta">
             ${e.seq?`<span class="seq-b exp">${e.seq}</span>`:''}
             <span>${fmtDate(e.entry_date)}</span>
+            ${e.contractor?`<span class="cat-b">${e.contractor}</span>`:''}
           </div>
+          ${e.img_url?`<button class="inv-btn" onclick="openInvLb('${e.img_url.replace(/'/g,\"'\")}','${(e.description||'فاتورة').replace(/'/g,\"'\")}')" >🧾 فاتورة</button>`:''}
         </div>
         <div class="entry-amt exp">▼ ${fn(e.amount)} ج</div>
       </div>`).join('');
@@ -336,14 +347,14 @@ async function load(){
   try{
     const[projects,entries]=await Promise.all([
       sbGet('projects?id=eq.'+pid+'&select=id,name,start_date,close_date'),
-      sbGet('entries?project_id=eq.'+pid+'&select=id,seq,amount,description,entry_date,category,type&order=entry_date.asc&limit=2000')
+      sbGet('entries?project_id=eq.'+pid+'&select=id,seq,amount,description,entry_date,category,type,img_url,contractor&order=entry_date.asc&limit=2000')
     ]);
     if(!projects?.length){document.getElementById('content').innerHTML='<div class="error">❌ المشروع غير موجود</div>';return;}
     _proj=projects[0];
     _inc=entries.filter(e=>e.type==='i');
     _exp=entries.filter(e=>e.type==='e');
 
-    document.getElementById('projName').textContent='📋 '+_proj.name;
+    document.getElementById('projName').innerHTML='📋 '+_proj.name+'<span class="live-dot" title="تحديث تلقائي كل 30 ثانية"></span>';
     document.getElementById('reportDate').textContent='تقرير بتاريخ: '+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
 
     document.getElementById('content').innerHTML=`
@@ -368,10 +379,35 @@ async function load(){
       <div class="card"><div id="tabBody"></div></div>
     `;
     switchTab('sum',_inc,_exp);
+    startLive(pid);
   }catch(e){
     document.getElementById('content').innerHTML='<div class="error">❌ خطأ: '+e.message+'</div>';
   }
 }
+function openInvLb(url, desc){
+  document.getElementById('invLbImg').src = url;
+  document.getElementById('invLbLbl').textContent = desc || 'فاتورة';
+  document.getElementById('invLb').classList.add('open');
+}
+function closeInvLb(){
+  document.getElementById('invLb').classList.remove('open');
+  document.getElementById('invLbImg').src = '';
+}
+
+// Live refresh كل 30 ثانية
+let _liveTimer = null;
+function startLive(pid){
+  if(_liveTimer) clearInterval(_liveTimer);
+  _liveTimer = setInterval(async function(){
+    try{
+      const entries = await sbGet('entries?project_id=eq.'+pid+'&select=id,seq,amount,description,entry_date,category,type,img_url,contractor&order=entry_date.asc&limit=2000');
+      _inc = entries.filter(e=>e.type==='i');
+      _exp = entries.filter(e=>e.type==='e');
+      switchTab(_tab, _inc, _exp);
+    }catch(_){}
+  }, 30000);
+}
+
 function toggleCats(){
   const b=document.getElementById('catsBody');
   const a=document.getElementById('catsArrow');
@@ -382,5 +418,10 @@ function toggleCats(){
 }
 load();
 </script>
+<div class="inv-lb" id="invLb" onclick="closeInvLb()">
+  <button class="inv-lb-close" onclick="closeInvLb()">✕</button>
+  <div class="inv-lb-lbl" id="invLbLbl"></div>
+  <img id="invLbImg" src="" alt="">
+</div>
 </body>
 </html>
