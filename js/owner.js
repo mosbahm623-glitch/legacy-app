@@ -292,6 +292,15 @@ async function owEditEntry(id){
       '<input id="oeDesc" type="text" value="'+(e.description||'')+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
     '<div style="margin-bottom:16px"><label style="font-size:11px;color:#888;font-weight:700">التاريخ</label>'+
       '<input id="oeDt" type="date" value="'+(e.entry_date||(e.submitted_at?e.submitted_at.substring(0,10):''))+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:4px;font-family:inherit;font-size:13px;box-sizing:border-box"></div>'+
+    '<div style="margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+        '<label style="font-size:11px;color:#888;font-weight:700">📎 صورة الفاتورة</label>'+
+        (e.img_url?'<button onclick="owClearEditInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف الصورة</button>':'')+
+      '</div>'+
+      (e.img_url?'<div id="oeInvPreview" style="border-radius:8px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px"><img src="'+e.img_url+'" style="width:100%;max-height:140px;object-fit:cover;display:block;cursor:zoom-in" onclick="openInvLb(\''+e.img_url.replace(/'/g,"%27")+'\',\'فاتورة\',\'\')" ></div>':'<div id="oeInvPreview"></div>')+
+      '<input type="file" id="oeInvFile" accept="image/*,application/pdf" style="display:none" onchange="owEditInvSelect(this)">'+
+      '<label for="oeInvFile" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#888">📷 '+(e.img_url?'تغيير الصورة':'إرفاق صورة')+'</label>'+
+    '</div>'+
     '<div id="oeSavMsg" style="font-size:12px;text-align:center;margin-bottom:8px;min-height:16px"></div>'+
     '<button onclick="owSaveEditEntry(\''+id+'\')" style="width:100%;padding:12px;background:#2C6E3F;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">💾 حفظ التعديل</button>'+
   '</div>';
@@ -308,6 +317,36 @@ function owSetEditType(t){
   if(be){be.style.border='2px solid '+(t==='e'?'#C0392B':'#ddd');be.style.background=t==='e'?'#FFF0EE':'#fff';be.style.color=t==='e'?'#C0392B':'#666';}
 }
 
+function owEditInvSelect(input){
+  var file=input.files[0];if(!file)return;
+  window._owEditInvFile=file;
+  var preview=document.getElementById('oeInvPreview');
+  if(!preview)return;
+  if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){
+    preview.innerHTML='<div style="padding:12px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;font-size:12px;color:#1D6A3E;text-align:center">📄 '+file.name+'</div>';
+  }else{
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      preview.innerHTML='<img src="'+ev.target.result+'" style="width:100%;max-height:140px;object-fit:cover;display:block;border-radius:8px">';
+    };
+    reader.readAsDataURL(file);
+  }
+  // تغيير نص الـ label
+  var lbl=document.querySelector('label[for="oeInvFile"]');
+  if(lbl)lbl.innerHTML='✅ '+file.name.substring(0,30);
+}
+
+function owClearEditInv(){
+  window._owEditInvFile=null;
+  window._owEditInvClear=true;
+  var preview=document.getElementById('oeInvPreview');
+  if(preview)preview.innerHTML='';
+  var lbl=document.querySelector('label[for="oeInvFile"]');
+  if(lbl)lbl.innerHTML='📷 إرفاق صورة';
+  var inp=document.getElementById('oeInvFile');
+  if(inp)inp.value='';
+}
+
 async function owSaveEditEntry(id){
   var msg=document.getElementById('oeSavMsg');
   var proj=document.getElementById('oeProj').value;
@@ -319,7 +358,40 @@ async function owSaveEditEntry(id){
   if(!proj||!amt||!desc||!dt){msg.textContent='⚠️ أكمل كل البيانات';msg.style.color='#E67E22';return;}
   msg.textContent='⏳ جاري الحفظ...';msg.style.color='#888';
   try{
-    await sb('pending_entries?id=eq.'+id,'PATCH',{project_id:proj,type:t,amount:amt,category:cat,description:desc,entry_date:dt});
+    var patch={project_id:proj,type:t,amount:amt,category:cat,description:desc,entry_date:dt};
+    // لو فيه صورة جديدة
+    if(window._owEditInvFile){
+      var file=window._owEditInvFile;
+      var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+      var uploadFile=file;
+      if(!isPdf){
+        uploadFile=await new Promise(function(res){
+          var reader=new FileReader();
+          reader.onload=function(ev){
+            var img=new Image();
+            img.onload=function(){
+              var MAX=1400,w=img.width,h=img.height;
+              if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+              var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+              canvas.getContext('2d').drawImage(img,0,0,w,h);
+              canvas.toBlob(function(blob){res(blob);},'image/jpeg',0.80);
+            };
+            img.src=ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      var ext=isPdf?'pdf':'jpg';
+      var path=id+'/invoice_'+Date.now()+'.'+ext;
+      var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+      var r=await fetch(SB_URL+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
+      if(r.ok){patch.img_url=SB_URL+'/storage/v1/object/public/invoices/'+path;}
+      window._owEditInvFile=null;
+    } else if(window._owEditInvClear){
+      patch.img_url=null;
+      window._owEditInvClear=false;
+    }
+    await sb('pending_entries?id=eq.'+id,'PATCH',patch);
     msg.textContent='✅ تم التعديل';msg.style.color='#1D6A3E';
     setTimeout(function(){document.getElementById('owEditModal')&&document.getElementById('owEditModal').remove();owLoadPending();},800);
   }catch(ex){msg.textContent='❌ حصل خطأ';msg.style.color='#C0392B';}
