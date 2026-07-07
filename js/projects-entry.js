@@ -540,6 +540,12 @@ async function sw(pid){
   if(addBtn){addBtn.disabled=false;addBtn.style.opacity='';addBtn.textContent='+ إضافة القيد';}
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
+  // تفعيل تنبيه الإشراف الهندسي
+  const descInp=document.getElementById('id_');
+  if(descInp&&!descInp._supBound){
+    descInp._supBound=true;
+    descInp.addEventListener('input',function(){onDescInput(this.value);});
+  }
   rp();
 }
 
