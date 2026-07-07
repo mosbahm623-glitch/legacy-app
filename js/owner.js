@@ -688,7 +688,12 @@ async function owInvUpload(entryId){
     if(r.ok){
       const pub=`${SB_URL}/storage/v1/object/public/invoices/${path}`;
       await sb('pending_entries?id=eq.'+entryId,'PATCH',{img_url:pub});
+      console.log('owInvUpload: success',pub);
+    }else{
+      const errText=await r.text();
+      console.error('owInvUpload failed:',r.status,errText);
+      notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
     }
-  }catch(e){console.warn('owInvUpload:',e);}
+  }catch(e){console.warn('owInvUpload error:',e);notify('⚠️ خطأ في رفع الفاتورة','warn');}
   window._owInvFile=null;
 }
