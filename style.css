@@ -180,7 +180,7 @@
   #navBackupBtn,#navExportBtn{display:none !important}
   /* تصليح الـ KPI grid على موبايل */
   #mainApp{overflow-x:hidden}
-  .app-body{overflow:hidden}
+  .app-body{overflow-x:hidden;overflow-y:auto}
   .dash-inner{padding:10px !important}
   /* notifications mobile */
   .notif-panel{width:100% !important;max-width:100% !important;border-radius:18px 18px 0 0 !important;bottom:0 !important;top:auto !important;height:80vh !important}
@@ -307,7 +307,7 @@ td{font-weight:400}
 .sav.er .sav-icon-wrap{background:#7a1f1f}
 .sav.ng .sav-icon-wrap{background:#5a4a00}
 /* SIDEBAR */
-.app-body{display:flex;flex-direction:row;flex:1;min-height:calc(100vh - 62px);position:relative;overflow:hidden}
+.app-body{display:flex;flex-direction:row;flex:1;min-height:calc(100vh - 62px);position:relative;overflow-x:hidden;overflow-y:auto}
 .sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;z-index:40}
 .main-content{flex:1;overflow:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page)}
 .sidebar.mini{width:54px}
@@ -447,7 +447,7 @@ body.day-mode .rep-hub-sub{color:var(--text-soft)}
 .sb-hamburger{display:none;background:none;border:none;color:var(--accent);font-size:20px;cursor:pointer;padding:4px 8px}
 
 /* DASHBOARD */
-.dash{padding:0;background:var(--dark-moss);min-height:calc(100vh - 120px);overflow:hidden;position:relative}
+.dash{padding:0;background:var(--dark-moss);min-height:calc(100vh - 120px);overflow-x:hidden;position:relative}
 .dash-inner{position:relative;z-index:1;padding:16px}
 /* ══ نبض المشاريع ══ */
 .pcard{border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid rgba(212,196,154,.08);transition:transform .25s,box-shadow .25s,border-color .25s;animation:card-in .5s cubic-bezier(.16,1,.3,1) both}@keyframes card-in{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
