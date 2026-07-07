@@ -703,3 +703,77 @@ function _showErr(inputId,errId){
   if(inp)inp.style.borderColor='#E74C3C';
   if(err)err.style.display='block';
 }
+
+// تنبيه الإشراف الهندسي
+let _supAlertShown=false;
+function onDescInput(val){
+  const v=(val||'').trim();
+  if(v.includes('إشراف هندسي')||v.includes('اشراف هندسي')){
+    const amtEl=document.getElementById('ia');
+    const amt=parseFloat(amtEl?amtEl.value:0)||0;
+    _showSupervisionAlert(amt);
+  } else {
+    _supAlertShown=false;
+  }
+}
+
+function _showSupervisionAlert(amt){
+  if(document.getElementById('_supAlert'))return;
+  _supAlertShown=true;
+  const pct=amt>0?(amt*0.07):0;
+  const fmt=n=>n>0?n.toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+
+  const ov=document.createElement('div');
+  ov.id='_supAlert';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl';
+
+  ov.innerHTML=`
+  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+    <div style="background:#FAEEDA;padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;border-bottom:1px solid #FAC775">
+      <div style="width:38px;height:38px;border-radius:50%;background:#EF9F27;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">⚠️</div>
+      <div>
+        <p style="margin:0;font-size:14px;font-weight:600;color:#412402">تنبيه — إشراف هندسي</p>
+        <p style="margin:0;font-size:12px;color:#854F0B">تم رصد بند إشراف هندسي في هذا القيد</p>
+      </div>
+    </div>
+    <div style="padding:1.25rem">
+      <p style="margin:0 0 1rem;font-size:14px;color:#222;line-height:1.7">
+        ${amt>0?`قيمة القيد <strong>${fmt(amt)} ج.م</strong> — يستلزم ذلك تسجيل قيد إشراف هندسي بقيمة:`:'أدخل قيمة القيد لحساب نسبة الإشراف الهندسي.'}
+      </p>
+      ${amt>0?`
+      <div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;text-align:center">
+        <p style="margin:0 0 4px;font-size:12px;color:#854F0B">نسبة الإشراف الهندسي (7%)</p>
+        <p style="margin:0;font-size:26px;font-weight:600;color:#412402">${fmt(pct)} ج.م</p>
+      </div>`:''}
+      <div style="background:#f9f6f1;border-radius:8px;border:1px solid #e8e0d4;padding:10px 14px;margin-bottom:1.25rem">
+        <p style="margin:0;font-size:13px;color:#555;line-height:1.6">
+          ℹ️ لا تنسَ تسجيل قيد مستقل باسم <strong>إشراف هندسي</strong>${amt>0?` بقيمة ${fmt(pct)} ج.م`:''} بعد حفظ هذا القيد.
+        </p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('_supAlert').remove()" 
+          style="flex:1;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;background:#FAEEDA;color:#412402;border:1px solid #FAC775;font-weight:500">
+          ✓ علمت بذلك
+        </button>
+      </div>
+    </div>
+  </div>`;
+
+  // لو غيّر المبلغ وهو داخل الـ modal — بنحدث المبلغ
+  const amtEl=document.getElementById('ia');
+  if(amtEl){
+    amtEl.addEventListener('input',function(){
+      const existing=document.getElementById('_supAlert');
+      if(existing){existing.remove();}
+      const descEl=document.getElementById('id_');
+      const desc=(descEl?descEl.value:'').trim();
+      if(desc.includes('إشراف هندسي')||desc.includes('اشراف هندسي')){
+        _showSupervisionAlert(parseFloat(this.value)||0);
+      }
+    },{once:true});
+  }
+
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
