@@ -371,3 +371,83 @@ async function addAdvEntry(){
     if(curPid===pid)await loadEntries();
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
+
+// ── Invoice helper functions ──
+function advInvTrigger(){
+  if(window._advInvFile)return;
+  document.getElementById('advInvFile').click();
+}
+function advInvSelect(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
+  window._advInvFile=file;
+  const name=file.name.length>34?file.name.substring(0,32)+'…':file.name;
+  const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+  document.getElementById('advInvName').textContent=name;
+  document.getElementById('advInvSize').textContent=size;
+  const thumb=document.getElementById('advInvThumb');
+  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+  if(!isPdf){
+    const reader=new FileReader();
+    reader.onload=e=>{thumb.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';};
+    reader.readAsDataURL(file);
+  }
+  document.getElementById('advInvEmpty').style.display='none';
+  document.getElementById('advInvFilled').style.display='flex';
+  document.getElementById('advInvArea').style.borderColor='#81c784';
+  document.getElementById('advInvArea').style.borderStyle='solid';
+  input.value='';
+}
+function advInvRemove(){
+  window._advInvFile=null;
+  const e=document.getElementById('advInvEmpty');
+  const f=document.getElementById('advInvFilled');
+  const a=document.getElementById('advInvArea');
+  const inp=document.getElementById('advInvFile');
+  if(e)e.style.display='flex';
+  if(f)f.style.display='none';
+  if(a){a.style.borderColor='#ccc';a.style.borderStyle='dashed';}
+  if(inp)inp.value='';
+}
+async function _advInvUploadFile(entryId, table){
+  const file=window._advInvFile;
+  if(!file||!entryId)return;
+  try{
+    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    let uploadFile=file;
+    if(!isPdf){
+      uploadFile=await new Promise(res=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+          const img=new Image();
+          img.onload=()=>{
+            const MAX=1400;let w=img.width,h=img.height;
+            if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+            const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            canvas.toBlob(blob=>res(blob),'image/jpeg',0.80);
+          };img.src=e.target.result;
+        };reader.readAsDataURL(file);
+      });
+    }
+    const ext=isPdf?'pdf':'jpg';
+    const path=`${entryId}/invoice_${Date.now()}.${ext}`;
+    const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+    const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},
+      body:uploadFile
+    });
+    if(r.ok){
+      const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
+      await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:pub});
+    }else{
+      const errText=await r.text();
+      console.error('advInvUpload failed:',r.status,errText);
+      notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
+    }
+  }catch(e){console.warn('advInvUpload error:',e);}
+  window._advInvFile=null;
+}
+async function advInvUpload(id){await _advInvUploadFile(id,'entries');}
+async function advInvUploadPending(id){await _advInvUploadFile(id,'pending_entries');}
