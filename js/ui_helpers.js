@@ -553,3 +553,25 @@ function toggleEntFullscreen(){
     document.addEventListener('keydown',esc);
   }
 }
+
+function showShareLinkPopup(projId, projName){
+  const link='https://mosbahm623-glitch.github.io/legacy-app/report.html?pid='+projId;
+  const msg='\u{1F4CB} \u062A\u0642\u0631\u064A\u0631 \u0645\u0634\u0631\u0648\u0639: '+(projName||'\u0627\u0644\u0645\u0634\u0631\u0648\u0639')+'\n\uD83D\uDD17 '+link;
+  document.getElementById('shareLinkPopup')?.remove();
+  const overlay=document.createElement('div');
+  overlay.id='shareLinkPopup';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML=`<div style="background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;animation:slideUp .3s ease">
+    <div style="width:40px;height:4px;background:#ddd;border-radius:4px;margin:0 auto 20px"></div>
+    <div style="font-size:15px;font-weight:800;color:#1D3C2A;margin-bottom:4px">🔗 رابط تقرير العميل</div>
+    <div style="font-size:12px;color:#999;margin-bottom:16px">${projName||'المشروع'}</div>
+    <div style="background:#f0faf0;border:1.5px solid #c8e6c9;border-radius:12px;padding:12px 14px;margin-bottom:16px;word-break:break-all;font-size:12px;color:#1D3C2A;font-weight:600">${link}</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button onclick="(function(){if(navigator.clipboard){navigator.clipboard.writeText('${link}').then(()=>notify('✅ تم نسخ الرابط','ok'));}else{var t=document.createElement('textarea');t.value='${link}';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);notify('✅ تم نسخ الرابط','ok');}})()" style="flex:1;padding:12px;background:#1D3C2A;color:#D4C49A;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer">📋 نسخ الرابط</button>
+      <a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" style="flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px">📤 واتساب</a>
+    </div>
+    <button onclick="document.getElementById('shareLinkPopup').remove()" style="width:100%;padding:11px;background:#f5f5f5;color:#888;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">إلغاء</button>
+  </div>`;
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
