@@ -229,11 +229,12 @@ async function ae(){
   const _pmtOther=document.getElementById('iPmtOther');
   const _pmt=_pmtSel?(_pmtSel.value==='أخرى'?(_pmtOther?_pmtOther.value.trim():''):_pmtSel.value):'';
   if(!_pmt){notify('اختر طريقة الدفع','err');if(_pmtSel)_pmtSel.style.borderColor='#E74C3C';_resetSaveBtn();return;}
-  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid,payment_method:_pmt};
+  const entry={id:uid_(),project_id:savedPid,type:cT,amount:a,description:d,entry_date:dt,category:cT==='e'?c:'',contractor:cT==='e'?m:'',entry_type:cT==='e'&&m?curEtype:null,created_by:uid,payment_method:_pmt,img_url:null};
   setSav('💾 جاري الحفظ...','ng');
   try{
     if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
       await sb('entries','POST',entry);
+      if(window._projInvFile){await projInvUpload(entry.id,'entries');}
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
       refreshProjSummary(savedPid);
@@ -246,6 +247,7 @@ async function ae(){
       window._blockRtRefresh=true;
       setTimeout(()=>{window._blockRtRefresh=false;},2000);
       await sb('pending_entries','POST',pending);
+      if(window._projInvFile){await projInvUpload(entry.id,'pending_entries');}
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       notify(`⏳ تم إرسال القيد للموافقة — مشروع: ${savedProjName}`,'warn');
       _showEntryConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة','#C9A84C');
@@ -538,4 +540,79 @@ async function sw(pid){
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
   rp();
+}
+
+// ── Invoice functions for project entry ──
+function projInvSelect(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
+  window._projInvFile=file;
+  const name=file.name.length>34?file.name.substring(0,32)+'…':file.name;
+  const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+  document.getElementById('projInvName').textContent=name;
+  document.getElementById('projInvSize').textContent=size;
+  const thumb=document.getElementById('projInvThumb');
+  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+  if(!isPdf){
+    const reader=new FileReader();
+    reader.onload=e=>{thumb.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';};
+    reader.readAsDataURL(file);
+  }
+  document.getElementById('projInvEmpty').style.display='none';
+  document.getElementById('projInvFilled').style.display='flex';
+  document.getElementById('projInvArea').style.borderColor='#81c784';
+  document.getElementById('projInvArea').style.borderStyle='solid';
+  input.value='';
+}
+function projInvRemove(){
+  window._projInvFile=null;
+  const e=document.getElementById('projInvEmpty');
+  const f=document.getElementById('projInvFilled');
+  const a=document.getElementById('projInvArea');
+  const inp=document.getElementById('projInvFile');
+  if(e)e.style.display='flex';
+  if(f)f.style.display='none';
+  if(a){a.style.borderColor='#ccc';a.style.borderStyle='dashed';}
+  if(inp)inp.value='';
+}
+async function projInvUpload(entryId, table){
+  const file=window._projInvFile;
+  if(!file||!entryId)return;
+  try{
+    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    let uploadFile=file;
+    if(!isPdf){
+      uploadFile=await new Promise(res=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+          const img=new Image();
+          img.onload=()=>{
+            const MAX=1400;let w=img.width,h=img.height;
+            if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+            const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            canvas.toBlob(blob=>res(blob),'image/jpeg',0.80);
+          };img.src=e.target.result;
+        };reader.readAsDataURL(file);
+      });
+    }
+    const ext=isPdf?'pdf':'jpg';
+    const path=`${entryId}/invoice_${Date.now()}.${ext}`;
+    const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+    const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},
+      body:uploadFile
+    });
+    if(r.ok){
+      const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
+      await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:pub});
+    }else{
+      const err=await r.text();
+      console.error('projInvUpload failed:',r.status,err);
+      notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
+    }
+  }catch(e){console.warn('projInvUpload error:',e);}
+  window._projInvFile=null;
+  projInvRemove();
 }
