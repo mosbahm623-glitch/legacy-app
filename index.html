@@ -650,6 +650,8 @@ setTimeout(()=>window.lcNext(),200);
             <button class="ib" onclick="triggerImport()">📥 استيراد</button>
             <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="importFromXlsx(this)">
           </div>
+          <div id="dueEp" style="display:none">
+            <div class="ep-h">
               <span>تعديل المستحق</span>
               <button onclick="document.getElementById('dueEp').style.display='none'" class="btn-close-x">✕</button>
             </div>
