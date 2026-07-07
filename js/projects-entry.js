@@ -241,6 +241,7 @@ async function ae(){
       setSav('✅ تم الحفظ','ok');
       notify(`✅ تم حفظ القيد في مشروع: ${savedProjName}`,'ok');
       _showEntryConfirm('✅ تم إضافة القيد بنجاح','#1D9E75');
+      efResetSteps();
       auditLog('إضافة قيد','entries',entry.id,{project:savedProjName,amount:entry.amount,category:entry.category,type:entry.type});
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
@@ -615,4 +616,90 @@ async function projInvUpload(entryId, table){
   }catch(e){console.warn('projInvUpload error:',e);}
   window._projInvFile=null;
   projInvRemove();
+}
+
+// ══ Entry Form Steps Navigation ══════════════════════
+function efGoTo(step){
+  const total=4;
+  for(let i=1;i<=total;i++){
+    const panel=document.getElementById('ef-sp-'+i);
+    const si=document.getElementById('ef-si-'+i);
+    if(!panel||!si)continue;
+    panel.classList.toggle('active',i===step);
+    si.classList.remove('active','done');
+    if(i<step)si.classList.add('done');
+    else if(i===step)si.classList.add('active');
+  }
+  window._efCurStep=step;
+  // scroll to top of form
+  const ef=document.getElementById('entryForm');
+  if(ef)ef.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function efGoNext(from){
+  if(from===1){
+    const pid=document.getElementById('entryProjId').value;
+    if(!pid){notify('اختر مشروع أولاً','err');return;}
+  }
+  if(from===2){
+    const desc=document.getElementById('id_').value.trim();
+    const amt=document.getElementById('ia').value;
+    const cat=document.getElementById('ic').value.trim();
+    const dt=document.getElementById('idt').value.trim();
+    if(!desc){notify('ادخل البيان','err');_showErr('id_','err-id_');return;}
+    if(!amt){notify('ادخل المبلغ','err');_showErr('ia','err-ia');return;}
+    if(!dt){notify('ادخل التاريخ','err');_showErr('idt','err-idt');return;}
+    const cT=document.getElementById('tx').classList.contains('on')?'e':'i';
+    if(cT==='e'&&!cat){notify('ادخل البند','err');_showErr('ic','err-ic');return;}
+  }
+  if(from===3){
+    const pmt=document.getElementById('iPmt').value;
+    if(!pmt){notify('اختر طريقة الدفع','err');return;}
+    efBuildSummary();
+  }
+  efGoTo(from+1);
+}
+
+function efGoBack(from){
+  efGoTo(from-1);
+}
+
+function efResetSteps(){
+  efGoTo(1);
+}
+
+function efBuildSummary(){
+  const projName=document.getElementById('entryProjInput').value||'—';
+  const cT=document.getElementById('tx').classList.contains('on')?'e':'i';
+  const amt=parseFloat(document.getElementById('ia').value)||0;
+  const desc=document.getElementById('id_').value||'—';
+  const cat=document.getElementById('ic').value||'—';
+  const pmt=document.getElementById('iPmt').value||'—';
+  const dt=document.getElementById('idt').value||'—';
+  const projEl=document.getElementById('efSumProj');if(projEl)projEl.textContent=projName;
+  const typeEl=document.getElementById('efSumType');if(typeEl)typeEl.textContent=cT==='e'?'📥 مصروف':'📤 وارد';
+  const descEl=document.getElementById('efSumDesc');if(descEl)descEl.textContent=desc;
+  const catEl=document.getElementById('efSumCat');if(catEl)catEl.textContent=cat;
+  const pmtEl=document.getElementById('efSumPmt');if(pmtEl)pmtEl.textContent=pmt;
+  const dtEl=document.getElementById('efSumDate');if(dtEl)dtEl.textContent=dt;
+  const amtEl=document.getElementById('efSumAmt');
+  if(amtEl){amtEl.textContent=amt.toLocaleString()+' ج';amtEl.className='ef-sum-amt'+(cT==='i'?' income':'');}
+  // فاتورة
+  const invRow=document.getElementById('efSumInv');
+  if(invRow){
+    if(window._projInvFile){
+      invRow.style.display='flex';
+      const nameEl=document.getElementById('efSumInvName');
+      if(nameEl)nameEl.textContent=window._projInvFile.name;
+    }else{
+      invRow.style.display='none';
+    }
+  }
+}
+
+function _showErr(inputId,errId){
+  const inp=document.getElementById(inputId);
+  const err=document.getElementById(errId);
+  if(inp)inp.style.borderColor='#E74C3C';
+  if(err)err.style.display='block';
 }
