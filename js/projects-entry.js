@@ -54,6 +54,12 @@ function _selectCat(val) {
   const inp = document.getElementById('ic');
   if (inp) { inp.value = val; _clearErr('ic','err-ic'); }
   _closeCatDD();
+  // تنبيه الإشراف الهندسي
+  if(val&&(val.includes('إشراف هندسي')||val.includes('اشراف هندسي'))){
+    const amtEl=document.getElementById('ia');
+    const amt=parseFloat(amtEl?amtEl.value:0)||0;
+    _showSupervisionAlert(amt);
+  }
 }
 
 function _onCatInput(val) {
