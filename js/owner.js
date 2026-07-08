@@ -176,6 +176,12 @@ function owSelectCat(val){
   if(inp)inp.value=val;
   if(hidden)hidden.value=val;
   if(dd)dd.style.display='none';
+  // تنبيه الإشراف الهندسي
+  if(val&&(val.includes('إشراف هندسي')||val.includes('اشراف هندسي'))){
+    var amtEl=document.getElementById('ow-amt');
+    var amt=parseFloat(amtEl?amtEl.value:0)||0;
+    if(typeof _showSupervisionAlert==='function') _showSupervisionAlert(amt);
+  }
 }
 
 function owFmtDate(inp){
