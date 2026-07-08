@@ -197,33 +197,29 @@ function _showSupervisionAlert(amt){
   const fmt=n=>n>0?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
   const ov=document.createElement('div');
   ov.id='_supAlert';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl';
   ov.innerHTML=`
-  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-    <div style="background:#FAEEDA;padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;border-bottom:1px solid #FAC775">
-      <div style="width:38px;height:38px;border-radius:50%;background:#EF9F27;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">⚠️</div>
+  <div style="background:#fff;border-radius:14px;max-width:380px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.2);font-family:Cairo,sans-serif">
+    <div style="background:#1D3C2A;padding:14px 16px;display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏗️</div>
       <div>
-        <p style="margin:0;font-size:14px;font-weight:600;color:#412402">تنبيه — إشراف هندسي</p>
-        <p style="margin:0;font-size:12px;color:#854F0B">اختار البند ده؟ خد بالك من الـ 7%</p>
+        <p style="margin:0;font-size:14px;font-weight:700;color:#fff">إشراف هندسي</p>
+        <p style="margin:0;font-size:11px;color:#a8c5b0">تذكير بنسبة الـ 7%</p>
       </div>
     </div>
-    <div style="padding:1.25rem">
-      <p style="margin:0 0 1rem;font-size:14px;color:#222;line-height:1.7">
-        ${amt>0?`القيد بـ <strong>${fmt(amt)} ج</strong> — الإشراف الهندسي بيستحق:`:'دخّل المبلغ الأول عشان يحسبلك الـ 7%.'}
-      </p>
+    <div style="padding:16px;background:#fff">
+      <p style="margin:0 0 0;font-size:13px;color:#444">${amt>0?`القيد بـ <strong>${fmt(amt)} ج</strong> — مستحق عليه:`:'دخّل المبلغ الأول عشان يحسبلك الـ 7%.'}</p>
       ${amt>0?`
-      <div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;text-align:center">
-        <p style="margin:0 0 4px;font-size:12px;color:#854F0B">7% إشراف هندسي</p>
-        <p style="margin:0;font-size:28px;font-weight:700;color:#412402;direction:ltr">${fmt(pct)} ج</p>
-      </div>`:''}
-      <div style="background:#f9f6f1;border-radius:8px;border:1px solid #e8e0d4;padding:10px 14px;margin-bottom:1.25rem">
-        <p style="margin:0;font-size:13px;color:#555;line-height:1.7">
-          متنساش تعمل قيد تاني باسم <strong>إشراف هندسي</strong>${amt>0?` بـ ${fmt(pct)} ج`:''} بعد ما تحفظ ده.
-        </p>
+      <div style="background:#f0f7f3;border:1px solid #c8e6c9;border-radius:10px;padding:14px;text-align:center;margin:12px 0">
+        <p style="margin:0 0 4px;font-size:11px;color:#2e7d52">7% إشراف هندسي</p>
+        <p style="margin:0;font-size:28px;font-weight:800;color:#1D3C2A;direction:ltr">${fmt(pct)} ج</p>
+      </div>`:'<div style="height:12px"></div>'}
+      <div style="font-size:12px;color:#666;line-height:1.7;margin-bottom:14px;padding:10px 12px;background:#fafafa;border-radius:8px;border-right:3px solid #1D3C2A">
+        متنساش تسجّل قيد إشراف هندسي${amt>0?` بـ ${fmt(pct)} ج`:''} بعد ما تحفظ القيد ده.
       </div>
       <button onclick="document.getElementById('_supAlert').remove()"
-        style="width:100%;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;background:#FAEEDA;color:#412402;border:1px solid #FAC775;font-weight:600">
-        تمام، فاهم
+        style="width:100%;padding:10px;border-radius:8px;border:none;background:#1D3C2A;color:#fff;font-family:Cairo,sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        تمام ✓
       </button>
     </div>
   </div>`;
