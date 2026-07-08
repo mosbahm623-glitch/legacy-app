@@ -59,6 +59,7 @@ async function loadOwnerScreen(){
           '<div><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">التاريخ <span style="color:#E74C3C">*</span></label>'+
           '<input id="ow-date" type="date" style="'+inp+'" value="'+todayISO+'"></div>'+
         '</div>'+
+        '<div id="ow-inc-banner"></div>'+
         '<div id="ow-cat-wrap" style="margin-bottom:8px;position:relative"><label style="font-size:10px;color:#999;font-weight:700;display:block;margin-bottom:4px">البند <span style="color:#E74C3C">*</span></label>'+
         '<input id="ow-cat-inp" type="text" placeholder="اكتب أو اختر البند..." autocomplete="off" oninput="owFilterCat(this.value)" onblur="owHideCatDD()" style="'+inp+'">'+
         '<input type="hidden" id="ow-cat">'+
@@ -213,7 +214,8 @@ function owSetType(t){
       var amt=parseFloat(this.value)||0;
       var banner=typeof _showIncomingAlert==='function'?_showIncomingAlert(amt):null;
       if(!banner)return;
-      this.parentNode.parentNode.appendChild(banner);
+      var bp=document.getElementById('ow-inc-banner');
+      if(bp){bp.innerHTML='';bp.appendChild(banner);}else{this.parentNode.parentNode.appendChild(banner);}
     });
   }
   // حذف البانر لما يرجع لمصروف
