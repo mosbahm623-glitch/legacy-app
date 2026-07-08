@@ -64,6 +64,18 @@ async function loadApprovals(silent=false){
       <div class="appr-total-cell"><div class="appr-total-lbl">الوارد</div><div class="appr-total-val" style="color:var(--success-text,#166534)">${fn(totInc)} ج</div></div>
       <div class="appr-total-cell"><div class="appr-total-lbl">الصافي</div><div class="appr-total-val" style="color:${netClr}">${netSign}${fn(Math.abs(totNet))} ج</div></div>
     </div>`;
+    // ── فلتر بالشخص ──
+    const allPersonNames=[...new Set((entRows||[]).map(r=>profMap[r.submitted_by]||'—'))].filter(n=>n&&n!=='—');
+    if(allPersonNames.length>1){
+      html+=`<div style="padding:10px 14px 0;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">فلتر:</span>
+        <select id="apprPersonFilter" onchange="filterApprByPerson(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">
+          <option value="">— كل الأشخاص —</option>
+          \${allPersonNames.map(n=>\`<option value="\${n}">\${n}</option>\`).join('')}
+        </select>
+        <button onclick="filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
+      </div>`;
+    }
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" class="appr-bulk-bar">
@@ -96,9 +108,13 @@ async function loadApprovals(silent=false){
         const pid='person-'+personName.replace(/\s/g,'_')+'-'+Date.now();
         const pTotal=rows.reduce((s,r)=>s+(r.type==='i'?1:-1)*Number(r.amount||0),0);
         const pTotalFmt=(pTotal>=0?'+':'')+fn(Math.abs(pTotal))+' ج';
+        const personIds=rows.map(r=>`'${r.id}'`).join(',');
         html+=`<div class="appr-person-hdr open" onclick="toggleApprPerson(this)">
           <div class="appr-person-name"><span>${personName}</span><span class="appr-person-count">${rows.length} قيود</span></div>
-          <span class="appr-person-total">${pTotalFmt}</span>
+          <div style="display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">
+            <span class="appr-person-total">${pTotalFmt}</span>
+            <button onclick="bulkApproveByPerson([${personIds}])" style="font-size:10px;padding:3px 9px;border-radius:8px;border:none;background:var(--success-glow,#e8f5e9);color:var(--success-text,#166534);cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap">✅ موافقة الكل</button>
+          </div>
         </div>
         <div class="appr-person-body open" id="${pid}">`;
         rows.forEach(r=>{
