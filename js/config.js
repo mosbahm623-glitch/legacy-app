@@ -194,7 +194,7 @@ function updateApp(){
 function _showSupervisionAlert(amt){
   if(document.getElementById('_supAlert'))return;
   const pct=amt>0?(amt*0.07):0;
-  const fmt=n=>n>0?n.toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const fmt=n=>n>0?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
   const ov=document.createElement('div');
   ov.id='_supAlert';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl';
@@ -204,26 +204,26 @@ function _showSupervisionAlert(amt){
       <div style="width:38px;height:38px;border-radius:50%;background:#EF9F27;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">⚠️</div>
       <div>
         <p style="margin:0;font-size:14px;font-weight:600;color:#412402">تنبيه — إشراف هندسي</p>
-        <p style="margin:0;font-size:12px;color:#854F0B">تم رصد بند إشراف هندسي في هذا القيد</p>
+        <p style="margin:0;font-size:12px;color:#854F0B">اختار البند ده؟ خد بالك من الـ 7%</p>
       </div>
     </div>
     <div style="padding:1.25rem">
       <p style="margin:0 0 1rem;font-size:14px;color:#222;line-height:1.7">
-        ${amt>0?`قيمة القيد <strong>${fmt(amt)} ج.م</strong> — يستلزم ذلك تسجيل قيد إشراف هندسي بقيمة:`:'أدخل قيمة القيد لحساب نسبة الإشراف الهندسي.'}
+        ${amt>0?`القيد بـ <strong>${fmt(amt)} ج</strong> — الإشراف الهندسي بيستحق:`:'دخّل المبلغ الأول عشان يحسبلك الـ 7%.'}
       </p>
       ${amt>0?`
       <div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;text-align:center">
-        <p style="margin:0 0 4px;font-size:12px;color:#854F0B">نسبة الإشراف الهندسي (7%)</p>
-        <p style="margin:0;font-size:26px;font-weight:600;color:#412402">${fmt(pct)} ج.م</p>
+        <p style="margin:0 0 4px;font-size:12px;color:#854F0B">7% إشراف هندسي</p>
+        <p style="margin:0;font-size:28px;font-weight:700;color:#412402;direction:ltr">${fmt(pct)} ج</p>
       </div>`:''}
       <div style="background:#f9f6f1;border-radius:8px;border:1px solid #e8e0d4;padding:10px 14px;margin-bottom:1.25rem">
-        <p style="margin:0;font-size:13px;color:#555;line-height:1.6">
-          ℹ️ لا تنسَ تسجيل قيد مستقل باسم <strong>إشراف هندسي</strong>${amt>0?` بقيمة ${fmt(pct)} ج.م`:''} بعد حفظ هذا القيد.
+        <p style="margin:0;font-size:13px;color:#555;line-height:1.7">
+          متنساش تعمل قيد تاني باسم <strong>إشراف هندسي</strong>${amt>0?` بـ ${fmt(pct)} ج`:''} بعد ما تحفظ ده.
         </p>
       </div>
       <button onclick="document.getElementById('_supAlert').remove()"
-        style="width:100%;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;background:#FAEEDA;color:#412402;border:1px solid #FAC775;font-weight:500">
-        ✓ علمت بذلك
+        style="width:100%;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;background:#FAEEDA;color:#412402;border:1px solid #FAC775;font-weight:600">
+        تمام، فاهم
       </button>
     </div>
   </div>`;
