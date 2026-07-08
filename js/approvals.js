@@ -73,3 +73,33 @@ async function updatePendingBadge(){
 }
 
 let _approvalsInterval=null;
+
+function filterApprByPerson(name){
+  const allPersonBlocks=document.querySelectorAll('.appr-person-hdr');
+  allPersonBlocks.forEach(hdr=>{
+    const body=hdr.nextElementSibling;
+    if(!name){
+      hdr.style.display='';
+      if(body)body.style.display='';
+    } else {
+      const pName=hdr.querySelector('.appr-person-name span')?.textContent?.trim()||'';
+      const show=pName===name;
+      hdr.style.display=show?'':'none';
+      if(body)body.style.display=show?'':'none';
+    }
+  });
+}
+
+async function bulkApproveByPerson(ids){
+  if(!ids||!ids.length){notify('مفيش قيود','warn');return;}
+  await new Promise(res=>showConfirm({icon:'✅',title:'موافقة على الشخص',msg:'هتوافق على '+ids.length+' قيد. تكمل؟',okLabel:'موافقة',okType:'primary',onOk:res}));
+  setSav('💾 جاري الموافقة...','ng');
+  let done=0;
+  for(const id of ids){
+    try{await approveEntry(id,true);done++;}
+    catch(e){console.error(e);notify('❌ فشلت: '+friendlyError(e),'err');}
+  }
+  setSav('✅ تم الموافقة على '+done+' قيد','ok');
+  await loadApprovals();
+  await updatePendingBadge();
+}
