@@ -540,6 +540,23 @@ async function sw(pid){
   if(addBtn){addBtn.disabled=false;addBtn.style.opacity='';addBtn.textContent='+ إضافة القيد';}
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
+  // تفعيل تنبيه الوارد
+  const _iaEl=document.getElementById('ia');
+  if(_iaEl&&!_iaEl._incBound){
+    _iaEl._incBound=true;
+    _iaEl.addEventListener('input',function(){
+      const existing=document.getElementById('_incAlert');
+      if(existing)existing.remove();
+      const isInc=!document.getElementById('tx').classList.contains('on');
+      if(!isInc)return;
+      const amt=parseFloat(this.value)||0;
+      const banner=_showIncomingAlert(amt);
+      if(!banner)return;
+      const errEl=document.getElementById('err-ia');
+      if(errEl)errEl.parentNode.insertBefore(banner,errEl.nextSibling);
+      else this.parentNode.appendChild(banner);
+    });
+  }
   rp();
 }
 
