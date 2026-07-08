@@ -67,12 +67,10 @@ async function loadApprovals(silent=false){
     // ── فلتر بالشخص ──
     const allPersonNames=[...new Set((entRows||[]).map(r=>profMap[r.submitted_by]||'—'))].filter(n=>n&&n!=='—');
     if(allPersonNames.length>1){
+      const personOpts='<option value="">— كل الأشخاص —</option>'+allPersonNames.map(n=>'<option value="'+n+'">'+n+'</option>').join('');
       html+=`<div style="padding:10px 14px 0;display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">فلتر:</span>
-        <select id="apprPersonFilter" onchange="filterApprByPerson(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">
-          <option value="">— كل الأشخاص —</option>
-          \${allPersonNames.map(n=>\`<option value="\${n}">\${n}</option>\`).join('')}
-        </select>
+        <select id="apprPersonFilter" onchange="filterApprByPerson(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${personOpts}</select>
         <button onclick="filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
