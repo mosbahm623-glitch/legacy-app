@@ -28,94 +28,124 @@ async function downloadDashReport(){
 //  UNIFIED REPORT TEMPLATE HELPERS
 // ═══════════════════════════════════════════════════
 const _PDF_CSS=`
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:Arial,sans-serif;direction:rtl;background:var(--bg-gray);color:#1a1a1a}
-  .page{background:var(--bg-pure);max-width:960px;margin:0 auto;padding:36px 40px;min-height:100vh}
-  @media print{.no-print{display:none!important}}
-  /* ── HEADER ── */
-  .hdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:4px solid #1D3C2A;margin-bottom:24px}
-  .hdr-left h1{font-size:24px;font-weight:900;color:var(--primary);margin-bottom:3px}
-  .hdr-left .sub{font-size:12px;color:var(--text-soft);line-height:1.6}
-  .hdr-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-  .hdr-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block}
-  .hdr-badge.owner{background:var(--success-glow);color:var(--primary-btn);border:1px solid #C8E6C9}
-  .hdr-badge.acct{background:var(--info-bg);color:var(--info);border:1px solid #BBDEFB}
-  .hdr-logo{height:64px;object-fit:contain}
+  body{font-family:'Cairo',Arial,sans-serif;direction:rtl;background:#E8E4DC;color:#1a1a1a}
+  .page{background:#fff;max-width:900px;margin:0 auto;position:relative;overflow:hidden}
+  @media print{.no-print{display:none!important}body{background:#fff}.page{max-width:100%}}
+  /* ── COVER ── */
+  .cover{background:#1D3C2A;padding:44px 48px 36px;position:relative;overflow:hidden}
+  .cover::before{content:'';position:absolute;top:-60px;left:-60px;width:340px;height:340px;border-radius:50%;background:rgba(200,169,110,.08)}
+  .cover::after{content:'';position:absolute;bottom:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(200,169,110,.06)}
+  .cover-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-icon{width:48px;height:48px;background:#C8A96E;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+  .brand-text h2{font-size:20px;font-weight:900;color:#fff;line-height:1.1}
+  .brand-text p{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
+  .cover-date{text-align:left;color:rgba(255,255,255,.6);font-size:11px;line-height:1.7}
+  .cover-main{position:relative;z-index:1}
+  .cover-label{font-size:11px;font-weight:600;color:#C8A96E;letter-spacing:2px;margin-bottom:8px}
+  .cover-title{font-size:34px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:14px}
+  .cover-title span{color:#C8A96E}
+  .cover-meta{display:flex;gap:20px;flex-wrap:wrap}
+  .cover-meta-item{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.75)}
+  .gold-bar{height:5px;background:linear-gradient(90deg,#C8A96E,#E8D5A8,#C8A96E)}
+  /* ── BODY ── */
+  .body{padding:36px 48px}
   /* ── KPI CARDS ── */
-  .kpis{display:grid;gap:12px;margin-bottom:24px}
+  .kpis{display:grid;gap:14px;margin-bottom:36px}
   .kpis-3{grid-template-columns:1fr 1fr 1fr}
   .kpis-2{grid-template-columns:1fr 1fr}
   .kpis-4{grid-template-columns:1fr 1fr 1fr 1fr}
-  .kpi{border-radius:10px;padding:14px 16px;text-align:center;border:1px solid}
-  .kpi-lbl{font-size:10px;font-weight:700;margin-bottom:7px;letter-spacing:.4px;text-transform:uppercase}
-  .kpi-val{font-size:22px;font-weight:900;font-family:Arial,sans-serif}
-  .kpi-inc{background:var(--success-glow);border-color:var(--success-muted);color:#1E6B3A}
-  .kpi-exp{background:var(--danger-pale);border-color:var(--danger-tint);color:#922B21}
-  .kpi-adv{background:var(--info-bg);border-color:var(--info-muted);color:#185FA5}
-  .kpi-net-pos{background:var(--success-glow);border-color:var(--success-muted);color:#1E6B3A}
-  .kpi-net-neg{background:var(--danger-pale);border-color:var(--danger-tint);color:#922B21}
-  .kpi-neutral{background:var(--bg-pure);border-color:var(--border-light);color:#555}
-  /* ── SECTION TITLE ── */
-  .sec-ttl{font-size:13px;font-weight:800;color:var(--primary);padding:10px 0;border-bottom:2px solid #e0e0e0;margin-bottom:0;display:flex;align-items:center;gap:6px}
+  .kpi{border-radius:12px;padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;bottom:-16px;left:-16px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1)}
+  .kpi-lbl{font-size:10px;font-weight:600;opacity:.8;letter-spacing:1px;margin-bottom:6px}
+  .kpi-val{font-size:20px;font-weight:900;line-height:1.1}
+  .kpi-inc{background:#1D3C2A;color:#fff}
+  .kpi-exp{background:#C0392B;color:#fff}
+  .kpi-adv{background:#1A5276;color:#fff}
+  .kpi-net-pos{background:#1D3C2A;color:#fff}
+  .kpi-net-neg{background:#C0392B;color:#fff}
+  .kpi-neutral{background:#f5f0e8;border:1px solid #ddd8ce;color:#333}
+  /* ── SECTION HEADER ── */
+  .sec-ttl{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:32px;font-size:14px;font-weight:800;color:#1D3C2A;padding-bottom:8px;border-bottom:2px solid #ddd8ce}
+  .sec-ttl::before{content:'';display:block;width:4px;height:22px;background:#C8A96E;border-radius:2px;flex-shrink:0}
+  .sec-ttl-bar{width:4px;height:22px;background:#C8A96E;border-radius:2px;flex-shrink:0}
+  .sec-ttl h3{font-size:14px;font-weight:800;color:#1D3C2A}
+  .sec-ttl .cnt{font-size:11px;background:#1D3C2A;color:#fff;padding:2px 8px;border-radius:20px;margin-right:auto}
   /* ── TABLE ── */
   table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px}
   thead tr{background:#1D3C2A}
-  th{color:var(--accent);padding:10px 8px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.3px}
-  th:last-child{text-align:center}
-  td{padding:8px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-  tr:nth-child(even) td{background:#fafaf8}
-  tr:last-child td{border-bottom:none}
-  tfoot tr{background:#f5f0e8}
-  tfoot td{padding:9px 8px;font-weight:800;border-top:2px solid #1D3C2A}
+  th{color:#C8A96E;padding:10px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.3px}
+  td{padding:9px 12px;border-bottom:1px solid #ddd8ce;vertical-align:middle;color:#1a1a1a}
+  tr:nth-child(even) td{background:#f8f6f1}
+  tfoot tr{background:#1D3C2A}
+  tfoot td{padding:10px 12px;font-weight:800;font-size:12px;border:none;color:#C8A96E}
   /* ── BADGES ── */
   .b{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
-  .b-i{background:var(--success-glow);color:#1E6B3A}.b-e{background:var(--danger-pale);color:#922B21}
-  .b-pay{background:var(--success-glow);color:#1E6B3A}.b-work{background:var(--info-bg);color:#185FA5}.b-mat{background:var(--warning-pale);color:#E65100}
+  .b-i{background:#e8f5e9;color:#2D5A3D}
+  .b-e{background:#fdecea;color:#C0392B}
+  .b-pay{background:#e8f5e9;color:#2D5A3D}
+  .b-work{background:#eaf2fb;color:#1A5276}
+  .b-mat{background:#fff8e1;color:#E65100}
   /* ── AMOUNTS ── */
   .amt{white-space:nowrap;font-weight:700}
-  .pos{color:#1E6B3A}.neg{color:#922B21}
+  .pos{color:#2D5A3D}.neg{color:#C0392B}
+  /* ── BAR ── */
+  .bar-wrap{display:flex;align-items:center;gap:6px}
+  .bar-track{flex:1;height:6px;background:#eae6dc;border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);border-radius:3px}
+  .bar-pct{font-size:10px;color:#888;min-width:32px;text-align:left}
   /* ── WATERMARK ── */
   .wm{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:rgba(29,60,42,.04);pointer-events:none;letter-spacing:4px;z-index:0;white-space:nowrap}
   /* ── CHART ── */
   .chart-wrap{width:100%;border-radius:10px;overflow:hidden;margin-bottom:20px;border:1px solid #eee}
   .chart-wrap img{width:100%;max-height:240px;object-fit:contain;display:block}
   /* ── FOOTER ── */
-  .ftr{margin-top:28px;padding-top:16px;border-top:2px solid #eeeeee;display:flex;justify-content:space-between;align-items:center;gap:16px}
-  .ftr-logo{height:36px;opacity:.4;flex-shrink:0}
-  .ftr-mid{text-align:center;flex:1}
-  .ftr-company{font-size:12px;font-weight:800;color:var(--primary);margin-bottom:4px}
-  .ftr-owner{font-size:10px;color:var(--primary-btn);font-weight:600;margin-bottom:2px}
-  .ftr-acct{font-size:10px;color:var(--info);font-weight:600;background:var(--info-bg);display:inline-block;padding:2px 10px;border-radius:20px;margin-bottom:3px}
-  .ftr-date{font-size:9px;color:var(--text-faint);margin-top:2px}
-  .ftr-conf{font-size:9px;color:var(--border-mid);text-align:left;line-height:1.5;flex-shrink:0}
-  @media print{body{background:#fff}.page{padding:20px;max-width:100%}button{display:none}.wm{display:block}}
+  .ftr{margin-top:32px;padding-top:16px;border-top:2px solid #ddd8ce;display:flex;justify-content:space-between;align-items:center}
+  .ftr-brand{font-size:12px;font-weight:800;color:#1D3C2A;margin-bottom:3px}
+  .ftr-sub{font-size:10px;color:#777}
+  .ftr-stamp{background:#1D3C2A;color:#C8A96E;padding:4px 14px;border-radius:6px;font-size:11px;font-weight:700}
 `;
 
 function _pdfHeader(title,subtitle){
-  return `<div class="hdr">
-    <div class="hdr-left">
-      <h1>${title}</h1>
-      <div class="sub">${subtitle}</div>
-      <div class="hdr-badges">
-        <span class="hdr-badge owner">🏗 المهندس محمد شكري &nbsp;|&nbsp; 📞 01099808939</span>
-        <span class="hdr-badge acct">✍ محاسب: محمود مصباح &nbsp;|&nbsp; 📞 01114892670</span>
+  const now=new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+  // extract project name from title (e.g. "📁 مشروع هشام" -> "هشام")
+  const cleanTitle=title.replace(/^[^\u0600-\u06FF]*/,'').trim();
+  return `<div class="cover">
+    <div class="cover-top">
+      <div class="brand">
+        <div class="brand-icon">🏗️</div>
+        <div class="brand-text">
+          <h2>Legacy Fine Touch</h2>
+          <p>نظام إدارة المشاريع الإنشائية</p>
+        </div>
+      </div>
+      <div class="cover-date">تاريخ الإصدار: ${now}</div>
+    </div>
+    <div class="cover-main">
+      <div class="cover-label">تقرير</div>
+      <div class="cover-title"><span>${cleanTitle}</span></div>
+      <div class="cover-meta">
+        <div class="cover-meta-item">👷 المهندس محمد شكري — 01099808939</div>
+        <div class="cover-meta-item">🧾 محاسب: محمود مصباح — 01114892670</div>
+        ${subtitle?`<div class="cover-meta-item">📅 ${subtitle}</div>`:''}
       </div>
     </div>
-    <img src="logo.jpg" class="hdr-logo">
-  </div>`;
+  </div>
+  <div class="gold-bar"></div>
+  <div class="body">`;
 }
 function _pdfFooter(){
   const now=new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
   return `<div class="ftr">
-    <img src="logo.jpg" class="ftr-logo">
-    <div class="ftr-mid">
-      <div class="ftr-company">Legacy Fine Touch</div>
-      <div class="ftr-owner">🏗 المهندس محمد شكري &nbsp;|&nbsp; 📞 01099808939</div>
-      <div class="ftr-acct">✍ محاسب: محمود مصباح &nbsp;|&nbsp; 📞 01114892670</div>
-      <div class="ftr-date">تم الإنشاء: ${now}</div>
+    <div>
+      <div class="ftr-brand">Legacy Fine Touch</div>
+      <div class="ftr-sub">تم الإنشاء: ${now} — هذا التقرير سري وخاص بالمشروع</div>
     </div>
-    <div class="ftr-conf">سري وخاص<br>بالشركة</div>
-  </div>`;
+    <div class="ftr-stamp">✓ معتمد</div>
+  </div>
+  </div>`; // close .body
 }
 function _pdfOpen(title){
   return `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>${title}</title><style>${_PDF_CSS}</style></head><body><div class="wm">LEGACY</div><div class="page">`;
