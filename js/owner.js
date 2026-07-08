@@ -202,6 +202,22 @@ function owSetType(t){
     if(catWrap)catWrap.style.display='none';
     if(mqWrap)mqWrap.style.display='none';
   }
+  // تفعيل تنبيه الوارد
+  var owAmtEl=document.getElementById('ow-amt');
+  if(owAmtEl&&!owAmtEl._incBound){
+    owAmtEl._incBound=true;
+    owAmtEl.addEventListener('input',function(){
+      var existing=document.getElementById('_incAlert');
+      if(existing)existing.remove();
+      if(window._owType!=='i')return;
+      var amt=parseFloat(this.value)||0;
+      var banner=typeof _showIncomingAlert==='function'?_showIncomingAlert(amt):null;
+      if(!banner)return;
+      this.parentNode.parentNode.appendChild(banner);
+    });
+  }
+  // حذف البانر لما يرجع لمصروف
+  if(t==='e'){var ex=document.getElementById('_incAlert');if(ex)ex.remove();}
 
 }
 
