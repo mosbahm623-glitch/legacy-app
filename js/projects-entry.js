@@ -54,12 +54,6 @@ function _selectCat(val) {
   const inp = document.getElementById('ic');
   if (inp) { inp.value = val; _clearErr('ic','err-ic'); }
   _closeCatDD();
-  // تنبيه الإشراف الهندسي
-  if(val&&(val.includes('إشراف هندسي')||val.includes('اشراف هندسي'))){
-    const amtEl=document.getElementById('ia');
-    const amt=parseFloat(amtEl?amtEl.value:0)||0;
-    _showSupervisionAlert(amt);
-  }
 }
 
 function _onCatInput(val) {
@@ -546,12 +540,6 @@ async function sw(pid){
   if(addBtn){addBtn.disabled=false;addBtn.style.opacity='';addBtn.textContent='+ إضافة القيد';}
   const idt=document.getElementById('idt');
   if(idt&&!idt.value)idt.value=ts();
-  // تفعيل تنبيه الإشراف الهندسي
-  const descInp=document.getElementById('id_');
-  if(descInp&&!descInp._supBound){
-    descInp._supBound=true;
-    descInp.addEventListener('input',function(){onDescInput(this.value);});
-  }
   rp();
 }
 
@@ -715,20 +703,3 @@ function _showErr(inputId,errId){
   if(inp)inp.style.borderColor='#E74C3C';
   if(err)err.style.display='block';
 }
-
-// تنبيه الإشراف الهندسي
-let _supAlertShown=false;
-function onDescInput(val){
-  const v=(val||'').trim();
-  if(v.includes('إشراف هندسي')||v.includes('اشراف هندسي')){
-    const amtEl=document.getElementById('ia');
-    const amt=parseFloat(amtEl?amtEl.value:0)||0;
-    _showSupervisionAlert(amt);
-  } else {
-    _supAlertShown=false;
-  }
-}
-
-
-
-
