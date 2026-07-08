@@ -199,28 +199,28 @@ function _showIncomingAlert(amt){
   const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:2});
   const el = document.createElement('div');
   el.id = '_incAlert';
-  el.style.cssText = 'margin-top:8px;direction:rtl;font-family:Cairo,sans-serif';
+  el.style.cssText = 'margin-top:8px;direction:rtl;font-family:Cairo,sans-serif;display:block;width:100%';
   el.innerHTML = `
-  <div style="background:linear-gradient(135deg,#f0f7f3,#e0f0e8);border:1px solid #b2dfc0;border-radius:12px;padding:12px 14px">
+  <div style="background:linear-gradient(135deg,#f0f7f3,#e0f0e8);border:1px solid #b2dfc0;border-radius:12px;padding:12px 14px;box-sizing:border-box">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <span style="font-size:15px">⚠️</span>
       <span style="font-size:13px;font-weight:700;color:#1D3C2A">تذكير — إشراف هندسي</span>
       <span style="background:#1D3C2A;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:auto">7%</span>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #c8e6c9">
-      <div>
-        <p style="font-size:10px;color:#888;margin:0">قيمة الوارد</p>
-        <p style="font-size:14px;font-weight:700;color:#222;margin:0;direction:ltr">${fmt(amt)} ج</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #c8e6c9;gap:4px">
+      <div style="text-align:center;flex:1">
+        <p style="font-size:10px;color:#888;margin:0 0 2px">قيمة الوارد</p>
+        <p style="font-size:13px;font-weight:700;color:#222;margin:0">${fmt(amt)} ج</p>
       </div>
-      <div style="font-size:16px;color:#ccc">×</div>
-      <div>
-        <p style="font-size:10px;color:#888;margin:0">نسبة الإشراف</p>
-        <p style="font-size:14px;font-weight:700;color:#222;margin:0">7%</p>
+      <div style="font-size:14px;color:#ccc;flex-shrink:0">×</div>
+      <div style="text-align:center;flex:1">
+        <p style="font-size:10px;color:#888;margin:0 0 2px">الإشراف</p>
+        <p style="font-size:13px;font-weight:700;color:#222;margin:0">7%</p>
       </div>
-      <div style="font-size:16px;color:#ccc">=</div>
-      <div>
-        <p style="font-size:10px;color:#2e7d52;margin:0">مستحق</p>
-        <p style="font-size:16px;font-weight:800;color:#1D3C2A;margin:0;direction:ltr">${fmt(pct)} ج</p>
+      <div style="font-size:14px;color:#ccc;flex-shrink:0">=</div>
+      <div style="text-align:center;flex:1">
+        <p style="font-size:10px;color:#2e7d52;margin:0 0 2px">مستحق</p>
+        <p style="font-size:15px;font-weight:800;color:#1D3C2A;margin:0">${fmt(pct)} ج</p>
       </div>
     </div>
     <p style="font-size:11px;color:#555;margin:8px 0 0;line-height:1.6">اعمل قيد إشراف هندسي بـ <strong>${fmt(pct)} ج</strong> بعد حفظ الوارد ده.</p>
