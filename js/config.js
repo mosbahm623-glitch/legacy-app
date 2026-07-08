@@ -194,7 +194,7 @@ function updateApp(){
 function _showSupervisionAlert(amt){
   if(document.getElementById('_supAlert'))return;
   const pct=amt>0?(amt*0.07):0;
-  const fmt=n=>n>0?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const fmt=n=>n>0?n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}):'—';
   const ov=document.createElement('div');
   ov.id='_supAlert';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl';
