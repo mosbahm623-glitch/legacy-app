@@ -1,5 +1,6 @@
 function goToNotes(){showScreen('notes');}
-let _notesFilter='all';
+if(typeof _notesFilter==='undefined') var _notesFilter='all';
+if(typeof _notesList==='undefined') var _notesList=[];
 
 // ██ NOTES — الملاحظات والمهام ══════════════════════
 const _noteColors=[
@@ -93,7 +94,6 @@ async function deleteNoteScreen(id){
 // ══════════════════════════════════════════
 //  NOTES / TODO
 // ══════════════════════════════════════════
-let _notesList=[];
 
 async function loadNotes(){
   try{
