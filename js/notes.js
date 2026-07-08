@@ -1,3 +1,6 @@
+function goToNotes(){showScreen('notes');}
+let _notesFilter='all';
+
 // ██ NOTES — الملاحظات والمهام ══════════════════════
 const _noteColors=[
   {bg:'#E8F5E9',txt:'#1D6A3E',lbl:'عمل'},
