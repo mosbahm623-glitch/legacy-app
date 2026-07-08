@@ -315,7 +315,7 @@ td{font-weight:400}
 .sb-head h3{font-size:12px;font-weight:700;color:var(--accent)}
 .sb-head p{font-size:9px;color:rgba(212,196,154,.45);margin-top:2px}
 .sidebar.mini .sb-head h3,.sidebar.mini .sb-head p{display:none}
-.sb-nav{flex:1;padding:8px 6px;overflow-y:auto;overflow-x:hidden;min-height:0}
+.sb-nav{flex:1;padding:8px 6px;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:none;-ms-overflow-style:none}.sb-nav::-webkit-scrollbar{display:none}
 .sb-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;cursor:pointer;margin-bottom:2px;color:rgba(212,196,154,.65);font-size:12px;font-weight:500;font-family:inherit;border:none;background:transparent;width:100%;text-align:right;transition:all .15s;white-space:nowrap}
 .sb-item:hover{background:rgba(212,196,154,.1);color:var(--accent)}
 .sb-item.on{background:rgba(212,196,154,.18);color:var(--accent);font-weight:700}
