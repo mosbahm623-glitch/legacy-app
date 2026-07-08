@@ -189,3 +189,58 @@ function updateApp(){
     });
   }
 }
+
+// ── تنبيه الإشراف الهندسي عند الوارد ──
+function _showIncomingAlert(amt){
+  const existing = document.getElementById('_incAlert');
+  if(existing) existing.remove();
+  if(!amt || amt <= 0) return;
+  const pct = amt * 0.07;
+  const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:2});
+  const el = document.createElement('div');
+  el.id = '_incAlert';
+  el.style.cssText = 'margin-top:8px;direction:rtl;font-family:Cairo,sans-serif';
+  el.innerHTML = `
+  <div style="background:linear-gradient(135deg,#f0f7f3,#e0f0e8);border:1px solid #b2dfc0;border-radius:12px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:15px">⚠️</span>
+      <span style="font-size:13px;font-weight:700;color:#1D3C2A">تذكير — إشراف هندسي</span>
+      <span style="background:#1D3C2A;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:auto">7%</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #c8e6c9">
+      <div>
+        <p style="font-size:10px;color:#888;margin:0">قيمة الوارد</p>
+        <p style="font-size:14px;font-weight:700;color:#222;margin:0;direction:ltr">${fmt(amt)} ج</p>
+      </div>
+      <div style="font-size:16px;color:#ccc">×</div>
+      <div>
+        <p style="font-size:10px;color:#888;margin:0">نسبة الإشراف</p>
+        <p style="font-size:14px;font-weight:700;color:#222;margin:0">7%</p>
+      </div>
+      <div style="font-size:16px;color:#ccc">=</div>
+      <div>
+        <p style="font-size:10px;color:#2e7d52;margin:0">مستحق</p>
+        <p style="font-size:16px;font-weight:800;color:#1D3C2A;margin:0;direction:ltr">${fmt(pct)} ج</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#555;margin:8px 0 0;line-height:1.6">اعمل قيد إشراف هندسي بـ <strong>${fmt(pct)} ج</strong> بعد حفظ الوارد ده.</p>
+  </div>`;
+  return el;
+}
+
+function _attachIncomingAlert(amtInputId, typeCheckFn, insertAfterId){
+  const amtEl = document.getElementById(amtInputId);
+  if(!amtEl || amtEl._incBound) return;
+  amtEl._incBound = true;
+  amtEl.addEventListener('input', function(){
+    const existing = document.getElementById('_incAlert');
+    if(existing) existing.remove();
+    if(!typeCheckFn()) return;
+    const amt = parseFloat(this.value) || 0;
+    const banner = _showIncomingAlert(amt);
+    if(!banner) return;
+    const after = document.getElementById(insertAfterId);
+    if(after) after.parentNode.insertBefore(banner, after.nextSibling);
+    else document.getElementById(amtInputId).parentNode.appendChild(banner);
+  });
+}
