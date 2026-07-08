@@ -211,6 +211,13 @@ setTimeout(()=>window.lcNext(),200);
           <span class="sb-label">الموافقات <span id="pending-badge" style="display:none;background:#EB5757;color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-right:4px">0</span></span>
         </button>
 
+        <button class="sb-item" id="sbi-notes" onclick="goToNotes()">
+          <span class="sb-icon">📝</span><span class="sb-label">ملاحظاتي</span>
+        </button>
+        <button class="sb-item" id="sbi-cashcalc" onclick="openCashCalc()">
+          <span class="sb-icon">💰</span><span class="sb-label">صافي النقدية</span>
+        </button>
+
         <!-- ─── الأدوات ─── -->
         <div class="sb-sec-div"></div>
         <div class="sb-sec-lbl">الأدوات</div>
@@ -240,12 +247,7 @@ setTimeout(()=>window.lcNext(),200);
         <button class="sb-item" id="sbi-admin" style="display:none" onclick="showScreen('admin')">
           <span class="sb-icon">👑</span><span class="sb-label">الإدارة</span>
         </button>
-        <button class="sb-item" id="sbi-notes" onclick="goToNotes()">
-          <span class="sb-icon">📝</span><span class="sb-label">ملاحظاتي</span>
-        </button>
-        <button class="sb-item" id="sbi-cashcalc" onclick="openCashCalc()">
-          <span class="sb-icon">💰</span><span class="sb-label">صافي النقدية</span>
-        </button>
+
       </nav>
 
       <div style="padding:12px;border-top:1px solid rgba(212,196,154,.1);display:flex;flex-direction:column;gap:6px">
