@@ -309,7 +309,7 @@ td{font-weight:400}
 /* SIDEBAR */
 .app-body{display:flex;flex-direction:row;flex:1;height:calc(100vh - 62px);position:relative;overflow:hidden}
 .sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;height:100vh;position:sticky;top:0;z-index:40}
-.main-content{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page);height:calc(100vh - 62px)}
+.main-content{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page)}
 .sidebar.mini{width:54px}
 .sb-head{padding:14px 12px 10px;border-bottom:1px solid rgba(212,196,154,.1);white-space:nowrap;overflow:hidden}
 .sb-head h3{font-size:12px;font-weight:700;color:var(--accent)}
