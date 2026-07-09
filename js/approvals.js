@@ -75,6 +75,7 @@ async function updatePendingBadge(){
 let _approvalsInterval=null;
 
 function filterApprByPerson(name){
+  _apprPersonFilterVal=name;
   const allPersonBlocks=document.querySelectorAll('.appr-person-hdr');
   allPersonBlocks.forEach(hdr=>{
     const body=hdr.nextElementSibling;
