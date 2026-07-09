@@ -48,7 +48,6 @@ function goToNotes(){showScreen('notes');}
 // ══════════════════════════════════════════
 //  NOTES SCREEN
 // ══════════════════════════════════════════
-let _notesFilter='all';
 function tim(){const im=document.getElementById('im');im.style.display=im.style.display==='block'?'none':'block';sit(cT);}
 function sit(t){imType=t;const imE=document.getElementById('imE');const imI=document.getElementById('imI');const imH=document.getElementById('imH');if(imE)imE.classList.toggle('on',t==='e');if(imI)imI.classList.toggle('on',t==='i');if(imH)imH.textContent=t==='e'?'الترتيب: المبلغ ⇥ البند ⇥ البيان ⇥ التاريخ ⇥ المقاول':'الترتيب: المبلغ ⇥ البيان ⇥ التاريخ';}
 
