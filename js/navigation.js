@@ -3,6 +3,7 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والملاحظات
   if(uRole==='viewer'&&s!=='adv'&&s!=='notes')return;
   curScreen=s;
+  _addScreenTab(s);
   ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati','owner'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
     if(el)el.style.display=x===s?'block':'none';
@@ -345,3 +346,78 @@ function goToProject(pid){
 
 // FAB
 let fabOpen=false;
+
+// ══ SCREEN TABS SYSTEM ════════════════════════════════
+const _SCREEN_LABELS={
+  dash:{icon:'🏠',label:'لوحة التحكم'},
+  proj:{icon:'📁',label:'المشاريع'},
+  projList:{icon:'📋',label:'قائمة المشاريع'},
+  adv:{icon:'💼',label:'العهد'},
+  rep:{icon:'📊',label:'تقارير'},
+  approvals:{icon:'✅',label:'الموافقات'},
+  search:{icon:'🔍',label:'بحث'},
+  notes:{icon:'📝',label:'ملاحظاتي'},
+  dues:{icon:'💰',label:'مستحقات'},
+  archive:{icon:'📦',label:'الأرشيف'},
+  timeline:{icon:'📅',label:'آخر التحركات'},
+  daily:{icon:'📒',label:'اليومية'},
+  auditlog:{icon:'📋',label:'لوج التعديلات'},
+  daf3ati:{icon:'💳',label:'دفعاتي'},
+  admin:{icon:'👑',label:'الإدارة'},
+  owner:{icon:'➕',label:'قيد جديد'},
+};
+// screens that shouldn't be tracked as tabs
+const _NO_TAB_SCREENS=new Set(['dash']);
+let _openTabs=[];
+
+function _addScreenTab(s){
+  const bar=document.getElementById('screenTabsBar');
+  if(!bar)return;
+  // dash never gets a tab - just close all tabs behavior
+  if(_NO_TAB_SCREENS.has(s)){
+    _openTabs=[];
+    bar.style.display='none';
+    bar.innerHTML='';
+    return;
+  }
+  if(!_openTabs.includes(s))_openTabs.push(s);
+  bar.style.display='flex';
+  _renderScreenTabs(s);
+}
+
+function _renderScreenTabs(activeS){
+  const bar=document.getElementById('screenTabsBar');
+  if(!bar)return;
+  bar.innerHTML=_openTabs.map(s=>{
+    const info=_SCREEN_LABELS[s]||{icon:'📄',label:s};
+    const isActive=s===activeS;
+    return `<div class="screen-tab${isActive?' active':''}" onclick="_switchScreenTab('${s}')">
+      <span>${info.icon}</span>
+      <span>${info.label}</span>
+      <span class="screen-tab-close" onclick="_closeScreenTab(event,'${s}')">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function _switchScreenTab(s){
+  showScreen(s);
+}
+
+function _closeScreenTab(e,s){
+  e.stopPropagation();
+  _openTabs=_openTabs.filter(t=>t!==s);
+  const bar=document.getElementById('screenTabsBar');
+  if(!_openTabs.length){
+    bar.style.display='none';
+    bar.innerHTML='';
+    showScreen('dash');
+    return;
+  }
+  // if closing active tab, switch to last open
+  if(curScreen===s){
+    const next=_openTabs[_openTabs.length-1];
+    showScreen(next);
+  } else {
+    _renderScreenTabs(curScreen);
+  }
+}
