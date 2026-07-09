@@ -1,3 +1,4 @@
+let _apprPersonFilterVal='';
 function _fmtApprTime(ts){
   if(!ts)return '—';
   try{
@@ -19,7 +20,7 @@ async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
   // حفظ حالة الـ sections المفتوحة قبل الـ reload
-  const _savedPersonFilter=document.getElementById('apprPersonFilter')?.value||'';
+  const _savedPersonFilter=_apprPersonFilterVal;
   const _openSecs=new Set();
   const _openPersons=new Set();
   if(silent){
@@ -72,7 +73,7 @@ async function loadApprovals(silent=false){
       html+=`<div style="padding:10px 14px 0;display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">فلتر:</span>
         <select id="apprPersonFilter" onchange="filterApprByPerson(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${personOpts}</select>
-        <button onclick="filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
+        <button onclick="_apprPersonFilterVal='';filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
     // ── شريط التحكم الجماعي ──
@@ -208,9 +209,9 @@ async function loadApprovals(silent=false){
     }
     el.innerHTML=html;
     // استعادة الفلتر المختار
-    if(silent&&_savedPersonFilter){
+    if(_apprPersonFilterVal){
       const sel=document.getElementById('apprPersonFilter');
-      if(sel){sel.value=_savedPersonFilter;filterApprByPerson(_savedPersonFilter);}
+      if(sel){sel.value=_apprPersonFilterVal;filterApprByPerson(_apprPersonFilterVal);}
     }
     // استعادة حالة الـ sections المفتوحة
     if(silent&&(_openSecs.size||_openPersons.size)){
