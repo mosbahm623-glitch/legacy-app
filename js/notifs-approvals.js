@@ -19,6 +19,7 @@ async function loadApprovals(silent=false){
   const el=document.getElementById('approvalsList');
   if(!el)return;
   // حفظ حالة الـ sections المفتوحة قبل الـ reload
+  const _savedPersonFilter=document.getElementById('apprPersonFilter')?.value||'';
   const _openSecs=new Set();
   const _openPersons=new Set();
   if(silent){
@@ -206,6 +207,11 @@ async function loadApprovals(silent=false){
       html+=`</div></div>`;
     }
     el.innerHTML=html;
+    // استعادة الفلتر المختار
+    if(silent&&_savedPersonFilter){
+      const sel=document.getElementById('apprPersonFilter');
+      if(sel){sel.value=_savedPersonFilter;filterApprByPerson(_savedPersonFilter);}
+    }
     // استعادة حالة الـ sections المفتوحة
     if(silent&&(_openSecs.size||_openPersons.size)){
       el.querySelectorAll('.appr-section-hdr').forEach(h=>{
