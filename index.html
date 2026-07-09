@@ -264,8 +264,10 @@ setTimeout(()=>window.lcNext(),200);
       </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content" id="mainContent">
+    <!-- MAIN CONTENT WRAPPER -->
+    <div style="display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden">
+      <div class="screen-tabs-bar" id="screenTabsBar" style="display:none"></div>
+      <div class="main-content" id="mainContent">
 
       <!-- DASHBOARD -->
       <div id="dashScreen" class="dash" style="display:none">
@@ -1310,6 +1312,7 @@ setTimeout(()=>window.lcNext(),200);
       </div>
 
     </div><!-- end main-content -->
+    </div><!-- end main-content wrapper -->
   </div><!-- end app-body -->
 
   <!-- FAB -->
