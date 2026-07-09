@@ -309,7 +309,7 @@ td{font-weight:400}
 /* SIDEBAR */
 .app-body{display:flex;flex-direction:row;flex:1;height:calc(100vh - 62px);position:relative;overflow:hidden}
 .sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;justify-content:space-between;transition:width .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;overflow:hidden;height:100vh;position:sticky;top:0;z-index:40}
-.main-content{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page)}
+.main-content{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;width:0;background:var(--bg-page);height:calc(100vh - 62px)}
 .sidebar.mini{width:54px}
 .sb-head{padding:14px 12px 10px;border-bottom:1px solid rgba(212,196,154,.1);white-space:nowrap;overflow:hidden}
 .sb-head h3{font-size:12px;font-weight:700;color:var(--accent)}
@@ -2523,7 +2523,7 @@ html, body {
 }
 
 /* ══ SCREEN TABS BAR (Style C — Cards) ══════════════════ */
-.screen-tabs-bar{background:#162E1E;display:flex;align-items:flex-end;gap:3px;padding:8px 12px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none;border-bottom:2px solid #F5F3EE}
+.screen-tabs-bar{background:#162E1E;display:flex;align-items:flex-end;gap:3px;padding:8px 12px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none;border-bottom:2px solid #F5F3EE;position:sticky;top:0;z-index:30}
 .screen-tabs-bar::-webkit-scrollbar{display:none}
 .screen-tab{display:flex;align-items:center;gap:6px;padding:7px 14px 8px;font-size:12px;font-family:inherit;cursor:pointer;color:rgba(212,196,154,.5);border-radius:8px 8px 0 0;white-space:nowrap;border:0.5px solid transparent;border-bottom:none;background:transparent;transition:all .15s;flex-shrink:0;position:relative;bottom:-2px}
 .screen-tab:hover:not(.active){background:rgba(212,196,154,.08);color:rgba(212,196,154,.85)}
