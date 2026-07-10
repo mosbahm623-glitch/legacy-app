@@ -30,7 +30,7 @@ function rp(){
   const tot=entries.length;
   const tabs=[['s','ملخص',0,''],['j','📒 يومية',tot,'jr'],['m','👷 مقاولين',mqs.length,'mq'],['dues','💰 مستحقات',0,''],['i','الوارد',pInc().length,'']];
   cs.forEach(c=>tabs.push([c,c,pExp().filter(e=>e.category===c).length,'']));
-  (document.getElementById('tbs')||{}).innerHTML=tabs.map(t=>'<button class="tab'+(t[0]===cTab?' on':'')+(t[3]?' '+t[3]:'')+'" onclick="stab(\''+t[0].replace(/'/g,"\\'")+'\')">'+t[1]+(t[2]>0?'<span class="c">'+t[2]+'</span>':'')+'</button>').join('');
+  _renderTabBtns(tabs);
   re();
 }
 function re(){
@@ -341,3 +341,31 @@ function re(){
 }
 
 // ADVANCES
+
+function _renderTabBtns(tabs) {
+  const el = document.getElementById('tbs');
+  if (!el) return;
+  const html = tabs.map(function(t) {
+    const isActive = t[0] === cTab;
+    const cls = 'tab' + (isActive ? ' on' : '') + (t[3] ? ' ' + t[3] : '');
+    const cnt = t[2] > 0 ? '<span class="c">' + t[2] + '</span>' : '';
+    const isCat = ['s','j','m','dues','i'].indexOf(t[0]) === -1;
+    const pid = typeof curPid !== 'undefined' ? curPid : '';
+    const printBtn = isCat
+      ? '<button class="cat-print-btn" data-cat="' + encodeURIComponent(t[0]) + '" data-pid="' + encodeURIComponent(pid) + '" data-lbl="' + encodeURIComponent(t[1]) + '" title="طباعة بند" style="background:transparent;border:1px solid #1D3C2A;border-radius:8px;padding:3px 6px;cursor:pointer;font-size:11px;color:#1D3C2A;margin-left:2px;vertical-align:middle;font-family:inherit">🖨</button>'
+      : '';
+    const tabBtn = '<button class="' + cls + '" onclick="stab(\'' + t[0].replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')">' + t[1] + cnt + '</button>';
+    return tabBtn + printBtn;
+  }).join('');
+  el.innerHTML = html;
+}
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.cat-print-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  const cat = decodeURIComponent(btn.dataset.cat || '');
+  const pid = decodeURIComponent(btn.dataset.pid || '');
+  const lbl = decodeURIComponent(btn.dataset.lbl || cat);
+  if (typeof printCategoryPDF === 'function') printCategoryPDF(cat, pid, lbl);
+});
