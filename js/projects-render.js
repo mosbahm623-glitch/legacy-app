@@ -94,7 +94,8 @@ function re(){
     const isMob=window.innerWidth<=767;
     const tblRows=slice.map((e,i)=>{
       const ii=e.type==='i';
-      const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
+      const _advN=e.advance_id?(advances||[]).find(function(a){return a.id===e.advance_id;}):null;
+      const ab=e.advance_id?'<span class="ab-badge">عهدة'+ (_advN&&_advN.name?' — '+_advN.name:'') +'</span> ':'';
       const catClr=ii?'background:#EAF3DE;color:#3B6D11':'background:#f0f0ec;color:#666';
       const catLbl=ii?'وارد':esc(e.category)||'—';
       const amtClr=ii?'#1D6A3E':'#C0392B';
@@ -288,7 +289,8 @@ function re(){
     </tr></thead>
     <tbody>
     ${es.map((e,i)=>{
-      const ab=e.advance_id?'<span class="ab-badge">عهدة</span> ':'';
+      const _advN=e.advance_id?(advances||[]).find(function(a){return a.id===e.advance_id;}):null;
+      const ab=e.advance_id?'<span class="ab-badge">عهدة'+ (_advN&&_advN.name?' — '+_advN.name:'') +'</span> ':'';
       const no=`<span class="nb" style="font-size:10px">${e.seq||'?'}</span>`;
       const rcpt=`<td style="padding:4px 4px;text-align:center"><button onclick="event.stopPropagation();printReceipt('${e.id}')" title="إيصال" style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:4px;cursor:pointer;font-size:10px;padding:2px 5px;color:#27500A;font-weight:500">🖨</button></td>`;
       const del=canEdit?`<td style="padding:4px 4px;text-align:center"><button class="db" onclick="event.stopPropagation();de('${e.id}')">🗑</button></td>`:'';
