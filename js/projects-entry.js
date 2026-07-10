@@ -720,3 +720,66 @@ function _showErr(inputId,errId){
   if(inp)inp.style.borderColor='#E74C3C';
   if(err)err.style.display='block';
 }
+
+// ══════════════════════════════════════════════════
+// 🖨 طباعة PDF لبند محدد
+// ══════════════════════════════════════════════════
+async function printCategoryPDF(cat, projId, catLabel) {
+  const pid = projId || (typeof curPid !== 'undefined' ? curPid : '');
+  const proj = allProjectsMap[pid];
+  const projName = proj ? proj.name : '—';
+  const src = (allEntries && allEntries.length) ? allEntries : entries;
+  const catEntries = src.filter(function(e) {
+    return e.category === cat && e.project_id === pid;
+  });
+  if (!catEntries.length) { notify('لا توجد قيود لهذا البند', 'warn'); return; }
+
+  var profileMap = {};
+  try {
+    if (typeof _profMapCache !== 'undefined' && _profMapCache && Object.keys(_profMapCache).length) {
+      profileMap = _profMapCache;
+    } else {
+      var _profs = await sb('profiles?select=id,name');
+      if (_profs && _profs.length) {
+        _profs.forEach(function(p) { profileMap[p.id] = p.name || '—'; });
+        if (typeof _profMapCache !== 'undefined') _profMapCache = profileMap;
+      }
+    }
+  } catch(e) {}
+
+  var total = catEntries.reduce(function(s,e){ return s + (e.type==='e'?e.amount:0); }, 0);
+  var now = new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+  var fn2 = function(n){ return Number(n).toLocaleString('en-EG'); };
+
+  var rows = catEntries
+    .sort(function(a,b){ return (parseDt?parseDt(a.entry_date)-parseDt(b.entry_date):0); })
+    .map(function(e, i) {
+      var isI = e.type === 'i';
+      var c = isI ? 'var(--primary-btn)' : 'var(--danger)';
+      var creator = e.created_by ? (profileMap[e.created_by] || '—') : '—';
+      var dt = cleanDate ? cleanDate(e.entry_date) : (e.entry_date || '—');
+      return '<tr>'
+        + '<td class="rep-table-num">' + (i+1) + '</td>'
+        + '<td style="font-size:9px;color:var(--primary-btn);font-weight:700">#' + (e.seq||'—') + '</td>'
+        + '<td style="font-size:10px">' + dt + '</td>'
+        + '<td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:' + (isI?'var(--success-pale)':'var(--danger-pale)') + ';color:' + c + '">' + (isI?'▲ وارد':'▼ مصروف') + '</span></td>'
+        + '<td style="color:#555">' + (e.description||'—') + '</td>'
+        + '<td style="font-size:10px;color:#555">' + (e.contractor||'—') + '</td>'
+        + '<td class="rep-creator-cell">' + creator + '</td>'
+        + '<td style="color:' + c + ';font-weight:700;white-space:nowrap">' + (isI?'▲':'▼') + ' ' + fn2(e.amount) + ' ج</td>'
+        + '</tr>';
+    }).join('');
+
+  var html = _pdfOpen('بند: ' + catLabel)
+    + _pdfHeader('📂 ' + catLabel, '📁 ' + projName + ' · 🗓 ' + now)
+    + '<div class="kpis kpis-3">'
+    + '<div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي البند</div><div class="kpi-val">▼ ' + fn2(total) + ' ج</div></div>'
+    + '<div class="kpi kpi-inc"><div class="kpi-lbl">عدد القيود</div><div class="kpi-val">' + catEntries.length + ' قيد</div></div>'
+    + '</div>'
+    + '<div class="sec-ttl">📒 قيود بند ' + catLabel + '</div>'
+    + '<table><thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>المقاول</th><th>مدخل البيانات</th><th>المبلغ</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody></table>'
+    + _pdfFooter() + _pdfClose();
+
+  openPrintWindow(html);
+}
