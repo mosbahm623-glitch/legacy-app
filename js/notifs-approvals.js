@@ -454,7 +454,7 @@ async function approveEntry(id,silent=false){
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
     auditLog('موافقة على قيد','entries',id,{project:allProjects.find(p=>p.id===r.project_id)?.name,amount:r.amount,category:r.category,submitted_by:r.submitted_by});
-    if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();loadApprovals(true);if(curAdv)loadAdvDetail();}
+    if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();_reloadKeepScroll();if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -463,7 +463,7 @@ async function rejectEntry(id,silent=false){
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
     auditLog('رفض قيد','pending_entries',id,{});
-    if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();loadApprovals(true);if(curAdv)loadAdvDetail();}
+    if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();_reloadKeepScroll();if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -606,3 +606,13 @@ const NOTIF_TYPES={
   online:'nt-online',approve:'nt-approve',reject:'nt-delete'
 };
 const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'};
+
+async function _reloadKeepScroll(){
+  const el=document.getElementById('appr-list')||document.querySelector('.appr-scroll')||window;
+  const sy=el===window?window.scrollY:el.scrollTop;
+  await loadApprovals(true);
+  setTimeout(function(){
+    if(el===window)window.scrollTo(0,sy);
+    else el.scrollTop=sy;
+  },120);
+}
