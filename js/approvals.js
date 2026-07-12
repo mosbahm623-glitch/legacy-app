@@ -104,3 +104,14 @@ async function bulkApproveByPerson(ids){
   await loadApprovals();
   await updatePendingBadge();
 }
+let _apprProjFilterVal='';
+function filterApprByProj(projId){
+  _apprProjFilterVal=projId;
+  document.querySelectorAll('.appr-item[data-projid]').forEach(function(item){
+    if(!projId||item.dataset.projid===projId){
+      item.style.display='';
+    } else {
+      item.style.display='none';
+    }
+  });
+}
