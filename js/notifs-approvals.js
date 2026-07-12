@@ -82,7 +82,7 @@ async function loadApprovals(silent=false){
       const projOpts='<option value="">— كل المشاريع —</option>'+allProjIds.map(pid=>'<option value="'+pid+'">'+(projMap[pid]||pid)+'</option>').join('');
       html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">المشروع:</span>
-        <select id="apprProjFilter" onchange="filterApprByProj(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${projOpts}</select>
+        <select id="apprProjFilter" onchange="event.stopPropagation();filterApprByProj(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${projOpts}</select>
         <button onclick="_apprProjFilterVal='';filterApprByProj('');document.getElementById('apprProjFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
