@@ -76,6 +76,16 @@ async function loadApprovals(silent=false){
         <button onclick="_apprPersonFilterVal='';filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
+    // ── فلتر بالمشروع ──
+    const allProjIds=[...new Set((entRows||[]).map(r=>r.project_id))].filter(Boolean);
+    if(allProjIds.length>1){
+      const projOpts='<option value="">— كل المشاريع —</option>'+allProjIds.map(pid=>'<option value="'+pid+'">'+(projMap[pid]||pid)+'</option>').join('');
+      html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">المشروع:</span>
+        <select id="apprProjFilter" onchange="filterApprByProj(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${projOpts}</select>
+        <button onclick="_apprProjFilterVal='';filterApprByProj('');document.getElementById('apprProjFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
+      </div>`;
+    }
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" class="appr-bulk-bar">
@@ -122,7 +132,7 @@ async function loadApprovals(silent=false){
           const typeBadge=r.type==='i'
             ?'<span class="appr-badge appr-badge-inc">وارد</span>'
             :'<span class="appr-badge appr-badge-exp">مصروف</span>';
-          html+=`<div class="appr-item" id="appr-e-${r.id}">
+          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}">
             <div class="appr-entry-top">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" onchange="updateBulkBar()">
               <div class="appr-entry-main">
