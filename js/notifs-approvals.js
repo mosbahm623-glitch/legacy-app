@@ -608,11 +608,13 @@ const NOTIF_TYPES={
 const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'};
 
 async function _reloadKeepScroll(){
-  const el=document.getElementById('appr-list')||document.querySelector('.appr-scroll')||window;
-  const sy=el===window?window.scrollY:el.scrollTop;
+  const sy=window.scrollY||document.documentElement.scrollTop||0;
+  const el=document.getElementById('approvalsList');
+  const esy=el?el.scrollTop:0;
   await loadApprovals(true);
   setTimeout(function(){
-    if(el===window)window.scrollTo(0,sy);
-    else el.scrollTop=sy;
-  },120);
+    window.scrollTo(0,sy);
+    const el2=document.getElementById('approvalsList');
+    if(el2)el2.scrollTop=esy;
+  },150);
 }
