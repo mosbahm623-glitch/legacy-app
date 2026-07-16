@@ -150,14 +150,18 @@ async function loadApprovals(silent=false){
                   <span class="appr-meta-item"><span class="appr-meta-lbl">التاريخ</span>${cleanDate(r.entry_date)||'—'}</span>
                 </div>
                 ${r.img_url
-                  ?`<div onclick="(()=>{const _u=${JSON.stringify(r.img_url)};openInvLb(_u,'${(r.description||'قيد').replace(/'/g,'%27')}','')})()" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
-                      <img src="${(()=>{try{return r.img_url.trim().startsWith('[')?JSON.parse(r.img_url)[0]:r.img_url;}catch(x){return r.img_url;}})()}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
+                  ?(()=>{window._pendInvMap=window._pendInvMap||{};window._pendInvMap[r.id]=r.img_url;
+                  const _thumb=(()=>{try{return r.img_url.trim().startsWith('[')?JSON.parse(r.img_url)[0]:r.img_url;}catch(x){return r.img_url;}})();
+                  const _cnt=(()=>{try{const _u=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];return _u.length>1?_u.length+' فواتير مرفقة':'فاتورة مرفقة';}catch(x){return 'فاتورة مرفقة';}})();
+                  return `<div onclick="openInvLb(window._pendInvMap['${r.id}'],'${(r.description||'قيد').replace(/'/g,'%27')}','')" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
+                      <img src="${_thumb}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 ${(()=>{try{const _u=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];return _u.length>1?_u.length+' فواتير مرفقة':'فاتورة مرفقة';}catch(x){return 'فاتورة مرفقة';}})()}</div>
+                        <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 ${_cnt}</div>
                         <div style="font-size:10px;color:#888;margin-top:1px">اضغط للمعاينة قبل الموافقة</div>
                       </div>
                       <span style="font-size:11px;font-weight:700;color:#27500A;background:#EAF3DE;border:0.5px solid #97C459;border-radius:6px;padding:4px 10px;flex-shrink:0">🔍 عرض</span>
-                    </div>`
+                    </div>`;
+                  })()
                   :`<div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;padding:7px 10px;background:#fffbf0;border:1px solid #F0C060;border-radius:10px;cursor:pointer" onclick="requestInvoice('${r.id}','${(r.description||'').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.category||'').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.entry_date||'')}',${r.amount},'${(allProjects.find(p=>p.id===r.project_id)?.name||'—').replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}','${(r.contractor||'')}')">
                       <span style="font-size:15px">⚠️</span>
                       <span style="font-size:11px;font-weight:600;color:#9a6700;flex:1">لا توجد فاتورة مرفقة</span>
