@@ -146,22 +146,80 @@ function stab(t){
   rp();
 }
 
-// ══ INVOICE LIGHTBOX ══════════════════════════════
+// ══ INVOICE LIGHTBOX (multi-image) ══════════════════
+// helper: parse img_url — قد يكون string أو JSON array
+function _parseImgUrls(img_url){
+  if(!img_url)return[];
+  if(img_url.trim().startsWith('['))try{return JSON.parse(img_url);}catch(e){}
+  return[img_url];
+}
+
+window._invLbUrls=[];
+window._invLbIdx=0;
+
 function openInvLb(src, title, meta){
-  const lb=document.getElementById('invLb');
-  if(!lb)return;
-  document.getElementById('invLbImg').src=src;
-  document.getElementById('invLbTitle').textContent=title||'فاتورة';
-  document.getElementById('invLbMeta').textContent=meta||'';
-  document.getElementById('invLbOpenBtn').href=src;
-  lb.style.display='flex';
-  document.body.style.overflow='hidden';
+  // src ممكن يكون string أو JSON array string
+  const urls=_parseImgUrls(src);
+  if(!urls.length)return;
+  window._invLbUrls=urls;
+  window._invLbIdx=0;
+  _invLbShow(title||'فاتورة',meta||'');
 }
 
 function openEntryInvLb(id){
   const e=entries.find(x=>x.id===id);
   if(!e||!e.img_url)return;
-  openInvLb(e.img_url,(e.description||'قيد')+' — '+(e.seq||''),fn(Math.abs(e.amount))+' ج'+(e.entry_date?' · '+cleanDate(e.entry_date):''));
+  const title=(e.description||'قيد')+' — '+(e.seq||'');
+  const meta=fn(Math.abs(e.amount))+' ج'+(e.entry_date?' · '+cleanDate(e.entry_date):'');
+  openInvLb(e.img_url,title,meta);
+}
+
+function _invLbShow(title,meta){
+  const lb=document.getElementById('invLb');
+  if(!lb)return;
+  const urls=window._invLbUrls;
+  const idx=window._invLbIdx;
+  const src=urls[idx];
+  const isPdf=src&&src.toLowerCase().includes('.pdf');
+  const imgEl=document.getElementById('invLbImg');
+  const pdfEl=document.getElementById('invLbPdf');
+  if(isPdf){
+    if(imgEl)imgEl.style.display='none';
+    if(!pdfEl){
+      const fr=document.createElement('iframe');
+      fr.id='invLbPdf';
+      fr.style.cssText='width:100%;height:70vh;border:none;border-radius:8px;background:#fff';
+      imgEl&&imgEl.parentNode.insertBefore(fr,imgEl.nextSibling);
+      fr.src=src;
+    }else{pdfEl.style.display='block';pdfEl.src=src;}
+  }else{
+    if(pdfEl)pdfEl.style.display='none';
+    if(imgEl){imgEl.style.display='block';imgEl.src=src;}
+  }
+  document.getElementById('invLbTitle').textContent=title;
+  document.getElementById('invLbMeta').textContent=meta;
+  document.getElementById('invLbOpenBtn').href=src;
+  // navigation
+  const nav=document.getElementById('invLbNav');
+  if(nav){
+    if(urls.length>1){
+      nav.style.display='flex';
+      nav.innerHTML=`
+        <button onclick="invLbPrev()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer" ${idx===0?'disabled style="opacity:.4"':''}>‹</button>
+        <span style="font-size:13px;color:rgba(255,255,255,.8);padding:0 10px">${idx+1} / ${urls.length}</span>
+        <button onclick="invLbNext()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer" ${idx===urls.length-1?'disabled style="opacity:.4"':''}>›</button>
+      `;
+    }else{nav.style.display='none';}
+  }
+  lb.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function invLbPrev(){
+  if(window._invLbIdx>0){window._invLbIdx--;_invLbShow(document.getElementById('invLbTitle').textContent,document.getElementById('invLbMeta').textContent);}
+}
+function invLbNext(){
+  if(window._invLbIdx<window._invLbUrls.length-1){window._invLbIdx++;_invLbShow(document.getElementById('invLbTitle').textContent,document.getElementById('invLbMeta').textContent);}
 }
 
 function closeInvLb(){
