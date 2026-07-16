@@ -150,10 +150,10 @@ async function loadApprovals(silent=false){
                   <span class="appr-meta-item"><span class="appr-meta-lbl">التاريخ</span>${cleanDate(r.entry_date)||'—'}</span>
                 </div>
                 ${r.img_url
-                  ?`<div onclick="openInvLb('${r.img_url}','${(r.description||'قيد').replace(/'/g,String.fromCharCode(39))}','')" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
-                      <img src="${r.img_url}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
+                  ?`<div onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','${(r.description||'قيد').replace(/'/g,String.fromCharCode(39))}','')" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
+                      <img src="${(()=>{try{return r.img_url.trim().startsWith('[')?JSON.parse(r.img_url)[0]:r.img_url;}catch(x){return r.img_url;}})()}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
                       <div style="flex:1;min-width:0">
-                        <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 فاتورة مرفقة</div>
+                        <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 ${(()=>{try{const _u=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];return _u.length>1?_u.length+' فواتير مرفقة':'فاتورة مرفقة';}catch(x){return 'فاتورة مرفقة';}})()}</div>
                         <div style="font-size:10px;color:#888;margin-top:1px">اضغط للمعاينة قبل الموافقة</div>
                       </div>
                       <span style="font-size:11px;font-weight:700;color:#27500A;background:#EAF3DE;border:0.5px solid #97C459;border-radius:6px;padding:4px 10px;flex-shrink:0">🔍 عرض</span>
@@ -298,14 +298,17 @@ async function editAndApproveEntry(id){
         <div style="margin:12px 0">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <div style="font-size:11px;color:var(--text-muted,#999);font-weight:600">📎 صورة الفاتورة</div>
-            ${r.img_url?'<button onclick="eaClearInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف</button>':''}
+            ${r.img_url?'<button onclick="eaClearInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف الكل</button>':''}
           </div>
           <div id="eaInvPreview">
-            ${r.img_url?`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px">
-              <img src="${r.img_url}" style="width:100%;max-height:160px;object-fit:cover;display:block;cursor:zoom-in"
-                onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','فاتورة','')">
-              <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px 10px;font-size:10px;color:#fff;text-align:center">اضغط للعرض الكامل</div>
-            </div>`:''}
+            ${r.img_url?(()=>{
+              let _urls=[];try{_urls=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];}catch(x){_urls=[r.img_url];}
+              return _urls.map((_u,_i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px">
+                <img src="${_u}" style="width:100%;max-height:160px;object-fit:cover;display:block;cursor:zoom-in"
+                  onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','فاتورة','');document.getElementById&&(window._invLbIdx=${_i})&&typeof _invLbShow==='function'&&_invLbShow('فاتورة','')">
+                <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px 10px;font-size:10px;color:#fff;text-align:center">صورة ${_i+1} من ${_urls.length} — اضغط للعرض الكامل</div>
+              </div>`).join('');
+            })():''}
           </div>
           <input type="file" id="eaInvFile" accept="image/*,application/pdf" style="display:none" onchange="eaInvSelect(this)">
           <label for="eaInvFile" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#888">📷 ${r.img_url?'تغيير الصورة':'إرفاق صورة'}</label>
