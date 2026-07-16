@@ -81,15 +81,13 @@ async function loadOwnerScreen(){
         '</select>'+
         '<input id="ow-pmt-other" type="text" placeholder="اسم البنك..." style="'+inp+';display:none;margin-top:6px"></div>'+
         '<div style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><label style="font-size:10px;color:#999;font-weight:700">صورة الفاتورة</label><span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span></div>'+
-        '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)">'+
-        '<label for="ow-inv-file" id="ow-inv-area" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer;display:block">'+
-          '<div id="ow-inv-empty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px"><span style="font-size:16px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>'+
-          '<div id="ow-inv-filled" style="display:none;align-items:center;gap:10px;padding:9px 12px;background:#f0faf0">'+
-            '<div id="ow-inv-thumb" style="width:40px;height:40px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:20px">📄</div>'+
-            '<div style="flex:1;min-width:0"><div id="ow-inv-name" style="font-size:12px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="ow-inv-size" style="font-size:10px;color:#888;margin-top:2px"></div></div>'+
-            '<div style="display:flex;gap:4px;flex-shrink:0" onclick="event.preventDefault();event.stopPropagation()"><button onclick="owInvPreview()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🔍</button><button onclick="owInvRemove()" style="background:none;border:none;cursor:pointer;font-size:15px;padding:3px;border-radius:5px">🗑</button></div>'+
+        '<input type="file" id="ow-inv-file" accept="image/*,application/pdf" style="display:none" onchange="owInvSelect(this)" multiple>'+
+        '<div id="ow-inv-area" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;display:block">'+
+          '<label for="ow-inv-file" id="ow-inv-empty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;cursor:pointer"><span style="font-size:16px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF (يمكن أكثر من صورة)</span></label>'+
+          '<div id="ow-inv-filled" style="display:none;flex-direction:column;padding:8px 10px;background:#f0faf0">'+
+            '<div id="ow-inv-list"></div>'+
           '</div>'+
-        '</label>'+
+        '</div>'+
         '</div>'+
         '</div>'+
         '<div style="padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));flex-shrink:0;background:#f8faf8;border-top:0.5px solid #eee">'+
@@ -498,7 +496,7 @@ async function owSubmit(){
     if(!pmt){notify('❌ اختر طريقة الدفع','err');return;}
     var entry={id:crypto.randomUUID(),project_id:projId,type:t,amount:amt,category:cat,description:desc,entry_date:date,contractor:mq||null,advance_id:null,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString(),payment_method:pmt};
     await sb('pending_entries','POST',entry);
-    if(window._owInvFile) await owInvUpload(entry.id);
+    if((window._owInvFiles||[]).length) await owInvUpload(entry.id);
     notify('✅ تم الإرسال — في انتظار موافقة الأدمن','ok');
     document.getElementById('ow-amt').value='';
     document.getElementById('ow-desc').value='';
@@ -620,49 +618,75 @@ async function owSubmitAdv(){
 
 // ══ OWNER INVOICE ════════════════════════════════
 function owInvTrigger(){
-  if(window._owInvFile)return;
+  // allow multiple files
   document.getElementById('ow-inv-file').click();
 }
 
 function owInvSelect(input){
-  const file=input.files[0];if(!file)return;
-  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
-  window._owInvFile=file;
-  const name=file.name.length>36?file.name.substring(0,34)+'…':file.name;
-  const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
-  document.getElementById('ow-inv-name').textContent=name;
-  document.getElementById('ow-inv-size').textContent=size;
-  const thumb=document.getElementById('ow-inv-thumb');
-  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-  if(isPdf){
-    thumb.innerHTML='📄';
-  }else{
-    const reader=new FileReader();
-    reader.onload=function(e){
-      thumb.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';
-    };
-    reader.readAsDataURL(file);
-  }
-  document.getElementById('ow-inv-empty').style.display='none';
-  document.getElementById('ow-inv-filled').style.display='flex';
-  document.getElementById('ow-inv-area').style.borderStyle='solid';
-  document.getElementById('ow-inv-area').style.borderColor='#81c784';
+  const files=Array.from(input.files);if(!files.length)return;
+  const tooBig=files.filter(f=>f.size>20*1024*1024);
+  if(tooBig.length){notify('ملف أكبر من 20MB: '+tooBig[0].name,'err');return;}
+  window._owInvFiles=(window._owInvFiles||[]).concat(files);
+  _owInvRenderList();
   input.value='';
+}
+function _owInvRenderList(){
+  const files=window._owInvFiles||[];
+  const empty=document.getElementById('ow-inv-empty');
+  const filled=document.getElementById('ow-inv-filled');
+  const area=document.getElementById('ow-inv-area');
+  const list=document.getElementById('ow-inv-list');
+  if(!files.length){
+    if(empty)empty.style.display='flex';
+    if(filled)filled.style.display='none';
+    if(area){area.style.borderColor='#ccc';area.style.borderStyle='dashed';}
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(filled)filled.style.display='flex';
+  if(area){area.style.borderColor='#81c784';area.style.borderStyle='solid';}
+  if(!list)return;
+  list.innerHTML='';
+  files.forEach((file,idx)=>{
+    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    const name=file.name.length>28?file.name.substring(0,26)+'…':file.name;
+    const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+    const item=document.createElement('div');
+    item.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;margin-bottom:4px';
+    item.innerHTML=`<div class="ow-inv-thumb-${idx}" style="width:36px;height:36px;background:#e8f5e9;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isPdf?'📄':'🖼'}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#1D6A3E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div><div style="font-size:10px;color:#888">${size}</div></div>
+      <button onclick="owInvRemoveOne(${idx})" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0">✕</button>`;
+    if(!isPdf){
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        const th=item.querySelector('.ow-inv-thumb-'+idx);
+        if(th)th.innerHTML='<img src="'+ev.target.result+'" style="width:36px;height:36px;object-fit:cover;border-radius:5px">';
+      };
+      reader.readAsDataURL(file);
+    }
+    list.appendChild(item);
+  });
+  const addBtn=document.createElement('label');
+  addBtn.htmlFor='ow-inv-file';
+  addBtn.style.cssText='display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px dashed #81c784;border-radius:8px;cursor:pointer;font-size:11px;color:#1D6A3E;margin-top:4px;width:fit-content';
+  addBtn.innerHTML='➕ إضافة صورة أخرى';
+  list.appendChild(addBtn);
+}
+function owInvRemoveOne(idx){
+  window._owInvFiles=(window._owInvFiles||[]).filter((_,i)=>i!==idx);
+  _owInvRenderList();
 }
 
 function owInvRemove(){
-  window._owInvFile=null;
-  document.getElementById('ow-inv-filled').style.display='none';
-  document.getElementById('ow-inv-empty').style.display='flex';
-  document.getElementById('ow-inv-area').style.borderStyle='dashed';
-  document.getElementById('ow-inv-area').style.borderColor='#ccc';
-  document.getElementById('ow-inv-thumb').innerHTML='📄';
+  window._owInvFiles=[];
+  _owInvRenderList();
   const inp=document.getElementById('ow-inv-file');
   if(inp)inp.value='';
 }
 
 function owInvPreview(){
-  const file=window._owInvFile;if(!file)return;
+  const files=window._owInvFiles||[];
+  const file=files[0];if(!file)return;
   const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
   if(isPdf){window.open(URL.createObjectURL(file),'_blank');return;}
   const reader=new FileReader();
@@ -671,8 +695,10 @@ function owInvPreview(){
 }
 
 async function owInvUpload(entryId){
-  const file=window._owInvFile;
-  if(!file||!entryId)return;
+  const files=window._owInvFiles||[];
+  if(!files.length||!entryId)return;
+  const urls=[];
+  for(const file of files){
   try{
     const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
     let uploadFile=file;
@@ -705,13 +731,18 @@ async function owInvUpload(entryId){
     });
     if(r.ok){
       const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
-      await sb('pending_entries?id=eq.'+entryId,'PATCH',{img_url:pub});
-      console.log('owInvUpload: success',pub);
+      urls.push(pub);
     }else{
       const errText=await r.text();
       console.error('owInvUpload failed:',r.status,errText);
       notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
     }
-  }catch(e){console.warn('owInvUpload error:',e);notify('⚠️ خطأ في رفع الفاتورة','warn');}
-  window._owInvFile=null;
+  }catch(e){console.warn('owInvUpload error:',e);}
+  }// end for
+  if(urls.length){
+    const imgVal=urls.length===1?urls[0]:JSON.stringify(urls);
+    await sb('pending_entries?id=eq.'+entryId,'PATCH',{img_url:imgVal});
+  }
+  window._owInvFiles=[];
+  owInvRemove();
 }
