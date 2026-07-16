@@ -234,7 +234,7 @@ async function ae(){
   try{
     if(uRole==='admin'||uRole==='super_admin'||uRole==='editor'){
       await sb('entries','POST',entry);
-      if(window._projInvFile){await projInvUpload(entry.id,'entries');}
+      if((window._projInvFiles||[]).length){await projInvUpload(entry.id,'entries');}
       entries.push(entry);
       allEntries=allEntries.filter(e=>e.project_id!==savedPid).concat(entries);
       refreshProjSummary(savedPid);
@@ -248,7 +248,7 @@ async function ae(){
       window._blockRtRefresh=true;
       setTimeout(()=>{window._blockRtRefresh=false;},2000);
       await sb('pending_entries','POST',pending);
-      if(window._projInvFile){await projInvUpload(entry.id,'pending_entries');}
+      if((window._projInvFiles||[]).length){await projInvUpload(entry.id,'pending_entries');}
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       notify(`⏳ تم إرسال القيد للموافقة — مشروع: ${savedProjName}`,'warn');
       _showEntryConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة','#C9A84C');
@@ -560,78 +560,113 @@ async function sw(pid){
   rp();
 }
 
-// ── Invoice functions for project entry ──
+// ── Invoice functions for project entry (multi-image) ──
+// _projInvFiles = array of File objects
+window._projInvFiles=window._projInvFiles||[];
+
 function projInvSelect(input){
-  const file=input.files[0];if(!file)return;
-  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
-  window._projInvFile=file;
-  const name=file.name.length>34?file.name.substring(0,32)+'…':file.name;
-  const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
-  document.getElementById('projInvName').textContent=name;
-  document.getElementById('projInvSize').textContent=size;
-  const thumb=document.getElementById('projInvThumb');
-  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-  if(!isPdf){
-    const reader=new FileReader();
-    reader.onload=e=>{thumb.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';};
-    reader.readAsDataURL(file);
-  }
-  document.getElementById('projInvEmpty').style.display='none';
-  document.getElementById('projInvFilled').style.display='flex';
-  document.getElementById('projInvArea').style.borderColor='#81c784';
-  document.getElementById('projInvArea').style.borderStyle='solid';
+  const files=Array.from(input.files);if(!files.length)return;
+  const tooBig=files.filter(f=>f.size>20*1024*1024);
+  if(tooBig.length){notify('ملف أكبر من 20MB: '+tooBig[0].name,'err');return;}
+  window._projInvFiles=(window._projInvFiles||[]).concat(files);
+  _projInvRenderList();
   input.value='';
 }
+function _projInvRenderList(){
+  const files=window._projInvFiles||[];
+  const empty=document.getElementById('projInvEmpty');
+  const filled=document.getElementById('projInvFilled');
+  const area=document.getElementById('projInvArea');
+  const list=document.getElementById('projInvList');
+  if(!files.length){
+    if(empty)empty.style.display='flex';
+    if(filled)filled.style.display='none';
+    if(area){area.style.borderColor='#ccc';area.style.borderStyle='dashed';}
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(filled)filled.style.display='flex';
+  if(area){area.style.borderColor='#81c784';area.style.borderStyle='solid';}
+  if(!list)return;
+  list.innerHTML='';
+  files.forEach((file,idx)=>{
+    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    const name=file.name.length>28?file.name.substring(0,26)+'…':file.name;
+    const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+    const item=document.createElement('div');
+    item.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;margin-bottom:4px';
+    if(!isPdf){
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        item.querySelector('.inv-thumb').innerHTML='<img src="'+ev.target.result+'" style="width:36px;height:36px;object-fit:cover;border-radius:5px">';
+      };
+      reader.readAsDataURL(file);
+    }
+    item.innerHTML=`<div class="inv-thumb" style="width:36px;height:36px;background:#e8f5e9;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isPdf?'📄':'🖼'}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#1D6A3E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div><div style="font-size:10px;color:#888">${size}</div></div>
+      <button onclick="projInvRemoveOne(${idx})" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0">✕</button>`;
+    list.appendChild(item);
+  });
+  // زر إضافة صورة أخرى
+  const addBtn=document.createElement('label');
+  addBtn.htmlFor='projInvFile';
+  addBtn.style.cssText='display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px dashed #81c784;border-radius:8px;cursor:pointer;font-size:11px;color:#1D6A3E;margin-top:4px;width:fit-content';
+  addBtn.innerHTML='➕ إضافة صورة أخرى';
+  list.appendChild(addBtn);
+}
+function projInvRemoveOne(idx){
+  window._projInvFiles=window._projInvFiles.filter((_,i)=>i!==idx);
+  _projInvRenderList();
+}
 function projInvRemove(){
-  window._projInvFile=null;
-  const e=document.getElementById('projInvEmpty');
-  const f=document.getElementById('projInvFilled');
-  const a=document.getElementById('projInvArea');
+  window._projInvFiles=[];
+  _projInvRenderList();
   const inp=document.getElementById('projInvFile');
-  if(e)e.style.display='flex';
-  if(f)f.style.display='none';
-  if(a){a.style.borderColor='#ccc';a.style.borderStyle='dashed';}
   if(inp)inp.value='';
 }
-async function projInvUpload(entryId, table){
-  const file=window._projInvFile;
-  if(!file||!entryId)return;
-  try{
-    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-    let uploadFile=file;
-    if(!isPdf){
-      uploadFile=await new Promise(res=>{
-        const reader=new FileReader();
-        reader.onload=e=>{
-          const img=new Image();
-          img.onload=()=>{
-            const MAX=1400;let w=img.width,h=img.height;
-            if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-            const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-            canvas.getContext('2d').drawImage(img,0,0,w,h);
-            canvas.toBlob(blob=>res(blob),'image/jpeg',0.80);
-          };img.src=e.target.result;
-        };reader.readAsDataURL(file);
-      });
-    }
-    const ext=isPdf?'pdf':'jpg';
-    const path=`${entryId}/invoice_${Date.now()}.${ext}`;
-    const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
-    const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},
-      body:uploadFile
+async function _uploadOneFile(file, entryId){
+  const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
+  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+  let uploadFile=file;
+  if(!isPdf){
+    uploadFile=await new Promise(res=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const img=new Image();
+        img.onload=()=>{
+          const MAX=1400;let w=img.width,h=img.height;
+          if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+          const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
+          canvas.toBlob(blob=>res(blob),'image/jpeg',0.80);
+        };img.src=e.target.result;
+      };reader.readAsDataURL(file);
     });
-    if(r.ok){
-      const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
-      await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:pub});
-    }else{
-      const err=await r.text();
-      console.error('projInvUpload failed:',r.status,err);
-      notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
+  }
+  const ext=isPdf?'pdf':'jpg';
+  const path=`${entryId}/invoice_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+  const r=await fetch(`${SB}/storage/v1/object/invoices/${path}`,{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},
+    body:uploadFile
+  });
+  if(!r.ok){const err=await r.text();throw new Error('upload failed: '+r.status+' '+err);}
+  return `${SB}/storage/v1/object/public/invoices/${path}`;
+}
+async function projInvUpload(entryId, table){
+  const files=window._projInvFiles||[];
+  if(!files.length||!entryId)return;
+  try{
+    const urls=[];
+    for(const file of files){
+      const url=await _uploadOneFile(file,entryId);
+      urls.push(url);
     }
-  }catch(e){console.warn('projInvUpload error:',e);}
-  window._projInvFile=null;
+    // خزن كـ JSON array لو أكتر من صورة، أو string لو واحدة (backward compat)
+    const imgVal=urls.length===1?urls[0]:JSON.stringify(urls);
+    await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:imgVal});
+  }catch(e){console.warn('projInvUpload error:',e);notify('⚠️ فشل رفع الفاتورة','warn');}
+  window._projInvFiles=[];
   projInvRemove();
 }
 
@@ -704,10 +739,11 @@ function efBuildSummary(){
   // فاتورة
   const invRow=document.getElementById('efSumInv');
   if(invRow){
-    if(window._projInvFile){
+    const _files=window._projInvFiles||[];
+    if(_files.length){
       invRow.style.display='flex';
       const nameEl=document.getElementById('efSumInvName');
-      if(nameEl)nameEl.textContent=window._projInvFile.name;
+      if(nameEl)nameEl.textContent=_files.length===1?_files[0].name:_files.length+' صور مرفقة';
     }else{
       invRow.style.display='none';
     }
