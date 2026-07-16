@@ -1,5 +1,4 @@
 async function createAdv(){
-  const name=document.getElementById('advName').value.trim();
   const notes=document.getElementById('advNotes').value.trim();
   const selUser=document.getElementById('advUserSel').value||uid;
   if(!name){notify('ادخل اسم الشخص','err');return;}
@@ -242,15 +241,7 @@ function showAdvEntryModal(){
       </div>
       <input id="advMq" placeholder="👷 المقاول (اختياري)" class="inp-lg" list="ql">
       <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><label style="font-size:11px;color:#999;font-weight:700">صورة الفاتورة</label><span style="font-size:9px;color:#bbb;background:#f0f0ec;border-radius:10px;padding:1px 6px">اختياري</span></div>
-      <input type="file" id="advInvFile" accept="image/*,application/pdf" style="display:none" onchange="advInvSelect(this)">
-      <label for="advInvFile" id="advInvArea" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;cursor:pointer;display:block">
-        <div id="advInvEmpty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px"><span style="font-size:15px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF</span></div>
-        <div id="advInvFilled" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:#f0faf0">
-          <div id="advInvThumb" style="width:38px;height:38px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#e8f5e9;border:1px solid #c8e6c9;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>
-          <div style="flex:1;min-width:0"><div id="advInvName" style="font-size:11px;font-weight:700;color:#1D3C2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="advInvSize" style="font-size:10px;color:#888;margin-top:1px"></div></div>
-          <div onclick="event.preventDefault();event.stopPropagation();advInvRemove()"><button style="background:none;border:none;cursor:pointer;font-size:14px;padding:3px">🗑</button></div>
-        </div>
-      </label></div>
+      <input type="file" id="advInvFile" accept="image/*,application/pdf" style="display:none" onchange="advInvSelect(this)" multiple>\n      <div id="advInvArea" style="border:1.5px dashed #ccc;border-radius:10px;overflow:hidden;display:block">\n        <label for="advInvFile" id="advInvEmpty" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;cursor:pointer"><span style="font-size:15px">📎</span><span style="font-size:12px;color:#aaa;font-weight:600">إرفاق صورة أو PDF (يمكن أكثر من صورة)</span></label>\n        <div id="advInvFilled" style="display:none;flex-direction:column;padding:8px 10px;background:#f0faf0">\n          <div id="advInvList"></div>\n        </div>\n      </div></div>
     </div>
     <div class="modal-btns" style="margin-top:14px">
       <button onclick="addAdvEntry()" class="btn-primary">+ إضافة</button>
@@ -345,14 +336,14 @@ async function addAdvEntry(){
   try{
     if(uRole==='admin'){
       await sb('entries','POST',entry);
-      if(window._advInvFile) await advInvUpload(entry.id);
+      if((window._advInvFiles||[]).length) await advInvUpload(entry.id);
       setSav('✅ تم الحفظ','ok');
       markNewAdvEntry(curAdv.id, amt, cat, desc);
       _showAdvConfirm('✅ تم إضافة القيد بنجاح', '#1D9E75');
     }else{
       const pending={...entry,status:'pending',submitted_by:uid,submitted_at:new Date().toISOString()};
       await sb('pending_entries','POST',pending);
-      if(window._advInvFile) await advInvUploadPending(entry.id);
+      if((window._advInvFiles||[]).length) await advInvUploadPending(entry.id);
       setSav('⏳ تم الإرسال — في انتظار موافقة الأدمن','ng');
       _showAdvConfirm('⏳ تم الإرسال للأدمن — في انتظار الموافقة', '#C9A84C');
     }
@@ -378,40 +369,64 @@ function advInvTrigger(){
   document.getElementById('advInvFile').click();
 }
 function advInvSelect(input){
-  const file=input.files[0];if(!file)return;
-  if(file.size>20*1024*1024){notify('الحجم أكبر من 20MB','err');return;}
-  window._advInvFile=file;
-  const name=file.name.length>34?file.name.substring(0,32)+'…':file.name;
-  const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
-  document.getElementById('advInvName').textContent=name;
-  document.getElementById('advInvSize').textContent=size;
-  const thumb=document.getElementById('advInvThumb');
-  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-  if(!isPdf){
-    const reader=new FileReader();
-    reader.onload=e=>{thumb.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';};
-    reader.readAsDataURL(file);
-  }
-  document.getElementById('advInvEmpty').style.display='none';
-  document.getElementById('advInvFilled').style.display='flex';
-  document.getElementById('advInvArea').style.borderColor='#81c784';
-  document.getElementById('advInvArea').style.borderStyle='solid';
+  const files=Array.from(input.files);if(!files.length)return;
+  const tooBig=files.filter(f=>f.size>20*1024*1024);
+  if(tooBig.length){notify('ملف أكبر من 20MB: '+tooBig[0].name,'err');return;}
+  window._advInvFiles=(window._advInvFiles||[]).concat(files);
+  _advInvRenderList();
   input.value='';
 }
+function _advInvRenderList(){
+  const files=window._advInvFiles||[];
+  const empty=document.getElementById('advInvEmpty');
+  const filled=document.getElementById('advInvFilled');
+  const area=document.getElementById('advInvArea');
+  const list=document.getElementById('advInvList');
+  if(!files.length){
+    if(empty)empty.style.display='flex';
+    if(filled)filled.style.display='none';
+    if(area){area.style.borderColor='#ccc';area.style.borderStyle='dashed';}
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(filled)filled.style.display='flex';
+  if(area){area.style.borderColor='#81c784';area.style.borderStyle='solid';}
+  if(!list)return;
+  list.innerHTML='';
+  files.forEach((file,idx)=>{
+    const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    const name=file.name.length>28?file.name.substring(0,26)+'…':file.name;
+    const size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+    const item=document.createElement('div');
+    item.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;margin-bottom:4px';
+    item.innerHTML=`<div class="adv-d-th-${idx}" style="width:36px;height:36px;background:#e8f5e9;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isPdf?'📄':'🖼'}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#1D6A3E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div><div style="font-size:10px;color:#888">${size}</div></div>
+      <button onclick="advInvRemoveOne(${idx})" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0">✕</button>`;
+    if(!isPdf){
+      const reader=new FileReader();
+      reader.onload=ev=>{const th=item.querySelector('.adv-d-th-'+idx);if(th)th.innerHTML='<img src="'+ev.target.result+'" style="width:36px;height:36px;object-fit:cover;border-radius:5px">';};
+      reader.readAsDataURL(file);
+    }
+    list.appendChild(item);
+  });
+  const addBtn=document.createElement('label');
+  addBtn.htmlFor='advInvFile';
+  addBtn.style.cssText='display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px dashed #81c784;border-radius:8px;cursor:pointer;font-size:11px;color:#1D6A3E;margin-top:4px;width:fit-content';
+  addBtn.innerHTML='➕ إضافة صورة أخرى';
+  list.appendChild(addBtn);
+}
+function advInvRemoveOne(idx){window._advInvFiles=(window._advInvFiles||[]).filter((_,i)=>i!==idx);_advInvRenderList();}
 function advInvRemove(){
-  window._advInvFile=null;
-  const e=document.getElementById('advInvEmpty');
-  const f=document.getElementById('advInvFilled');
-  const a=document.getElementById('advInvArea');
+  window._advInvFiles=[];
+  _advInvRenderList();
   const inp=document.getElementById('advInvFile');
-  if(e)e.style.display='flex';
-  if(f)f.style.display='none';
-  if(a){a.style.borderColor='#ccc';a.style.borderStyle='dashed';}
   if(inp)inp.value='';
 }
 async function _advInvUploadFile(entryId, table){
-  const file=window._advInvFile;
-  if(!file||!entryId)return;
+  const files=window._advInvFiles||[];
+  if(!files.length||!entryId)return;
+  const urls=[];
+  for(const file of files){
   try{
     const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
     let uploadFile=file;
@@ -440,14 +455,20 @@ async function _advInvUploadFile(entryId, table){
     });
     if(r.ok){
       const pub=`${SB}/storage/v1/object/public/invoices/${path}`;
-      await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:pub});
+      urls.push(pub);
     }else{
       const errText=await r.text();
       console.error('advInvUpload failed:',r.status,errText);
       notify('⚠️ فشل رفع الفاتورة: '+r.status,'warn');
     }
   }catch(e){console.warn('advInvUpload error:',e);}
-  window._advInvFile=null;
+  }// end for
+  if(urls.length){
+    const imgVal=urls.length===1?urls[0]:JSON.stringify(urls);
+    await sb(`${table}?id=eq.`+entryId,'PATCH',{img_url:imgVal});
+  }
+  window._advInvFiles=[];
+  advInvRemove();
 }
 async function advInvUpload(id){await _advInvUploadFile(id,'entries');}
 async function advInvUploadPending(id){await _advInvUploadFile(id,'pending_entries');}
