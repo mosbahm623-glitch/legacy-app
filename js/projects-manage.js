@@ -205,9 +205,9 @@ function _invLbShow(title,meta){
     if(urls.length>1){
       nav.style.display='flex';
       nav.innerHTML=`
-        <button onclick="invLbPrev()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer" ${idx===0?'disabled style="opacity:.4"':''}>‹</button>
+        <button onclick="invLbPrev()" ${idx===0?'disabled':''} style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer;opacity:${idx===0?'.4':'1'}">‹</button>
         <span style="font-size:13px;color:rgba(255,255,255,.8);padding:0 10px">${idx+1} / ${urls.length}</span>
-        <button onclick="invLbNext()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer" ${idx===urls.length-1?'disabled style="opacity:.4"':''}>›</button>
+        <button onclick="invLbNext()" ${idx===urls.length-1?'disabled':''} style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;padding:6px 14px;border-radius:8px;cursor:pointer;opacity:${idx===urls.length-1?'.4':'1'}">›</button>
       `;
     }else{nav.style.display='none';}
   }
