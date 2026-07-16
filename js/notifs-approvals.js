@@ -150,7 +150,7 @@ async function loadApprovals(silent=false){
                   <span class="appr-meta-item"><span class="appr-meta-lbl">التاريخ</span>${cleanDate(r.entry_date)||'—'}</span>
                 </div>
                 ${r.img_url
-                  ?`<div onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','${(r.description||'قيد').replace(/'/g,String.fromCharCode(39))}','')" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
+                  ?`<div onclick="(()=>{const _u=${JSON.stringify(r.img_url)};openInvLb(_u,'${(r.description||'قيد').replace(/'/g,'%27')}','')})()" style="display:flex;align-items:center;gap:10px;margin:8px 0 4px;padding:8px 10px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;cursor:pointer">
                       <img src="${(()=>{try{return r.img_url.trim().startsWith('[')?JSON.parse(r.img_url)[0]:r.img_url;}catch(x){return r.img_url;}})()}" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9">
                       <div style="flex:1;min-width:0">
                         <div style="font-size:12px;font-weight:700;color:#1D6A3E">📎 ${(()=>{try{const _u=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];return _u.length>1?_u.length+' فواتير مرفقة':'فاتورة مرفقة';}catch(x){return 'فاتورة مرفقة';}})()}</div>
@@ -303,9 +303,11 @@ async function editAndApproveEntry(id){
           <div id="eaInvPreview">
             ${r.img_url?(()=>{
               let _urls=[];try{_urls=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];}catch(x){_urls=[r.img_url];}
+              // خزن الـ urls في global عشان الـ onclick يوصلها
+              window._eaInvUrls=_urls;
               return _urls.map((_u,_i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px">
                 <img src="${_u}" style="width:100%;max-height:160px;object-fit:cover;display:block;cursor:zoom-in"
-                  onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','فاتورة','');document.getElementById&&(window._invLbIdx=${_i})&&typeof _invLbShow==='function'&&_invLbShow('فاتورة','')">
+                  onclick="window._invLbUrls=window._eaInvUrls||['${_u}'];window._invLbIdx=${_i};_invLbShow('فاتورة','')">
                 <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px 10px;font-size:10px;color:#fff;text-align:center">صورة ${_i+1} من ${_urls.length} — اضغط للعرض الكامل</div>
               </div>`).join('');
             })():''}
