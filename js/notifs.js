@@ -237,15 +237,17 @@ async function editAndApproveEntry(id){
         </select>
         <label class="lbl-lg">التاريخ</label>
         <input id="eaDate" type="text" value="${r.entry_date||''}" placeholder="dd/mm/yyyy" style="${inp}">
-        ${r.img_url?`
-        <div style="margin:12px 0">
-          <div style="font-size:11px;color:var(--text-muted,#999);margin-bottom:6px;font-weight:600">📎 صورة الفاتورة</div>
-          <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border,#eee)">
-            <img src="${r.img_url}" style="width:100%;max-height:200px;object-fit:cover;display:block;cursor:zoom-in"
-              onclick="window.open('${r.img_url}','_blank')">
-            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:5px 10px;font-size:10px;color:#fff;text-align:center">اضغط لعرض كاملاً</div>
-          </div>
-        </div>`:''}
+        ${r.img_url?(()=>{
+          let _urls=[];try{_urls=r.img_url.trim().startsWith('[')?JSON.parse(r.img_url):[r.img_url];}catch(x){_urls=[r.img_url];}
+          return`<div style="margin:12px 0">
+          <div style="font-size:11px;color:var(--text-muted,#999);margin-bottom:6px;font-weight:600">📎 ${_urls.length>1?_urls.length+' فواتير مرفقة':'صورة الفاتورة'}</div>
+          ${_urls.map((_u,_i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border,#eee);margin-bottom:6px">
+            <img src="${_u}" style="width:100%;max-height:180px;object-fit:cover;display:block;cursor:zoom-in"
+              onclick="openInvLb('${r.img_url.replace(/'/g,'%27')}','فاتورة','');setTimeout(()=>{window._invLbIdx=${_i};typeof _invLbShow==='function'&&_invLbShow('فاتورة','');},0)">
+            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);padding:4px 10px;font-size:10px;color:#fff;text-align:center">صورة ${_i+1} من ${_urls.length}</div>
+          </div>`).join('')}
+        </div>`;
+        })():''}
         <div class="modal-btns" style="margin-top:16px">
           <button onclick="confirmEditApprove('${id}')" class="btn-primary">✅ حفظ وموافقة</button>
           <button onclick="document.getElementById('eaModal').remove()" class="btn-cancel">إلغاء</button>
