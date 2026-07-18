@@ -260,6 +260,7 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
     var _urls=[];try{_urls=e.img_url.trim().startsWith('[')?JSON.parse(e.img_url):[e.img_url];}catch(x){_urls=[e.img_url];}
     var _thumb=_urls[0];
     var _cnt=_urls.length>1?_urls.length+' فواتير':'فاتورة';
+    var safeDesc=(e.description||'قيد').replace(/'/g,' ');
     invRow='<div onclick="(function(){window._owInvMap=window._owInvMap||{};openInvLb(window._owInvMap[\''+e.id+'\'],\''+safeDesc+'\',\'\')})()" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#f0faf0;border-top:1px solid #e0f0e0;cursor:pointer"><img src="' +_thumb+ '" style="width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9"><span style="font-size:11px;font-weight:600;color:#1D6A3E">📎 ' +_cnt+ ' مرفقة — اضغط للعرض</span></div>';
   }
   return '<div style="background:var(--bg-pure,#fff);border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
