@@ -255,9 +255,12 @@ function owEntryCard(e, projMap, statusTxt, statusClr){
   var editBtn=isPending?'<button onclick="owEditEntry(\''+e.id+'\')" style="background:none;border:1px solid #999;border-radius:8px;padding:2px 10px;font-size:10px;color:#555;cursor:pointer;font-family:inherit">✏️ تعديل</button>':'';
   var invRow='';
   if(e.img_url){
-    var safeUrl=e.img_url.replace(/'/g,"%27");
-    var safeDesc=(e.description||'قيد').replace(/'/g,' ');
-    invRow='<div onclick="openInvLb(\'' +safeUrl+ '\',\'' +safeDesc+ '\',\'\')" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#f0faf0;border-top:1px solid #e0f0e0;cursor:pointer"><img src="' +e.img_url+ '" style="width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9"><span style="font-size:11px;font-weight:600;color:#1D6A3E">📎 فاتورة مرفقة — اضغط للعرض</span></div>';
+    window._owInvMap=window._owInvMap||{};
+    window._owInvMap[e.id]=e.img_url;
+    var _urls=[];try{_urls=e.img_url.trim().startsWith('[')?JSON.parse(e.img_url):[e.img_url];}catch(x){_urls=[e.img_url];}
+    var _thumb=_urls[0];
+    var _cnt=_urls.length>1?_urls.length+' فواتير':'فاتورة';
+    invRow='<div onclick="(function(){window._owInvMap=window._owInvMap||{};openInvLb(window._owInvMap[\''+e.id+'\'],\''+safeDesc+'\',\'\')})()" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#f0faf0;border-top:1px solid #e0f0e0;cursor:pointer"><img src="' +_thumb+ '" style="width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid #c8e6c9"><span style="font-size:11px;font-weight:600;color:#1D6A3E">📎 ' +_cnt+ ' مرفقة — اضغط للعرض</span></div>';
   }
   return '<div style="background:var(--bg-pure,#fff);border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
     '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px 5px">'+
@@ -311,11 +314,11 @@ async function owEditEntry(id){
     '<div style="margin-bottom:12px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
         '<label style="font-size:11px;color:#888;font-weight:700">📎 صورة الفاتورة</label>'+
-        (e.img_url?'<button onclick="owClearEditInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف الصورة</button>':'')+
+        (e.img_url?'<button onclick="owClearEditInv()" style="background:none;border:none;color:#E74C3C;font-size:11px;cursor:pointer;font-family:inherit">🗑 حذف الكل</button>':'')+
       '</div>'+
-      (e.img_url?'<div id="oeInvPreview" style="border-radius:8px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px"><img src="'+e.img_url+'" style="width:100%;max-height:140px;object-fit:cover;display:block;cursor:zoom-in" onclick="openInvLb(\''+e.img_url.replace(/'/g,"%27")+'\',\'فاتورة\',\'\')" ></div>':'<div id="oeInvPreview"></div>')+
-      '<input type="file" id="oeInvFile" accept="image/*,application/pdf" style="display:none" onchange="owEditInvSelect(this)">'+
-      '<label for="oeInvFile" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#888">📷 '+(e.img_url?'تغيير الصورة':'إرفاق صورة')+'</label>'+
+      '<div id="oeInvPreview">'+(()=>{if(!e.img_url)return '';window._owEditExistingUrls=[];try{window._owEditExistingUrls=e.img_url.trim().startsWith('[')?JSON.parse(e.img_url):[e.img_url];}catch(x){window._owEditExistingUrls=[e.img_url];}return window._owEditExistingUrls.map((_u,_i)=>'<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:6px"><img src="'+_u+'" style="width:100%;max-height:120px;object-fit:cover;display:block;cursor:zoom-in" onclick="(function(){window._owInvMap=window._owInvMap||{};window._owInvMap[\'__edit__\']=\''+e.img_url.replace(/'/g,'%27')+'\'||\'\';\''+_u+'\';openInvLb(window._owEditExistingUrls.join(\'|||\'),\'فاتورة\',\'\');})()"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.4);padding:2px 8px;font-size:10px;color:#fff">صورة '+(_i+1)+' من '+window._owEditExistingUrls.length+'</div></div>').join('');})()+'</div>'+
+      '<input type="file" id="oeInvFile" accept="image/*,application/pdf" style="display:none" onchange="owEditInvSelect(this)" multiple>'+
+      '<label for="oeInvFile" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ccc;border-radius:8px;cursor:pointer;font-size:12px;color:#888">📷 '+(e.img_url?'إضافة / تغيير صورة':'إرفاق صورة')+'</label>'+
     '</div>'+
     '<div id="oeSavMsg" style="font-size:12px;text-align:center;margin-bottom:8px;min-height:16px"></div>'+
     '<button onclick="owSaveEditEntry(\''+id+'\')" style="width:100%;padding:12px;background:#2C6E3F;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">💾 حفظ التعديل</button>'+
@@ -334,31 +337,43 @@ function owSetEditType(t){
 }
 
 function owEditInvSelect(input){
-  var file=input.files[0];if(!file)return;
-  window._owEditInvFile=file;
+  var files=Array.from(input.files);if(!files.length)return;
+  window._owEditInvFiles=(window._owEditInvFiles||[]).concat(files);
+  _owEditInvRenderList();
+  input.value='';
+}
+function _owEditInvRenderList(){
+  var files=window._owEditInvFiles||[];
   var preview=document.getElementById('oeInvPreview');
   if(!preview)return;
-  if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){
-    preview.innerHTML='<div style="padding:12px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;font-size:12px;color:#1D6A3E;text-align:center">📄 '+file.name+'</div>';
-  }else{
-    var reader=new FileReader();
-    reader.onload=function(ev){
-      preview.innerHTML='<img src="'+ev.target.result+'" style="width:100%;max-height:140px;object-fit:cover;display:block;border-radius:8px">';
-    };
-    reader.readAsDataURL(file);
-  }
-  // تغيير نص الـ label
-  var lbl=document.querySelector('label[for="oeInvFile"]');
-  if(lbl)lbl.innerHTML='✅ '+file.name.substring(0,30);
+  // احتفظ بالصور الموجودة وأضف الجديدة
+  var existing=(window._owEditExistingUrls||[]).map((_u,_i)=>
+    '<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid #c8e6c9;margin-bottom:4px"><img src="'+_u+'" style="width:100%;max-height:100px;object-fit:cover;display:block"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.4);padding:2px 8px;font-size:10px;color:#fff">موجودة — صورة '+(_i+1)+'</div></div>'
+  ).join('');
+  var newHtml=files.map((file,idx)=>{
+    var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    var name=file.name.length>28?file.name.substring(0,26)+'…':file.name;
+    var size=file.size<1024*1024?(file.size/1024).toFixed(0)+' KB':(file.size/1024/1024).toFixed(1)+' MB';
+    return '<div id="oeNewFile_'+idx+'" style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;margin-bottom:4px">'+
+      '<span style="font-size:18px;flex-shrink:0">'+(isPdf?'📄':'🖼')+'</span>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#1D6A3E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</div><div style="font-size:10px;color:#888">'+size+' — جديدة</div></div>'+
+      '<button onclick="owEditRemoveNewFile('+idx+')" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px;padding:2px 4px">✕</button>'+
+    '</div>';
+  }).join('');
+  var addBtn='<label for="oeInvFile" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px dashed #81c784;border-radius:8px;cursor:pointer;font-size:11px;color:#1D6A3E;margin-top:4px">➕ إضافة صورة أخرى</label>';
+  preview.innerHTML=existing+newHtml+(files.length?addBtn:'');
+}
+function owEditRemoveNewFile(idx){
+  window._owEditInvFiles=(window._owEditInvFiles||[]).filter((_,i)=>i!==idx);
+  _owEditInvRenderList();
 }
 
 function owClearEditInv(){
-  window._owEditInvFile=null;
+  window._owEditInvFiles=[];
+  window._owEditExistingUrls=[];
   window._owEditInvClear=true;
   var preview=document.getElementById('oeInvPreview');
   if(preview)preview.innerHTML='';
-  var lbl=document.querySelector('label[for="oeInvFile"]');
-  if(lbl)lbl.innerHTML='📷 إرفاق صورة';
   var inp=document.getElementById('oeInvFile');
   if(inp)inp.value='';
 }
@@ -376,33 +391,40 @@ async function owSaveEditEntry(id){
   try{
     var patch={project_id:proj,type:t,amount:amt,category:cat,description:desc,entry_date:dt};
     // لو فيه صورة جديدة
-    if(window._owEditInvFile){
-      var file=window._owEditInvFile;
-      var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-      var uploadFile=file;
-      if(!isPdf){
-        uploadFile=await new Promise(function(res){
-          var reader=new FileReader();
-          reader.onload=function(ev){
-            var img=new Image();
-            img.onload=function(){
-              var MAX=1400,w=img.width,h=img.height;
-              if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-              var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-              canvas.getContext('2d').drawImage(img,0,0,w,h);
-              canvas.toBlob(function(blob){res(blob);},'image/jpeg',0.80);
-            };
-            img.src=ev.target.result;
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-      var ext=isPdf?'pdf':'jpg';
-      var path=id+'/invoice_'+Date.now()+'.'+ext;
+    var _newFiles=window._owEditInvFiles||[];
+    if(_newFiles.length){
       var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y29xZ2x1YXl0d2VsbnV0cm94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTU5MTIsImV4cCI6MjA5NDE5MTkxMn0.Bh3LH_tkSe9H1olWr3R9-ETa_cNnD9EjZwU8yTKbn_o';
-      var r=await fetch(SB+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
-      if(r.ok){patch.img_url=SB+'/storage/v1/object/public/invoices/'+path;}
-      window._owEditInvFile=null;
+      var _uploadedUrls=[];
+      for(var _fi=0;_fi<_newFiles.length;_fi++){
+        var file=_newFiles[_fi];
+        var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+        var uploadFile=file;
+        if(!isPdf){
+          uploadFile=await new Promise(function(res){
+            var reader=new FileReader();
+            reader.onload=function(ev){
+              var img=new Image();
+              img.onload=function(){
+                var MAX=1400,w=img.width,h=img.height;
+                if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+                var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+                canvas.getContext('2d').drawImage(img,0,0,w,h);
+                canvas.toBlob(function(blob){res(blob);},'image/jpeg',0.80);
+              };img.src=ev.target.result;
+            };reader.readAsDataURL(file);
+          });
+        }
+        var ext=isPdf?'pdf':'jpg';
+        var path=id+'/invoice_'+Date.now()+'_'+_fi+'.'+ext;
+        var r=await fetch(SB+'/storage/v1/object/invoices/'+path,{method:'POST',headers:{'Authorization':'Bearer '+(token||AK),'apikey':AK,'Content-Type':isPdf?'application/pdf':'image/jpeg','x-upsert':'true'},body:uploadFile});
+        if(r.ok)_uploadedUrls.push(SB+'/storage/v1/object/public/invoices/'+path);
+      }
+      // دمج الصور الموجودة مع الجديدة
+      var _existUrls=window._owEditExistingUrls||[];
+      var _allUrls=_existUrls.concat(_uploadedUrls);
+      patch.img_url=_allUrls.length===1?_allUrls[0]:JSON.stringify(_allUrls);
+      window._owEditInvFiles=[];
+      window._owEditExistingUrls=[];
     } else if(window._owEditInvClear){
       patch.img_url=null;
       window._owEditInvClear=false;
