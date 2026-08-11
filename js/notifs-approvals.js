@@ -503,6 +503,21 @@ async function undoApproveEntry(id){
 }
 // ══════════════════════════════════════
 
+async function undoApproveAdvInstall(id){
+  await new Promise(res=>showConfirm({icon:'↩',title:'إلغاء الموافقة',msg:'هترجع الدفعة لقائمة الانتظار.',okLabel:'إلغاء الموافقة',okType:'warn',onOk:res}));
+  try{
+    const rows=await sb('advance_installments?id=eq.'+id);
+    if(!rows||!rows.length){setSav('❌ الدفعة مش موجودة','er');return;}
+    const ins=rows[0];
+    const pending={id:crypto.randomUUID(),advance_id:ins.advance_id,type:'installment',amount:ins.amount,inst_note:ins.note||'دفعة',inst_date:ins.inst_date||'',submitted_by:uid||null};
+    await sb('pending_advances','POST',pending);
+    await sb('advance_installments?id=eq.'+id,'DELETE');
+    setSav('↩ تم إرجاع الدفعة للموافقات','ng');
+    updatePendingBadge();
+    if(typeof openAdv==='function'&&curAdv)openAdv(curAdv.id);
+  }catch(ex){setSav('❌ '+friendlyError(ex),'er');}
+}
+
 async function editAndApproveAdv(id){
   try{
     const rows=await sb('pending_advances?id=eq.'+id);
