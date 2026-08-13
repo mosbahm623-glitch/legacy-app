@@ -181,29 +181,19 @@ function buildProjListScreen(){
     if(pct>75)return'warn';
     return'good';
   }
-
   function fnShort(n){
     if(n>=1000000)return(n/1000000).toFixed(1)+'M';
     if(n>=1000)return(n/1000).toFixed(0)+'K';
     return Number(n||0).toLocaleString('en-US');
   }
-
-  // ألوان حسب الوضع
   const C={
-    danger:  dk?'#e87070':'#C0392B',
-    dangerBg:dk?'rgba(232,112,112,.1)':'rgba(192,57,43,.06)',
-    warn:    dk?'#d4a84c':'#A06B00',
-    warnBg:  dk?'rgba(212,170,76,.1)':'rgba(160,107,0,.06)',
-    good:    dk?'#4eca8b':'#1A7A4A',
-    goodBg:  dk?'rgba(78,202,139,.08)':'rgba(26,122,74,.05)',
-    zero:    dk?'rgba(212,196,154,.2)':'#E8E4DE',
-    zeroBg:  'transparent',
-    border:  dk?'rgba(212,196,154,.1)':'#EDEAE4',
-    card:    dk?'rgba(255,255,255,.04)':'#FFFFFF',
-    text:    dk?'#D4C49A':'#1C2B1E',
-    muted:   dk?'rgba(212,196,154,.4)':'#8A9490',
-    inc:     dk?'#4eca8b':'#1A7A4A',
-    exp:     dk?'#e87070':'#B83232',
+    danger:dk?'#e87070':'#C0392B',dangerBg:dk?'rgba(232,112,112,.1)':'rgba(192,57,43,.06)',
+    warn:dk?'#d4a84c':'#A06B00',warnBg:dk?'rgba(212,170,76,.1)':'rgba(160,107,0,.06)',
+    good:dk?'#4eca8b':'#1A7A4A',goodBg:dk?'rgba(78,202,139,.08)':'rgba(26,122,74,.05)',
+    zero:dk?'rgba(212,196,154,.2)':'#E8E4DE',zeroBg:'transparent',
+    border:dk?'rgba(212,196,154,.1)':'#EDEAE4',card:dk?'rgba(255,255,255,.04)':'#FFFFFF',
+    text:dk?'#D4C49A':'#1C2B1E',muted:dk?'rgba(212,196,154,.4)':'#8A9490',
+    inc:dk?'#4eca8b':'#1A7A4A',exp:dk?'#e87070':'#B83232',
   };
 
   function projCard(p){
@@ -211,87 +201,69 @@ function buildProjListScreen(){
     const pI=s.inc||0,pE=s.exp||0,pB=(s.bal!==undefined?s.bal:pI-pE);
     const st=getStatus(pI,pE,pB);
     const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):pE>0?100:0;
-    const stColor=C[st];
-    const stBg=C[st+'Bg'];
+    const stColor=C[st],stBg=C[st+'Bg'];
     const balClr=pB>0?C.good:pB<0?C.danger:C.muted;
-    const leftBar=`border-right:3.5px solid ${stColor}`;
+    const leftBar='border-right:3.5px solid '+stColor;
     const badgeMap={danger:'⚠️ عجز',warn:'🟡 '+pct+'%',good:'✅ '+pct+'%',zero:'—'};
-
-    return `<div onclick="goToProject('${p.id}')" style="background:${C.card};border:1px solid ${C.border};${leftBar};border-radius:14px;margin-bottom:9px;overflow:hidden;cursor:pointer;transition:box-shadow .15s" onmouseenter="this.style.boxShadow='0 3px 12px rgba(0,0,0,.08)'" onmouseleave="this.style.boxShadow='none'">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px">
-        <div style="font-size:13px;font-weight:700;color:${C.text}">${esc(p.name)}</div>
-        <div style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${stBg};color:${stColor}">${badgeMap[st]}</div>
-      </div>
-      <div style="padding:6px 14px 4px">
-        <div style="height:5px;background:${dk?'rgba(255,255,255,.07)':'#F0EDE8'};border-radius:5px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;border-radius:5px;background:${stColor};opacity:.85"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:${C.muted};margin-top:3px">
-          <span>0%</span><span style="font-weight:700;color:${stColor}">${pct}% صرف</span><span>100%</span>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px 12px;border-top:1px solid ${C.border};margin-top:6px;gap:4px">
-        <div style="text-align:center">
-          <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.4px;margin-bottom:3px">الوارد</div>
-          <div style="font-size:12px;font-weight:700;color:${pI?C.inc:C.muted}">${pI?'▲ '+fnShort(pI):'—'}</div>
-        </div>
-        <div style="text-align:center;border-right:1px solid ${C.border};border-left:1px solid ${C.border}">
-          <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.4px;margin-bottom:3px">المصروف</div>
-          <div style="font-size:12px;font-weight:700;color:${pE?C.exp:C.muted}">${pE?'▼ '+fnShort(pE):'—'}</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.4px;margin-bottom:3px">الرصيد</div>
-          <div style="font-size:12px;font-weight:700;color:${balClr}">${pB===0?'—':(pB>0?'+ ':'')+fnShort(Math.abs(pB))}</div>
-        </div>
-      </div>
-    </div>`;
+    return '<div onclick="goToProject(\''+p.id+'\')" style="background:'+C.card+';border:1px solid '+C.border+';'+leftBar+';border-radius:14px;margin-bottom:9px;overflow:hidden;cursor:pointer" >'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px">'
+      +'<div style="font-size:13px;font-weight:700;color:'+C.text+'">'+esc(p.name)+'</div>'
+      +'<div style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+stBg+';color:'+stColor+'">'+badgeMap[st]+'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px 12px;border-top:1px solid '+C.border+';gap:4px">'
+      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الوارد</div><div style="font-size:12px;font-weight:700;color:'+(pI?C.inc:C.muted)+'">'+(pI?'▲ '+fnShort(pI):'—')+'</div></div>'
+      +'<div style="text-align:center;border-right:1px solid '+C.border+';border-left:1px solid '+C.border+'"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">المصروف</div><div style="font-size:12px;font-weight:700;color:'+(pE?C.exp:C.muted)+'">'+(pE?'▼ '+fnShort(pE):'—')+'</div></div>'
+      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الرصيد</div><div style="font-size:12px;font-weight:700;color:'+balClr+'">'+(pB===0?'—':(pB>0?'+ ':'')+fnShort(Math.abs(pB)))+'</div></div>'
+      +'</div></div>';
   }
 
-  // تجميع بالحالة
-  const groups={danger:[],warn:[],good:[],zero:[]};
+  // تجميع بالنوع (فولدرات)
+  const typeGroups={};
   sorted.forEach(p=>{
-    const s=projSummaries[p.id]||{inc:0,exp:0};
-    const st=getStatus(s.inc||0,s.exp||0,(s.bal!==undefined?s.bal:(s.inc||0)-(s.exp||0)));
-    groups[st].push(p);
+    const t=p.type||'أخرى';
+    if(!typeGroups[t])typeGroups[t]=[];
+    typeGroups[t].push(p);
   });
+  const typeOrder=['تشطيب','فرش'];
+  const allTypes=[...typeOrder.filter(t=>typeGroups[t]),...Object.keys(typeGroups).filter(t=>!typeOrder.includes(t))];
+  if(!window._projFolderState)window._projFolderState={};
 
-  const sectionLbl=(lbl,n)=>`<div style="font-size:10px;font-weight:700;color:${C.muted};letter-spacing:1px;padding:12px 0 7px;display:flex;align-items:center;gap:8px">${lbl} <span style="opacity:.5">(${n})</span><div style="flex:1;height:1px;background:${C.border}"></div></div>`;
-
-  let html='';
+  function renderFolder(typeName){
+    const ps=typeGroups[typeName]||[];
+    const isOpen=window._projFolderState[typeName]!==false;
+    const icon=isOpen?'▼':'▶';
+    const typeB=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+((ss.bal!==undefined?ss.bal:(ss.inc||0)-(ss.exp||0)));},0);
+    const bClr=typeB>=0?C.good:C.danger;
+    const onclick="window._projFolderState['"+typeName+"']=!(window._projFolderState['"+typeName+"']!==false);buildProjListScreen()";
+    let h='<div style="margin-bottom:8px">';
+    h+='<div onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:'+C.card+';border:1px solid '+C.border+';border-radius:12px;cursor:pointer;user-select:none">';
+    h+='<div style="display:flex;align-items:center;gap:8px">';
+    h+='<span style="font-size:15px">📁</span>';
+    h+='<span style="font-size:13px;font-weight:700;color:'+C.text+'">'+typeName+'</span>';
+    h+='<span style="font-size:10px;color:'+C.muted+';padding:2px 7px;border-radius:10px;border:1px solid '+C.border+'">'+ps.length+'</span>';
+    h+='</div>';
+    h+='<div style="display:flex;align-items:center;gap:10px">';
+    h+='<span style="font-size:11px;font-weight:700;color:'+bClr+'">'+(typeB>=0?'+ ':'')+fnShort(Math.abs(typeB))+'</span>';
+    h+='<span style="font-size:11px;color:'+C.muted+'">'+icon+'</span>';
+    h+='</div></div>';
+    if(isOpen){h+='<div style="padding:8px 0 4px">'+ps.map(projCard).join('')+'</div>';}
+    h+='</div>';
+    return h;
+  }
 
   // إجمالي في الأعلى
   const totBClr=totB>=0?C.good:C.danger;
-  html+=`<div style="background:${C.card};border:1px solid ${C.border};border-radius:14px;padding:14px;margin-bottom:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
-      <div style="text-align:center">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">إجمالي الوارد</div>
-        <div style="font-size:14px;font-weight:800;color:${C.inc}">▲ ${fnShort(totI)}</div>
-      </div>
-      <div style="text-align:center;border-right:1px solid ${C.border};border-left:1px solid ${C.border}">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">إجمالي المصروف</div>
-        <div style="font-size:14px;font-weight:800;color:${C.exp}">▼ ${fnShort(totE)}</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">صافي الرصيد</div>
-        <div style="font-size:14px;font-weight:800;color:${totBClr}">${totB>=0?'+ ':''} ${fnShort(Math.abs(totB))}</div>
-      </div>
-    </div>
-  </div>`;
+  let html='<div style="background:'+C.card+';border:1px solid '+C.border+';border-radius:14px;padding:14px;margin-bottom:14px">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">'
+    +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:4px">إجمالي الوارد</div><div style="font-size:14px;font-weight:800;color:'+C.inc+'">▲ '+fnShort(totI)+'</div></div>'
+    +'<div style="text-align:center;border-right:1px solid '+C.border+';border-left:1px solid '+C.border+'"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:4px">إجمالي المصروف</div><div style="font-size:14px;font-weight:800;color:'+C.exp+'">▼ '+fnShort(totE)+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:4px">صافي الرصيد</div><div style="font-size:14px;font-weight:800;color:'+totBClr+'">'+(totB>=0?'+ ':'')+fnShort(Math.abs(totB))+'</div></div>'
+    +'</div></div>';
 
-  const _f=typeof _curProjFilter!=='undefined'?_curProjFilter:'all';
-  const showDanger=_f==='all'||_f==='danger';
-  const showWarn=_f==='all'||_f==='warn';
-  const showGood=_f==='all'||_f==='good';
-  const showZero=_f==='all'||_f==='zero';
-  if(showDanger&&groups.danger.length){html+=sectionLbl('⚠️ تحتاج متابعة',groups.danger.length);html+=groups.danger.map(projCard).join('');}
-  if(showWarn&&groups.warn.length){html+=sectionLbl('🟡 تحذير',groups.warn.length);html+=groups.warn.map(projCard).join('');}
-  if(showGood&&groups.good.length){html+=sectionLbl('✅ طبيعي',groups.good.length);html+=groups.good.map(projCard).join('');}
-  if(showZero&&groups.zero.length){html+=sectionLbl('— بدون حركة',groups.zero.length);html+=groups.zero.map(projCard).join('');}
-  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع في هذا التصنيف</div>';
-
+  allTypes.forEach(t=>{html+=renderFolder(t);});
+  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع</div>';
   grid.innerHTML=html;
 }
-let _curProjFilter='all';
 
 function setProjFilter(f, btn){
   _curProjFilter=f;
