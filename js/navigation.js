@@ -163,96 +163,38 @@ function buildProjListScreen(){
   if(!projects.length){grid.innerHTML='<div class="emp">لا توجد مشاريع</div>';return;}
   grid.style.cssText='display:block;padding:10px 12px';
   const dk=document.body.classList.contains('dark-mode');
-
-  const sorted=[...projects].sort((a,b)=>{
-    const sa=projSummaries[a.id]||{bal:0};
-    const sb_=projSummaries[b.id]||{bal:0};
-    return (sa.bal||0)-(sb_.bal||0);
-  });
-
-  const totI=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.inc||0);},0);
-  const totE=sorted.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.exp||0);},0);
-  const totB=totI-totE;
-
-  function getStatus(pI,pE,pB){
-    if(pI===0&&pE===0)return'zero';
-    const pct=pI>0?pE/pI*100:pE>0?101:0;
-    if(pct>100)return'danger';
-    if(pct>75)return'warn';
-    return'good';
-  }
+  const C={
+    border:dk?'rgba(212,196,154,.1)':'#EDEAE4',
+    card:dk?'rgba(255,255,255,.04)':'#FFFFFF',
+    text:dk?'#D4C49A':'#1C2B1E',
+    muted:dk?'rgba(212,196,154,.4)':'#8A9490',
+    good:dk?'#4eca8b':'#1A7A4A',
+    danger:dk?'#e87070':'#C0392B',
+    inc:dk?'#4eca8b':'#1A7A4A',
+    exp:dk?'#e87070':'#B83232',
+  };
   function fnShort(n){
     if(n>=1000000)return(n/1000000).toFixed(1)+'M';
     if(n>=1000)return(n/1000).toFixed(0)+'K';
     return Number(n||0).toLocaleString('en-US');
   }
-  const C={
-    danger:dk?'#e87070':'#C0392B',dangerBg:dk?'rgba(232,112,112,.1)':'rgba(192,57,43,.06)',
-    warn:dk?'#d4a84c':'#A06B00',warnBg:dk?'rgba(212,170,76,.1)':'rgba(160,107,0,.06)',
-    good:dk?'#4eca8b':'#1A7A4A',goodBg:dk?'rgba(78,202,139,.08)':'rgba(26,122,74,.05)',
-    zero:dk?'rgba(212,196,154,.2)':'#E8E4DE',zeroBg:'transparent',
-    border:dk?'rgba(212,196,154,.1)':'#EDEAE4',card:dk?'rgba(255,255,255,.04)':'#FFFFFF',
-    text:dk?'#D4C49A':'#1C2B1E',muted:dk?'rgba(212,196,154,.4)':'#8A9490',
-    inc:dk?'#4eca8b':'#1A7A4A',exp:dk?'#e87070':'#B83232',
-  };
 
-  function projCard(p){
-    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0};
-    const pI=s.inc||0,pE=s.exp||0,pB=(s.bal!==undefined?s.bal:pI-pE);
-    const st=getStatus(pI,pE,pB);
-    const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):pE>0?100:0;
-    const stColor=C[st],stBg=C[st+'Bg'];
-    const balClr=pB>0?C.good:pB<0?C.danger:C.muted;
-    const leftBar='border-right:3.5px solid '+stColor;
-    const badgeMap={danger:'⚠️ عجز',warn:'🟡 '+pct+'%',good:'✅ '+pct+'%',zero:'—'};
-    return '<div onclick="goToProject(\''+p.id+'\')" style="background:'+C.card+';border:1px solid '+C.border+';'+leftBar+';border-radius:14px;margin-bottom:9px;overflow:hidden;cursor:pointer" >'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px">'
-      +'<div style="font-size:13px;font-weight:700;color:'+C.text+'">'+esc(p.name)+'</div>'
-      +'<div style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+stBg+';color:'+stColor+'">'+badgeMap[st]+'</div>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px 12px;border-top:1px solid '+C.border+';gap:4px">'
-      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الوارد</div><div style="font-size:12px;font-weight:700;color:'+(pI?C.inc:C.muted)+'">'+(pI?'▲ '+fnShort(pI):'—')+'</div></div>'
-      +'<div style="text-align:center;border-right:1px solid '+C.border+';border-left:1px solid '+C.border+'"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">المصروف</div><div style="font-size:12px;font-weight:700;color:'+(pE?C.exp:C.muted)+'">'+(pE?'▼ '+fnShort(pE):'—')+'</div></div>'
-      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الرصيد</div><div style="font-size:12px;font-weight:700;color:'+balClr+'">'+(pB===0?'—':(pB>0?'+ ':'')+fnShort(Math.abs(pB)))+'</div></div>'
-      +'</div></div>';
-  }
-
-  // تجميع بالنوع (فولدرات)
+  // تجميع بالنوع
   const typeGroups={};
-  sorted.forEach(p=>{
+  projects.forEach(p=>{
     const t=p.type||'أخرى';
     if(!typeGroups[t])typeGroups[t]=[];
     typeGroups[t].push(p);
   });
   const typeOrder=['تشطيب','فرش'];
   const allTypes=[...typeOrder.filter(t=>typeGroups[t]),...Object.keys(typeGroups).filter(t=>!typeOrder.includes(t))];
-  if(!window._projFolderState)window._projFolderState={};
 
-  function renderFolder(typeName){
-    const ps=typeGroups[typeName]||[];
-    const isOpen=window._projFolderState[typeName]!==false;
-    const icon=isOpen?'▼':'▶';
-    const typeB=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+((ss.bal!==undefined?ss.bal:(ss.inc||0)-(ss.exp||0)));},0);
-    const bClr=typeB>=0?C.good:C.danger;
-    const onclick="window._projFolderState['"+typeName+"']=!(window._projFolderState['"+typeName+"']!==false);buildProjListScreen()";
-    let h='<div style="margin-bottom:8px">';
-    h+='<div onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:'+C.card+';border:1px solid '+C.border+';border-radius:12px;cursor:pointer;user-select:none">';
-    h+='<div style="display:flex;align-items:center;gap:8px">';
-    h+='<span style="font-size:15px">📁</span>';
-    h+='<span style="font-size:13px;font-weight:700;color:'+C.text+'">'+typeName+'</span>';
-    h+='<span style="font-size:10px;color:'+C.muted+';padding:2px 7px;border-radius:10px;border:1px solid '+C.border+'">'+ps.length+'</span>';
-    h+='</div>';
-    h+='<div style="display:flex;align-items:center;gap:10px">';
-    h+='<span style="font-size:11px;font-weight:700;color:'+bClr+'">'+(typeB>=0?'+ ':'')+fnShort(Math.abs(typeB))+'</span>';
-    h+='<span style="font-size:11px;color:'+C.muted+'">'+icon+'</span>';
-    h+='</div></div>';
-    if(isOpen){h+='<div style="padding:8px 0 4px">'+ps.map(projCard).join('')+'</div>';}
-    h+='</div>';
-    return h;
-  }
-
-  // إجمالي في الأعلى
+  // إجمالي كل المشاريع
+  const totI=projects.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.inc||0);},0);
+  const totE=projects.reduce((s,p)=>{const ps=projSummaries[p.id]||{};return s+(ps.exp||0);},0);
+  const totB=totI-totE;
   const totBClr=totB>=0?C.good:C.danger;
+
   let html='<div style="background:'+C.card+';border:1px solid '+C.border+';border-radius:14px;padding:14px;margin-bottom:14px">'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">'
     +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:4px">إجمالي الوارد</div><div style="font-size:14px;font-weight:800;color:'+C.inc+'">▲ '+fnShort(totI)+'</div></div>'
@@ -260,8 +202,89 @@ function buildProjListScreen(){
     +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:4px">صافي الرصيد</div><div style="font-size:14px;font-weight:800;color:'+totBClr+'">'+(totB>=0?'+ ':'')+fnShort(Math.abs(totB))+'</div></div>'
     +'</div></div>';
 
-  allTypes.forEach(t=>{html+=renderFolder(t);});
-  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع</div>';
+  // فولدرات بدون dropdown - ضغطة تفتح شاشة
+  allTypes.forEach(function(typeName){
+    const ps=typeGroups[typeName]||[];
+    const typeI=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+(ss.inc||0);},0);
+    const typeE=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+(ss.exp||0);},0);
+    const typeB=typeI-typeE;
+    const bClr=typeB>=0?C.good:C.danger;
+    html+='<div onclick="openProjFolder(\''+typeName+'\','+JSON.stringify(ps.map(p=>p.id))+')" '
+      +'style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:'+C.card+';border:1px solid '+C.border+';border-radius:12px;cursor:pointer;margin-bottom:8px;user-select:none">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:20px">📁</span>'
+      +'<div>'
+      +'<div style="font-size:14px;font-weight:700;color:'+C.text+'">'+typeName+'</div>'
+      +'<div style="font-size:10px;color:'+C.muted+';margin-top:2px">'+ps.length+' مشروع</div>'
+      +'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:12px;font-weight:700;color:'+bClr+'">'+(typeB>=0?'+ ':'')+fnShort(Math.abs(typeB))+'</span>'
+      +'<span style="font-size:14px;color:'+C.muted+'">←</span>'
+      +'</div></div>';
+  });
+  grid.innerHTML=html;
+}
+
+function openProjFolder(typeName, ids){
+  const grid=document.getElementById('projCardsGrid');
+  if(!grid)return;
+  const dk=document.body.classList.contains('dark-mode');
+  const C={
+    border:dk?'rgba(212,196,154,.1)':'#EDEAE4',
+    card:dk?'rgba(255,255,255,.04)':'#FFFFFF',
+    text:dk?'#D4C49A':'#1C2B1E',
+    muted:dk?'rgba(212,196,154,.4)':'#8A9490',
+    good:dk?'#4eca8b':'#1A7A4A',
+    danger:dk?'#e87070':'#C0392B',
+    inc:dk?'#4eca8b':'#1A7A4A',
+    exp:dk?'#e87070':'#B83232',
+  };
+  function fnShort(n){
+    if(n>=1000000)return(n/1000000).toFixed(1)+'M';
+    if(n>=1000)return(n/1000).toFixed(0)+'K';
+    return Number(n||0).toLocaleString('en-US');
+  }
+  function getStatus(pI,pE){
+    if(pI===0&&pE===0)return'zero';
+    const pct=pI>0?pE/pI*100:pE>0?101:0;
+    if(pct>100)return'danger';
+    if(pct>75)return'warn';
+    return'good';
+  }
+  const statusColors={danger:C.danger,warn:dk?'#d4a84c':'#A06B00',good:C.good,zero:C.muted};
+  const statusBg={danger:dk?'rgba(232,112,112,.1)':'rgba(192,57,43,.06)',warn:dk?'rgba(212,170,76,.1)':'rgba(160,107,0,.06)',good:dk?'rgba(78,202,139,.08)':'rgba(26,122,74,.05)',zero:'transparent'};
+  const badgeMap={danger:'⚠️ عجز',warn:'',good:'✅ ',zero:'—'};
+
+  const folderProjects=projects.filter(p=>ids.includes(p.id));
+
+  let html='<div onclick="buildProjListScreen()" style="display:flex;align-items:center;gap:8px;padding:10px 0 14px;cursor:pointer;color:'+C.muted+';font-size:13px">'
+    +'<span>→</span><span>رجوع للمشاريع</span></div>';
+
+  html+='<div style="font-size:13px;font-weight:700;color:'+C.text+';margin-bottom:12px;display:flex;align-items:center;gap:8px">'
+    +'<span>📁</span><span>'+typeName+'</span>'
+    +'<span style="font-size:10px;color:'+C.muted+';font-weight:400">('+folderProjects.length+' مشروع)</span></div>';
+
+  folderProjects.forEach(p=>{
+    const s=projSummaries[p.id]||{inc:0,exp:0,bal:0};
+    const pI=s.inc||0,pE=s.exp||0,pB=(s.bal!==undefined?s.bal:pI-pE);
+    const st=getStatus(pI,pE);
+    const pct=pI>0?Math.min(100,Math.round(pE/pI*100)):pE>0?100:0;
+    const stColor=statusColors[st];
+    const stBg=statusBg[st];
+    const balClr=pB>0?C.good:pB<0?C.danger:C.muted;
+    const badge=badgeMap[st]+(st==='warn'||st==='good'?pct+'%':'');
+    html+='<div onclick="goToProject(\''+p.id+'\')" style="background:'+C.card+';border:1px solid '+C.border+';border-right:3.5px solid '+stColor+';border-radius:14px;margin-bottom:9px;cursor:pointer">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px">'
+      +'<div style="font-size:13px;font-weight:700;color:'+C.text+'">'+esc(p.name)+'</div>'
+      +'<div style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+stBg+';color:'+stColor+'">'+badge+'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px 12px;border-top:1px solid '+C.border+';gap:4px">'
+      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الوارد</div><div style="font-size:12px;font-weight:700;color:'+(pI?C.inc:C.muted)+'">'+(pI?'▲ '+fnShort(pI):'—')+'</div></div>'
+      +'<div style="text-align:center;border-right:1px solid '+C.border+';border-left:1px solid '+C.border+'"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">المصروف</div><div style="font-size:12px;font-weight:700;color:'+(pE?C.exp:C.muted)+'">'+(pE?'▼ '+fnShort(pE):'—')+'</div></div>'
+      +'<div style="text-align:center"><div style="font-size:9px;color:'+C.muted+';font-weight:600;margin-bottom:3px">الرصيد</div><div style="font-size:12px;font-weight:700;color:'+balClr+'">'+(pB===0?'—':(pB>0?'+ ':'')+fnShort(Math.abs(pB)))+'</div></div>'
+      +'</div></div>';
+  });
+  grid.style.cssText='display:block;padding:10px 12px';
   grid.innerHTML=html;
 }
 
