@@ -87,6 +87,7 @@ async function saveProjectEdit(){
     if(dclEl)dclEl.value=close||'';
     msg.style.color='var(--primary-btn)';msg.textContent='✅ تم الحفظ';
     setSav('✅ تم تعديل المشروع','ok');
+    if(typeof buildProjListScreen==='function')buildProjListScreen();
     setTimeout(()=>document.getElementById('editProjModal')?.remove(),700);
   }catch(e){msg.style.color='var(--danger)';msg.textContent='❌ خطأ: '+e.message;}
 }
