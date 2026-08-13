@@ -41,6 +41,12 @@ function editProject(){
       <input id="epPhone2" type="text" value="${(p.client_phone2||'').replace(/"/g,'&quot;')}" placeholder="مثال: 201001234567"
         class="inp-lg"
         onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+      <label class="lbl-lg">🏷️ نوع المشروع</label>
+      <select id="epType" class="inp-lg" style="cursor:pointer">
+        <option value="تشطيب" ${p.type==='تشطيب'||!p.type?'selected':''}>🏠 تشطيب</option>
+        <option value="فرش" ${p.type==='فرش'?'selected':''}>🛋️ فرش</option>
+        <option value="أخرى" ${p.type&&p.type!=='تشطيب'&&p.type!=='فرش'?'selected':''}>📁 أخرى</option>
+      </select>
       <div id="epMsg" class="proj-edit-msg"></div>
       <div class="modal-btns">
         <button onclick="saveProjectEdit()" class="btn-primary">💾 حفظ التعديلات</button>
@@ -63,7 +69,8 @@ async function saveProjectEdit(){
   try{
     const phone=document.getElementById('epPhone').value.trim();
     const phone2=document.getElementById('epPhone2').value.trim();
-    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null,client_phone2:phone2||null};
+    const type=document.getElementById('epType').value;
+    const upd={name,start_date:start||null,close_date:close||null,client_phone:phone||null,client_phone2:phone2||null,type:type||'تشطيب'};
     await sb('projects?id=eq.'+curPid,'PATCH',upd);
     // حدّث الذاكرة
     const idx=allProjects.findIndex(p=>p.id===curPid);
