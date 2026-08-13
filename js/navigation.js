@@ -203,13 +203,16 @@ function buildProjListScreen(){
     +'</div></div>';
 
   // فولدرات بدون dropdown - ضغطة تفتح شاشة
+  // خزن الـ typeGroups في window عشان الـ onclick يوصالها
+  window._projTypeGroups=typeGroups;
+
   allTypes.forEach(function(typeName){
     const ps=typeGroups[typeName]||[];
     const typeI=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+(ss.inc||0);},0);
     const typeE=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+(ss.exp||0);},0);
     const typeB=typeI-typeE;
     const bClr=typeB>=0?C.good:C.danger;
-    html+='<div onclick="openProjFolder(\''+typeName+'\','+JSON.stringify(ps.map(p=>p.id))+')" '
+    html+='<div onclick="openProjFolder(\''+typeName+'\''+')" '
       +'style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:'+C.card+';border:1px solid '+C.border+';border-radius:12px;cursor:pointer;margin-bottom:8px;user-select:none">'
       +'<div style="display:flex;align-items:center;gap:10px">'
       +'<span style="font-size:20px">📁</span>'
@@ -225,7 +228,8 @@ function buildProjListScreen(){
   grid.innerHTML=html;
 }
 
-function openProjFolder(typeName, ids){
+function openProjFolder(typeName){
+  const ids=(window._projTypeGroups&&window._projTypeGroups[typeName]||[]).map(p=>p.id);
   const grid=document.getElementById('projCardsGrid');
   if(!grid)return;
   const dk=document.body.classList.contains('dark-mode');
