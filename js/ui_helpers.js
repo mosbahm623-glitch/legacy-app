@@ -375,47 +375,43 @@ function buildProjListScreen(){
     </div>`;
   }
 
-  // تجميع بالحالة
-  const groups={danger:[],warn:[],good:[],zero:[]};
+  // تجميع بالنوع (فولدرات)
+  const typeGroups={};
   sorted.forEach(p=>{
-    const s=projSummaries[p.id]||{inc:0,exp:0};
-    const st=getStatus(s.inc||0,s.exp||0,(s.bal!==undefined?s.bal:(s.inc||0)-(s.exp||0)));
-    groups[st].push(p);
+    const t=p.type||'أخرى';
+    if(!typeGroups[t])typeGroups[t]=[];
+    typeGroups[t].push(p);
   });
+  const typeOrder=['تشطيب','فرش'];
+  const allTypes=[...typeOrder.filter(t=>typeGroups[t]),...Object.keys(typeGroups).filter(t=>!typeOrder.includes(t))];
+  if(!window._projFolderState)window._projFolderState={};
 
-  const sectionLbl=(lbl,n)=>`<div style="font-size:10px;font-weight:700;color:${C.muted};letter-spacing:1px;padding:12px 0 7px;display:flex;align-items:center;gap:8px">${lbl} <span style="opacity:.5">(${n})</span><div style="flex:1;height:1px;background:${C.border}"></div></div>`;
+  function renderFolder(typeName){
+    const ps=typeGroups[typeName]||[];
+    const isOpen=window._projFolderState[typeName]!==false;
+    const icon=isOpen?'▼':'▶';
+    const typeB=ps.reduce((s,p)=>{const ss=projSummaries[p.id]||{};return s+((ss.bal!==undefined?ss.bal:(ss.inc||0)-(ss.exp||0)));},0);
+    const bClr=typeB>=0?C.good:C.danger;
+    const onclick="window._projFolderState['"+typeName+"']=!(window._projFolderState['"+typeName+"']!==false);buildProjListScreen()";
+    let html2='<div style="margin-bottom:8px">';
+    html2+='<div onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:'+C.card+';border:1px solid '+C.border+';border-radius:12px;cursor:pointer;user-select:none">';
+    html2+='<div style="display:flex;align-items:center;gap:8px">';
+    html2+='<span style="font-size:15px">📁</span>';
+    html2+='<span style="font-size:13px;font-weight:700;color:'+C.text+'">'+typeName+'</span>';
+    html2+='<span style="font-size:10px;font-weight:600;color:'+C.muted+';padding:2px 7px;border-radius:10px;border:1px solid '+C.border+'">'+ps.length+'</span>';
+    html2+='</div>';
+    html2+='<div style="display:flex;align-items:center;gap:12px">';
+    html2+='<span style="font-size:11px;font-weight:700;color:'+bClr+'">'+(typeB>=0?'+ ':'')+fnShort(Math.abs(typeB))+'</span>';
+    html2+='<span style="font-size:11px;color:'+C.muted+'">'+icon+'</span>';
+    html2+='</div></div>';
+    if(isOpen){html2+='<div style="padding:8px 0 4px">'+ps.map(projCard).join('')+'</div>';}
+    html2+='</div>';
+    return html2;
+  }
 
   let html='';
-
-  // إجمالي في الأعلى
-  const totBClr=totB>=0?C.good:C.danger;
-  html+=`<div style="background:${C.card};border:1px solid ${C.border};border-radius:14px;padding:14px;margin-bottom:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
-      <div style="text-align:center">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">إجمالي الوارد</div>
-        <div style="font-size:14px;font-weight:800;color:${C.inc}">▲ ${fnShort(totI)}</div>
-      </div>
-      <div style="text-align:center;border-right:1px solid ${C.border};border-left:1px solid ${C.border}">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">إجمالي المصروف</div>
-        <div style="font-size:14px;font-weight:800;color:${C.exp}">▼ ${fnShort(totE)}</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:9px;color:${C.muted};font-weight:600;letter-spacing:.5px;margin-bottom:4px">صافي الرصيد</div>
-        <div style="font-size:14px;font-weight:800;color:${totBClr}">${totB>=0?'+ ':''} ${fnShort(Math.abs(totB))}</div>
-      </div>
-    </div>
-  </div>`;
-
-  const _f=typeof _curProjFilter!=='undefined'?_curProjFilter:'all';
-  const showDanger=_f==='all'||_f==='danger';
-  const showWarn=_f==='all'||_f==='warn';
-  const showGood=_f==='all'||_f==='good';
-  const showZero=_f==='all'||_f==='zero';
-  if(showDanger&&groups.danger.length){html+=sectionLbl('⚠️ تحتاج متابعة',groups.danger.length);html+=groups.danger.map(projCard).join('');}
-  if(showWarn&&groups.warn.length){html+=sectionLbl('🟡 تحذير',groups.warn.length);html+=groups.warn.map(projCard).join('');}
-  if(showGood&&groups.good.length){html+=sectionLbl('✅ طبيعي',groups.good.length);html+=groups.good.map(projCard).join('');}
-  if(showZero&&groups.zero.length){html+=sectionLbl('— بدون حركة',groups.zero.length);html+=groups.zero.map(projCard).join('');}
-  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع في هذا التصنيف</div>';
+  allTypes.forEach(t=>{html+=renderFolder(t);});
+  if(!html)html='<div style="text-align:center;padding:40px;color:var(--text-soft,#888);font-size:13px">لا توجد مشاريع</div>';
 
   grid.innerHTML=html;
 }
