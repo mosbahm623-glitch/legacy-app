@@ -92,6 +92,7 @@ function runRepFilter(){
     <div class="rep-entries-list">
       <button class="filter-btn" onclick="repExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
       <button class="filter-btn is46" onclick="repExportPDF()">📕 PDF</button>
+      <button class="filter-btn" style="background:#1A5276;color:#fff;border-color:#1A5276" onclick="repExportPDFNoMq()">📄 PDF بدون مقاول</button>
       <span class="filter-count-badge">${sorted.length} قيد</span>
     </div>
     <div id="repProjPag_pag"></div>`;
@@ -298,6 +299,34 @@ async function repExportPDF(){
       <tbody>${rows}</tbody>
     </table>
     ${mqSection}`+
+    _pdfFooter()+_pdfClose();
+  openPrintWindow(html);
+}
+
+function repExportPDFNoMq(){
+  const d=_repFilterData;
+  if(!d||!d.filtered.length){notify('شغّل الفلتر أولاً ثم اضغط عرض','warn');return;}
+  const rows=d.filtered.map((e,i)=>{
+    const proj=allProjectsMap[e.project_id];
+    const isI=e.type==='i';
+    const c=isI?'var(--primary-btn)':'var(--danger)';
+    const etLbl={'payment':'💰 دفعة','work':'🔨 أعمال','material':'🔩 مصنعيات'};
+    const et=e.entry_type?`<span style="font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;background:${e.entry_type==='payment'?'var(--success-pale)':e.entry_type==='work'?'var(--info-bg)':'var(--warning-pale)'};color:${e.entry_type==='payment'?'var(--primary-btn)':e.entry_type==='work'?'var(--info)':'var(--warning-dark)'}"> ${etLbl[e.entry_type]}</span> `:'';
+    return `<tr><td class="rep-table-num">${i+1}</td><td style="font-size:9px;color:var(--primary-btn);font-weight:700">#${e.seq||'—'}</td><td style="font-size:10px">${cleanDate(e.entry_date)}</td><td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${isI?'var(--success-pale)':'var(--danger-pale)'};color:${c}">${isI?'▲ وارد':'▼ مصروف'}</span></td><td style="font-size:10px;color:#555">${proj?.name||''}</td><td style="font-weight:600">${e.category||'—'}</td><td style="color:#555">${et}${e.description||''}</td><td style="color:${c};font-weight:700;white-space:nowrap">${isI?'▲':'▼'} ${fn(e.amount)} ج</td></tr>`;
+  }).join('');
+  const now=new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+  const html=_pdfOpen('تقرير - '+d.projName)+
+    _pdfHeader('📁 تقرير مشروع','📁 '+d.projName+' · 📅 '+d.period+' · 🗓 '+now)+
+    `<div class="kpis kpis-3">
+      <div class="kpi kpi-inc"><div class="kpi-lbl">إجمالي الوارد</div><div class="kpi-val">▲ ${fn(d.inc)} ج</div></div>
+      <div class="kpi kpi-exp"><div class="kpi-lbl">إجمالي المصروف</div><div class="kpi-val">▼ ${fn(d.exp)} ج</div></div>
+      <div class="kpi ${d.bal>=0?'kpi-net-pos':'kpi-net-neg'}"><div class="kpi-lbl">صافي الرصيد</div><div class="kpi-val">${d.bal>=0?'▲':'▼'} ${fn(Math.abs(d.bal))} ج</div></div>
+    </div>
+    <div class="sec-ttl">📒 تفاصيل القيود <span style="font-size:11px;font-weight:400;color:#888">(${d.filtered.length} قيد)</span></div>
+    <table>
+      <thead><tr><th>#</th><th>رقم القيد</th><th>التاريخ</th><th>النوع</th><th>المشروع</th><th>البند</th><th>البيان</th><th>المبلغ</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`+
     _pdfFooter()+_pdfClose();
   openPrintWindow(html);
 }
