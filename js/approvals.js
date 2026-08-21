@@ -37,6 +37,7 @@ async function bulkApprove(){
     }catch(e){console.error(e);notify('❌ فشلت الموافقة: '+friendlyError(e),'err');}
   }
   setSav('✅ تم الموافقة على '+done+' عنصر','ok');
+  // ⚠️ silent=true إلزامي — بدونه بيحصل flash كامل للصفحة
   await loadApprovals(true);
   await updatePendingBadge();
 }
@@ -56,6 +57,7 @@ async function bulkReject(){
     }catch(e){console.error(e);notify('❌ فشل الرفض: '+friendlyError(e),'err');}
   }
   setSav('✅ تم رفض '+done+' عنصر','ok');
+  // ⚠️ silent=true إلزامي — بدونه بيحصل flash كامل للصفحة
   await loadApprovals(true);
   await updatePendingBadge();
 }
@@ -101,6 +103,7 @@ async function bulkApproveByPerson(ids){
     catch(e){console.error(e);notify('❌ فشلت: '+friendlyError(e),'err');}
   }
   setSav('✅ تم الموافقة على '+done+' قيد','ok');
+  // ⚠️ silent=true إلزامي — بدونه بيحصل flash كامل للصفحة
   await loadApprovals(true);
   await updatePendingBadge();
 }
