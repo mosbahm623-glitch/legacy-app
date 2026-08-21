@@ -150,7 +150,11 @@ async function initApp(){
     const _roleLabels={'super_admin':'سوبر أدمن — لوحة التحكم','admin':'أدمن — لوحة التحكم','editor':'محاسب — لوحة التحكم','owner':'أونر — شاشة الإرسال'};
     const _roleIcos={'super_admin':'⚡','admin':'👑','editor':'✏️','owner':'🏢'};
     if(window.lcDone)window.lcDone(_roleLabels[uRole]||'مرحباً',_roleIcos[uRole]||'👤');
-    showScreen(uRole==='owner'?'owner':'dash');
+    // رجوع للشاشة الأخيرة لو فيه ريلود
+    const _savedScreen=sessionStorage.getItem('lc_screen');
+    const _validScreens=['dash','daily','proj','projList','adv','admin','rep','search','approvals','archive','dues','notes','auditlog','daf3ati'];
+    const _goScreen=(uRole==='owner')?'owner':(_savedScreen&&_validScreens.includes(_savedScreen)?_savedScreen:'dash');
+    showScreen(_goScreen);
     // تنبيه الـ backup اليومي
     if(uRole==='admin'||uRole==='super_admin') checkBackupReminder();
     if(uRole==='admin'||uRole==='super_admin') checkNotesReminder();
