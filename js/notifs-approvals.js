@@ -641,6 +641,9 @@ const NOTIF_TYPES={
 };
 const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'};
 
+// ⚠️ مهجورة — لا تستخدمها في الموافقات الفردية
+// استخدم _removeCardAndUpdateTotals(id,'e'|'a') بدلاً منها لتجنب flash الصفحة
+// مسموح باستخدامها فقط في حالات استثنائية تحتاج reload كامل
 async function _reloadKeepScroll(){
   const sy=window.scrollY||document.documentElement.scrollTop||0;
   const el=document.getElementById('approvalsList');
@@ -653,6 +656,8 @@ async function _reloadKeepScroll(){
   },150);
 }
 
+// ✅ الدالة الصحيحة للموافقة/الرفض الفردي — تشيل الكارت من الـ DOM بدون reload
+// cardType: 'e' للقيود، 'a' للعهود
 function _removeCardAndUpdateTotals(id,cardType){
   // cardType: 'e' للقيود، 'a' للعهود
   const prefix=cardType==='e'?'appr-e-':'appr-a-';
