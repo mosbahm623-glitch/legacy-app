@@ -3,6 +3,8 @@ function showScreen(s){
   // Viewer مش يقدر يدخل على حاجة غير العهدة والملاحظات
   if(uRole==='viewer'&&s!=='adv'&&s!=='notes')return;
   curScreen=s;
+  // حفظ الشاشة الحالية للرجوع إليها عند الريلود
+  try{sessionStorage.setItem('lc_screen',s);}catch(_){}
   _addScreenTab(s);
   ['dash','daily','proj','projList','adv','admin','rep','search','approvals','timeline','archive','dues','notes','auditlog','daf3ati','owner'].forEach(x=>{
     const el=document.getElementById(x+'Screen');
