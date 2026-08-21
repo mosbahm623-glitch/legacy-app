@@ -151,7 +151,7 @@ async function initApp(){
     const _roleIcos={'super_admin':'⚡','admin':'👑','editor':'✏️','owner':'🏢'};
     if(window.lcDone)window.lcDone(_roleLabels[uRole]||'مرحباً',_roleIcos[uRole]||'👤');
     // رجوع للشاشة الأخيرة لو فيه ريلود
-    const _savedScreen=sessionStorage.getItem('lc_screen');
+    const _savedScreen=localStorage.getItem('lc_screen');
     const _validScreens=['dash','daily','proj','projList','adv','admin','rep','search','approvals','archive','dues','notes','auditlog','daf3ati'];
     const _goScreen=(uRole==='owner')?'owner':(_savedScreen&&_validScreens.includes(_savedScreen)?_savedScreen:'dash');
     showScreen(_goScreen);
