@@ -768,9 +768,10 @@ setTimeout(()=>window.lcNext(),200);
         <div class="adv-detail-kp" id="advDetKp"></div>
 
         <!-- Tabs -->
-        <div style="display:flex;gap:6px;margin-bottom:14px">
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
           <button id="advTab-exp" onclick="switchAdvTab('exp')" class="adv-tab adv-tab-on">📋 المصروفات</button>
           <button id="advTab-inst" onclick="switchAdvTab('inst')" class="adv-tab adv-tab-off">💰 الدفعات</button>
+          <button id="advTab-pend" onclick="switchAdvTab('pend')" class="adv-tab adv-tab-off">⏳ في الانتظار <span id="advPendBadge" style="display:none;font-size:10px;background:#FAEEDA;color:#633806;border-radius:20px;padding:1px 7px;font-weight:700;margin-right:3px"></span></button>
         </div>
 
         <!-- EXPENSES TAB -->
@@ -825,6 +826,11 @@ setTimeout(()=>window.lcNext(),200);
             <button class="filter-btn dl btn-pdf-red" onclick="downloadInstallmentsPDF()">📕 PDF</button>
           </div>
           <div class="adv-entries" id="advInstList"><div class="emp">⏳...</div></div>
+        </div>
+
+        <!-- PENDING TAB -->
+        <div id="advTabPanel-pend" style="display:none">
+          <div class="adv-entries" id="advPendingEntries"><div class="emp">⏳ جاري التحميل...</div></div>
         </div>
       </div>
 
