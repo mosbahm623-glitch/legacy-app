@@ -473,7 +473,7 @@ async function approveEntry(id,silent=false){
     await sb('pending_entries?id=eq.'+id,'DELETE');
     if(r.project_id===curPid){await loadEntries();allEntries=allEntries.filter(e=>e.project_id!==curPid).concat(entries);refreshProjSummary(curPid);}
     auditLog('موافقة على قيد','entries',id,{project:allProjects.find(p=>p.id===r.project_id)?.name,amount:r.amount,category:r.category,submitted_by:r.submitted_by});
-    if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();_reloadKeepScroll();if(curAdv)loadAdvDetail();}
+    if(!silent){setSav('✅ تمت الموافقة وتم حفظ القيد','ok');updatePendingBadge();_removeCardAndUpdateTotals(id,'e');if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -482,7 +482,7 @@ async function rejectEntry(id,silent=false){
   try{
     await sb('pending_entries?id=eq.'+id,'DELETE');
     auditLog('رفض قيد','pending_entries',id,{});
-    if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();_reloadKeepScroll();if(curAdv)loadAdvDetail();}
+    if(!silent){setSav('🗑️ تم رفض القيد','ng');updatePendingBadge();_removeCardAndUpdateTotals(id,'e');if(curAdv)loadAdvDetail();}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -590,7 +590,7 @@ async function approveAdv(id,silent=false){
       if(!silent)setSav('✅ تمت الموافقة — تم إضافة الدفعة','ok');
     }
     await sb('pending_advances?id=eq.'+id,'DELETE');
-    if(!silent){updatePendingBadge();loadApprovals(true);}
+    if(!silent){updatePendingBadge();_removeCardAndUpdateTotals(id,'a');}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -598,7 +598,7 @@ async function rejectAdv(id,silent=false){
   if(!silent)await new Promise(res=>showConfirm({icon:'❌',title:'رفض الطلب',msg:'هيتحذف الطلب نهائياً.',okLabel:'رفض',okType:'danger',onOk:res}));
   try{
     await sb('pending_advances?id=eq.'+id,'DELETE');
-    if(!silent){setSav('🗑️ تم الرفض','ng');updatePendingBadge();loadApprovals();}
+    if(!silent){setSav('🗑️ تم الرفض','ng');updatePendingBadge();_removeCardAndUpdateTotals(id,'a');}
   }catch(e){if(!silent)setSav('❌ '+friendlyError(e),'er');}
 }
 
@@ -651,4 +651,80 @@ async function _reloadKeepScroll(){
     const el2=document.getElementById('approvalsList');
     if(el2)el2.scrollTop=esy;
   },150);
+}
+
+function _removeCardAndUpdateTotals(id,cardType){
+  // cardType: 'e' للقيود، 'a' للعهود
+  const prefix=cardType==='e'?'appr-e-':'appr-a-';
+  const card=document.getElementById(prefix+id);
+  if(!card)return;
+
+  // حساب مبلغ الكارت قبل الشيل (للـ totals)
+  let amt=0,entryType='e';
+  if(cardType==='e'){
+    const badge=card.querySelector('.appr-badge-inc,.appr-badge-exp');
+    entryType=badge&&badge.classList.contains('appr-badge-inc')?'i':'e';
+    const amtEl=card.querySelector('.appr-entry-amount');
+    if(amtEl)amt=Number((amtEl.textContent||'').replace(/[^\d.]/g,''))||0;
+  }
+
+  // شيل الكارت من الـ DOM
+  const personBody=card.closest('.appr-person-body');
+  const secWrap=card.closest('.appr-sec-wrap');
+  card.remove();
+
+  // لو الـ person section فاضي، اشيله
+  if(personBody&&!personBody.querySelector('.appr-item')){
+    const personHdr=personBody.previousElementSibling;
+    if(personHdr)personHdr.remove();
+    personBody.remove();
+  }
+
+  // لو الـ section كله فاضي، اشيله
+  if(secWrap&&!secWrap.querySelector('.appr-item')){
+    secWrap.remove();
+  }
+
+  // لو مفيش حاجة خالص، اعرض رسالة الفراغ
+  const el=document.getElementById('approvalsList');
+  if(el&&!el.querySelector('.appr-item')){
+    el.innerHTML='<div class="appr-empty">🎉 لا يوجد قيود في الانتظار</div>';
+    return;
+  }
+
+  // تحديث الـ totals bar
+  if(cardType==='e'&&el){
+    const totExpEl=el.querySelector('.appr-total-cell:nth-child(1) .appr-total-val');
+    const totIncEl=el.querySelector('.appr-total-cell:nth-child(2) .appr-total-val');
+    const totNetEl=el.querySelector('.appr-total-cell:nth-child(3) .appr-total-val');
+    if(totExpEl&&totIncEl&&totNetEl){
+      let curExp=Number((totExpEl.textContent||'').replace(/[^\d.]/g,''))||0;
+      let curInc=Number((totIncEl.textContent||'').replace(/[^\d.]/g,''))||0;
+      if(entryType==='e')curExp=Math.max(0,curExp-amt);
+      else curInc=Math.max(0,curInc-amt);
+      const net=curInc-curExp;
+      const sign=net>=0?'+':'';
+      totExpEl.textContent=fn(curExp)+' ج';
+      totIncEl.textContent=fn(curInc)+' ج';
+      totNetEl.textContent=sign+fn(Math.abs(net))+' ج';
+      totNetEl.style.color=net>=0?'var(--success-text,#166534)':'var(--danger)';
+    }
+  }
+
+  // تحديث count في header الـ section
+  if(secWrap){
+    const remaining=secWrap.querySelectorAll('.appr-item').length;
+    const countEl=secWrap.querySelector('.appr-sec-count');
+    if(countEl)countEl.textContent=remaining+' قيود';
+  }
+
+  // تحديث person count
+  if(personBody){
+    const pRemaining=personBody.querySelectorAll('.appr-item').length;
+    const pHdr=personBody.previousElementSibling;
+    if(pHdr){
+      const pCountEl=pHdr.querySelector('.appr-person-count');
+      if(pCountEl)pCountEl.textContent=pRemaining+' قيود';
+    }
+  }
 }
