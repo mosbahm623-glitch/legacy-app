@@ -426,7 +426,7 @@ async function confirmEditApprove(id){
     const projName=allProjectsMap[newProjId]?.name||'';
     setSav(`✅ تم الحفظ في مشروع "${projName}"${ newProjId!==r.project_id?' (تم النقل)':''}`,  'ok');
     updatePendingBadge();
-    loadApprovals();
+    _removeCardAndUpdateTotals(id,'e');
   }catch(e){setSav('❌ '+friendlyError(e),'er');}
 }
 
