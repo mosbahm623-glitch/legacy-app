@@ -57,8 +57,11 @@ async function openAdv(id){try{
 function switchAdvTab(t){
   document.getElementById('advTabPanel-exp').style.display=t==='exp'?'block':'none';
   document.getElementById('advTabPanel-inst').style.display=t==='inst'?'block':'none';
+  document.getElementById('advTabPanel-pend').style.display=t==='pend'?'block':'none';
   document.getElementById('advTab-exp').className='adv-tab '+(t==='exp'?'adv-tab-on':'adv-tab-off');
   document.getElementById('advTab-inst').className='adv-tab '+(t==='inst'?'adv-tab-on':'adv-tab-off');
+  var pendTab=document.getElementById('advTab-pend');
+  if(pendTab)pendTab.className='adv-tab '+(t==='pend'?'adv-tab-on':'adv-tab-off');
 }
 function downloadInstallmentsReport(){downloadAdvReport('installs');}
 function downloadInstallmentsPDF(){downloadAdvPDF('installs');}
@@ -125,6 +128,8 @@ async function loadAdvDetail(silent=false){
     }
     if(advEntries.length===0&&pendingAdvEntries.length===0){
       ae.innerHTML=`<div class='emp'>لا توجد مصروفات بعد</div>`;
+      var pendEl2=document.getElementById('advPendingEntries');
+      if(pendEl2)pendEl2.innerHTML=`<div class='emp'>لا توجد قيود في الانتظار</div>`;
     }else{
       var projMap={};
       allProjects.forEach(p=>{projMap[p.id]=p.name;});
@@ -205,7 +210,26 @@ async function loadAdvDetail(silent=false){
       })();
       const pendingHtml=pendingAdvEntries.map(e2=>{var pName=projMap[e2.project_id]||'&mdash;';return `<div class='rw' style='opacity:.75;border:1px dashed #C9A84C;background:var(--warning-ghost)'><div class='ri'><div class='rd'>⏳ ${e2.description||'&mdash;'} <span style='font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:1px 6px;border-radius:8px'>في الانتظار</span></div><div class='rm'>${pName} &middot; ${e2.category||'&mdash;'} &middot; ${cleanDate(e2.entry_date)}</div></div><div style='display:flex;align-items:center'><div class='ra neg' style='color:var(--warning-text)'>${fn(e2.amount)} ج</div></div></div>`;}).join('');
       const totalEntries=advEntries.length+pendingAdvEntries.length;
-      ae.innerHTML=approvedHtml+pendingHtml;
+      // القيود المتأكدة في تاب المصروفات
+      ae.innerHTML=approvedHtml||'<div class=\'emp\'>لا توجد مصروفات متأكدة بعد</div>';
+      // القيود في الانتظار في تاب منفصل
+      var pendEl=document.getElementById('advPendingEntries');
+      if(pendEl){
+        if(pendingAdvEntries.length===0){
+          pendEl.innerHTML='<div class=\'emp\'>لا توجد قيود في الانتظار</div>';
+        }else{
+          pendEl.innerHTML=pendingHtml;
+        }
+        // تحديث badge عدد الـ pending
+        var badge=document.getElementById('advPendBadge');
+        if(badge){
+          badge.textContent=pendingAdvEntries.length;
+          badge.style.display=pendingAdvEntries.length>0?'inline':'none';
+          // لو فيه pending، لوّن تاب في الانتظار
+          var pendTab=document.getElementById('advTab-pend');
+          if(pendTab)pendTab.style.color=pendingAdvEntries.length>0?'#854F0B':'';
+        }
+      }
     }
   }catch(e){
     il.innerHTML=`<div class='emp'>لا توجد دفعات بعد</div>`;
