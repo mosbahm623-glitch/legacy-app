@@ -428,14 +428,19 @@ function toggleExportMenu(e){
   if(e)e.stopPropagation();
   const menu=document.getElementById('exportDropMenu');
   const arrow=document.getElementById('exportDropArrow');
-  const isOpen=menu.style.display==='flex';
-  menu.style.display=isOpen?'none':'flex';
-  if(arrow)arrow.style.transform=isOpen?'':'rotate(180deg)';
+  const isOpen=menu.classList.contains('exp-open');
+  if(isOpen){
+    menu.classList.remove('exp-open');
+    if(arrow)arrow.style.transform='';
+  } else {
+    menu.classList.add('exp-open');
+    if(arrow)arrow.style.transform='rotate(180deg)';
+  }
 }
 function closeExportMenu(){
   const menu=document.getElementById('exportDropMenu');
   const arrow=document.getElementById('exportDropArrow');
-  if(menu)menu.style.display='none';
+  if(menu)menu.classList.remove('exp-open');
   if(arrow)arrow.style.transform='';
 }
 // إغلاق القائمة عند الضغط برا
