@@ -422,3 +422,23 @@ function _closeScreenTab(e,s){
     _renderScreenTabs(curScreen);
   }
 }
+
+// ══ Export Dropdown Menu ══════════════════════════
+function toggleExportMenu(){
+  const menu=document.getElementById('exportDropMenu');
+  const arrow=document.getElementById('exportDropArrow');
+  const isOpen=menu.style.display==='flex';
+  menu.style.display=isOpen?'none':'flex';
+  if(arrow)arrow.style.transform=isOpen?'':'rotate(180deg)';
+}
+function closeExportMenu(){
+  const menu=document.getElementById('exportDropMenu');
+  const arrow=document.getElementById('exportDropArrow');
+  if(menu)menu.style.display='none';
+  if(arrow)arrow.style.transform='';
+}
+// إغلاق القائمة عند الضغط برا
+document.addEventListener('click',function(e){
+  const wrap=document.getElementById('exportDropWrap');
+  if(wrap&&!wrap.contains(e.target))closeExportMenu();
+});
