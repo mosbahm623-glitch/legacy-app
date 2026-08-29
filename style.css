@@ -2537,3 +2537,22 @@ body.dark-mode .screen-tab.active{background:var(--dark-surface);color:#D4C49A;b
 body.day-mode .screen-tabs-bar{background:#162E1E}
 body.day-mode .screen-tab.active{background:var(--bg-page);color:var(--text-body)}
 
+
+/* ══ Export Dropdown Menu ══════════════════════════ */
+#exportDropMenu{
+  display:none;
+  position:absolute;
+  top:calc(100% + 6px);
+  left:0;
+  background:var(--bg-pure,#fff);
+  border:1px solid var(--border-color,#ddd);
+  border-radius:10px;
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
+  min-width:185px;
+  z-index:99999;
+  flex-direction:column;
+  overflow:hidden;
+}
+#exportDropMenu.exp-open{
+  display:flex;
+}
