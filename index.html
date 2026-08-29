@@ -710,17 +710,10 @@ setTimeout(()=>window.lcNext(),200);
           <input id="entFltTo" type="text" class="dp-input" placeholder="لتاريخ" readonly style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg-pure);color:var(--text-body);cursor:pointer">
           <button onclick="clearEntryFilter()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text-muted);font-family:inherit;font-size:12px;cursor:pointer">✕ مسح</button>
         </div>
-        <div style="display:flex;align-items:center;gap:0">
-          <div class="tbs" id="tbs" style="flex:1;min-width:0"></div>
-          <button id="entExpandBtn" onclick="toggleEntFullscreen()" title="تكبير الجدول" style="flex-shrink:0;background:none;border:none;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);border-radius:6px;" onmouseover="this.style.background='var(--bg-gray)'" onmouseout="this.style.background='none'">⛶</button>
-        </div>
-        <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
-        <div class="im" id="im" style="display:none"></div>
-        <div class="eb">
-          <div style="background:var(--bg-surface,var(--bg-pure));border-top:1px solid var(--border-color);padding:10px 14px;display:flex;align-items:center;justify-content:flex-end">
-            <!-- زرار التصدير dropdown -->
-            <div style="position:relative" id="exportDropWrap">
-              <button id="exportDropBtn" onclick="toggleExportMenu()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;background:#1D3C2A;color:#D4C49A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="tbs" id="tbs" style="flex:1;min-width:0;overflow:hidden"></div>
+          <div style="position:relative;display:inline-block;flex-shrink:0" id="exportDropWrap">
+              <button id="exportDropBtn" onclick="toggleExportMenu()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:none;background:#1D3C2A;color:#D4C49A;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">
                 📤 تصدير <span id="exportDropArrow" style="font-size:10px;transition:transform .2s">▼</span>
               </button>
               <div id="exportDropMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--bg-pure,#fff);border:1px solid var(--border-color,#ddd);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);min-width:180px;z-index:9999;overflow:hidden;flex-direction:column">
@@ -741,7 +734,11 @@ setTimeout(()=>window.lcNext(),200);
                 </button>
               </div>
             </div>
-          </div>
+          <button id="entExpandBtn" onclick="toggleEntFullscreen()" title="تكبير الجدول" style="flex-shrink:0;background:none;border:none;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);border-radius:6px;" onmouseover="this.style.background='var(--bg-gray)'" onmouseout="this.style.background='none'">⛶</button>
+        </div>
+        <div class="ent" id="ent"><div class="emp">⏳ جاري التحميل...</div></div>
+        <div class="im" id="im" style="display:none"></div>
+        <div class="eb">
           <div class="emsg" id="emsg"></div>
         </div>
       </div>
