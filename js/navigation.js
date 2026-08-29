@@ -424,7 +424,8 @@ function _closeScreenTab(e,s){
 }
 
 // ══ Export Dropdown Menu ══════════════════════════
-function toggleExportMenu(){
+function toggleExportMenu(e){
+  if(e)e.stopPropagation();
   const menu=document.getElementById('exportDropMenu');
   const arrow=document.getElementById('exportDropArrow');
   const isOpen=menu.style.display==='flex';
