@@ -129,4 +129,13 @@ function filterApprByBank(bank){
       item.style.display='none';
     }
   });
+  // خبي الـ person header لو كل كروته اتخبت
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
+    const hide=bank&&visibleItems.length===0;
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
 }
