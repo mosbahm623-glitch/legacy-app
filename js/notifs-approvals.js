@@ -653,6 +653,26 @@ const NOTIF_TYPES={
 };
 const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer':'👁 مشاهد'};
 
+
+let _apprBankFilterVal='';
+function filterApprByBank(bank){
+  _apprBankFilterVal=bank;
+  document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
+    if(!bank||item.dataset.bank===bank){
+      item.style.display='';
+    } else {
+      item.style.display='none';
+    }
+  });
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
+    const hide=bank&&visibleItems.length===0;
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
+}
 // ⚠️ مهجورة — لا تستخدمها في الموافقات الفردية
 // استخدم _removeCardAndUpdateTotals(id,'e'|'a') بدلاً منها لتجنب flash الصفحة
 // مسموح باستخدامها فقط في حالات استثنائية تحتاج reload كامل
