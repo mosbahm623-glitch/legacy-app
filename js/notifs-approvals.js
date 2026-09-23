@@ -1,4 +1,5 @@
 let _apprPersonFilterVal='';
+let _apprBankFilterVal='';
 function _fmtApprTime(ts){
   if(!ts)return '—';
   try{
@@ -21,6 +22,7 @@ async function loadApprovals(silent=false){
   if(!el)return;
   // حفظ حالة الـ sections المفتوحة قبل الـ reload
   const _savedPersonFilter=_apprPersonFilterVal;
+  const _savedBankFilter=_apprBankFilterVal;
   const _openSecs=new Set();
   const _openPersons=new Set();
   if(silent){
@@ -86,6 +88,16 @@ async function loadApprovals(silent=false){
         <button onclick="_apprProjFilterVal='';filterApprByProj('');document.getElementById('apprProjFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
+    // ── فلتر بالبنك ──
+    const allBanks=[...new Set((entRows||[]).map(r=>r.payment_method||'').filter(Boolean))].filter(b=>b);
+    if(allBanks.length>1){
+      const bankOpts='<option value="">— كل البنوك —</option>'+allBanks.map(b=>'<option value="'+b+'">'+b+'</option>').join('');
+      html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">البنك:</span>
+        <select id="apprBankFilter" onchange="event.stopPropagation();filterApprByBank(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${bankOpts}</select>
+        <button onclick="_apprBankFilterVal='';filterApprByBank('');document.getElementById('apprBankFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
+      </div>`;
+    }
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" class="appr-bulk-bar">
@@ -132,7 +144,7 @@ async function loadApprovals(silent=false){
           const typeBadge=r.type==='i'
             ?'<span class="appr-badge appr-badge-inc">وارد</span>'
             :'<span class="appr-badge appr-badge-exp">مصروف</span>';
-          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}">
+          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}">
             <div class="appr-entry-top">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" onchange="updateBulkBar()">
               <div class="appr-entry-main">
@@ -226,6 +238,10 @@ async function loadApprovals(silent=false){
     if(_apprPersonFilterVal){
       const sel=document.getElementById('apprPersonFilter');
       if(sel){sel.value=_apprPersonFilterVal;filterApprByPerson(_apprPersonFilterVal);}
+    }
+    if(_apprBankFilterVal){
+      const sel=document.getElementById('apprBankFilter');
+      if(sel){sel.value=_apprBankFilterVal;filterApprByBank(_apprBankFilterVal);}
     }
     // استعادة حالة الـ sections المفتوحة
     if(silent&&(_openSecs.size||_openPersons.size)){
