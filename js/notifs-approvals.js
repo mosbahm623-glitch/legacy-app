@@ -1,5 +1,4 @@
 let _apprPersonFilterVal='';
-let _apprBankFilterVal='';
 function _fmtApprTime(ts){
   if(!ts)return '—';
   try{
@@ -22,7 +21,7 @@ async function loadApprovals(silent=false){
   if(!el)return;
   // حفظ حالة الـ sections المفتوحة قبل الـ reload
   const _savedPersonFilter=_apprPersonFilterVal;
-  const _savedBankFilter=_apprBankFilterVal;
+
   const _openSecs=new Set();
   const _openPersons=new Set();
   if(silent){
@@ -239,10 +238,7 @@ async function loadApprovals(silent=false){
       const sel=document.getElementById('apprPersonFilter');
       if(sel){sel.value=_apprPersonFilterVal;filterApprByPerson(_apprPersonFilterVal);}
     }
-    if(_apprBankFilterVal){
-      const sel=document.getElementById('apprBankFilter');
-      if(sel){sel.value=_apprBankFilterVal;filterApprByBank(_apprBankFilterVal);}
-    }
+
     // استعادة حالة الـ sections المفتوحة
     if(silent&&(_openSecs.size||_openPersons.size)){
       el.querySelectorAll('.appr-section-hdr').forEach(h=>{
