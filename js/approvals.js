@@ -118,3 +118,15 @@ function filterApprByProj(projId){
     }
   });
 }
+
+let _apprBankFilterVal='';
+function filterApprByBank(bank){
+  _apprBankFilterVal=bank;
+  document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
+    if(!bank||item.dataset.bank===bank){
+      item.style.display='';
+    } else {
+      item.style.display='none';
+    }
+  });
+}
