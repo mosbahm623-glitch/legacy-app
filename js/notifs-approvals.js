@@ -67,44 +67,77 @@ async function loadApprovals(silent=false){
       <div class="appr-total-cell"><div class="appr-total-lbl">الوارد</div><div class="appr-total-val" style="color:var(--success-text,#166534)">${fn(totInc)} ج</div></div>
       <div class="appr-total-cell"><div class="appr-total-lbl">الصافي</div><div class="appr-total-val" style="color:${netClr}">${netSign}${fn(Math.abs(totNet))} ج</div></div>
     </div>`;
-    // ── فلتر بالشخص ──
+    // ── شريط الفلاتر (chips) ──
     const allPersonNames=[...new Set((entRows||[]).map(r=>profMap[r.submitted_by]||'—'))].filter(n=>n&&n!=='—');
-    if(allPersonNames.length>1){
-      const personOpts='<option value="">— كل الأشخاص —</option>'+allPersonNames.map(n=>'<option value="'+n+'">'+n+'</option>').join('');
-      html+=`<div style="padding:10px 14px 0;display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">فلتر:</span>
-        <select id="apprPersonFilter" onchange="filterApprByPerson(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${personOpts}</select>
-        <button onclick="_apprPersonFilterVal='';filterApprByPerson('');document.getElementById('apprPersonFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
-      </div>`;
-    }
-    // ── فلتر بالمشروع ──
     const allProjIds=[...new Set((entRows||[]).map(r=>r.project_id))].filter(Boolean);
-    if(allProjIds.length>1){
-      const projOpts='<option value="">— كل المشاريع —</option>'+allProjIds.map(pid=>'<option value="'+pid+'">'+(projMap[pid]||pid)+'</option>').join('');
-      html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">المشروع:</span>
-        <select id="apprProjFilter" onchange="event.stopPropagation();filterApprByProj(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${projOpts}</select>
-        <button onclick="_apprProjFilterVal='';filterApprByProj('');document.getElementById('apprProjFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
-      </div>`;
-    }
-    // ── فلتر بالبنك ──
     const allBanks=[...new Set((entRows||[]).map(r=>r.payment_method||'').filter(Boolean))].filter(b=>b);
-    if(allBanks.length>1){
-      const bankOpts='<option value="">— كل البنوك —</option>'+allBanks.map(b=>'<option value="'+b+'">'+b+'</option>').join('');
-      html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">البنك:</span>
-        <select id="apprBankFilter" onchange="event.stopPropagation();filterApprByBank(this.value)" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px">${bankOpts}</select>
-        <button onclick="_apprBankFilterVal='';filterApprByBank('');document.getElementById('apprBankFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
-      </div>`;
-    }
-    // ── فلتر بالتاريخ ──
-    html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">التاريخ:</span>
-      <input type="date" id="apprDateFrom" onchange="filterApprByDate()" style="flex:1;min-width:110px;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px" title="من">
-      <span style="font-size:12px;color:var(--text-soft,#888)">—</span>
-      <input type="date" id="apprDateTo" onchange="filterApprByDate()" style="flex:1;min-width:110px;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px" title="إلى">
-      <button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
-    </div>`;
+    // بناء خيارات القوائم المنسدلة
+    const personItems=allPersonNames.map(n=>`<div class="appr-chip-opt" onclick="event.stopPropagation();_apprPersonFilterVal='${n.replace(/'/g,"\\'")}';filterApprByPerson('${n.replace(/'/g,"\\'")}');_activateChip('apprChipPerson','apprChipPersonLbl','${n.replace(/'/g,"\\'")}','apprChipPersonX');_closeApprChips()">${n}</div>`).join('');
+    const projItems=allProjIds.map(pid=>`<div class="appr-chip-opt" onclick="event.stopPropagation();_apprProjFilterVal='${pid}';filterApprByProj('${pid}');_activateChip('apprChipProj','apprChipProjLbl','${(projMap[pid]||pid).replace(/'/g,"\\'")}','apprChipProjX');_closeApprChips()">${projMap[pid]||pid}</div>`).join('');
+    const bankItems=allBanks.map(b=>`<div class="appr-chip-opt" onclick="event.stopPropagation();_apprBankFilterVal='${b.replace(/'/g,"\\'")}';filterApprByBank('${b.replace(/'/g,"\\'")}');_activateChip('apprChipBank','apprChipBankLbl','${b.replace(/'/g,"\\'")}','apprChipBankX');_closeApprChips()">${b}</div>`).join('');
+    html+=`<style>
+.appr-chips-bar{display:flex;align-items:center;gap:6px;padding:10px 14px 4px;flex-wrap:wrap;direction:rtl}
+.appr-chip{position:relative;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border-mid,#ddd);background:var(--card-bg,#fff);color:var(--text-body,#333);font-size:12px;cursor:pointer;white-space:nowrap;user-select:none;transition:border-color .15s,background .15s}
+.appr-chip:hover{border-color:var(--primary,#2563eb);background:var(--chip-hover,#f0f4ff)}
+.appr-chip.active{border-color:var(--primary,#2563eb);background:var(--primary,#2563eb);color:#fff}
+.appr-chip-arrow{font-size:9px;opacity:.7}
+.appr-chip-clear{font-size:11px;padding:0 2px;opacity:.8;cursor:pointer}
+.appr-chip-drop{position:absolute;top:calc(100% + 4px);right:0;min-width:160px;background:var(--card-bg,#fff);border:1.5px solid var(--border-mid,#ddd);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;overflow:hidden;display:none}
+.appr-chip-drop.open{display:block}
+.appr-chip-opt{padding:9px 14px;font-size:13px;cursor:pointer;color:var(--text-body,#222);transition:background .1s}
+.appr-chip-opt:hover{background:var(--chip-hover,#f0f4ff)}
+.appr-chip-date-drop{padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:200px}
+.appr-chip-date-drop label{font-size:11px;color:var(--text-soft,#888);margin-bottom:2px}
+.appr-chip-date-drop input{padding:6px 8px;border-radius:8px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px;width:100%}
+.appr-type-chips{display:inline-flex;border-radius:20px;overflow:hidden;border:1.5px solid var(--border-mid,#ddd)}
+.appr-type-btn{padding:5px 12px;font-size:12px;cursor:pointer;background:var(--card-bg,#fff);color:var(--text-body,#555);border:none;border-left:1px solid var(--border-mid,#ddd);font-family:inherit;transition:background .15s,color .15s}
+.appr-type-btn:last-child{border-left:none}
+.appr-type-btn.active{background:var(--primary,#2563eb);color:#fff}
+</style>
+<div class="appr-chips-bar" id="apprChipsBar">
+  ${allPersonNames.length>1?`<div class="appr-chip" id="apprChipPerson" onclick="event.stopPropagation();_toggleApprChip('apprDropPerson')">
+    <span>👤 <span id="apprChipPersonLbl">الشخص</span></span>
+    <span class="appr-chip-arrow" id="apprChipPersonArrow">▾</span>
+    <span class="appr-chip-clear" id="apprChipPersonX" hidden onclick="event.stopPropagation();_apprPersonFilterVal='';filterApprByPerson('');_resetChip('apprChipPerson','apprChipPersonLbl','الشخص','apprChipPersonX')">✕</span>
+    <div class="appr-chip-drop" id="apprDropPerson" onclick="event.stopPropagation()">
+      <div class="appr-chip-opt" onclick="event.stopPropagation();_apprPersonFilterVal='';filterApprByPerson('');_resetChip('apprChipPerson','apprChipPersonLbl','الشخص','apprChipPersonX');_closeApprChips()">— الكل —</div>
+      ${personItems}
+    </div>
+  </div>`:''}
+  ${allProjIds.length>1?`<div class="appr-chip" id="apprChipProj" onclick="event.stopPropagation();_toggleApprChip('apprDropProj')">
+    <span>📁 <span id="apprChipProjLbl">المشروع</span></span>
+    <span class="appr-chip-arrow" id="apprChipProjArrow">▾</span>
+    <span class="appr-chip-clear" id="apprChipProjX" hidden onclick="event.stopPropagation();_apprProjFilterVal='';filterApprByProj('');_resetChip('apprChipProj','apprChipProjLbl','المشروع','apprChipProjX')">✕</span>
+    <div class="appr-chip-drop" id="apprDropProj" onclick="event.stopPropagation()">
+      <div class="appr-chip-opt" onclick="event.stopPropagation();_apprProjFilterVal='';filterApprByProj('');_resetChip('apprChipProj','apprChipProjLbl','المشروع','apprChipProjX');_closeApprChips()">— الكل —</div>
+      ${projItems}
+    </div>
+  </div>`:''}
+  ${allBanks.length>1?`<div class="appr-chip" id="apprChipBank" onclick="event.stopPropagation();_toggleApprChip('apprDropBank')">
+    <span>🏦 <span id="apprChipBankLbl">البنك</span></span>
+    <span class="appr-chip-arrow" id="apprChipBankArrow">▾</span>
+    <span class="appr-chip-clear" id="apprChipBankX" hidden onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX')">✕</span>
+    <div class="appr-chip-drop" id="apprDropBank" onclick="event.stopPropagation()">
+      <div class="appr-chip-opt" onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX');_closeApprChips()">— الكل —</div>
+      ${bankItems}
+    </div>
+  </div>`:''}
+  <div class="appr-chip" id="apprChipDate" onclick="event.stopPropagation();_toggleApprChip('apprDropDate')">
+    <span>📅 <span id="apprChipDateLbl">التاريخ</span></span>
+    <span class="appr-chip-arrow" id="apprChipDateArrow">▾</span>
+    <span class="appr-chip-clear" id="apprChipDateX" hidden onclick="event.stopPropagation();document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')">✕</span>
+    <div class="appr-chip-drop appr-chip-date-drop" id="apprDropDate" onclick="event.stopPropagation()">
+      <div><label>من</label><input type="date" id="apprDateFrom" onchange="filterApprByDate();_markDateChip()"></div>
+      <div><label>إلى</label><input type="date" id="apprDateTo" onchange="filterApprByDate();_markDateChip()"></div>
+      <div style="text-align:left"><button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-mid,#ddd);background:transparent;cursor:pointer;font-size:11px;color:var(--text-soft,#888)">مسح</button></div>
+    </div>
+  </div>
+  <div class="appr-type-chips">
+    <button class="appr-type-btn active" id="apprTypeAll" onclick="filterApprByType('')">الكل</button>
+    <button class="appr-type-btn" id="apprTypeInc" onclick="filterApprByType('i')">وارد</button>
+    <button class="appr-type-btn" id="apprTypeExp" onclick="filterApprByType('e')">مصروف</button>
+  </div>
+</div>`;
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" class="appr-bulk-bar">
@@ -151,7 +184,7 @@ async function loadApprovals(silent=false){
           const typeBadge=r.type==='i'
             ?'<span class="appr-badge appr-badge-inc">وارد</span>'
             :'<span class="appr-badge appr-badge-exp">مصروف</span>';
-          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}" data-date="${r.entry_date||''}">
+          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}" data-date="${r.entry_date||''}" data-type="${r.type||''}">
             <div class="appr-entry-top">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" onchange="updateBulkBar()">
               <div class="appr-entry-main">
@@ -663,6 +696,76 @@ const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer'
 
 
 let _apprBankFilterVal='';
+let _apprTypeFilterVal='';
+function filterApprByType(type){
+  _apprTypeFilterVal=type;
+  // تحديث حالة الأزرار
+  const btnAll=document.getElementById('apprTypeAll');
+  const btnInc=document.getElementById('apprTypeInc');
+  const btnExp=document.getElementById('apprTypeExp');
+  if(btnAll)btnAll.classList.toggle('active',type==='');
+  if(btnInc)btnInc.classList.toggle('active',type==='i');
+  if(btnExp)btnExp.classList.toggle('active',type==='e');
+  document.querySelectorAll('.appr-item[data-type]').forEach(function(item){
+    if(!type||item.dataset.type===type){
+      item.style.display='';
+    } else {
+      item.style.display='none';
+    }
+  });
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
+    const hide=type&&visibleItems.length===0;
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
+}
+function _toggleApprChip(dropId){
+  const drop=document.getElementById(dropId);
+  if(!drop)return;
+  const isOpen=drop.classList.contains('open');
+  _closeApprChips();
+  if(!isOpen)drop.classList.add('open');
+}
+function _closeApprChips(){
+  document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){d.classList.remove('open');});
+}
+function _resetChip(chipId,lblId,defaultLbl,xId){
+  const chip=document.getElementById(chipId);
+  const lbl=document.getElementById(lblId);
+  const x=document.getElementById(xId);
+  if(chip)chip.classList.remove('active');
+  if(lbl)lbl.textContent=defaultLbl;
+  if(x)x.hidden=true;
+}
+function _activateChip(chipId,lblId,val,xId){
+  const chip=document.getElementById(chipId);
+  const lbl=document.getElementById(lblId);
+  const x=document.getElementById(xId);
+  if(chip)chip.classList.add('active');
+  if(lbl)lbl.textContent=val;
+  if(x)x.hidden=false;
+}
+function _markDateChip(){
+  const from=document.getElementById('apprDateFrom');
+  const to=document.getElementById('apprDateTo');
+  const hasDate=(from&&from.value)||(to&&to.value);
+  if(hasDate){
+    _activateChip('apprChipDate','apprChipDateLbl','📅 '+((from&&from.value?from.value.slice(5):'')+(to&&to.value?' — '+to.value.slice(5):'')),'apprChipDateX');
+  } else {
+    _resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX');
+  }
+}
+// إغلاق القوائم عند الضغط خارجها — يُعاد تسجيله عند كل تحميل
+(function(){
+  document.removeEventListener('click',window._apprChipOutsideHandler||null);
+  window._apprChipOutsideHandler=function(e){
+    if(!e.target.closest('.appr-chip'))_closeApprChips();
+  };
+  document.addEventListener('click',window._apprChipOutsideHandler);
+})();
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
   document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
