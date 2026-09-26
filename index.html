@@ -1034,6 +1034,12 @@ setTimeout(()=>window.lcNext(),200);
               <div class="rhc-sub">مقارنة الوارد والمصروف والرصيد لكل المشاريع</div>
               <div class="rhc-arrow">←</div>
             </div>
+            <div class="rep-hub-card" onclick="openReport('incproj')">
+              <div class="rhc-icon rhc-icon-green">📥</div>
+              <div class="rhc-title">وارد المشاريع</div>
+              <div class="rhc-sub">إجمالي وارد كل مشروع مقسم حسب طريقة الصرف / البنك</div>
+              <div class="rhc-arrow">←</div>
+            </div>
             <div class="rep-hub-card" onclick="openReport('contractor')">
               <div class="rhc-icon rhc-icon-gold">👷</div>
               <div class="rhc-title">تقرير مقاول</div>
@@ -1220,6 +1226,18 @@ setTimeout(()=>window.lcNext(),200);
               </select>
             </div>
             <div id="repCompareResult"></div>
+          </div>
+
+          <!-- INCOME PER PROJECT PANEL -->
+          <div id="repIncProjPanel" style="display:none">
+            <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="incSort" onchange="renderIncomeProjReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                <option value="total">ترتيب حسب الوارد</option>
+                <option value="name">ترتيب حسب الاسم</option>
+              </select>
+              <button class="filter-btn" onclick="incProjExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
+            </div>
+            <div id="repIncProjResult"></div>
           </div>
 
           <!-- SEQ RANGE PANEL -->

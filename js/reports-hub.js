@@ -44,13 +44,77 @@ function renderCompareReport(){
       </div>`;
     }).join('')}`;
 }
+// ── وارد المشاريع: ملخص لكل مشروع مقسم حسب طريقة الصرف/البنك ──
+const _INC_BANK_ORDER=['Cash','Al Ahly','CIB','CIB شركات'];
+function _incProjData(){
+  const byProj={};const banksSet=new Set();
+  (allEntries||[]).forEach(e=>{
+    if(e.type!=='i')return;
+    const bank=e.payment_method||'غير محدد';
+    banksSet.add(bank);
+    const r=byProj[e.project_id]||(byProj[e.project_id]={total:0,count:0,banks:{}});
+    const amt=Number(e.amount)||0;
+    r.total+=amt;r.count++;r.banks[bank]=(r.banks[bank]||0)+amt;
+  });
+  const banks=[..._INC_BANK_ORDER.filter(b=>banksSet.has(b)),...[...banksSet].filter(b=>!_INC_BANK_ORDER.includes(b)&&b!=='غير محدد').sort(),...(banksSet.has('غير محدد')?['غير محدد']:[])];
+  const rows=Object.keys(byProj).map(pid=>({pid,name:(allProjectsMap[pid]&&allProjectsMap[pid].name)||'—',...byProj[pid]}));
+  const sort=document.getElementById('incSort')?.value||'total';
+  rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'ar'):b.total-a.total);
+  const grand=rows.reduce((s,r)=>s+r.total,0);
+  const bankTotals={};banks.forEach(b=>{bankTotals[b]=rows.reduce((s,r)=>s+(r.banks[b]||0),0);});
+  return{rows,banks,grand,bankTotals};
+}
+function renderIncomeProjReport(){
+  const div=document.getElementById('repIncProjResult');
+  if(!div)return;
+  const d=_incProjData();
+  if(!d.rows.length){div.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted)">لا يوجد وارد مسجل</div>';return;}
+  div.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px">
+      <div class="kc"><div class="kl">إجمالي الوارد</div><div class="kv" style="color:var(--info)">${fn(d.grand)} ج</div></div>
+      ${d.banks.map(b=>`<div class="kc"><div class="kl">${esc(b)}</div><div class="kv">${fn(d.bankTotals[b])} ج</div></div>`).join('')}
+    </div>
+    ${d.rows.map(r=>`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-weight:700;color:var(--accent);font-size:14px">${esc(r.name)}</span>
+        <span style="font-size:13px;color:var(--info);font-weight:700">${fn(r.total)} ج</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--text-muted)">
+        ${d.banks.filter(b=>r.banks[b]).map(b=>`<span style="background:var(--bg-page);border-radius:8px;padding:3px 9px">${esc(b)}: <b style="color:var(--text-body)">${fn(r.banks[b])} ج</b></span>`).join('')}
+        <span style="padding:3px 4px">(${r.count} قيد)</span>
+      </div>
+    </div>`).join('')}`;
+}
+async function incProjExportExcel(){
+  const d=_incProjData();
+  if(!d.rows.length){notify('لا يوجد بيانات','warn');return;}
+  setSav('⏳ جاري التحميل...','ng');
+  try{
+    await loadExcelJS();
+    const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
+    const ws=wb.addWorksheet('وارد المشاريع',{views:[{rightToLeft:true}]});
+    const COLS=d.banks.length+3;
+    ws.columns=[{width:26},...d.banks.map(()=>({width:16})),{width:16},{width:10}];
+    _xlHeader(ws,'📥 وارد المشاريع','إجمالي الوارد: '+fn(d.grand)+' ج',COLS);
+    _xlHdrRow(ws,['المشروع',...d.banks,'الإجمالي (ج)','عدد القيود'],COLS);
+    d.rows.forEach((r,i)=>{
+      _xlDataRow(ws,[r.name,...d.banks.map(b=>r.banks[b]||0),r.total,r.count],i);
+    });
+    _xlTotRow(ws,['الإجمالي',...d.banks.map(b=>d.bankTotals[b]),d.grand,d.rows.reduce((s,r)=>s+r.count,0)],COLS);
+    _xlFooter(ws,COLS);
+    const buf=await wb.xlsx.writeBuffer();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    a.download='وارد_المشاريع_'+new Date().toLocaleDateString('en-CA')+'.xlsx';a.click();
+    setSav('✅ تم تحميل Excel','ok');
+  }catch(e){setSav('❌ '+e.message,'er');}
+}
 function openReport(type){
   _curReport=type;
   document.getElementById('repHub').style.display='none';
   document.getElementById('repView').style.display='block';
-  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'📋 تقرير المشروع',compare:'⚖️ مقارنة المشاريع',seqrange:'🔢 تقرير نطاق القيود'};
+  const titles={cash:'💰 التدفق النقدي',summary:'📋 الملخص الدوري',proj:'🏗️ تقرير المشاريع',adv:'💼 تقرير العهد',dues:'⚠️ مستحقات المقاولين',contractor:'👷 تقرير المقاول',client:'📋 تقرير المشروع',compare:'⚖️ مقارنة المشاريع',seqrange:'🔢 تقرير نطاق القيود',incproj:'📥 وارد المشاريع'};
   document.getElementById('repViewTitle').textContent=titles[type]||'';
-  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel','repSeqRangePanel'].forEach(id=>{
+  ['repCashPanel','repSummaryPanel','repProjPanel','repAdvPanel','repContractorPanel','repClientPanel','repComparePanel','repSeqRangePanel','repIncProjPanel'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.style.display='none';
   });
   if(type==='cash'){
@@ -87,6 +151,9 @@ function openReport(type){
   } else if(type==='compare'){
     document.getElementById('repComparePanel').style.display='block';
     renderCompareReport();
+  } else if(type==='incproj'){
+    document.getElementById('repIncProjPanel').style.display='block';
+    renderIncomeProjReport();
   }
 }
 
