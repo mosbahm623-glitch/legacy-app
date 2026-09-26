@@ -726,12 +726,9 @@ function filterApprByType(type){
 function _toggleApprChip(dropId){
   const drop=document.getElementById(dropId);
   if(!drop)return;
-  // لو مفتوح → الـ mousedown سبقنا وقفله، فمتفتحوش تاني
-  // لو مقفل → افتح
-  if(!drop.classList.contains('open')){
-    _closeApprChips();
-    drop.classList.add('open');
-  }
+  const wasOpen=drop.classList.contains('open');
+  _closeApprChips();
+  if(!wasOpen)drop.classList.add('open');
 }
 function _closeApprChips(){
   document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){d.classList.remove('open');});
@@ -765,14 +762,14 @@ function _markDateChip(){
 // إغلاق القوائم عند الضغط خارجها
 (function(){
   if(window._apprChipOutsideHandler){
-    document.removeEventListener('mousedown',window._apprChipOutsideHandler);
+    document.removeEventListener('pointerdown',window._apprChipOutsideHandler,true);
   }
   window._apprChipOutsideHandler=function(e){
-    if(!e.target.closest('.appr-chip-drop')){
-      _closeApprChips();
-    }
+    // لو الضغطة داخل أي chip أو drop → لا تقفل
+    if(e.target.closest('.appr-chip')||e.target.closest('.appr-chip-drop'))return;
+    _closeApprChips();
   };
-  document.addEventListener('mousedown',window._apprChipOutsideHandler);
+  document.addEventListener('pointerdown',window._apprChipOutsideHandler,true);
 })();
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
