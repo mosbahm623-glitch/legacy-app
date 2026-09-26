@@ -275,6 +275,16 @@ async function loadApprovals(silent=false){
       html+=`</div></div>`;
     }
     el.innerHTML=html;
+    // إغلاق chips عند الضغط خارجها
+    if(window._apprChipOutsideHandler){
+      document.removeEventListener('pointerdown',window._apprChipOutsideHandler,true);
+    }
+    window._apprChipOutsideHandler=function(e){
+      if(!e.target.closest('.appr-chip')&&!e.target.closest('.appr-chip-drop')){
+        _closeApprChips();
+      }
+    };
+    document.addEventListener('pointerdown',window._apprChipOutsideHandler,true);
     // استعادة الفلتر المختار
     if(_apprPersonFilterVal){
       const sel=document.getElementById('apprPersonFilter');
@@ -759,18 +769,7 @@ function _markDateChip(){
     _resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX');
   }
 }
-// إغلاق القوائم عند الضغط خارجها
-(function(){
-  if(window._apprChipOutsideHandler){
-    document.removeEventListener('pointerdown',window._apprChipOutsideHandler,true);
-  }
-  window._apprChipOutsideHandler=function(e){
-    // لو الضغطة داخل أي chip أو drop → لا تقفل
-    if(e.target.closest('.appr-chip')||e.target.closest('.appr-chip-drop'))return;
-    _closeApprChips();
-  };
-  document.addEventListener('pointerdown',window._apprChipOutsideHandler,true);
-})();
+// إغلاق القوائم عند الضغط خارجها — يُضاف بعد بناء الـ HTML مباشرة
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
   document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
