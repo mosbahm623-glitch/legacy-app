@@ -97,6 +97,14 @@ async function loadApprovals(silent=false){
         <button onclick="_apprBankFilterVal='';filterApprByBank('');document.getElementById('apprBankFilter').value=''" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
       </div>`;
     }
+    // ── فلتر بالتاريخ ──
+    html+=`<div style="padding:6px 14px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--text-soft,#888);white-space:nowrap">التاريخ:</span>
+      <input type="date" id="apprDateFrom" onchange="filterApprByDate()" style="flex:1;min-width:110px;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px" title="من">
+      <span style="font-size:12px;color:var(--text-soft,#888)">—</span>
+      <input type="date" id="apprDateTo" onchange="filterApprByDate()" style="flex:1;min-width:110px;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px" title="إلى">
+      <button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-soft,#888)">✕</button>
+    </div>`;
     // ── شريط التحكم الجماعي ──
     const totalCount=(entRows?entRows.length:0)+(advRows?advRows.length:0);
     html+=`<div id="bulkBar" class="appr-bulk-bar">
@@ -143,7 +151,7 @@ async function loadApprovals(silent=false){
           const typeBadge=r.type==='i'
             ?'<span class="appr-badge appr-badge-inc">وارد</span>'
             :'<span class="appr-badge appr-badge-exp">مصروف</span>';
-          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}">
+          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}" data-date="${r.entry_date||''}">
             <div class="appr-entry-top">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" onchange="updateBulkBar()">
               <div class="appr-entry-main">
@@ -669,6 +677,40 @@ function filterApprByBank(bank){
     if(!body)return;
     const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
     const hide=bank&&visibleItems.length===0;
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
+}
+function filterApprByDate(){
+  const fromEl=document.getElementById('apprDateFrom');
+  const toEl=document.getElementById('apprDateTo');
+  const from=fromEl?fromEl.value:'';
+  const to=toEl?toEl.value:'';
+  // تحويل dd/mm/yyyy إلى yyyy-mm-dd للمقارنة
+  function parseDate(str){
+    if(!str)return null;
+    // إذا كان بالفعل yyyy-mm-dd
+    if(/^\d{4}-\d{2}-\d{2}$/.test(str))return str;
+    // dd/mm/yyyy
+    const m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+    return null;
+  }
+  const fromD=parseDate(from);
+  const toD=parseDate(to);
+  document.querySelectorAll('.appr-item[data-date]').forEach(function(item){
+    const d=parseDate(item.dataset.date);
+    let show=true;
+    if(fromD&&d&&d<fromD)show=false;
+    if(toD&&d&&d>toD)show=false;
+    if(!d&&(fromD||toD))show=false;
+    item.style.display=show?'':'none';
+  });
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
+    const hide=(fromD||toD)&&visibleItems.length===0;
     hdr.style.display=hide?'none':'';
     body.style.display=hide?'none':'';
   });
