@@ -728,17 +728,10 @@ function _toggleApprChip(dropId){
   if(!drop)return;
   const isOpen=drop.classList.contains('open');
   _closeApprChips();
-  if(!isOpen){
-    drop.classList.add('open');
-    // نمنع الـ document listener من إغلاقه فوراً
-    drop._justOpened=true;
-    setTimeout(function(){drop._justOpened=false;},0);
-  }
+  if(!isOpen)drop.classList.add('open');
 }
 function _closeApprChips(){
-  document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){
-    if(!d._justOpened)d.classList.remove('open');
-  });
+  document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){d.classList.remove('open');});
 }
 function _resetChip(chipId,lblId,defaultLbl,xId){
   const chip=document.getElementById(chipId);
@@ -766,13 +759,17 @@ function _markDateChip(){
     _resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX');
   }
 }
-// إغلاق القوائم عند الضغط خارجها — يُعاد تسجيله عند كل تحميل
+// إغلاق القوائم عند الضغط خارجها
 (function(){
-  document.removeEventListener('click',window._apprChipOutsideHandler||null);
+  if(window._apprChipOutsideHandler){
+    document.removeEventListener('mousedown',window._apprChipOutsideHandler);
+  }
   window._apprChipOutsideHandler=function(e){
-    if(!e.target.closest('.appr-chip'))_closeApprChips();
+    if(!e.target.closest('.appr-chip-drop')&&!e.target.closest('.appr-chip')){
+      _closeApprChips();
+    }
   };
-  document.addEventListener('click',window._apprChipOutsideHandler);
+  document.addEventListener('mousedown',window._apprChipOutsideHandler);
 })();
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
