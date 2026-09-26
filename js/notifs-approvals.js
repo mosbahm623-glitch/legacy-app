@@ -285,9 +285,6 @@ async function loadApprovals(silent=false){
       }
     };
     document.addEventListener('click',window._apprChipOutsideHandler);
-    // منع انتشار الكليك من الـ chips bar للـ document
-    const _chipsBar=document.getElementById('apprChipsBar');
-    if(_chipsBar)_chipsBar.addEventListener('click',function(e){e.stopPropagation();});
     // استعادة الفلتر المختار
     if(_apprPersonFilterVal){
       const sel=document.getElementById('apprPersonFilter');
