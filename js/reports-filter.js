@@ -207,17 +207,17 @@ async function repExportExcel(){
     await loadExcelJS();
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
     const ws=wb.addWorksheet('تقرير المشاريع',{views:[{rightToLeft:true}]});
-    const COLS=7;ws.columns=[{width:14},{width:12},{width:20},{width:16},{width:26},{width:18},{width:16}];
+    const COLS=8;ws.columns=[{width:14},{width:12},{width:20},{width:16},{width:26},{width:18},{width:18},{width:16}];
     _xlHeader(ws,'📁 تقرير مشروع: '+d.projName,d.period+'  |  وارد: '+fn(d.inc)+' ج  |  مصاريف: '+fn(d.exp)+' ج  |  رصيد: '+fn(d.bal)+' ج',COLS);
-    _xlHdrRow(ws,['التاريخ','النوع','المشروع','البند','البيان','المقاول','المبلغ (ج)'],COLS);
+    _xlHdrRow(ws,['التاريخ','النوع','المشروع','البند','البيان','المقاول','طريقة الصرف / البنك','المبلغ (ج)'],COLS);
     d.filtered.sort((a,b)=>parseDt(a.entry_date)-parseDt(b.entry_date)).forEach((e,i)=>{
       const proj=allProjectsMap[e.project_id];
       const isI=e.type==='i';
-      _xlDataRow(ws,[cleanDate(e.entry_date)||'',isI?'▲ وارد':'▼ مصروف',proj?.name||'',e.category||'',e.description||'',e.contractor||'',e.amount],i,[null,isI?_XC.PS:_XC.RD,null,null,null,_XC.MQ,isI?_XC.PS:_XC.RD]);
+      _xlDataRow(ws,[cleanDate(e.entry_date)||'',isI?'▲ وارد':'▼ مصروف',proj?.name||'',e.category||'',e.description||'',e.contractor||'',e.payment_method||'',e.amount],i,[null,isI?_XC.PS:_XC.RD,null,null,null,_XC.MQ,null,isI?_XC.PS:_XC.RD]);
     });
-    _xlTotRow(ws,['','▲ وارد','','','','',d.inc],COLS);
-    _xlTotRow(ws,['','▼ مصروف','','','','',d.exp],COLS);
-    _xlTotRow(ws,['','الرصيد','','','','',d.bal],COLS);
+    _xlTotRow(ws,['','▲ وارد','','','','','',d.inc],COLS);
+    _xlTotRow(ws,['','▼ مصروف','','','','','',d.exp],COLS);
+    _xlTotRow(ws,['','الرصيد','','','','','',d.bal],COLS);
     _xlFooter(ws,COLS);
     const buf=await wb.xlsx.writeBuffer();
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
