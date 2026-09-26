@@ -80,8 +80,9 @@ async function loadApprovals(silent=false){
 .appr-chip{position:relative;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border-mid,#ddd);background:var(--card-bg,#fff);color:var(--text-body,#333);font-size:12px;cursor:pointer;white-space:nowrap;user-select:none;transition:border-color .15s,background .15s}
 .appr-chip:hover{border-color:var(--primary,#2563eb);background:var(--chip-hover,#f0f4ff)}
 .appr-chip.active{border-color:var(--primary,#2563eb);background:var(--primary,#2563eb);color:#fff}
-.appr-chip-arrow{font-size:9px;opacity:.7}
-.appr-chip-clear{font-size:11px;padding:0 2px;opacity:.8;cursor:pointer}
+.appr-chip-arrow{font-size:9px;opacity:.7;pointer-events:none}
+.appr-chip>span:first-child{pointer-events:none}
+.appr-chip-clear{font-size:11px;padding:0 2px;opacity:.8;cursor:pointer;pointer-events:auto;position:relative;z-index:1}
 .appr-chip-drop{position:absolute;top:calc(100% + 4px);right:0;min-width:160px;background:var(--card-bg,#fff);border:1.5px solid var(--border-mid,#ddd);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;overflow:hidden;display:none}
 .appr-chip-drop.open{display:block}
 .appr-chip-opt{padding:9px 14px;font-size:13px;cursor:pointer;color:var(--text-body,#222);transition:background .1s}
