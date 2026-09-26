@@ -96,7 +96,7 @@ async function loadApprovals(silent=false){
 .appr-type-btn.active{background:var(--primary,#2563eb);color:#fff}
 </style>
 <div class="appr-chips-bar" id="apprChipsBar">
-  ${allPersonNames.length>1?`<div class="appr-chip" id="apprChipPerson" onclick="event.stopPropagation();_toggleApprChip('apprDropPerson')">
+  ${allPersonNames.length>1?`<div class="appr-chip" id="apprChipPerson" onclick="_toggleApprChip('apprDropPerson')">
     <span>👤 <span id="apprChipPersonLbl">الشخص</span></span>
     <span class="appr-chip-arrow" id="apprChipPersonArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipPersonX" hidden onclick="event.stopPropagation();_apprPersonFilterVal='';filterApprByPerson('');_resetChip('apprChipPerson','apprChipPersonLbl','الشخص','apprChipPersonX')">✕</span>
@@ -105,7 +105,7 @@ async function loadApprovals(silent=false){
       ${personItems}
     </div>
   </div>`:''}
-  ${allProjIds.length>1?`<div class="appr-chip" id="apprChipProj" onclick="event.stopPropagation();_toggleApprChip('apprDropProj')">
+  ${allProjIds.length>1?`<div class="appr-chip" id="apprChipProj" onclick="_toggleApprChip('apprDropProj')">
     <span>📁 <span id="apprChipProjLbl">المشروع</span></span>
     <span class="appr-chip-arrow" id="apprChipProjArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipProjX" hidden onclick="event.stopPropagation();_apprProjFilterVal='';filterApprByProj('');_resetChip('apprChipProj','apprChipProjLbl','المشروع','apprChipProjX')">✕</span>
@@ -114,7 +114,7 @@ async function loadApprovals(silent=false){
       ${projItems}
     </div>
   </div>`:''}
-  ${allBanks.length>1?`<div class="appr-chip" id="apprChipBank" onclick="event.stopPropagation();_toggleApprChip('apprDropBank')">
+  ${allBanks.length>1?`<div class="appr-chip" id="apprChipBank" onclick="_toggleApprChip('apprDropBank')">
     <span>🏦 <span id="apprChipBankLbl">البنك</span></span>
     <span class="appr-chip-arrow" id="apprChipBankArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipBankX" hidden onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX')">✕</span>
@@ -123,7 +123,7 @@ async function loadApprovals(silent=false){
       ${bankItems}
     </div>
   </div>`:''}
-  <div class="appr-chip" id="apprChipDate" onclick="event.stopPropagation();_toggleApprChip('apprDropDate')">
+  <div class="appr-chip" id="apprChipDate" onclick="_toggleApprChip('apprDropDate')">
     <span>📅 <span id="apprChipDateLbl">التاريخ</span></span>
     <span class="appr-chip-arrow" id="apprChipDateArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipDateX" hidden onclick="event.stopPropagation();document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')">✕</span>
