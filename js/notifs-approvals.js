@@ -114,7 +114,7 @@ async function loadApprovals(silent=false){
       ${projItems}
     </div>
   </div>`:''}
-  ${allBanks.length>0?`<div class="appr-chip" id="apprChipBank" onclick="_toggleApprChip('apprDropBank')">
+  ${allBanks.length>=1?`<div class="appr-chip" id="apprChipBank" onclick="_toggleApprChip('apprDropBank')">
     <span>🏦 <span id="apprChipBankLbl">البنك</span></span>
     <span class="appr-chip-arrow" id="apprChipBankArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipBankX" hidden onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX')">✕</span>
@@ -280,7 +280,7 @@ async function loadApprovals(silent=false){
       document.removeEventListener('pointerdown',window._apprChipOutsideHandler,true);
     }
     window._apprChipOutsideHandler=function(e){
-      if(!e.target.closest('.appr-chip')&&!e.target.closest('.appr-chip-drop')){
+      if(!e.target.closest('#apprChipsBar')){
         _closeApprChips();
       }
     };
