@@ -83,7 +83,7 @@ async function loadApprovals(silent=false){
 .appr-chip-arrow{font-size:9px;opacity:.7;pointer-events:none}
 .appr-chip>span:first-child{pointer-events:none}
 .appr-chip-clear{font-size:11px;padding:0 2px;opacity:.8;cursor:pointer;pointer-events:auto;position:relative;z-index:1}
-.appr-chip-drop{position:absolute;top:calc(100% + 4px);right:0;min-width:160px;background:var(--card-bg,#fff);border:1.5px solid var(--border-mid,#ddd);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;overflow:hidden;display:none}
+.appr-chip-drop{position:absolute;top:calc(100% + 4px);right:0;min-width:160px;background:var(--card-bg,#fff);border:1.5px solid var(--border-mid,#ddd);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;overflow:visible;display:none}
 .appr-chip-drop.open{display:block}
 .appr-chip-opt{padding:9px 14px;font-size:13px;cursor:pointer;color:var(--text-body,#222);transition:background .1s}
 .appr-chip-opt:hover{background:var(--chip-hover,#f0f4ff)}
@@ -728,10 +728,17 @@ function _toggleApprChip(dropId){
   if(!drop)return;
   const isOpen=drop.classList.contains('open');
   _closeApprChips();
-  if(!isOpen)drop.classList.add('open');
+  if(!isOpen){
+    drop.classList.add('open');
+    // نمنع الـ document listener من إغلاقه فوراً
+    drop._justOpened=true;
+    setTimeout(function(){drop._justOpened=false;},0);
+  }
 }
 function _closeApprChips(){
-  document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){d.classList.remove('open');});
+  document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){
+    if(!d._justOpened)d.classList.remove('open');
+  });
 }
 function _resetChip(chipId,lblId,defaultLbl,xId){
   const chip=document.getElementById(chipId);
