@@ -44,10 +44,12 @@ function renderCompareReport(){
       </div>`;
     }).join('')}`;
 }
-// ── وارد المشاريع: ملخص لكل مشروع مقسم حسب طريقة الصرف/البنك ──
+// ── وارد المشاريع: مجمّع بالتاريخ (أو المشروع) ومقسم حسب طريقة الصرف/البنك ──
 const _INC_BANK_ORDER=['Cash','Al Ahly','CIB','CIB شركات'];
+function _incFmtDate(dt){return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();}
 function _incProjData(){
-  const byProj={};const banksSet=new Set();
+  const group=document.getElementById('incGroup')?.value||'date';
+  const byKey={};const banksSet=new Set();
   const fromStr=(document.getElementById('incFrom')?.value||'').trim();
   const toStr=(document.getElementById('incTo')?.value||'').trim();
   const from=fromStr?parseDt(fromStr):null;
@@ -55,26 +57,37 @@ function _incProjData(){
   if(to)to.setHours(23,59,59,999);
   (allEntries||[]).forEach(e=>{
     if(e.type!=='i')return;
-    if(from||to){const dt=parseDt(e.entry_date);if(!dt||(from&&dt<from)||(to&&dt>to))return;}
+    const dt=parseDt(e.entry_date);
+    if(from||to){if(!dt||(from&&dt<from)||(to&&dt>to))return;}
     const bank=e.payment_method||'غير محدد';
     banksSet.add(bank);
-    const r=byProj[e.project_id]||(byProj[e.project_id]={total:0,count:0,banks:{}});
+    const pname=(allProjectsMap[e.project_id]&&allProjectsMap[e.project_id].name)||'—';
+    let key,label,ts;
+    if(group==='date'){
+      if(dt){key=dt.getFullYear()+'-'+(dt.getMonth()+1)+'-'+dt.getDate();label=_incFmtDate(dt);ts=dt.getTime();}
+      else{key='none';label='بدون تاريخ';ts=0;}
+    }else{key=e.project_id;label=pname;ts=0;}
+    const r=byKey[key]||(byKey[key]={label,ts,total:0,count:0,banks:{},projs:new Set()});
     const amt=Number(e.amount)||0;
-    r.total+=amt;r.count++;r.banks[bank]=(r.banks[bank]||0)+amt;
+    r.total+=amt;r.count++;r.banks[bank]=(r.banks[bank]||0)+amt;r.projs.add(pname);
   });
   const banks=[..._INC_BANK_ORDER.filter(b=>banksSet.has(b)),...[...banksSet].filter(b=>!_INC_BANK_ORDER.includes(b)&&b!=='غير محدد').sort(),...(banksSet.has('غير محدد')?['غير محدد']:[])];
-  const rows=Object.keys(byProj).map(pid=>({pid,name:(allProjectsMap[pid]&&allProjectsMap[pid].name)||'—',...byProj[pid]}));
-  const sort=document.getElementById('incSort')?.value||'total';
-  rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'ar'):b.total-a.total);
+  const rows=Object.values(byKey);
+  const sort=document.getElementById('incSort')?.value||'new';
+  rows.sort((a,b)=>{
+    if(sort==='total')return b.total-a.total;
+    if(group==='date')return sort==='old'?a.ts-b.ts:b.ts-a.ts;
+    return sort==='old'?b.label.localeCompare(a.label,'ar'):a.label.localeCompare(b.label,'ar');
+  });
   const grand=rows.reduce((s,r)=>s+r.total,0);
   const bankTotals={};banks.forEach(b=>{bankTotals[b]=rows.reduce((s,r)=>s+(r.banks[b]||0),0);});
-  return{rows,banks,grand,bankTotals,period:(fromStr||'البداية')+' → '+(toStr||'اليوم')};
+  return{rows,banks,grand,bankTotals,group,period:(fromStr||'البداية')+' → '+(toStr||'اليوم')};
 }
 function renderIncomeProjReport(){
   const div=document.getElementById('repIncProjResult');
   if(!div)return;
-  const d=_incProjData();
   ['incFrom','incTo'].forEach(id=>{const el=document.getElementById(id);if(el&&typeof initDateInput==='function')initDateInput(el);});
+  const d=_incProjData();
   if(!d.rows.length){div.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted)">لا يوجد وارد في الفترة دي</div>';return;}
   div.innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px">
@@ -83,13 +96,14 @@ function renderIncomeProjReport(){
     </div>
     ${d.rows.map(r=>`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span style="font-weight:700;color:var(--accent);font-size:14px">${esc(r.name)}</span>
+        <span style="font-weight:700;color:var(--text-body);font-size:14px">${d.group==='date'?'📅 ':''}${esc(r.label)}</span>
         <span style="font-size:13px;color:var(--info);font-weight:700">${fn(r.total)} ج</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--text-muted)">
         ${d.banks.filter(b=>r.banks[b]).map(b=>`<span style="background:var(--bg-page);border-radius:8px;padding:3px 9px">${esc(b)}: <b style="color:var(--text-body)">${fn(r.banks[b])} ج</b></span>`).join('')}
         <span style="padding:3px 4px">(${r.count} قيد)</span>
       </div>
+      ${d.group==='date'?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px">${[...r.projs].map(esc).join(' • ')}</div>`:''}
     </div>`).join('')}`;
 }
 async function incProjExportExcel(){
@@ -98,16 +112,17 @@ async function incProjExportExcel(){
   setSav('⏳ جاري التحميل...','ng');
   try{
     await loadExcelJS();
+    const isD=d.group==='date';
     const wb=new ExcelJS.Workbook();wb.views=[{rightToLeft:true}];wb.creator='Legacy Fine Touch';
     const ws=wb.addWorksheet('وارد المشاريع',{views:[{rightToLeft:true}]});
-    const COLS=d.banks.length+3;
-    ws.columns=[{width:26},...d.banks.map(()=>({width:16})),{width:16},{width:10}];
-    _xlHeader(ws,'📥 وارد المشاريع',d.period+'  |  إجمالي الوارد: '+fn(d.grand)+' ج',COLS);
-    _xlHdrRow(ws,['المشروع',...d.banks,'الإجمالي (ج)','عدد القيود'],COLS);
+    const COLS=d.banks.length+(isD?4:3);
+    ws.columns=[{width:isD?14:26},...d.banks.map(()=>({width:16})),{width:16},{width:10},...(isD?[{width:34}]:[])];
+    _xlHeader(ws,'📥 وارد المشاريع'+(isD?' — بالتاريخ':' — بالمشروع'),d.period+'  |  إجمالي الوارد: '+fn(d.grand)+' ج',COLS);
+    _xlHdrRow(ws,[isD?'التاريخ':'المشروع',...d.banks,'الإجمالي (ج)','عدد القيود',...(isD?['المشاريع']:[])],COLS);
     d.rows.forEach((r,i)=>{
-      _xlDataRow(ws,[r.name,...d.banks.map(b=>r.banks[b]||0),r.total,r.count],i);
+      _xlDataRow(ws,[r.label,...d.banks.map(b=>r.banks[b]||0),r.total,r.count,...(isD?[[...r.projs].join(' • ')]:[])],i);
     });
-    _xlTotRow(ws,['الإجمالي',...d.banks.map(b=>d.bankTotals[b]),d.grand,d.rows.reduce((s,r)=>s+r.count,0)],COLS);
+    _xlTotRow(ws,['الإجمالي',...d.banks.map(b=>d.bankTotals[b]),d.grand,d.rows.reduce((s,r)=>s+r.count,0),...(isD?['']:[])],COLS);
     _xlFooter(ws,COLS);
     const buf=await wb.xlsx.writeBuffer();
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));

@@ -1238,9 +1238,14 @@ setTimeout(()=>window.lcNext(),200);
               </div>
             </div>
             <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="incGroup" onchange="renderIncomeProjReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
+                <option value="date">تجميع بالتاريخ</option>
+                <option value="proj">تجميع بالمشروع</option>
+              </select>
               <select id="incSort" onchange="renderIncomeProjReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
-                <option value="total">ترتيب حسب الوارد</option>
-                <option value="name">ترتيب حسب الاسم</option>
+                <option value="new">الأحدث أولاً</option>
+                <option value="old">الأقدم أولاً</option>
+                <option value="total">الأعلى وارد</option>
               </select>
               <button class="filter-btn" onclick="incProjExportExcel()" style="font-size:12px;padding:8px 18px">📗 Excel</button>
             </div>
