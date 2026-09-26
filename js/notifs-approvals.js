@@ -726,9 +726,12 @@ function filterApprByType(type){
 function _toggleApprChip(dropId){
   const drop=document.getElementById(dropId);
   if(!drop)return;
-  const isOpen=drop.classList.contains('open');
-  _closeApprChips();
-  if(!isOpen)drop.classList.add('open');
+  // لو مفتوح → الـ mousedown سبقنا وقفله، فمتفتحوش تاني
+  // لو مقفل → افتح
+  if(!drop.classList.contains('open')){
+    _closeApprChips();
+    drop.classList.add('open');
+  }
 }
 function _closeApprChips(){
   document.querySelectorAll('.appr-chip-drop.open').forEach(function(d){d.classList.remove('open');});
@@ -765,7 +768,7 @@ function _markDateChip(){
     document.removeEventListener('mousedown',window._apprChipOutsideHandler);
   }
   window._apprChipOutsideHandler=function(e){
-    if(!e.target.closest('.appr-chip-drop')&&!e.target.closest('.appr-chip')){
+    if(!e.target.closest('.appr-chip-drop')){
       _closeApprChips();
     }
   };
