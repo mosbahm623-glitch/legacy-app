@@ -48,8 +48,14 @@ function renderCompareReport(){
 const _INC_BANK_ORDER=['Cash','Al Ahly','CIB','CIB شركات'];
 function _incProjData(){
   const byProj={};const banksSet=new Set();
+  const fromStr=(document.getElementById('incFrom')?.value||'').trim();
+  const toStr=(document.getElementById('incTo')?.value||'').trim();
+  const from=fromStr?parseDt(fromStr):null;
+  const to=toStr?parseDt(toStr):null;
+  if(to)to.setHours(23,59,59,999);
   (allEntries||[]).forEach(e=>{
     if(e.type!=='i')return;
+    if(from||to){const dt=parseDt(e.entry_date);if(!dt||(from&&dt<from)||(to&&dt>to))return;}
     const bank=e.payment_method||'غير محدد';
     banksSet.add(bank);
     const r=byProj[e.project_id]||(byProj[e.project_id]={total:0,count:0,banks:{}});
@@ -62,13 +68,14 @@ function _incProjData(){
   rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'ar'):b.total-a.total);
   const grand=rows.reduce((s,r)=>s+r.total,0);
   const bankTotals={};banks.forEach(b=>{bankTotals[b]=rows.reduce((s,r)=>s+(r.banks[b]||0),0);});
-  return{rows,banks,grand,bankTotals};
+  return{rows,banks,grand,bankTotals,period:(fromStr||'البداية')+' → '+(toStr||'اليوم')};
 }
 function renderIncomeProjReport(){
   const div=document.getElementById('repIncProjResult');
   if(!div)return;
   const d=_incProjData();
-  if(!d.rows.length){div.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted)">لا يوجد وارد مسجل</div>';return;}
+  ['incFrom','incTo'].forEach(id=>{const el=document.getElementById(id);if(el&&typeof initDateInput==='function')initDateInput(el);});
+  if(!d.rows.length){div.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted)">لا يوجد وارد في الفترة دي</div>';return;}
   div.innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px">
       <div class="kc"><div class="kl">إجمالي الوارد</div><div class="kv" style="color:var(--info)">${fn(d.grand)} ج</div></div>
@@ -95,7 +102,7 @@ async function incProjExportExcel(){
     const ws=wb.addWorksheet('وارد المشاريع',{views:[{rightToLeft:true}]});
     const COLS=d.banks.length+3;
     ws.columns=[{width:26},...d.banks.map(()=>({width:16})),{width:16},{width:10}];
-    _xlHeader(ws,'📥 وارد المشاريع','إجمالي الوارد: '+fn(d.grand)+' ج',COLS);
+    _xlHeader(ws,'📥 وارد المشاريع',d.period+'  |  إجمالي الوارد: '+fn(d.grand)+' ج',COLS);
     _xlHdrRow(ws,['المشروع',...d.banks,'الإجمالي (ج)','عدد القيود'],COLS);
     d.rows.forEach((r,i)=>{
       _xlDataRow(ws,[r.name,...d.banks.map(b=>r.banks[b]||0),r.total,r.count],i);

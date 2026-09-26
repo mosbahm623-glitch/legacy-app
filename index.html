@@ -1230,6 +1230,13 @@ setTimeout(()=>window.lcNext(),200);
 
           <!-- INCOME PER PROJECT PANEL -->
           <div id="repIncProjPanel" style="display:none">
+            <div class="filter-bar" style="margin-bottom:12px">
+              <div><label>📅 من</label><input type="text" id="incFrom" placeholder="dd/mm/yyyy" maxlength="10" onchange="renderIncomeProjReport()"></div>
+              <div><label>📅 لحد</label><input type="text" id="incTo" placeholder="dd/mm/yyyy" maxlength="10" onchange="renderIncomeProjReport()"></div>
+              <div class="rep-filter-row">
+                <button class="filter-btn sec" onclick="document.getElementById('incFrom').value='';document.getElementById('incTo').value='';renderIncomeProjReport()">✕ مسح</button>
+              </div>
+            </div>
             <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <select id="incSort" onchange="renderIncomeProjReport()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg-pure);color:var(--text-body)">
                 <option value="total">ترتيب حسب الوارد</option>
