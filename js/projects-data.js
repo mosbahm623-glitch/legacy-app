@@ -2,7 +2,7 @@ async function loadAllProjects(){
   // نجيب المشاريع + الملخصات من الـ View مرة واحدة
   [allProjects,allEntries]=await Promise.all([
     sbAll('projects?order=created_at'),
-    sbAll('entries?select=id,seq,project_id,type,amount,category,description,contractor,entry_date,advance_id&order=entry_date.desc')
+    sbAll('entries?select=id,seq,project_id,type,amount,category,description,contractor,entry_date,advance_id,payment_method&order=entry_date.desc')
   ]);
   try{ if(!advances||!advances.length){ const _advs=await sb('advances?select=id,person_name'); if(_advs&&_advs.length) advances=_advs; } }catch(e){}
   // استخدم seq كـ entry_no لو seq أكبر من 20260000
