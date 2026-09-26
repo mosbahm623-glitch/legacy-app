@@ -100,7 +100,7 @@ async function loadApprovals(silent=false){
     <span>👤 <span id="apprChipPersonLbl">الشخص</span></span>
     <span class="appr-chip-arrow" id="apprChipPersonArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipPersonX" hidden onclick="event.stopPropagation();_apprPersonFilterVal='';filterApprByPerson('');_resetChip('apprChipPerson','apprChipPersonLbl','الشخص','apprChipPersonX')">✕</span>
-    <div class="appr-chip-drop" id="apprDropPerson" onclick="event.stopPropagation()">
+    <div class="appr-chip-drop" id="apprDropPerson">
       <div class="appr-chip-opt" onclick="event.stopPropagation();_apprPersonFilterVal='';filterApprByPerson('');_resetChip('apprChipPerson','apprChipPersonLbl','الشخص','apprChipPersonX');_closeApprChips()">— الكل —</div>
       ${personItems}
     </div>
@@ -109,7 +109,7 @@ async function loadApprovals(silent=false){
     <span>📁 <span id="apprChipProjLbl">المشروع</span></span>
     <span class="appr-chip-arrow" id="apprChipProjArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipProjX" hidden onclick="event.stopPropagation();_apprProjFilterVal='';filterApprByProj('');_resetChip('apprChipProj','apprChipProjLbl','المشروع','apprChipProjX')">✕</span>
-    <div class="appr-chip-drop" id="apprDropProj" onclick="event.stopPropagation()">
+    <div class="appr-chip-drop" id="apprDropProj">
       <div class="appr-chip-opt" onclick="event.stopPropagation();_apprProjFilterVal='';filterApprByProj('');_resetChip('apprChipProj','apprChipProjLbl','المشروع','apprChipProjX');_closeApprChips()">— الكل —</div>
       ${projItems}
     </div>
@@ -118,7 +118,7 @@ async function loadApprovals(silent=false){
     <span>🏦 <span id="apprChipBankLbl">البنك</span></span>
     <span class="appr-chip-arrow" id="apprChipBankArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipBankX" hidden onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX')">✕</span>
-    <div class="appr-chip-drop" id="apprDropBank" onclick="event.stopPropagation()">
+    <div class="appr-chip-drop" id="apprDropBank">
       <div class="appr-chip-opt" onclick="event.stopPropagation();_apprBankFilterVal='';filterApprByBank('');_resetChip('apprChipBank','apprChipBankLbl','البنك','apprChipBankX');_closeApprChips()">— الكل —</div>
       ${bankItems}
     </div>
@@ -127,7 +127,7 @@ async function loadApprovals(silent=false){
     <span>📅 <span id="apprChipDateLbl">التاريخ</span></span>
     <span class="appr-chip-arrow" id="apprChipDateArrow">▾</span>
     <span class="appr-chip-clear" id="apprChipDateX" hidden onclick="event.stopPropagation();document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')">✕</span>
-    <div class="appr-chip-drop appr-chip-date-drop" id="apprDropDate" onclick="event.stopPropagation()">
+    <div class="appr-chip-drop appr-chip-date-drop" id="apprDropDate">
       <div><label>من</label><input type="date" id="apprDateFrom" onchange="filterApprByDate();_markDateChip()"></div>
       <div><label>إلى</label><input type="date" id="apprDateTo" onchange="filterApprByDate();_markDateChip()"></div>
       <div style="text-align:left"><button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-mid,#ddd);background:transparent;cursor:pointer;font-size:11px;color:var(--text-soft,#888)">مسح</button></div>
@@ -277,14 +277,17 @@ async function loadApprovals(silent=false){
     el.innerHTML=html;
     // إغلاق chips عند الضغط خارجها
     if(window._apprChipOutsideHandler){
-      document.removeEventListener('pointerdown',window._apprChipOutsideHandler,true);
+      document.removeEventListener('click',window._apprChipOutsideHandler);
     }
     window._apprChipOutsideHandler=function(e){
       if(!e.target.closest('#apprChipsBar')){
         _closeApprChips();
       }
     };
-    document.addEventListener('pointerdown',window._apprChipOutsideHandler,true);
+    document.addEventListener('click',window._apprChipOutsideHandler);
+    // منع انتشار الكليك من الـ chips bar للـ document
+    const _chipsBar=document.getElementById('apprChipsBar');
+    if(_chipsBar)_chipsBar.addEventListener('click',function(e){e.stopPropagation();});
     // استعادة الفلتر المختار
     if(_apprPersonFilterVal){
       const sel=document.getElementById('apprPersonFilter');
