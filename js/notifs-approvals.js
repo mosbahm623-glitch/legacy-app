@@ -87,7 +87,8 @@ async function loadApprovals(silent=false){
 .appr-chip-drop.open{display:block}
 .appr-chip-opt{padding:9px 14px;font-size:13px;cursor:pointer;color:var(--text-body,#222);transition:background .1s}
 .appr-chip-opt:hover{background:var(--chip-hover,#f0f4ff)}
-.appr-chip-date-drop{padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:200px}
+.appr-chip-date-drop{padding:10px 12px;flex-direction:column;gap:8px;min-width:200px}
+.appr-chip-date-drop.open{display:flex}
 .appr-chip-date-drop label{font-size:11px;color:var(--text-soft,#888);margin-bottom:2px}
 .appr-chip-date-drop input{padding:6px 8px;border-radius:8px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px;width:100%}
 .appr-type-chips{display:inline-flex;border-radius:20px;overflow:hidden;border:1.5px solid var(--border-mid,#ddd)}
