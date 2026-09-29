@@ -91,6 +91,8 @@ async function loadApprovals(silent=false){
 .appr-chip-date-drop.open{display:flex}
 .appr-chip-date-drop label{font-size:11px;color:var(--text-soft,#888);margin-bottom:2px}
 .appr-chip-date-drop input{padding:6px 8px;border-radius:8px;border:1.5px solid var(--border-mid,#ddd);background:var(--input-bg,#f9f9f9);color:var(--text-body,#222);font-family:inherit;font-size:13px;width:100%}
+.appr-chip-search{cursor:text}
+.appr-chip-search input::placeholder{color:var(--text-soft,#888)}
 .appr-type-chips{display:inline-flex;border-radius:20px;overflow:hidden;border:1.5px solid var(--border-mid,#ddd)}
 .appr-type-btn{padding:5px 12px;font-size:12px;cursor:pointer;background:var(--card-bg,#fff);color:var(--text-body,#555);border:none;border-left:1px solid var(--border-mid,#ddd);font-family:inherit;transition:background .15s,color .15s}
 .appr-type-btn:last-child{border-left:none}
@@ -133,6 +135,11 @@ async function loadApprovals(silent=false){
       <div><label>إلى</label><input type="date" id="apprDateTo" onchange="filterApprByDate();_markDateChip()"></div>
       <div style="text-align:left"><button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-mid,#ddd);background:transparent;cursor:pointer;font-size:11px;color:var(--text-soft,#888)">مسح</button></div>
     </div>
+  </div>
+  <div class="appr-chip appr-chip-search" style="cursor:text">
+    <span>🔍</span>
+    <input type="text" id="apprAmountSearch" placeholder="بحث بالقيمة" inputmode="decimal" oninput="filterApprByAmount(this.value)" onclick="event.stopPropagation()" style="border:none;background:transparent;outline:none;font-family:inherit;font-size:12px;width:88px;color:inherit">
+    <span class="appr-chip-clear" id="apprAmountX" hidden onclick="event.stopPropagation();document.getElementById('apprAmountSearch').value='';filterApprByAmount('')">✕</span>
   </div>
   <div class="appr-type-chips">
     <button class="appr-type-btn active" id="apprTypeAll" onclick="filterApprByType('')">الكل</button>
@@ -186,7 +193,7 @@ async function loadApprovals(silent=false){
           const typeBadge=r.type==='i'
             ?'<span class="appr-badge appr-badge-inc">وارد</span>'
             :'<span class="appr-badge appr-badge-exp">مصروف</span>';
-          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}" data-date="${r.entry_date||''}" data-type="${r.type||''}">
+          html+=`<div class="appr-item" id="appr-e-${r.id}" data-projid="${r.project_id||''}" data-bank="${r.payment_method||''}" data-date="${r.entry_date||''}" data-type="${r.type||''}" data-amount="${r.amount||''}">
             <div class="appr-entry-top">
               <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="entry" onchange="updateBulkBar()">
               <div class="appr-entry-main">
@@ -253,7 +260,7 @@ async function loadApprovals(silent=false){
           ?'<span class="appr-badge appr-badge-adv">عهدة جديدة</span>'
           :'<span class="appr-badge appr-badge-inst">دفعة</span>';
         const personName=isAdv?(r.person_name||'—'):(advMap[r.advance_id]||viewerMap[r.adv_user_id]||'—');
-        html+=`<div class="appr-item" id="appr-a-${r.id}">
+        html+=`<div class="appr-item" id="appr-a-${r.id}" data-amount="${r.amount||''}">
           <div class="appr-entry-top">
             <input type="checkbox" class="appr-chk" data-id="${r.id}" data-type="adv" onchange="updateBulkBar()">
             <div class="appr-entry-main">
@@ -771,6 +778,24 @@ function _markDateChip(){
   }
 }
 // إغلاق القوائم عند الضغط خارجها — يُضاف بعد بناء الـ HTML مباشرة
+function filterApprByAmount(raw){
+  const q=String(raw||'').replace(/[^\d.]/g,'');
+  const x=document.getElementById('apprAmountX');
+  if(x)x.hidden=!raw;
+  document.querySelectorAll('.appr-item[data-amount]').forEach(function(item){
+    if(!q){item.style.display='';return;}
+    const amt=item.dataset.amount||'';
+    item.style.display=amt.includes(q)?'':'none';
+  });
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
+    const hide=q&&visibleItems.length===0;
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
+}
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
   document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
