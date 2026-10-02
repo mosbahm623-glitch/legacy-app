@@ -78,6 +78,8 @@ let _approvalsInterval=null;
 
 function filterApprByPerson(name){
   _apprPersonFilterVal=name;
+  if(typeof _apprApplyFilters==='function'){_apprApplyFilters();return;}
+  // fallback قديم لو المحرك الموحّد مش متاح لأي سبب
   const allPersonBlocks=document.querySelectorAll('.appr-person-hdr');
   allPersonBlocks.forEach(hdr=>{
     const body=hdr.nextElementSibling;
@@ -110,6 +112,8 @@ async function bulkApproveByPerson(ids){
 let _apprProjFilterVal='';
 function filterApprByProj(projId){
   _apprProjFilterVal=projId;
+  if(typeof _apprApplyFilters==='function'){_apprApplyFilters();return;}
+  // fallback قديم لو المحرك الموحّد مش متاح لأي سبب
   document.querySelectorAll('.appr-item[data-projid]').forEach(function(item){
     if(!projId||item.dataset.projid===projId){
       item.style.display='';

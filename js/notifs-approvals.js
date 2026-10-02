@@ -1,4 +1,5 @@
 let _apprPersonFilterVal='';
+let _apprDateFromVal='',_apprDateToVal='',_apprAmountFilterVal='';
 function _fmtApprTime(ts){
   if(!ts)return '—';
   try{
@@ -129,17 +130,17 @@ async function loadApprovals(silent=false){
   <div class="appr-chip" id="apprChipDate" onclick="_toggleApprChip('apprDropDate')">
     <span>📅 <span id="apprChipDateLbl">التاريخ</span></span>
     <span class="appr-chip-arrow" id="apprChipDateArrow">▾</span>
-    <span class="appr-chip-clear" id="apprChipDateX" hidden onclick="event.stopPropagation();document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')">✕</span>
+    <span class="appr-chip-clear" id="apprChipDateX" hidden onclick="event.stopPropagation();_apprDateFromVal='';_apprDateToVal='';document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')">✕</span>
     <div class="appr-chip-drop appr-chip-date-drop" id="apprDropDate">
-      <div><label>من</label><input type="date" id="apprDateFrom" onchange="filterApprByDate();_markDateChip()"></div>
-      <div><label>إلى</label><input type="date" id="apprDateTo" onchange="filterApprByDate();_markDateChip()"></div>
-      <div style="text-align:left"><button onclick="document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-mid,#ddd);background:transparent;cursor:pointer;font-size:11px;color:var(--text-soft,#888)">مسح</button></div>
+      <div><label>من</label><input type="date" id="apprDateFrom" onchange="_apprDateFromVal=this.value;filterApprByDate();_markDateChip()"></div>
+      <div><label>إلى</label><input type="date" id="apprDateTo" onchange="_apprDateToVal=this.value;filterApprByDate();_markDateChip()"></div>
+      <div style="text-align:left"><button onclick="_apprDateFromVal='';_apprDateToVal='';document.getElementById('apprDateFrom').value='';document.getElementById('apprDateTo').value='';filterApprByDate();_resetChip('apprChipDate','apprChipDateLbl','التاريخ','apprChipDateX')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-mid,#ddd);background:transparent;cursor:pointer;font-size:11px;color:var(--text-soft,#888)">مسح</button></div>
     </div>
   </div>
   <div class="appr-chip appr-chip-search" style="cursor:text">
     <span>🔍</span>
-    <input type="text" id="apprAmountSearch" placeholder="بحث بالقيمة" inputmode="decimal" oninput="filterApprByAmount(this.value)" onclick="event.stopPropagation()" style="border:none;background:transparent;outline:none;font-family:inherit;font-size:12px;width:88px;color:inherit">
-    <span class="appr-chip-clear" id="apprAmountX" hidden onclick="event.stopPropagation();document.getElementById('apprAmountSearch').value='';filterApprByAmount('')">✕</span>
+    <input type="text" id="apprAmountSearch" placeholder="بحث بالقيمة" inputmode="decimal" oninput="_apprAmountFilterVal=this.value;filterApprByAmount(this.value)" onclick="event.stopPropagation()" style="border:none;background:transparent;outline:none;font-family:inherit;font-size:12px;width:88px;color:inherit">
+    <span class="appr-chip-clear" id="apprAmountX" hidden onclick="event.stopPropagation();_apprAmountFilterVal='';document.getElementById('apprAmountSearch').value='';filterApprByAmount('')">✕</span>
   </div>
   <div class="appr-type-chips">
     <button class="appr-type-btn active" id="apprTypeAll" onclick="filterApprByType('')">الكل</button>
@@ -293,11 +294,29 @@ async function loadApprovals(silent=false){
       }
     };
     document.addEventListener('click',window._apprChipOutsideHandler);
-    // استعادة الفلتر المختار
+    // استعادة كل الفلاتر بعد إعادة الرسم (silent reload بيمسح الـ DOM فيضيع شكل الفلتر غير الـ state)
     if(_apprPersonFilterVal){
-      const sel=document.getElementById('apprPersonFilter');
-      if(sel){sel.value=_apprPersonFilterVal;filterApprByPerson(_apprPersonFilterVal);}
+      _activateChip('apprChipPerson','apprChipPersonLbl',_apprPersonFilterVal,'apprChipPersonX');
     }
+    if(_apprProjFilterVal){
+      _activateChip('apprChipProj','apprChipProjLbl',projMap[_apprProjFilterVal]||_apprProjFilterVal,'apprChipProjX');
+    }
+    if(_apprBankFilterVal){
+      _activateChip('apprChipBank','apprChipBankLbl',_apprBankFilterVal,'apprChipBankX');
+    }
+    if(_apprTypeFilterVal){
+      const btnAll=document.getElementById('apprTypeAll'),btnInc=document.getElementById('apprTypeInc'),btnExp=document.getElementById('apprTypeExp');
+      if(btnAll)btnAll.classList.toggle('active',_apprTypeFilterVal==='');
+      if(btnInc)btnInc.classList.toggle('active',_apprTypeFilterVal==='i');
+      if(btnExp)btnExp.classList.toggle('active',_apprTypeFilterVal==='e');
+    }
+    const _fDateEl=document.getElementById('apprDateFrom'),_tDateEl=document.getElementById('apprDateTo');
+    if(_fDateEl&&_apprDateFromVal)_fDateEl.value=_apprDateFromVal;
+    if(_tDateEl&&_apprDateToVal)_tDateEl.value=_apprDateToVal;
+    if(_apprDateFromVal||_apprDateToVal)_markDateChip();
+    const _aSearchEl=document.getElementById('apprAmountSearch'),_aXEl=document.getElementById('apprAmountX');
+    if(_aSearchEl&&_apprAmountFilterVal){_aSearchEl.value=_apprAmountFilterVal;if(_aXEl)_aXEl.hidden=false;}
+    _apprApplyFilters();
 
     // استعادة حالة الـ sections المفتوحة
     if(silent&&(_openSecs.size||_openPersons.size)){
@@ -716,6 +735,58 @@ const ROLE_LABELS={'admin':'👑 أدمن','editor':'✏️ محاسب','viewer'
 
 let _apprBankFilterVal='';
 let _apprTypeFilterVal='';
+
+// ── محرك فلترة موحّد: كل الفلاتر (شخص/مشروع/بنك/نوع/تاريخ/قيمة) بتتطبق مع بعض (AND) ──
+function _apprDateToISO(str){
+  if(!str)return null;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str))return str;
+  const m=String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  return null;
+}
+function _apprApplyFilters(){
+  const person=_apprPersonFilterVal||'';
+  const proj=_apprProjFilterVal||'';
+  const bank=_apprBankFilterVal||'';
+  const type=_apprTypeFilterVal||'';
+  const fromEl=document.getElementById('apprDateFrom');
+  const toEl=document.getElementById('apprDateTo');
+  const fromD=_apprDateToISO(fromEl?fromEl.value:'');
+  const toD=_apprDateToISO(toEl?toEl.value:'');
+  const amtQ=String(document.getElementById('apprAmountSearch')?.value||'').replace(/[^\d.]/g,'');
+
+  document.querySelectorAll('.appr-item').forEach(function(item){
+    let show=true;
+    if(type&&'type' in item.dataset&&item.dataset.type!==type)show=false;
+    if(proj&&'projid' in item.dataset&&item.dataset.projid!==proj)show=false;
+    if(bank&&'bank' in item.dataset&&item.dataset.bank!==bank)show=false;
+    if((fromD||toD)&&'date' in item.dataset){
+      const d=_apprDateToISO(item.dataset.date);
+      if(fromD&&d&&d<fromD)show=false;
+      if(toD&&d&&d>toD)show=false;
+      if(!d)show=false;
+    }
+    if(amtQ){
+      const amt=item.dataset.amount||'';
+      if(!amt.includes(amtQ))show=false;
+    }
+    item.style.display=show?'':'none';
+  });
+  const anyItemFilter=!!(proj||bank||type||fromD||toD||amtQ);
+  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
+    const body=hdr.nextElementSibling;
+    if(!body)return;
+    let personOk=true;
+    if(person){
+      const pName=hdr.querySelector('.appr-person-name span')?.textContent?.trim()||'';
+      personOk=pName===person;
+    }
+    const visibleItems=personOk?body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])'):[];
+    const hide=!personOk||(anyItemFilter&&visibleItems.length===0);
+    hdr.style.display=hide?'none':'';
+    body.style.display=hide?'none':'';
+  });
+}
 function filterApprByType(type){
   _apprTypeFilterVal=type;
   // تحديث حالة الأزرار
@@ -725,21 +796,7 @@ function filterApprByType(type){
   if(btnAll)btnAll.classList.toggle('active',type==='');
   if(btnInc)btnInc.classList.toggle('active',type==='i');
   if(btnExp)btnExp.classList.toggle('active',type==='e');
-  document.querySelectorAll('.appr-item[data-type]').forEach(function(item){
-    if(!type||item.dataset.type===type){
-      item.style.display='';
-    } else {
-      item.style.display='none';
-    }
-  });
-  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
-    const body=hdr.nextElementSibling;
-    if(!body)return;
-    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
-    const hide=type&&visibleItems.length===0;
-    hdr.style.display=hide?'none':'';
-    body.style.display=hide?'none':'';
-  });
+  _apprApplyFilters();
 }
 function _toggleApprChip(dropId){
   const drop=document.getElementById(dropId);
@@ -779,74 +836,16 @@ function _markDateChip(){
 }
 // إغلاق القوائم عند الضغط خارجها — يُضاف بعد بناء الـ HTML مباشرة
 function filterApprByAmount(raw){
-  const q=String(raw||'').replace(/[^\d.]/g,'');
   const x=document.getElementById('apprAmountX');
   if(x)x.hidden=!raw;
-  document.querySelectorAll('.appr-item[data-amount]').forEach(function(item){
-    if(!q){item.style.display='';return;}
-    const amt=item.dataset.amount||'';
-    item.style.display=amt.includes(q)?'':'none';
-  });
-  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
-    const body=hdr.nextElementSibling;
-    if(!body)return;
-    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
-    const hide=q&&visibleItems.length===0;
-    hdr.style.display=hide?'none':'';
-    body.style.display=hide?'none':'';
-  });
+  _apprApplyFilters();
 }
 function filterApprByBank(bank){
   _apprBankFilterVal=bank;
-  document.querySelectorAll('.appr-item[data-bank]').forEach(function(item){
-    if(!bank||item.dataset.bank===bank){
-      item.style.display='';
-    } else {
-      item.style.display='none';
-    }
-  });
-  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
-    const body=hdr.nextElementSibling;
-    if(!body)return;
-    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
-    const hide=bank&&visibleItems.length===0;
-    hdr.style.display=hide?'none':'';
-    body.style.display=hide?'none':'';
-  });
+  _apprApplyFilters();
 }
 function filterApprByDate(){
-  const fromEl=document.getElementById('apprDateFrom');
-  const toEl=document.getElementById('apprDateTo');
-  const from=fromEl?fromEl.value:'';
-  const to=toEl?toEl.value:'';
-  // تحويل dd/mm/yyyy إلى yyyy-mm-dd للمقارنة
-  function parseDate(str){
-    if(!str)return null;
-    // إذا كان بالفعل yyyy-mm-dd
-    if(/^\d{4}-\d{2}-\d{2}$/.test(str))return str;
-    // dd/mm/yyyy
-    const m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
-    return null;
-  }
-  const fromD=parseDate(from);
-  const toD=parseDate(to);
-  document.querySelectorAll('.appr-item[data-date]').forEach(function(item){
-    const d=parseDate(item.dataset.date);
-    let show=true;
-    if(fromD&&d&&d<fromD)show=false;
-    if(toD&&d&&d>toD)show=false;
-    if(!d&&(fromD||toD))show=false;
-    item.style.display=show?'':'none';
-  });
-  document.querySelectorAll('.appr-person-hdr').forEach(function(hdr){
-    const body=hdr.nextElementSibling;
-    if(!body)return;
-    const visibleItems=body.querySelectorAll('.appr-item:not([style*="display: none"]):not([style*="display:none"])');
-    const hide=(fromD||toD)&&visibleItems.length===0;
-    hdr.style.display=hide?'none':'';
-    body.style.display=hide?'none':'';
-  });
+  _apprApplyFilters();
 }
 // ⚠️ مهجورة — لا تستخدمها في الموافقات الفردية
 // استخدم _removeCardAndUpdateTotals(id,'e'|'a') بدلاً منها لتجنب flash الصفحة
