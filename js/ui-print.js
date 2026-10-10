@@ -118,12 +118,12 @@ function clearAdvFilter(){
 
 async function downloadAdvReport(){
   const entries=_advFilteredEntries||window._curAdvEntries||[];
-  if(!entries.length){notify('لا يوجد بيانات للتحميل','warn');return;}
   setSav('⏳ جاري التحميل...','ng');
   try{
     if(typeof ExcelJS==='undefined'){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
     let installs=[];
     try{installs=await sb('advance_installments?advance_id=eq.'+curAdv.id+'&order=created_at');}catch(e2){}
+    if(!entries.length&&!installs.length){setSav('','');notify('لا يوجد بيانات للتحميل','warn');return;}
     const totalGiven=installs.reduce((s,i)=>s+i.amount,0);
     const totalSpent=entries.reduce((s,e)=>s+e.amount,0);
     const remaining=totalGiven-totalSpent;
@@ -142,6 +142,24 @@ async function downloadAdvReport(){
     });
     ws.getRow(kpiR).height=26;
     ws.addRow([]);ws.lastRow.height=6;
+    const secTitle=(txt)=>{
+      ws.addRow([txt]);const r=ws.rowCount;ws.mergeCells('A'+r+':E'+r);
+      const c=ws.getCell('A'+r);_xF(c,_XC.G5);_xT(c,_XC.G2,11,true);_xA(c,'right');
+      c.border={bottom:{style:'thin',color:{argb:_XC.G2}}};ws.getRow(r).height=24;
+    };
+    // ── الوارد (الدفعات) ──
+    secTitle('💰 الوارد — الدفعات ('+installs.length+' دفعة)');
+    _xlHdrRow(ws,['التاريخ','الملاحظة','','','المبلغ (ج)'],COLS);
+    ws.mergeCells('B'+ws.rowCount+':D'+ws.rowCount);
+    const sortedInst=[...installs].sort((a,b)=>pdt(a.inst_date)-pdt(b.inst_date));
+    sortedInst.forEach((i,idx)=>{
+      _xlDataRow(ws,[i.inst_date||'—',i.note||'دفعة','','',i.amount],idx,[null,null,null,null,_XC.PS]);
+      ws.mergeCells('B'+ws.rowCount+':D'+ws.rowCount);
+    });
+    _xlTotRow(ws,['إجمالي الوارد','','','',totalGiven],COLS);
+    ws.addRow([]);ws.lastRow.height=10;
+    // ── المصروفات ──
+    secTitle('💸 المصروفات ('+entries.length+' قيد)');
     _xlHdrRow(ws,['التاريخ','البند','البيان','المشروع','المبلغ (ج)'],COLS);
     const sorted=[...entries].sort((a,b)=>pdt(a.entry_date)-pdt(b.entry_date));
     sorted.forEach((e,i)=>{
