@@ -254,7 +254,7 @@ function renderInc(inc){
           ${e.seq?`<span class="seq-b">${e.seq}</span>`:''}
           <span>${fmtDate(e.entry_date)}</span>
         </div>
-        ${e.img_url?`<button class="inv-btn" onclick="openInvLb('${e.img_url.replace(/'/g,\"'\")}','${(e.description||'فاتورة').replace(/'/g,\"'\")}')" >🧾 فاتورة</button>`:''}
+        ${invBtns(e)}
       </div>
       <div class="entry-amt inc">▲ ${fn(e.amount)} ج</div>
     </div>`).join('');
@@ -289,7 +289,7 @@ function renderExp(exp){
             <span>${fmtDate(e.entry_date)}</span>
             ${e.contractor?`<span class="cat-b">${e.contractor}</span>`:''}
           </div>
-          ${e.img_url?`<button class="inv-btn" onclick="openInvLb('${e.img_url.replace(/'/g,\"'\")}','${(e.description||'فاتورة').replace(/'/g,\"'\")}')" >🧾 فاتورة</button>`:''}
+          ${invBtns(e)}
         </div>
         <div class="entry-amt exp">▼ ${fn(e.amount)} ج</div>
       </div>`).join('');
@@ -383,6 +383,19 @@ async function load(){
   }catch(e){
     document.getElementById('content').innerHTML='<div class="error">❌ خطأ: '+e.message+'</div>';
   }
+}
+function invBtns(e){
+  if(!e.img_url)return '';
+  let urls=[];
+  try{
+    const t=String(e.img_url).trim();
+    urls=t.charAt(0)==='['?JSON.parse(t):[t];
+  }catch(_){urls=[String(e.img_url)];}
+  urls=urls.filter(Boolean);
+  return urls.map(function(u,i){
+    const lbl=urls.length>1?('🧾 فاتورة '+(i+1)):'🧾 فاتورة';
+    return '<button class="inv-btn" data-u="'+encodeURIComponent(u)+'" data-d="'+encodeURIComponent(e.description||'فاتورة')+'" onclick="openInvLb(decodeURIComponent(this.dataset.u),decodeURIComponent(this.dataset.d))">'+lbl+'</button>';
+  }).join('');
 }
 function openInvLb(url, desc){
   document.getElementById('invLbImg').src = url;
