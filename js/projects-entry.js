@@ -387,6 +387,12 @@ async function sed(){
     }
     setSav('💾 جاري الحفظ...','ng');
     try{
+      if(window._editInvChanged){
+        const _newUrls=[];
+        for(const f of (window._editInvFiles||[])){_newUrls.push(await _uploadOneFile(f,edId));}
+        const _all=(window._editInvKeep||[]).concat(_newUrls);
+        u.img_url=_all.length===0?null:(_all.length===1?_all[0]:JSON.stringify(_all));
+      }
       await sb('entries?id=eq.'+edId,'PATCH',u);
       if(newPid!==curPid){
         entries=entries.filter(e=>e.id!==edId);
@@ -668,6 +674,59 @@ async function projInvUpload(entryId, table){
   }catch(e){console.warn('projInvUpload error:',e);notify('⚠️ فشل رفع الفاتورة','warn');}
   window._projInvFiles=[];
   projInvRemove();
+}
+
+// ── فواتير شاشة تعديل القيد (إضافة/حذف على قيد موجود) ──
+window._editInvKeep=[];   // روابط الفواتير الموجودة
+window._editInvFiles=[];  // ملفات جديدة لسه هتترفع
+window._editInvChanged=false;
+function editInvInit(e){
+  window._editInvKeep=_parseImgUrls(e&&e.img_url);
+  window._editInvFiles=[];
+  window._editInvChanged=false;
+  const inp=document.getElementById('eInvFile');if(inp)inp.value='';
+  _editInvRender();
+}
+function editInvReset(){
+  window._editInvKeep=[];window._editInvFiles=[];window._editInvChanged=false;
+  const l=document.getElementById('eInvList');if(l)l.innerHTML='';
+}
+function editInvSelect(input){
+  const files=Array.from(input.files);if(!files.length)return;
+  const tooBig=files.filter(f=>f.size>20*1024*1024);
+  if(tooBig.length){notify('ملف أكبر من 20MB: '+tooBig[0].name,'err');input.value='';return;}
+  window._editInvFiles=(window._editInvFiles||[]).concat(files);
+  window._editInvChanged=true;
+  input.value='';
+  _editInvRender();
+}
+function editInvRemoveOld(i){
+  window._editInvKeep=window._editInvKeep.filter((_,x)=>x!==i);
+  window._editInvChanged=true;_editInvRender();
+}
+function editInvRemoveNew(i){
+  window._editInvFiles=window._editInvFiles.filter((_,x)=>x!==i);
+  window._editInvChanged=true;_editInvRender();
+}
+function _editInvRender(){
+  const list=document.getElementById('eInvList');if(!list)return;
+  const rowCss='display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:8px;margin-bottom:4px;font-size:11px';
+  let h='';
+  (window._editInvKeep||[]).forEach((u,i)=>{
+    const isPdf=u.toLowerCase().includes('.pdf');
+    h+='<div style="'+rowCss+'"><span style="font-size:16px">'+(isPdf?'📄':'🧾')+'</span>'
+      +'<a href="#" onclick="event.preventDefault();openInvLb(window._editInvKeep['+i+'])" style="flex:1;color:#1D6A3E;font-weight:600;text-decoration:none">فاتورة '+(i+1)+'</a>'
+      +'<button type="button" onclick="editInvRemoveOld('+i+')" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px">✕</button></div>';
+  });
+  (window._editInvFiles||[]).forEach((f,i)=>{
+    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+    const nm=f.name.length>28?f.name.substring(0,26)+'…':f.name;
+    h+='<div style="'+rowCss+';background:#fffbe6;border-color:#ffe082"><span style="font-size:16px">'+(isPdf?'📄':'🖼')+'</span>'
+      +'<span style="flex:1;color:#7a5b00;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nm+' <span style="font-weight:400">(جديدة)</span></span>'
+      +'<button type="button" onclick="editInvRemoveNew('+i+')" style="background:none;border:none;color:#E74C3C;cursor:pointer;font-size:14px">✕</button></div>';
+  });
+  h+='<label for="eInvFile" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border:1.5px dashed #81c784;border-radius:8px;cursor:pointer;font-size:12px;color:#1D6A3E;width:fit-content">📎 '+((window._editInvKeep.length||window._editInvFiles.length)?'إضافة فاتورة أخرى':'إضافة فاتورة')+'</label>';
+  list.innerHTML=h;
 }
 
 // ══ Entry Form Steps Navigation ══════════════════════

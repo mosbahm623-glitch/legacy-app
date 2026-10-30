@@ -127,9 +127,10 @@ function oe(id){
     else if(pv){_ePmtSel.value='أخرى';if(_ePmtOther){_ePmtOther.value=pv;_ePmtOther.style.display='block';}}
     else{_ePmtSel.value='';if(_ePmtOther)_ePmtOther.style.display='none';}
   }
+  if(typeof editInvInit==='function')editInvInit(e);
   document.getElementById('ep').style.display='block';
 }
-function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;}
+function cep(){document.getElementById('ep').style.display='none';edId=null;edType=null;if(typeof editInvReset==='function')editInvReset();}
 function st(t){
   cT=t;
   document.getElementById('tx').classList.toggle('on',t==='e');

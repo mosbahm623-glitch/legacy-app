@@ -715,6 +715,10 @@ setTimeout(()=>window.lcNext(),200);
                 <button class="etype-btn msn" id="eEt-material" onclick="setEditEtype('material',this)">🔩 مصنعيات</button>
               </div>
             </div>
+            <div id="eInvBox" style="margin:6px 0 8px">
+              <input type="file" id="eInvFile" accept="image/*,application/pdf" style="display:none" onchange="editInvSelect(this)" multiple>
+              <div id="eInvList"></div>
+            </div>
             <div style="display:flex;gap:8px;margin-top:4px">
               <button class="svb" onclick="sed()" style="flex:1">💾 حفظ التعديلات</button>
               <button onclick="de(edId);cep();" style="background:var(--danger);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">🗑 حذف</button>
