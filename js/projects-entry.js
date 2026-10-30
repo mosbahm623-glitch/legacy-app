@@ -824,8 +824,13 @@ async function printCategoryPDF(cat, projId, catLabel) {
   const proj = allProjectsMap[pid];
   const projName = proj ? proj.name : '—';
   const src = (allEntries && allEntries.length) ? allEntries : entries;
+  const _seenIds = {};
   const catEntries = src.filter(function(e) {
-    return e.category === cat && e.project_id === pid;
+    if (e.category !== cat || e.project_id !== pid) return false;
+    var _k = e.seq ? ('s' + e.seq) : e.id; // رقم القيد فريد، فنمنع تكرار نفس القيد (مثلاً قيود العهدة)
+    if (_k && _seenIds[_k]) return false;
+    if (_k) _seenIds[_k] = true;
+    return true;
   });
   if (!catEntries.length) { notify('لا توجد قيود لهذا البند', 'warn'); return; }
 
