@@ -42,6 +42,61 @@ function renameMq(oldName){
   showPromptModal({title:'✏️ تعديل اسم المقاول',label:'الاسم الجديد',defaultVal:oldName,okLabel:'حفظ',onOk:(newName)=>{_doRenameMq(oldName,newName);}});
 }
 
+function renderCatManager(q){
+  const list=document.getElementById('catMgrList');if(!list)return;
+  const freq={};
+  allEntries.filter(e=>e.type==='e'&&e.category).forEach(e=>{
+    if(!freq[e.category])freq[e.category]={count:0,projects:new Set()};
+    freq[e.category].count++;
+    freq[e.category].projects.add(e.project_id);
+  });
+  let cats=Object.entries(freq).sort((a,b)=>b[1].count-a[1].count);
+  if(q)cats=cats.filter(([name])=>name.includes(q)||name.toLowerCase().includes(q.toLowerCase()));
+  if(!cats.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-hint)">لا يوجد بنود</div>';return;}
+  list.innerHTML=cats.map(([name,data])=>{
+    const safeName=esc(name);
+    return '<div class="mq-mgr-item">'+
+      '<span class="mq-mgr-ico">🏷️</span>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="mq-mgr-name">'+safeName+'</div>'+
+        '<div class="mq-mgr-meta">'+data.count+' قيد · '+data.projects.size+' مشروع</div>'+
+      '</div>'+
+      '<button class="mq-mgr-btn" data-cat="'+safeName+'" onclick="renameCat(this.dataset.cat)">✏️ تعديل الاسم</button>'+
+    '</div>';
+  }).join('');
+}
+async function _doRenameCat(oldName,newName){
+  newName=(newName||'').trim();
+  if(!newName||newName===oldName)return;
+  const toUpdate=allEntries.filter(e=>e.type==='e'&&e.category===oldName);
+  if(!toUpdate.length)return;
+  notify('⏳ جاري التحديث على '+toUpdate.length+' قيد...','info');
+  try{
+    const enc=encodeURIComponent(oldName);
+    await sb('entries?type=eq.e&category=eq.'+enc,'PATCH',{category:newName});
+    try{await sb('pending_entries?category=eq.'+enc,'PATCH',{category:newName});}catch(_){}
+    toUpdate.forEach(e=>{e.category=newName;});
+    // جدول البنود: لو الاسم الجديد موجود احذف القديم، وإلا غيّره
+    try{
+      if(typeof allCategories!=='undefined'&&allCategories.includes(newName)){
+        await sb('categories?name=eq.'+enc,'DELETE');
+      }else{
+        await sb('categories?name=eq.'+enc,'PATCH',{name:newName});
+        if(typeof allCategories!=='undefined'&&!allCategories.includes(newName))allCategories.push(newName);
+      }
+      if(typeof allCategories!=='undefined'){allCategories=allCategories.filter(c=>c!==oldName).sort();}
+    }catch(_){}
+    notify('✅ تم تحديث '+toUpdate.length+' قيد','ok');
+  }catch(err){
+    console.error(err);
+    notify('❌ فشل التحديث: '+friendlyError(err),'err');
+  }
+  renderCatManager(document.getElementById('catMgrSearch')?.value||'');
+}
+function renameCat(oldName){
+  showPromptModal({title:'✏️ تعديل اسم البند',label:'الاسم الجديد',defaultVal:oldName,okLabel:'حفظ',onOk:(newName)=>{_doRenameCat(oldName,newName);}});
+}
+
 async function loadDashboard(){
 // ██ DASHBOARD ══════════════════════════════════════
   try{

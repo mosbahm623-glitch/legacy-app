@@ -1082,6 +1082,27 @@ setTimeout(()=>window.lcNext(),200);
               <div class="rhc-sub">توحيد وإعادة تسمية أسماء المقاولين عبر المشاريع</div>
               <div class="rhc-arrow">←</div>
             </div>
+            <div class="rep-hub-card" onclick="openCatManager()">
+              <div class="rhc-icon rhc-icon-gold">🏷️</div>
+              <div class="rhc-title">إدارة أسماء البنود</div>
+              <div class="rhc-sub">توحيد وإعادة تسمية البنود عبر المشاريع</div>
+              <div class="rhc-arrow">←</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAT MANAGER -->
+        <div id="catManagerScreen" style="display:none">
+          <div class="mq-mgr-wrap">
+            <div class="mq-mgr-hdr">
+              <button class="btn-back-rep" onclick="closeCatManager()">← رجوع</button>
+              <h2 class="rep-hub-title">🏷️ إدارة البنود</h2>
+            </div>
+            <p class="rep-hub-sub" style="margin-bottom:16px">اضغط على تعديل الاسم لإعادة تسمية أي بند — التغيير بيأثر على كل المشاريع</p>
+            <div class="mq-mgr-search-wrap">
+              <input id="catMgrSearch" type="text" placeholder="🔍 ابحث عن بند..." class="mq-mgr-search" oninput="renderCatManager(this.value)">
+            </div>
+            <div id="catMgrList" class="mq-mgr-list"></div>
           </div>
         </div>
 

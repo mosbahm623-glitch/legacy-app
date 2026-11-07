@@ -298,5 +298,15 @@ function closeMqManager(){
   document.getElementById('mqManagerScreen').style.display='none';
   document.getElementById('repHub').style.display='block';
 }
+function openCatManager(){
+  document.getElementById('repHub').style.display='none';
+  document.getElementById('repView').style.display='none';
+  document.getElementById('catManagerScreen').style.display='block';
+  renderCatManager('');
+}
+function closeCatManager(){
+  document.getElementById('catManagerScreen').style.display='none';
+  document.getElementById('repHub').style.display='block';
+}
 
 
