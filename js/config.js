@@ -128,7 +128,13 @@ async function sb(path,method,body){
  * @param {string} path - المسار مثل 'entries?project_id=eq.123'
  * @returns {Promise<Array>} كل الصفوف
  */
+// ترتيب ثابت: بنضيف id في الآخر عشان القيود اللي ليها نفس التاريخ مترجعش مكررة أو تضيع بين الدفعات
+function _sbStableOrder(path){
+  if(/[?&]order=/.test(path))return path.replace(/([?&]order=[^&]*)/,'$1,id.asc');
+  return path+(path.indexOf('?')>=0?'&':'?')+'order=id.asc';
+}
 async function sbAll(path){
+  path=_sbStableOrder(path);
   const all=[];let from=0;const step=1000;
   while(true){
     const h={'apikey':AK,'Authorization':'Bearer '+(token||AK),'Content-Type':'application/json','Range':from+'-'+(from+step-1)};
