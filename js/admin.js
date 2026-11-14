@@ -1,5 +1,6 @@
 async function loadAdminPanel(){
   setSav('⏳ جاري تحميل لوحة الإدارة...','ng');
+  refreshLockUI();
   initLockYears();
   try{
     const [allP,allA,allPr]=await Promise.all([
@@ -514,4 +515,22 @@ async function unlockPeriod(){
   _clearPeriodLocksCache();
   notify(`✅ تم فتح ${mo}/${yr}`,'ok');
   loadLockedPeriods();
+}
+
+let _loginsBlocked=false;
+async function refreshLockUI(){
+  try{
+    const r=await sb('profiles?role=not.in.(admin,super_admin,owner)&select=id,login_blocked');
+    _loginsBlocked=r.length>0&&r.every(x=>x.login_blocked);
+    const st=document.getElementById('lockState'),b=document.getElementById('lockBtn');
+    if(st)st.textContent=_loginsBlocked?'⛔ الدخول متوقف حاليًا لكل المستخدمين ماعدا الأدمن والأونر':'✅ الدخول شغال لكل المستخدمين';
+    if(b)b.textContent=_loginsBlocked?'🔓 السماح بالدخول':'🔒 إيقاف الدخول';
+  }catch(e){const st=document.getElementById('lockState');if(st)st.textContent='❌ تعذر قراءة الحالة';}
+}
+async function toggleLogins(){
+  const block=!_loginsBlocked;
+  await new Promise(res=>showConfirm({icon:block?'🔒':'🔓',title:block?'إيقاف الدخول':'السماح بالدخول',msg:block?'كل المستخدمين ماعدا الأدمن والأونر مش هيقدروا يدخلوا، واللي جوه هيتفصل خلال دقيقة.':'المستخدمين هيرجعوا يقدروا يدخلوا.',okLabel:'تأكيد',okType:block?'danger':'ok',onOk:res}));
+  try{await sb('profiles?role=not.in.(admin,super_admin,owner)','PATCH',{login_blocked:block});setSav(block?'⛔ تم إيقاف الدخول':'✅ تم السماح بالدخول','ok');}
+  catch(e){setSav('❌ '+friendlyError(e),'er');}
+  refreshLockUI();
 }

@@ -34,6 +34,13 @@ async function initApp(){
     const prof=await sb('profiles?id=eq.'+uid);
     if(!prof||!prof.length){setLS('❌ حسابك غير مفعّل — تواصل مع الأدمن','er');token=null;uid=null;return;}
     uRole=prof[0].role;uName=prof[0].name;
+    if(prof[0].login_blocked&&!['admin','super_admin','owner'].includes(uRole)){
+      token=null;uid=null;uRole=null;
+      ['lg_tk','lg_uid','lg_em','lg_rt'].forEach(k=>localStorage.removeItem(k));
+      if(document.getElementById('lemail')){setLS('⛔ الدخول متوقف حاليًا — تواصل مع الأدمن','er');}
+      else{sessionStorage.setItem('lg_blocked','1');window.location.replace('login.html');}
+      return;
+    }
     if(window.lcNext)window.lcNext();
   }catch(e){setLS('❌ خطأ في تحميل البيانات','er');return;}
   // تحميل parallel — بدل sequential awaits
@@ -118,6 +125,8 @@ async function initApp(){
   initAllDateInputs();
   checkAdvNotifications();
   setInterval(checkAdvNotifications, 15000);
+  // لو الأدمن أوقف الدخول والمستخدم جوه التطبيق: اخرجه خلال دقيقة
+  setInterval(async()=>{try{const r=await sb('profiles?id=eq.'+uid+'&select=login_blocked');if(r&&r[0]&&r[0].login_blocked&&!['admin','super_admin','owner'].includes(uRole)){notify('⛔ الدخول متوقف حاليًا','err');setTimeout(logout,1500);}}catch(e){}},60000);
   // auto-refresh token كل 45 دقيقة عشان الجلسة ما تنتهيش
   setInterval(async()=>{
     try{
